@@ -1,20 +1,20 @@
 #include <OpenHome/WatchableThread.h>
+#include <OpenHome/Private/Printer.h>
 
 
 using namespace OpenHome;
-
-
 
 
 WatchableThread::WatchableThread(IExceptionReporter* aReporter)
     :iExceptionReporter(aReporter)
     ,iFree(kMaxFifoEntries)
     ,iScheduled(kMaxFifoEntries)
-    ,iThread(new ThreadFunctor("WTHR", MakeFunctor(*this, &WatchableThread::Run) ))
 {
+    iThread = new ThreadFunctor("WTHR", MakeFunctor(*this, &WatchableThread::Run) );
+
     for (TUint i = 0; i < kMaxFifoEntries; i++)
     {
-        iFree.Write(new WatchableCb());
+        iFree.Write(new SignalledCallback());
     }
 
     iThread->Start();
@@ -23,30 +23,27 @@ WatchableThread::WatchableThread(IExceptionReporter* aReporter)
 
 WatchableThread::~WatchableThread()
 {
-    TUint freeCount = iFree.SlotsUsed();
-    TUint schedCount = iScheduled.SlotsUsed();
-
-    for (TUint i = 0; i < freeCount; i++)
+    for (TUint i = 0; i < kMaxFifoEntries; i++)
     {
         delete iFree.Read();
     }
-
-    for (TUint i = 0; i < schedCount; i++)
-    {
-        delete iScheduled.Read();
-    }
 }
+
 
 void WatchableThread::Run()
 {
-    while (true)
+    for (;;)
     {
-        WatchableCb* callback = iScheduled.Read();
+        SignalledCallback* callback = iScheduled.Read();
         try
         {
             callback->Callback();
         }
-        catch (Exception e)
+        catch (Exception& e)
+        {
+            iExceptionReporter->Report(e);
+        }
+        catch(std::exception& e)
         {
             iExceptionReporter->Report(e);
         }
@@ -64,7 +61,7 @@ void WatchableThread::Assert()
 
 void WatchableThread::Schedule(Functor aCallback)
 {
-    WatchableCb* callback = iFree.Read();
+    SignalledCallback* callback = iFree.Read();
     callback->Set(aCallback);
     iScheduled.Write(callback);
 }
@@ -78,7 +75,11 @@ void WatchableThread::Execute(Functor aCallback)
         {
             aCallback();
         }
-        catch (Exception e)
+        catch (Exception& e)
+        {
+            iExceptionReporter->Report(e);
+        }
+        catch(std::exception& e)
         {
             iExceptionReporter->Report(e);
         }
@@ -86,7 +87,7 @@ void WatchableThread::Execute(Functor aCallback)
     else
     {
         Semaphore sem("wtch", 0);
-        WatchableCb* callback = iFree.Read();
+        SignalledCallback* callback = iFree.Read();
         callback->Set(aCallback, sem);
         iScheduled.Write(callback);
     }
@@ -98,41 +99,47 @@ TBool WatchableThread::IsWatchableThread()
     return(Thread::Current()==iThread);
 }
 
+/////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////
-
-WatchableCb::WatchableCb()
+AutoSem::AutoSem(Semaphore* aSem)
+    :iSem(aSem)
 {
 
 }
 
 
-void WatchableCb::Set(Functor aFunctor, Semaphore& aSem)
+AutoSem::~AutoSem()
+{
+    if (iSem != NULL)
+    {
+        iSem->Signal();
+    }
+}
+
+////////////////////////////////////////////////////////
+
+SignalledCallback::SignalledCallback()
+{
+
+}
+
+void SignalledCallback::Set(Functor aFunctor, Semaphore& aSem)
 {
     iFunctor = aFunctor;
     iSem = &aSem;
 }
 
 
-void WatchableCb::Set(Functor aFunctor)
+void SignalledCallback::Set(Functor aFunctor)
 {
     iFunctor = aFunctor;
     iSem = NULL;
 }
 
-void WatchableCb::Callback()
+void SignalledCallback::Callback()
 {
-    try
-    {
-        iFunctor();
-    }
-    catch (...) {
-    }
-
-    if (iSem != NULL)
-    {
-        iSem->Signal();
-    }
+    AutoSem as(iSem);
+    iFunctor();
 }
 
 

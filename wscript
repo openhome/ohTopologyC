@@ -136,17 +136,17 @@ def build(bld):
 
 
     # Tests
-    #bld.stlib(
-    #       source=[
-    #            #'TestWatchableThread.cpp',
-    #        ],
-    #        use=['ohTopologyC'],
-    #        target='ohTopologyCTestUtils')
+    bld.stlib(
+           source=[
+                'OpenHome/Tests/TestWatchableThread.cpp',
+            ],
+            use=['ohTopologyC'],
+            target='ohTopologyCTestUtils')
 
-    #bld.program(
-    #       source='OpenHome/Media/Tests/TestShellMain.cpp',
-    #       use=['OHNET', 'SHELL', 'ohTopologyC', 'ohTopologyCTestUtils'],
-    #       target='TestShell')
+    bld.program(
+           source='OpenHome/Tests/TestWatchableThreadMain.cpp',
+           use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
+           target='TestWatchableThread')
 
 
 
