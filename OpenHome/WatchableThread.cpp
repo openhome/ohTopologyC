@@ -5,7 +5,7 @@
 using namespace OpenHome;
 
 
-WatchableThread::WatchableThread(IExceptionReporter* aReporter)
+WatchableThread::WatchableThread(IExceptionReporter& aReporter)
     :iExceptionReporter(aReporter)
     ,iFree(kMaxFifoEntries)
     ,iScheduled(kMaxFifoEntries)
@@ -23,29 +23,52 @@ WatchableThread::WatchableThread(IExceptionReporter* aReporter)
 
 WatchableThread::~WatchableThread()
 {
-    for (TUint i = 0; i < kMaxFifoEntries; i++)
+//    SignalledCallback* callback = iFree.Read();
+//    callback->Set(MakeFunctor(*this, &WatchableThread::Shutdown);
+//    iScheduled.Write(callback);*/
+    // delete kMaxFifoEntries-1 SignalledCallback objects
+
+    for (TUint i = 0; i < kMaxFifoEntries-1; i++)
     {
         delete iFree.Read();
     }
+
+    Schedule(MakeFunctor(*this, &WatchableThread::Shutdown));
+
+    delete iThread;  // kills and joins
+    delete iFree.Read();  // last one
 }
 
 
+void WatchableThread::Shutdown()
+{
+    THROW(ThreadKill);
+}
+
 void WatchableThread::Run()
 {
-    for (;;)
+    //TBool quit = false;
+    //while (!quit)
+
+    for(;;)
     {
         SignalledCallback* callback = iScheduled.Read();
         try
         {
             callback->Callback();
         }
+        catch (ThreadKill& )
+        {
+            iFree.Write(callback);
+            break;
+        }
         catch (Exception& e)
         {
-            iExceptionReporter->Report(e);
+            iExceptionReporter.Report(e);
         }
         catch(std::exception& e)
         {
-            iExceptionReporter->Report(e);
+            iExceptionReporter.Report(e);
         }
 
         iFree.Write(callback);
@@ -77,11 +100,11 @@ void WatchableThread::Execute(Functor aCallback)
         }
         catch (Exception& e)
         {
-            iExceptionReporter->Report(e);
+            iExceptionReporter.Report(e);
         }
         catch(std::exception& e)
         {
-            iExceptionReporter->Report(e);
+            iExceptionReporter.Report(e);
         }
     }
     else

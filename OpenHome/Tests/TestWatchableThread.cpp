@@ -14,6 +14,7 @@ class SuiteWatchableThread: public SuiteUnitTest, public INonCopyable
 {
 public:
     SuiteWatchableThread();
+
 private:
     // from SuiteUnitTest
     void Setup();
@@ -23,15 +24,13 @@ private:
     void TestFunctor();
     void TestFunctorWt1();
     void TestFunctorWt2();
-    TUint CallCount();
-    TUint CallCountWt();
 
 private:
+    IExceptionReporter* iExceptionReporter;
     IWatchableThread* iWatchableThread;
     Functor iFunctor;
-    TUint iCallCount;
-    TUint iCallCountWt;
-
+    Semaphore iSema1;
+    Semaphore iSema2;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -64,34 +63,31 @@ void TestExceptionReporter::Report(std::exception& /*aException*/)
 
 }
 
-
-
 ////////////////////////////////////////////////////////////////////
 
 // SuitePowerManager
 
 SuiteWatchableThread::SuiteWatchableThread()
     :SuiteUnitTest("SuiteWatchableThread")
-    ,iCallCount(0)
-    ,iCallCountWt(0)
+    ,iSema1("1", 0)
+    ,iSema2("2", 0)
 {
     iFunctor = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor);
-
     AddTest(MakeFunctor(*this, &SuiteWatchableThread::Test1));
 }
 
 
 void SuiteWatchableThread::Setup()
 {
-    TestExceptionReporter* e = new TestExceptionReporter();
-    iWatchableThread = new WatchableThread(e);
+    iExceptionReporter = new TestExceptionReporter();
+    iWatchableThread = new WatchableThread(*iExceptionReporter);
 }
 
 void SuiteWatchableThread::TearDown()
 {
+    delete iExceptionReporter;
     delete iWatchableThread;
 }
-
 
 
 void SuiteWatchableThread::Test1()
@@ -100,60 +96,41 @@ void SuiteWatchableThread::Test1()
 
     Functor f = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor);
 
-
     iWatchableThread->Execute(f);
-    Thread::Sleep(1000);
-    TEST(CallCount()==1);
+    iSema1.Wait();
 
     iWatchableThread->Schedule(f);
-    Thread::Sleep(1000);
-    TEST(CallCount()==2);
-
+    iSema1.Wait();
 
     Functor fwt1 = MakeFunctor(*this, &SuiteWatchableThread::TestFunctorWt1);
     iWatchableThread->Execute(fwt1);
+    iSema1.Wait();
 
     iWatchableThread->Schedule(fwt1);
-
-    Thread::Sleep(1000);
-
+    iSema2.Wait();
 }
 
 
 void SuiteWatchableThread::TestFunctorWt1()
 {
     TEST(iWatchableThread->IsWatchableThread());
-
     Functor fwt2 = MakeFunctor(*this, &SuiteWatchableThread::TestFunctorWt2);
-
-    TUint count = CallCountWt();
+    iSema1.Signal();
     iWatchableThread->Execute(fwt2);
-    TEST(CallCountWt()==(count+1));
 }
 
 
 void SuiteWatchableThread::TestFunctorWt2()
 {
     TEST(iWatchableThread->IsWatchableThread());
-    iCallCountWt++;
+    iSema2.Signal();
 }
 
 
 void SuiteWatchableThread::TestFunctor()
 {
     TEST(iWatchableThread->IsWatchableThread());
-    iCallCount++;
-}
-
-
-TUint SuiteWatchableThread::CallCount()
-{
-    return(iCallCount);
-}
-
-TUint SuiteWatchableThread::CallCountWt()
-{
-    return(iCallCountWt);
+    iSema1.Signal();
 }
 
 

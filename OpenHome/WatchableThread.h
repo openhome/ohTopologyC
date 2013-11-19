@@ -16,6 +16,7 @@ class SignalledCallback;
 class IExceptionReporter
 {
 public:
+    virtual ~IExceptionReporter() {}
     virtual void Report(Exception& aException) = 0;
     virtual void Report(std::exception& aException) = 0;
 };
@@ -40,7 +41,7 @@ private:
     static const TUint kMaxFifoEntries = 10;
 
 public:
-    WatchableThread(IExceptionReporter* aReporter);
+    WatchableThread(IExceptionReporter& aReporter);
     virtual ~WatchableThread();
     virtual void Assert();
     virtual void Schedule(Functor aCallback);
@@ -49,9 +50,10 @@ public:
 
 private:
     void Run();
+    void Shutdown();
 
 private:
-    IExceptionReporter* iExceptionReporter;
+    IExceptionReporter& iExceptionReporter;
     Fifo<SignalledCallback*> iFree;
     Fifo<SignalledCallback*> iScheduled;
     ThreadFunctor* iThread;
