@@ -98,6 +98,7 @@ void SuiteWatchableThread::Test1()
 
     iWatchableThread->Execute(f);
     iSema1.Wait();
+    //TEST(iSema1.Clear());
 
     iWatchableThread->Schedule(f);
     iSema1.Wait();

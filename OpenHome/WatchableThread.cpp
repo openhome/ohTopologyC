@@ -113,6 +113,7 @@ void WatchableThread::Execute(Functor aCallback)
         SignalledCallback* callback = iFree.Read();
         callback->Set(aCallback, sem);
         iScheduled.Write(callback);
+        sem.Wait();
     }
 }
 
