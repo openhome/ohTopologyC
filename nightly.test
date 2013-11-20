@@ -1,0 +1,23 @@
+from testharness.testsuite import MakeSuiteRunner
+from testharness.servers   import StaticWebServer
+import os.path
+
+# 'context' is predefined globally. until this is fixed, sorry :)
+suiteRunner = MakeSuiteRunner(context)
+
+# testharness honours a '#' within this string :)
+tests = '''
+    TestWatchableThread
+    '''
+
+w = StaticWebServer(os.path.join('dependencies', 'AnyPlatform'))
+w.start()
+
+try:
+    suiteRunner.run(tests.format(
+        ws_hostname = w.host(),
+        ws_port = w.port()
+        ))
+finally:
+    w.stop()
+
