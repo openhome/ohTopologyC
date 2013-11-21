@@ -23,11 +23,7 @@ WatchableThread::WatchableThread(IExceptionReporter& aReporter)
 
 WatchableThread::~WatchableThread()
 {
-//    SignalledCallback* callback = iFree.Read();
-//    callback->Set(MakeFunctor(*this, &WatchableThread::Shutdown);
-//    iScheduled.Write(callback);*/
-    // delete kMaxFifoEntries-1 SignalledCallback objects
-
+    // delete SignalledCallbacks  (all but one)
     for (TUint i = 0; i < kMaxFifoEntries-1; i++)
     {
         delete iFree.Read();
@@ -35,7 +31,7 @@ WatchableThread::~WatchableThread()
 
     Schedule(MakeFunctor(*this, &WatchableThread::Shutdown));
 
-    delete iThread;  // kills and joins
+    delete iThread;  // kills the joins
     delete iFree.Read();  // last one
 }
 
@@ -47,9 +43,6 @@ void WatchableThread::Shutdown()
 
 void WatchableThread::Run()
 {
-    //TBool quit = false;
-    //while (!quit)
-
     for(;;)
     {
         SignalledCallback* callback = iScheduled.Read();

@@ -21,16 +21,15 @@ private:
     void TearDown();
 private:
     void Test1();
-    void TestFunctor();
-    void TestFunctorWt1();
-    void TestFunctorWt2();
+    void TestFunctor1();
+    void TestFunctor2();
+    void TestFunctor2x();
 
 private:
-    IExceptionReporter* iExceptionReporter;
-    IWatchableThread* iWatchableThread;
-    Functor iFunctor;
     Semaphore iSema1;
     Semaphore iSema2;
+    IExceptionReporter* iExceptionReporter;
+    IWatchableThread* iWatchableThread;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -72,7 +71,6 @@ SuiteWatchableThread::SuiteWatchableThread()
     ,iSema1("1", 0)
     ,iSema2("2", 0)
 {
-    iFunctor = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor);
     AddTest(MakeFunctor(*this, &SuiteWatchableThread::Test1));
 }
 
@@ -92,43 +90,66 @@ void SuiteWatchableThread::TearDown()
 
 void SuiteWatchableThread::Test1()
 {
+    // test the assert helper works
     TEST_THROWS(iWatchableThread->Assert(), AssertionFailed);
 
-    Functor f = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor);
-
-    iWatchableThread->Execute(f);
-    iSema1.Wait();
-    //TEST(iSema1.Clear());
-
-    iWatchableThread->Schedule(f);
+    // test Execute calls functor
+    Functor f1 = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor1);
+    iWatchableThread->Execute(f1);
     iSema1.Wait();
 
-    Functor fwt1 = MakeFunctor(*this, &SuiteWatchableThread::TestFunctorWt1);
-    iWatchableThread->Execute(fwt1);
-    iSema1.Wait();
+    // test Schedule calls functor
+    Functor f2 = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor2);
+    iWatchableThread->Schedule(f2);
+    iSema2.Wait();
 
-    iWatchableThread->Schedule(fwt1);
+    // test Execute when other functors are scheduled
+    TEST(!iSema2.Clear());
+    TEST(!iSema1.Clear());
+
+    for (TUint i=0; i<WatchableThread::kMaxFifoEntries; i++)
+    {
+        iWatchableThread->Schedule(f1);
+    }
+
+    iWatchableThread->Execute(f2);
+    iSema2.Wait();
+    for (TUint i=0; i<WatchableThread::kMaxFifoEntries; i++)
+    {
+        iSema1.Wait();
+    }
+    TEST(!iSema1.Clear());
+
+
+
+    Functor f2x = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor2x);
+
+    TEST(!iSema2.Clear());
+    iWatchableThread->Execute(f2x);
+    iSema2.Wait();
+
+    TEST(!iSema2.Clear());
+    iWatchableThread->Schedule(f2x);
     iSema2.Wait();
 }
 
 
-void SuiteWatchableThread::TestFunctorWt1()
+void SuiteWatchableThread::TestFunctor2x()
 {
     TEST(iWatchableThread->IsWatchableThread());
-    Functor fwt2 = MakeFunctor(*this, &SuiteWatchableThread::TestFunctorWt2);
-    iSema1.Signal();
-    iWatchableThread->Execute(fwt2);
+    Functor f2 = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor2);
+    iWatchableThread->Execute(f2);
 }
 
 
-void SuiteWatchableThread::TestFunctorWt2()
+void SuiteWatchableThread::TestFunctor2()
 {
     TEST(iWatchableThread->IsWatchableThread());
     iSema2.Signal();
 }
 
 
-void SuiteWatchableThread::TestFunctor()
+void SuiteWatchableThread::TestFunctor1()
 {
     TEST(iWatchableThread->IsWatchableThread());
     iSema1.Signal();

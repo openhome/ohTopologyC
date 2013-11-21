@@ -37,7 +37,7 @@ public:
 
 class WatchableThread : public IWatchableThread
 {
-private:
+public:
     static const TUint kMaxFifoEntries = 10;
 
 public:
