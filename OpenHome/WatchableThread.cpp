@@ -31,7 +31,7 @@ WatchableThread::~WatchableThread()
 
     Schedule(MakeFunctor(*this, &WatchableThread::Shutdown));
 
-    delete iThread;  // kills the joins
+    delete iThread;  // kills then joins
     delete iFree.Read();  // last one
 }
 

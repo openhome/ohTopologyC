@@ -150,7 +150,7 @@ void SuiteWatchableThread::Test1()
 
     for (TUint i=0; i<3; i++)
     {
-        iSemaBlock.Signal();
+        iSemaBlock.Signal();  // unblock the remaining scheduled blocking functors
     }
 
 }
