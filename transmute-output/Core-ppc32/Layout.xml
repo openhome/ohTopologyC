@@ -1,0 +1,89 @@
+<Layout>
+
+  <!-- Non-sizable region -->
+
+  <Section tag="uFallbackRomDir">
+    <Flash>uFlash0</Flash>
+    <Offset>0x00040000</Offset>
+    <Bytes>0x40000</Bytes>
+  </Section>
+
+  <Section tag="uMainRomDir">
+    <Flash>uFlash0</Flash>
+    <Offset>0x80000</Offset>
+    <Bytes>0x40000</Bytes>
+  </Section>
+
+  <Section tag="uFallbackFpga">
+    <Flash>uFlash0</Flash>
+    <Offset>0xc0000</Offset>
+    <Bytes>0x100000</Bytes>
+  </Section>
+
+  <Section tag="uMainFpga">
+    <Flash>uFlash0</Flash>
+    <Offset>0x1c0000</Offset>
+    <Bytes>0x100000</Bytes>
+  </Section>
+
+  <!-- Fallback region -->
+  
+  <Section tag="uFallbackApp">
+    <Flash>uFlash0</Flash>
+    <Offset>0x2c0000</Offset>
+    <Bytes>0x300000</Bytes>
+  </Section>
+
+  <Section tag="uStoreReadOnlyFallback">
+    <Flash>uFlash0</Flash>
+    <Offset>0x5c0000</Offset>
+    <Bytes>0x100000</Bytes>
+  </Section>
+
+  <Section tag="uFallbackCrash">
+    <Flash>uFlash0</Flash>
+    <Offset>0x6c0000</Offset>
+    <Bytes>0x100000</Bytes>
+  </Section>
+
+  <!-- MainApp region -->
+
+  <Section tag="uMainApp">
+    <Flash>uFlash0</Flash>
+    <Offset>0x7c0000</Offset>
+    <Bytes>0x800000</Bytes>
+  </Section>
+
+  <Section tag="uMainFFS">
+    <Flash>uFlash0</Flash>
+    <Offset>0xfc0000</Offset>
+    <Bytes>0xb00000</Bytes>
+  </Section>
+
+  <Section tag="uStoreReadOnly">
+    <Flash>uFlash0</Flash>
+    <Offset>0x1ac0000</Offset>
+    <Bytes>0x100000</Bytes>
+  </Section>
+
+  <Section tag="uStoreReadWrite">
+    <Flash>uFlash0</Flash>
+    <Offset>0x1bc0000</Offset>
+    <Bytes>0x100000</Bytes>
+  </Section>
+
+  <Section tag="uMainCrash">
+    <Flash>uFlash0</Flash>
+    <Offset>0x1ec0000</Offset>
+    <Bytes>0x100000</Bytes>
+  </Section>
+
+  <!-- Bootstrap region -->
+  
+  <Section tag="uBootstrap">
+    <Flash>uFlash0</Flash>
+    <Offset>0x1FFFC00</Offset>
+    <Bytes>0x000400</Bytes>
+  </Section>
+ 
+</Layout>

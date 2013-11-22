@@ -139,6 +139,7 @@ def build(bld):
     bld.stlib(
            source=[
                 'OpenHome/Tests/TestWatchableThread.cpp',
+                'OpenHome/Tests/TestShell.cpp',
             ],
             use=['ohTopologyC'],
             target='ohTopologyCTestUtils')
@@ -147,6 +148,11 @@ def build(bld):
            source='OpenHome/Tests/TestWatchableThreadMain.cpp',
            use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
            target='TestWatchableThread')
+
+    bld.program(
+           source='OpenHome/Tests/TestShellMain.cpp',
+           use=['OHNET', 'SHELL', 'ohTopologyC', 'ohTopologyCTestUtils'],
+           target='TestShell')
 
 
 
