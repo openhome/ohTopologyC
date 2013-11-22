@@ -24,10 +24,12 @@ private:
     void TestFunctor1();
     void TestFunctor2();
     void TestFunctor2x();
+    void TestFunctorBlock();
 
 private:
     Semaphore iSema1;
     Semaphore iSema2;
+    Semaphore iSemaBlock;
     IExceptionReporter* iExceptionReporter;
     IWatchableThread* iWatchableThread;
 };
@@ -70,6 +72,7 @@ SuiteWatchableThread::SuiteWatchableThread()
     :SuiteUnitTest("SuiteWatchableThread")
     ,iSema1("1", 0)
     ,iSema2("2", 0)
+    ,iSemaBlock("b", 0)
 {
     AddTest(MakeFunctor(*this, &SuiteWatchableThread::Test1));
 }
@@ -93,17 +96,20 @@ void SuiteWatchableThread::Test1()
     // test the assert helper works
     TEST_THROWS(iWatchableThread->Assert(), AssertionFailed);
 
-    // test Execute calls functor
     Functor f1 = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor1);
+    Functor f2 = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor2);
+    Functor fb = MakeFunctor(*this, &SuiteWatchableThread::TestFunctorBlock);
+    Functor f2x = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor2x);
+
+    // test Execute calls functor
     iWatchableThread->Execute(f1);
     iSema1.Wait();
 
     // test Schedule calls functor
-    Functor f2 = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor2);
     iWatchableThread->Schedule(f2);
     iSema2.Wait();
 
-    // test Execute when other functors are scheduled
+    // test Execute blocks when other functors are scheduled
     TEST(!iSema2.Clear());
     TEST(!iSema1.Clear());
 
@@ -122,20 +128,42 @@ void SuiteWatchableThread::Test1()
 
 
 
-    Functor f2x = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor2x);
-
+    // Test Execute calls back immediately if on the watchable thread
     TEST(!iSema2.Clear());
-    iWatchableThread->Execute(f2x);
+
+
+    for (TUint i=0; i<6; i++)
+    {
+        iWatchableThread->Schedule(f1);
+    }
+
+    iWatchableThread->Schedule(f2x); //this will call execute on WT
+
+    for (TUint i=0; i<3; i++)
+    {
+        iWatchableThread->Schedule(fb); // these will block
+    }
+
+
     iSema2.Wait();
 
-    TEST(!iSema2.Clear());
-    iWatchableThread->Schedule(f2x);
-    iSema2.Wait();
+
+    for (TUint i=0; i<3; i++)
+    {
+        iSemaBlock.Signal();
+    }
+
 }
 
 
+void SuiteWatchableThread::TestFunctorBlock()
+{
+    iSemaBlock.Wait();
+}
+
 void SuiteWatchableThread::TestFunctor2x()
 {
+    //Log::Print("2x \n");
     TEST(iWatchableThread->IsWatchableThread());
     Functor f2 = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor2);
     iWatchableThread->Execute(f2);
@@ -144,6 +172,7 @@ void SuiteWatchableThread::TestFunctor2x()
 
 void SuiteWatchableThread::TestFunctor2()
 {
+    //Log::Print("2 \n");
     TEST(iWatchableThread->IsWatchableThread());
     iSema2.Signal();
 }
@@ -151,6 +180,7 @@ void SuiteWatchableThread::TestFunctor2()
 
 void SuiteWatchableThread::TestFunctor1()
 {
+    //Log::Print("1 \n");
     TEST(iWatchableThread->IsWatchableThread());
     iSema1.Signal();
 }
