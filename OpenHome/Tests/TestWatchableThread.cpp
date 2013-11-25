@@ -13,14 +13,6 @@ using namespace OpenHome::TestFramework;
 EXCEPTION(TestException);
 
 
-
-struct TestExceptionStd : std::exception
-{
-  const char* what() const noexcept {return "std::exc \n";}
-};
-
-
-
 namespace OpenHome {
 
 
@@ -237,7 +229,7 @@ void SuiteWatchableThread::TestFunctorException()
 
 void SuiteWatchableThread::TestFunctorExceptionStd()
 {
-    TestExceptionStd e;
+    std::exception e;
     throw(e);
 }
 
