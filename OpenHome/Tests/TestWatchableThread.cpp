@@ -4,11 +4,27 @@
 #include <OpenHome/Private/Arch.h>
 #include <OpenHome/Private/Converter.h>
 #include <OpenHome/Private/Thread.h>
+#include <exception>
 
 using namespace OpenHome;
 using namespace OpenHome::TestFramework;
 
+
+EXCEPTION(TestException);
+
+
+
+struct TestExceptionStd : std::exception
+{
+  const char* what() const noexcept {return "std::exc \n";}
+};
+
+
+
 namespace OpenHome {
+
+
+class TestExceptionReporter;
 
 class SuiteWatchableThread: public SuiteUnitTest, public INonCopyable
 {
@@ -21,16 +37,19 @@ private:
     void TearDown();
 private:
     void Test1();
+    void Test2();
     void TestFunctor1();
     void TestFunctor2();
     void TestFunctor2x();
     void TestFunctorBlock();
+    void TestFunctorException();
+    void TestFunctorExceptionStd();
 
 private:
     Semaphore iSema1;
     Semaphore iSema2;
     Semaphore iSemaBlock;
-    IExceptionReporter* iExceptionReporter;
+    TestExceptionReporter* iExceptionReporter;
     IWatchableThread* iWatchableThread;
 };
 
@@ -42,6 +61,13 @@ public:
     TestExceptionReporter();
     virtual void Report(Exception& aException);
     virtual void Report(std::exception& aException);
+
+    TUint Count() const;
+    TUint CountStd() const;
+
+private:
+    TUint iCount;
+    TUint iCountStd;
 };
 
 } // namespace OpenHome
@@ -50,18 +76,35 @@ public:
 /////////////////////////////////////////////////////////////////////
 
 TestExceptionReporter::TestExceptionReporter()
+    :iCount(0)
+    ,iCountStd(0)
 {
 }
 
+
 void TestExceptionReporter::Report(Exception& /*aException*/)
 {
-
+    //Log::Print("TestExceptionReporter::Report(Exception) \n");
+    iCount++;
 }
 
 
 void TestExceptionReporter::Report(std::exception& /*aException*/)
 {
+    //Log::Print("TestExceptionReporter::Report(std::Exception) \n");
+    iCountStd++;
+}
 
+
+TUint TestExceptionReporter::Count() const
+{
+    return(iCount);
+}
+
+
+TUint TestExceptionReporter::CountStd() const
+{
+    return(iCountStd);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -75,6 +118,7 @@ SuiteWatchableThread::SuiteWatchableThread()
     ,iSemaBlock("b", 0)
 {
     AddTest(MakeFunctor(*this, &SuiteWatchableThread::Test1));
+    AddTest(MakeFunctor(*this, &SuiteWatchableThread::Test2));
 }
 
 
@@ -185,6 +229,78 @@ void SuiteWatchableThread::TestFunctor1()
     iSema1.Signal();
 }
 
+
+void SuiteWatchableThread::TestFunctorException()
+{
+    THROW(TestException);
+}
+
+void SuiteWatchableThread::TestFunctorExceptionStd()
+{
+    TestExceptionStd e;
+    throw(e);
+}
+
+
+
+void SuiteWatchableThread::Test2()
+{
+    Functor f1 = MakeFunctor(*this, &SuiteWatchableThread::TestFunctor1);
+
+    ////////////////////////
+    // test ohNet exceptions
+    Functor f = MakeFunctor(*this, &SuiteWatchableThread::TestFunctorException);
+    TUint count = iExceptionReporter->Count();
+
+    // executing
+    for (TUint i=0; i<WatchableThread::kMaxFifoEntries;i++)
+    {
+        iWatchableThread->Execute(f);
+        iWatchableThread->Execute(f1);
+        iSema1.Wait();
+        count++;
+        TEST(iExceptionReporter->Count()==count);
+    }
+
+    // scheduling
+    for (TUint i=0; i<WatchableThread::kMaxFifoEntries;i++)
+    {
+        iWatchableThread->Schedule(f);
+    }
+
+    iWatchableThread->Execute(f1);
+    iSema1.Wait();
+    TEST(iExceptionReporter->Count()==(count+WatchableThread::kMaxFifoEntries));
+
+
+    //////////////////////
+    // test std exceptions
+    Functor fstd = MakeFunctor(*this, &SuiteWatchableThread::TestFunctorExceptionStd);
+    TUint countstd = iExceptionReporter->CountStd();
+
+    // executing
+    for (TUint i=0; i<WatchableThread::kMaxFifoEntries;i++)
+    {
+        iWatchableThread->Execute(fstd);
+        iWatchableThread->Execute(f1);
+        iSema1.Wait();
+        countstd++;
+
+        TEST(iExceptionReporter->CountStd()==countstd);
+    }
+
+    // scheduling
+    for (TUint i=0; i<WatchableThread::kMaxFifoEntries;i++)
+    {
+        iWatchableThread->Schedule(fstd);
+    }
+
+    iWatchableThread->Execute(f1);
+    iSema1.Wait();
+    TEST(iExceptionReporter->CountStd()==(countstd+WatchableThread::kMaxFifoEntries));
+}
+
+////////////////////////////////////////////
 
 void TestWatchableThread()
 {
