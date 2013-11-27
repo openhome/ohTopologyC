@@ -29,14 +29,18 @@ WatchableThread::~WatchableThread()
         delete iFree.Read();
     }
 
-    Schedule(MakeFunctor(*this, &WatchableThread::Shutdown));
+    TUint x;
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &WatchableThread::Shutdown);
+
+    Schedule(f, &x);
+    //MakeFunctorGeneric(*this, &SuiteWatchableThread::TestFunctor1)
 
     delete iThread;  // kills then joins
     delete iFree.Read();  // last one
 }
 
 
-void WatchableThread::Shutdown()
+void WatchableThread::Shutdown(void*)
 {
     THROW(ThreadKill);
 }
@@ -75,21 +79,21 @@ void WatchableThread::Assert()
 }
 
 
-void WatchableThread::Schedule(Functor aCallback)
+void WatchableThread::Schedule(FunctorGeneric<void*> aCallback, void* aObj)
 {
     SignalledCallback* callback = iFree.Read();
-    callback->Set(aCallback);
+    callback->Set(aCallback, aObj);
     iScheduled.Write(callback);
 }
 
 
-void WatchableThread::Execute(Functor aCallback)
+void WatchableThread::Execute(FunctorGeneric<void*> aCallback, void* aObj)
 {
     if (IsWatchableThread())
     {
         try
         {
-            aCallback();
+            aCallback(aObj);
         }
         catch (Exception& e)
         {
@@ -104,7 +108,7 @@ void WatchableThread::Execute(Functor aCallback)
     {
         Semaphore sem("wtch", 0);
         SignalledCallback* callback = iFree.Read();
-        callback->Set(aCallback, sem);
+        callback->Set(aCallback, aObj, sem);
         iScheduled.Write(callback);
         sem.Wait();
     }
@@ -136,31 +140,41 @@ AutoSem::~AutoSem()
 ////////////////////////////////////////////////////////
 
 SignalledCallback::SignalledCallback()
+    :iFunctor(MakeFunctorGeneric(*this, &SignalledCallback::DummyFunctor))
+    ,iObj(NULL)
+    ,iSem(NULL)
 {
 
 }
 
-void SignalledCallback::Set(Functor aFunctor, Semaphore& aSem)
+void SignalledCallback::Set(FunctorGeneric<void*> aFunctor, void* aObj, Semaphore& aSem)
 {
     iFunctor = aFunctor;
+    iObj = aObj;
     iSem = &aSem;
 }
 
 
-void SignalledCallback::Set(Functor aFunctor)
+void SignalledCallback::Set(FunctorGeneric<void*> aFunctor, void* aObj)
 {
     iFunctor = aFunctor;
+    iObj = aObj;
     iSem = NULL;
 }
+
 
 void SignalledCallback::Callback()
 {
     AutoSem as(iSem);
-    iFunctor();
+    iFunctor(iObj);
 }
 
+void SignalledCallback::DummyFunctor(void*)
+{
+    ASSERTS();
+}
 
-
+////////////////////////////////////////////////////////
 
 
 
