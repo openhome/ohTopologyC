@@ -22,6 +22,8 @@ public:
     typedef TAny (FunctorGeneric::*MemberFunction)();
     static const TUint kFudgeFactor = 2;
 
+    FunctorGeneric() : iObject(0) {}
+
     TByte iCallbackMember[kFudgeFactor * sizeof(MemberFunction)];
     TAny* iObject;
 
@@ -103,8 +105,6 @@ public:
     void Set(FunctorGeneric<void*> aFunctor, void* aObj, Semaphore& aSem);
     void Set(FunctorGeneric<void*> aFunctor, void* aObj);
     void Callback();
-private:
-    void DummyFunctor(void*);
 
 private:
     FunctorGeneric<void*> iFunctor;

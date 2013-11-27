@@ -140,11 +140,9 @@ AutoSem::~AutoSem()
 ////////////////////////////////////////////////////////
 
 SignalledCallback::SignalledCallback()
-    :iFunctor(MakeFunctorGeneric(*this, &SignalledCallback::DummyFunctor))
-    ,iObj(NULL)
+    :iObj(NULL)
     ,iSem(NULL)
 {
-
 }
 
 void SignalledCallback::Set(FunctorGeneric<void*> aFunctor, void* aObj, Semaphore& aSem)
@@ -167,11 +165,6 @@ void SignalledCallback::Callback()
 {
     AutoSem as(iSem);
     iFunctor(iObj);
-}
-
-void SignalledCallback::DummyFunctor(void*)
-{
-    ASSERTS();
 }
 
 ////////////////////////////////////////////////////////
