@@ -7,6 +7,7 @@
 #include <exception>
 
 using namespace OpenHome;
+using namespace OpenHome::Av;
 using namespace OpenHome::TestFramework;
 
 
@@ -15,8 +16,12 @@ EXCEPTION(TestException);
 
 namespace OpenHome {
 
+namespace Av {
+
 
 class TestExceptionReporter;
+
+/////////////////////////////////////////////////////////////////////
 
 class SuiteWatchableThread: public SuiteUnitTest, public INonCopyable
 {
@@ -47,7 +52,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 
-class TestExceptionReporter :public IExceptionReporter
+class TestExceptionReporter : public IExceptionReporter
 {
 public:
     TestExceptionReporter();
@@ -61,6 +66,8 @@ private:
     TUint iCount;
     TUint iCountStd;
 };
+
+} // namespace Av
 
 } // namespace OpenHome
 

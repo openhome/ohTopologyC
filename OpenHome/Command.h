@@ -1,0 +1,54 @@
+#ifndef HEADER_LINN_COMMAND
+#define HEADER_LINN_COMMAND
+
+#include <OpenHome/OhNetTypes.h>
+#include <OpenHome/Private/Stream.h>
+#include <OpenHome/Buffer.h>
+
+using namespace OpenHome;
+
+namespace Linn {
+
+
+class ICommandTokens
+{
+public:
+   virtual TUint Count() const = 0;
+   virtual const Brn Next() = 0;
+   virtual ~ICommandTokens() {}
+};
+
+///////////////////////////////////////////////////////////////////////////
+
+class ICommandHandler
+{
+public:
+   virtual void Execute(ICommandTokens& aTokens, IWriter& aWriter) = 0;
+   virtual ~ICommandHandler() {}
+};
+
+///////////////////////////////////////////////////////////////////////////
+
+class CommandTokens : public ICommandTokens
+{
+public:
+   CommandTokens(const Brx& aValue);
+   virtual TUint Count() const;
+   virtual const Brn Next();
+private:
+   const Brn GetNextToken(const Brx& aValue, TUint& aIndex);
+private:
+   Brn iValue;
+   TUint iCount;
+   TUint iIndex;
+};
+
+///////////////////////////////////////////////////////////////////////////
+
+
+} // namespace Linn
+
+#endif // HEADER_LINN_COMMAND
+
+
+

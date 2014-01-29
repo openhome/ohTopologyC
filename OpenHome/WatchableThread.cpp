@@ -1,8 +1,11 @@
+#include <OpenHome/OhNetTypes.h>
 #include <OpenHome/WatchableThread.h>
+#include <OpenHome/Watchable.h>
 #include <OpenHome/Private/Printer.h>
 
 
 using namespace OpenHome;
+using namespace OpenHome::Av;
 
 
 WatchableThread::WatchableThread(IExceptionReporter& aReporter)
@@ -33,7 +36,6 @@ WatchableThread::~WatchableThread()
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &WatchableThread::Shutdown);
 
     Schedule(f, &x);
-    //MakeFunctorGeneric(*this, &SuiteWatchableThread::TestFunctor1)
 
     delete iThread;  // kills then joins
     delete iFree.Read();  // last one

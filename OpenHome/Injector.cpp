@@ -1,0 +1,261 @@
+#include <OpenHome/OhNetTypes.h>
+#include <OpenHome/WatchableThread.h>
+#include <OpenHome/Network.h>
+#include <OpenHome/Injector.h>
+#include <OpenHome/Device.h>
+#include <map>
+
+
+
+
+using namespace OpenHome;
+using namespace OpenHome::Av;
+
+/*
+Injector::Injector(Network& aNetwork, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog aLog)
+{
+    iDisposeHandler = new DisposeHandler();
+    iNetwork = aNetwork;
+    iLog = aLog;
+    iDeviceList = new CpDeviceListUpnpServiceType(aDomain, aType, aVersion, Added, Removed);
+    iDeviceLookup = new Dictionary<const Brx&,IInjectorDevice>();
+}
+
+
+void Injector::Added(CpDeviceList aList, CpDevice& aDevice)
+{
+    if (!FilterOut(aDevice))
+    {
+        IInjectorDevice device = Create(iNetwork, aDevice);
+        iDeviceLookup.Add(aDevice.Udn(), device);
+        iNetwork.Add(device);
+    }
+}
+
+
+void Injector::Removed(CpDeviceList aList, CpDevice& aDevice)
+{
+    IInjectorDevice device;
+
+    Brn udn = aDevice.Udn();
+
+    if (iDeviceLookup.TryGetValue(udn, out device))
+    {
+        iNetwork.Remove(device);
+        iDeviceLookup.Remove(udn);
+    }
+}
+
+
+IInjectorDevice Injector::Create(INetwork& aNetwork, CpDevice& aDevice)
+{
+    using (iDisposeHandler.Lock())
+    {
+        return (DeviceFactory.Create(aNetwork, aDevice, iLog));
+    }
+}
+
+
+TBool Injector::FilterOut(CpDevice aCpDevice)
+{
+    return false;
+}
+
+
+void Injector::Refresh()
+{
+    using (iDisposeHandler.Lock())
+    {
+        iDeviceList.Refresh();
+    }
+}
+
+
+void Injector::Dispose()
+{
+    iDeviceList.Dispose();
+    iDisposeHandler.Dispose();
+}
+
+/////////////////////////////////////////////////////////////////
+
+InjectorProduct::InjectorProduct(INetwork& aNetwork, ILog aLog)
+    : base(aNetwork, "av.openhome.org", "Product", 1, aLog)
+{
+}
+
+/////////////////////////////////////////////////////////////////
+
+InjectorSender::InjectorSender(INetwork& aNetwork, ILog aLog)
+    : base(aNetwork, "av.openhome.org", "Sender", 1, aLog)
+{
+}
+
+
+TBool InjectorSender::FilterOut(CpDevice& aCpDevice)
+{
+    string value;
+    return aCpDevice.GetAttribute("Upnp.Service.av-openhome-org.Product", out value);
+}
+*/
+
+/////////////////////////////////////////////////////////////////
+
+InjectorMock::InjectorMock(Network& aNetwork, const Brx& aResourceRoot, ILog& aLog)
+    :iNetwork(aNetwork)
+    ,iResourceRoot(aResourceRoot)
+    ,iLog(aLog)
+    //,iMockDevices(Dictionary<const Brx&, InjectorDeviceMock>())
+{
+}
+
+
+void InjectorMock::Dispose()
+{
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &InjectorMock::DisposeCB);
+    TUint dummy;
+    iNetwork.Execute(f, &dummy);
+}
+
+
+void InjectorMock::DisposeCB(void*)
+{
+    //foreach (var d in iMockDevices.Values)
+    //{
+    //    d.Dispose();
+    //}
+}
+
+
+void InjectorMock::Execute(ICommandTokens& aTokens)
+//void InjectorMock::Execute(IEnumerable<const Brx&> aValue)
+{
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &InjectorMock::ExecuteCB);
+    iNetwork.Execute(f, &aTokens);
+}
+
+
+void InjectorMock::ExecuteCB(void* aObj)
+{
+    ICommandTokens& val = *((ICommandTokens*)aObj);
+    ASSERT(val.Count()>0);
+
+    //Brn command(val.Next().ToLowerInvariant());
+    Brn command(val.Next());
+
+
+    if (command == Brn("small"))
+    {
+        //CreateAndAdd(DeviceFactory.CreateDsm(iNetwork, "4c494e4e-0026-0f99-1112-ef000004013f", "Sitting Room", "Klimax DSM", "Info Time Volume Sender", iLog));
+        //CreateAndAdd(DeviceFactory.CreateMediaServer(iNetwork, "4c494e4e-0026-0f99-0000-000000000000", iResourceRoot, iLog));
+        return;
+    }
+    else if (command == Brn("medium"))
+    {
+        //CreateAndAdd(DeviceFactory.CreateDs(iNetwork, "4c494e4e-0026-0f99-1111-ef000004013f", "Kitchen", "Sneaky Music DS", "Info Time Volume Sender", iLog));
+        //CreateAndAdd(DeviceFactory.CreateDsm(iNetwork, "4c494e4e-0026-0f99-1112-ef000004013f", "Sitting Room", "Klimax DSM", "Info Time Volume Sender", iLog));
+        //CreateAndAdd(DeviceFactory.CreateDsm(iNetwork, "4c494e4e-0026-0f99-1113-ef000004013f", "Bedroom", "Kiko DSM", "Info Time Volume Sender", iLog));
+        //CreateAndAdd(DeviceFactory.CreateDs(iNetwork, "4c494e4e-0026-0f99-1114-ef000004013f", "Dining Room", "Majik DS", "Info Time Volume Sender", iLog));
+        //CreateAndAdd(DeviceFactory.CreateMediaServer(iNetwork, "4c494e4e-0026-0f99-0000-000000000000", iResourceRoot, iLog));
+        return;
+    }
+    else if (command == Brn("large"))
+    {
+        ASSERTS();
+        //THROW(new NotImplementedException());
+    }
+    else if (command == Brn("create"))
+    {
+        ASSERT(val.Count()>1);
+
+        Brn type(val.Next());
+        Brn udn(val.Next());
+
+        if (type == Brn("ds"))
+        {
+            //Create(DeviceFactory.CreateDs(iNetwork, udn, iLog));
+            return;
+        }
+        else if (type == Brn("dsm"))
+        {
+            //Create(DeviceFactory.CreateDsm(iNetwork, udn, iLog));
+            return;
+        }
+    }
+    else if (command == Brn("add"))
+    {
+        ASSERT(val.Count()>0);
+        Brn udn(val.Next());
+
+        if (iMockDevices.count(udn) > 0)
+        {
+            InjectorDeviceMock* device = iMockDevices[udn];
+            iNetwork.Add(*device->On());
+            return;
+        }
+    }
+    else if (command == Brn("remove"))
+    {
+        ASSERT(val.Count()>0);
+        Brn udn(val.Next());
+
+        if (iMockDevices.count(udn) > 0)
+        {
+            InjectorDeviceMock* device = iMockDevices[udn];
+            iNetwork.Remove(*device->Off());
+            return;
+        }
+    }
+    else if (command == Brn("destroy"))
+    {
+        ASSERT(val.Count()>0);
+        Brn udn(val.Next());
+
+        if (iMockDevices.count(udn) > 0)
+        {
+            InjectorDeviceMock* device = iMockDevices[udn];
+            iNetwork.Remove(*device->Off());
+            device->Dispose();
+            return;
+        }
+    }
+    else if (command == Brn("update"))
+    {
+        ASSERT(val.Count()>1);
+        Brn udn(val.Next());
+        Brn cmd(val.Next());
+
+        if (iMockDevices.count(udn) > 0)
+        {
+            InjectorDeviceMock* device = iMockDevices[udn];
+            CommandTokens cmds(val.Next());
+            device->Execute(cmds);
+            return;
+        }
+    }
+
+    ASSERTS();
+}
+
+
+InjectorDeviceMock* InjectorMock::Create(IInjectorDevice& aDevice)
+{
+    InjectorDeviceMock* device = new InjectorDeviceMock(aDevice);
+    iMockDevices[Brn(aDevice.Udn())] = device;
+    return(device);
+}
+
+
+void InjectorMock::CreateAndAdd(IInjectorDevice& aDevice)
+{
+    InjectorDeviceMock* device = Create(aDevice);
+    iNetwork.Add(*device->On());
+}
+
+/////////////////////////////////////////////////////////////////
+
+
+
+
+
+

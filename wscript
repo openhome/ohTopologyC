@@ -130,6 +130,16 @@ def build(bld):
     bld.stlib(
             source=[
                 'OpenHome/WatchableThread.cpp',
+                'OpenHome/Watchable.cpp',
+                'OpenHome/Watcher.cpp',
+                'OpenHome/WatchableOrdered.cpp',
+                'OpenHome/WatchableUnordered.cpp',
+                'OpenHome/Command.cpp',
+                'OpenHome/Device.cpp',
+                'OpenHome/Injector.cpp',
+                'OpenHome/Mockable.cpp',
+                'OpenHome/HttpHelper.cpp',
+                #'OpenHome/Network.cpp',
             ],
             use=['OHNET', 'OPENSSL', 'OHNETMON'],
             target='ohTopologyC')
