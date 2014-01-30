@@ -13,7 +13,7 @@ namespace Av
 
 //////////////////////////////////////////////////////////////////////
 
-class WatchableBase
+class WatchableBase : public INonCopyable
 {
 protected:
     WatchableBase(IWatchableThread& aWatchableThread);
