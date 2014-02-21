@@ -74,23 +74,6 @@ def configure(conf):
     conf.env.STLIB_SHELL = ['Shell']
     
 
-
-    # OpenSSL
-    conf.env.STLIBPATH_OPENSSL = [
-        os.path.join(conf.path.find_node('.').abspath(),
-        os.path.join('dependencies', conf.options.dest_platform, 'openssl', 'lib')),
-    ]
-    if conf.options.dest_platform in ['Windows-x86', 'Windows-x64']:
-        conf.env.STLIB_OPENSSL = ['eay32']
-        conf.env.LIB_OPENSSL = ['advapi32', 'gdi32', 'user32']
-    else:
-        if conf.options.dest_platform in ['Linux-x86', 'Linux-x64', 'Linux-ppc32']:
-            conf.env.LIB_OPENSSL = ['dl']
-        conf.env.STLIB_OPENSSL = ['crypto']
-    conf.env.INCLUDES_OPENSSL = [
-        os.path.join('dependencies', conf.options.dest_platform, 'openssl', 'include'),
-    ]
-
 def get_node(bld, node_or_filename):
     if isinstance(node_or_filename, Node):
         return node_or_filename
