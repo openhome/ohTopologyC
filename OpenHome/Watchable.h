@@ -5,38 +5,47 @@
 #include <OpenHome/IWatchable.h>
 #include <vector>
 
+
+
 namespace OpenHome
 {
 
 namespace Av
 {
 
-//////////////////////////////////////////////////////////////////////
 
-class WatchableBase : public INonCopyable
+
+/**
+    \addtogroup  watchable
+    @{
+ */
+
+class WatchableBase : public IWatchableThread//, public INonCopyable
 {
 protected:
     WatchableBase(IWatchableThread& aWatchableThread);
 
-protected:
+public:
     // IWatchableThread
     virtual void Assert();
-    virtual void Schedule(Action aAction, void* aObj);
-    virtual void Execute(Action aAction, void* aObj);
+    virtual void Schedule(FunctorGeneric<void*> aCallback, void* aObj);
+    virtual void Execute(FunctorGeneric<void*> aCallback, void* aObj);
+    virtual TBool IsWatchableThread();
 
     virtual void Lock();
     virtual void Unlock();
+
 private:
     IWatchableThread& iWatchableThread;
 };
 
-//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-class Watchable : public WatchableBase, public IWatchable<T>//, public IDisposable
+class Watchable : public IWatchable<T>, public WatchableBase //, public IDisposable
 {
 public:
-    Watchable(IWatchableThread& aThread, const Brx& aId, T aValue);
+    Watchable(IWatchableThread& aWatchableThread, const Brx& aId, T aValue);
     TBool Update(T aValue);
     T Value() const;
 
@@ -49,7 +58,7 @@ public:
     virtual void Dispose();
 
 private:
-    void DisposeCB(void*);
+    void DisposeCallback(void*);
 
 protected:
     Brn iId;
@@ -60,7 +69,7 @@ private :
     std::vector<IWatcher<T>*> iRecentlyRemoved;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
 class WatchableCollection : public WatchableBase
@@ -75,7 +84,7 @@ protected:
     std::vector<T> iItems;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
 /*
 template <class T>
@@ -90,11 +99,19 @@ public:
     //static TUint ElementCount<K, V>(this IDictionary<K, V> aDictionary);
 
 private:
-    static void ExecuteCB(void*);
+    static void ExecuteCallback(void*);
 
 };
 
 */
+
+
+/**
+    @}
+ */
+
+
+
 
 } // namespace Av
 

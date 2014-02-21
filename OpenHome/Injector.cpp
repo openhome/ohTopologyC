@@ -3,9 +3,8 @@
 #include <OpenHome/Network.h>
 #include <OpenHome/Injector.h>
 #include <OpenHome/Device.h>
+#include <OpenHome/Private/Ascii.h>
 #include <map>
-
-
 
 
 using namespace OpenHome;
@@ -112,13 +111,13 @@ InjectorMock::InjectorMock(Network& aNetwork, const Brx& aResourceRoot, ILog& aL
 
 void InjectorMock::Dispose()
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &InjectorMock::DisposeCB);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &InjectorMock::DisposeCallback);
     TUint dummy;
     iNetwork.Execute(f, &dummy);
 }
 
 
-void InjectorMock::DisposeCB(void*)
+void InjectorMock::DisposeCallback(void*)
 {
     //foreach (var d in iMockDevices.Values)
     //{
@@ -130,27 +129,26 @@ void InjectorMock::DisposeCB(void*)
 void InjectorMock::Execute(ICommandTokens& aTokens)
 //void InjectorMock::Execute(IEnumerable<const Brx&> aValue)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &InjectorMock::ExecuteCB);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &InjectorMock::ExecuteCallback);
     iNetwork.Execute(f, &aTokens);
 }
 
 
-void InjectorMock::ExecuteCB(void* aObj)
+void InjectorMock::ExecuteCallback(void* aObj)
 {
     ICommandTokens& val = *((ICommandTokens*)aObj);
     ASSERT(val.Count()>0);
 
-    //Brn command(val.Next().ToLowerInvariant());
     Brn command(val.Next());
 
 
-    if (command == Brn("small"))
+    if (Ascii::CaseInsensitiveEquals(command, Brn("small")))
     {
         //CreateAndAdd(DeviceFactory.CreateDsm(iNetwork, "4c494e4e-0026-0f99-1112-ef000004013f", "Sitting Room", "Klimax DSM", "Info Time Volume Sender", iLog));
         //CreateAndAdd(DeviceFactory.CreateMediaServer(iNetwork, "4c494e4e-0026-0f99-0000-000000000000", iResourceRoot, iLog));
         return;
     }
-    else if (command == Brn("medium"))
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("medium")))
     {
         //CreateAndAdd(DeviceFactory.CreateDs(iNetwork, "4c494e4e-0026-0f99-1111-ef000004013f", "Kitchen", "Sneaky Music DS", "Info Time Volume Sender", iLog));
         //CreateAndAdd(DeviceFactory.CreateDsm(iNetwork, "4c494e4e-0026-0f99-1112-ef000004013f", "Sitting Room", "Klimax DSM", "Info Time Volume Sender", iLog));
@@ -159,12 +157,12 @@ void InjectorMock::ExecuteCB(void* aObj)
         //CreateAndAdd(DeviceFactory.CreateMediaServer(iNetwork, "4c494e4e-0026-0f99-0000-000000000000", iResourceRoot, iLog));
         return;
     }
-    else if (command == Brn("large"))
+    else if (Ascii::CaseInsensitiveEquals(command,Brn("large")))
     {
         ASSERTS();
         //THROW(new NotImplementedException());
     }
-    else if (command == Brn("create"))
+    else if (Ascii::CaseInsensitiveEquals(command,Brn("create")))
     {
         ASSERT(val.Count()>1);
 
@@ -182,7 +180,7 @@ void InjectorMock::ExecuteCB(void* aObj)
             return;
         }
     }
-    else if (command == Brn("add"))
+    else if (Ascii::CaseInsensitiveEquals(command,Brn("add")))
     {
         ASSERT(val.Count()>0);
         Brn udn(val.Next());
@@ -190,11 +188,11 @@ void InjectorMock::ExecuteCB(void* aObj)
         if (iMockDevices.count(udn) > 0)
         {
             InjectorDeviceMock* device = iMockDevices[udn];
-            iNetwork.Add(*device->On());
+            iNetwork.Add(device->On());
             return;
         }
     }
-    else if (command == Brn("remove"))
+    else if (Ascii::CaseInsensitiveEquals(command,Brn("remove")))
     {
         ASSERT(val.Count()>0);
         Brn udn(val.Next());
@@ -202,11 +200,11 @@ void InjectorMock::ExecuteCB(void* aObj)
         if (iMockDevices.count(udn) > 0)
         {
             InjectorDeviceMock* device = iMockDevices[udn];
-            iNetwork.Remove(*device->Off());
+            iNetwork.Remove(device->Off());
             return;
         }
     }
-    else if (command == Brn("destroy"))
+    else if (Ascii::CaseInsensitiveEquals(command,Brn("destroy")))
     {
         ASSERT(val.Count()>0);
         Brn udn(val.Next());
@@ -214,12 +212,12 @@ void InjectorMock::ExecuteCB(void* aObj)
         if (iMockDevices.count(udn) > 0)
         {
             InjectorDeviceMock* device = iMockDevices[udn];
-            iNetwork.Remove(*device->Off());
+            iNetwork.Remove(device->Off());
             device->Dispose();
             return;
         }
     }
-    else if (command == Brn("update"))
+    else if (Ascii::CaseInsensitiveEquals(command,Brn("update")))
     {
         ASSERT(val.Count()>1);
         Brn udn(val.Next());
@@ -249,7 +247,7 @@ InjectorDeviceMock* InjectorMock::Create(IInjectorDevice& aDevice)
 void InjectorMock::CreateAndAdd(IInjectorDevice& aDevice)
 {
     InjectorDeviceMock* device = Create(aDevice);
-    iNetwork.Add(*device->On());
+    iNetwork.Add(device->On());
 }
 
 /////////////////////////////////////////////////////////////////

@@ -6,7 +6,7 @@ using namespace OpenHome::Av;
 
 
 template<class T>
-Watcher<T>::Watcher(IWatchable<T>& aWatchable, Action aAction)
+Watcher<T>::Watcher(IWatchable<T>& aWatchable, FunctorGeneric<void*> aAction)
     :iWatchable(aWatchable)
     ,iAction(aAction)
 {
@@ -44,12 +44,12 @@ void Watcher<T>::ItemClose(const Brx& aId, T aValue)
 template<class T>
 void Watcher<T>::Dispose()
 {
-    iWatchable.Execute(MakeFunctorGeneric(*this, &Watcher<T>::DisposeCB), this);
+    iWatchable.Execute(MakeFunctorGeneric(*this, &Watcher<T>::DisposeCallback), this);
 }
 
 
 template<class T>
-void Watcher<T>::DisposeCB(void* aObj)
+void Watcher<T>::DisposeCallback(void* aObj)
 {
     iWatchable.RemoveWatcher(*((Watcher<T>*)aObj));
 }
@@ -58,7 +58,7 @@ void Watcher<T>::DisposeCB(void* aObj)
 ////////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-WatcherUnordered<T>::WatcherUnordered(IWatchableUnordered<T>& aWatchable, Action aAction)
+WatcherUnordered<T>::WatcherUnordered(IWatchableUnordered<T>& aWatchable, FunctorGeneric<void*> aAction)
     :iWatchable(aWatchable)
     ,iAction(aAction)
     ,iInitialised(false)
@@ -124,12 +124,12 @@ void WatcherUnordered<T>::Dispose()
 template<class T>
 void WatcherUnordered<T>::Dispose()
 {
-    iWatchable.Execute(MakeFunctorGeneric(*this, &WatcherUnordered<T>::DisposeCB), this);
+    iWatchable.Execute(MakeFunctorGeneric(*this, &WatcherUnordered<T>::DisposeCallback), this);
 }
 
 
 template<class T>
-void WatcherUnordered<T>::DisposeCB(void* aObj)
+void WatcherUnordered<T>::DisposeCallback(void* aObj)
 {
     iWatchable.RemoveWatcher(*((WatcherUnordered<T>*)aObj));
 }
@@ -140,7 +140,7 @@ void WatcherUnordered<T>::DisposeCB(void* aObj)
 
 
 template<class T>
-WatcherOrdered<T>::WatcherOrdered(IWatchableOrdered<T>& aWatchable, Action aAction)
+WatcherOrdered<T>::WatcherOrdered(IWatchableOrdered<T>& aWatchable, FunctorGeneric<void*> aAction)
     :iWatchable(aWatchable)
     ,iAction(aAction)
     ,iInitialised(false)
@@ -203,13 +203,13 @@ void OrderedClose()
 template<class T>
 void WatcherOrdered<T>::Dispose()
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &WatcherOrdered<T>::DisposeCB);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &WatcherOrdered<T>::DisposeCallback);
     iWatchable.Execute(f, this);
 }
 
 
 template<class T>
-void WatcherOrdered<T>::DisposeCB(void* aObj)
+void WatcherOrdered<T>::DisposeCallback(void* aObj)
 {
     iWatchable.RemoveWatcher(*((WatcherOrdered<T>)aObj));
 }
@@ -218,7 +218,7 @@ void WatcherOrdered<T>::DisposeCB(void* aObj)
 
 /*
 template<class T>
-static IDisposable WatcherExtensions<T>::CreateWatcher<T>(this IWatchable<T> aWatchable, Action<T> aAction)
+static IDisposable WatcherExtensions<T>::CreateWatcher<T>(this IWatchable<T> aWatchable, FunctorGeneric<void*><T> aAction)
 {
     return (new Watcher<T>(aWatchable, aAction));
 }

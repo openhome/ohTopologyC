@@ -4,10 +4,21 @@
 #include <OpenHome/Watchable.h>
 #include<vector>
 
+
+
+
 namespace OpenHome
 {
 namespace Av
 {
+
+
+
+/**
+    \ingroup watchable
+    @{
+ */
+
 
 template <class T>
 class WatchableOrdered : public WatchableCollection<T>, public IWatchableOrdered<T>//, public IDisposable,
@@ -28,13 +39,22 @@ public:
     virtual void Dispose();
 
 private:
-    void DisposeCB(void*);
+    void DisposeCallback(void*);
 
 private:
     std::vector<IWatcherOrdered<T>*> iWatchers;
 };
 
+
+/**
+    @}
+ */
+
+
 }  // Av
 }  // OpenHome
+
+
+
 
 #endif // HEADER_WATCHABLE_ORDERED

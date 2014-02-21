@@ -3,7 +3,9 @@
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/WatchableThread.h>
+#include <OpenHome/OhTopologyC.h>
 #include <OpenHome/IWatchable.h>
+#include <OpenHome/WatchableUnordered.h>
 #include <OpenHome/Device.h>
 #include <OpenHome/Buffer.h>
 #include <vector>
@@ -15,6 +17,13 @@ namespace OpenHome
 
 namespace Av
 {
+
+
+class IIdCache;
+class ITagManager;
+class IEventSupervisor;
+
+
 
 /*
 class IEventSupervisorSession : public IDisposable
@@ -38,15 +47,15 @@ class IEventSupervisor : public IWatchableThread
 class INetwork : public IWatchableThread, public IDisposable
 {
 public:
-    //virtual IIdCache& IdCache() = 0;
-    //virtual ITagManager& TagManager() = 0;
-    //virtual IEventSupervisor& EventSupervisor() = 0;
-    virtual IWatchableUnordered<IDevice*>* Create() = 0;
+    virtual IIdCache& IdCache() = 0;
+    virtual ITagManager& TagManager() = 0;
+    virtual IEventSupervisor& EventSupervisor() = 0;
+    virtual IWatchableUnordered<IDevice>* Create(EServiceType aServiceType) = 0;
 };
 
 //////////////////////////////////////////////////////////////////
 
-class Network : public INetwork
+class Network : public INetwork, public IExceptionReporter
 {
 public:
     Network(TUint aMaxCacheEntries, ILog& aLog);
@@ -57,10 +66,10 @@ public:
     void Remove(IInjectorDevice& aDevice);
 
     // INetwork
-    virtual IWatchableUnordered<IDevice*>* Create();
-    //virtual IIdCache& IdCache();
-    //virtual ITagManager& TagManager();
-    //virtual IEventSupervisor& EventSupervisor();
+    virtual IIdCache& IdCache();
+    virtual ITagManager& TagManager();
+    virtual IEventSupervisor& EventSupervisor();
+    virtual IWatchableUnordered<IDevice>* Create(EServiceType aServiceType);
 
     // IWatchableThread
     virtual void Assert();
@@ -69,6 +78,10 @@ public:
 
     // IDisposable
     virtual void Dispose();
+
+    // IExceptionReporter
+    virtual void Report(Exception& aException);
+    virtual void Report(std::exception& aException);
 
 private:
     void ReportException(Exception& aException);
@@ -82,13 +95,13 @@ private:
 private:
     std::vector<Exception> iExceptions;
     IWatchableThread* iWatchableThread;
-    Action iDispose;
+    TBool iDisposable;
     //DisposeHandler& iDisposeHandler;
-    //IdCache& iCache;
-    //ITagManager &iTagManager;
-    //EventSupervisor& iEventSupervisor;
+    IIdCache* iIdCache;
+    ITagManager* iTagManager;
+    IEventSupervisor* iEventSupervisor;
     std::map<Brn, Device*, BufferCmp> iDevices;
-    //std::map<Type, WatchableUnordered<IDevice>*> iDeviceLists;
+    std::map<EServiceType, WatchableUnordered<IDevice>*> iDeviceLists;
 };
 
 

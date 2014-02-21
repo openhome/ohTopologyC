@@ -18,22 +18,41 @@ void WatchableBase::Assert()
 }
 
 
-void WatchableBase::Schedule(Action aAction, void* aObj)
+void WatchableBase::Schedule(FunctorGeneric<void*> aCallback, void* aObj)
 {
-    iWatchableThread.Schedule(aAction, aObj);
+    iWatchableThread.Schedule(aCallback, aObj);
 }
 
 
-void WatchableBase::Execute(Action aAction, void* aObj)
+void WatchableBase::Execute(FunctorGeneric<void*> aCallback, void* aObj)
 {
-    iWatchableThread.Execute(aAction, aObj);
+    iWatchableThread.Execute(aCallback, aObj);
 }
+
+
+TBool WatchableBase::IsWatchableThread()
+{
+    return(iWatchableThread.IsWatchableThread());
+}
+
+
+void WatchableBase::Lock()
+{
+
+}
+
+
+void WatchableBase::Unlock()
+{
+
+}
+
 
 //////////////////////////////////////////////////////////////////////
 
 template <class T>
-Watchable<T>::Watchable(IWatchableThread& aThread, const Brx& aId, T aValue)
-    :WatchableBase(aThread)
+Watchable<T>::Watchable(IWatchableThread& aWatchableThread, const Brx& aId, T aValue)
+    :WatchableBase(aWatchableThread)
 {
     iId = aId;
     iValue = aValue;
@@ -124,13 +143,13 @@ void Watchable<T>::RemoveWatcher(IWatcher<T>& aWatcher)
 template <class T>
 void Watchable<T>::Dispose()
 {
-    Action action = MakeFunctorGeneric(*this, &Watchable::DisposeCB);
+    FunctorGeneric<void*> action = MakeFunctorGeneric(*this, &Watchable::DisposeCallback);
     TUint dummy;
     Execute(action, &dummy);
 }
 
 template <class T>
-void Watchable<T>::DisposeCB(void*)
+void Watchable<T>::DisposeCallback(void*)
 {
     ASSERT(iWatchers.size() == 0);
 }
@@ -163,13 +182,13 @@ void WatchableExtensions<T>::Execute(IWatchableThread& aWatchableThread)
 {
     // can't make a functor in a static method (no THIS pointer)
 
-    Action action = MakeFunctorGeneric(*this, &WatchableExtensions::ExecuteCB);
+    Action action = MakeFunctorGeneric(*this, &WatchableExtensions::ExecuteCallback);
     TUint dummy
     aWatchableThread.Execute(action, &dummy);
 }
 
 template <class T>
-void WatchableExtensions<T>::ExecuteCB(void*)
+void WatchableExtensions<T>::ExecuteCallback(void*)
 {
 
 }

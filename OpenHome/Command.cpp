@@ -28,13 +28,19 @@ const Brn CommandTokens::Next()
    return (GetNextToken(iValue, iIndex));
 }
 
+const Brn CommandTokens::Remaining()
+{
+    return(iValue.Split(iIndex));
+}
+
+
 const Brn CommandTokens::GetNextToken(const Brx& aValue, TUint& aIndex)
 {
    const TByte* start = aValue.Ptr() + aIndex;
    TUint bytes = aValue.Bytes();
    ASSERT(aIndex <= bytes)
 
-   while (true)
+   for (;;)
    {
       if (aIndex == bytes)
       {
@@ -55,7 +61,7 @@ const Brn CommandTokens::GetNextToken(const Brx& aValue, TUint& aIndex)
    ptr++;
    TUint count = 1;
 
-   while (true)
+   for (;;)
    {
       if (aIndex == bytes)
       {

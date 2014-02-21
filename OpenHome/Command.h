@@ -15,6 +15,7 @@ class ICommandTokens
 public:
    virtual TUint Count() const = 0;
    virtual const Brn Next() = 0;
+   virtual const Brn Remaining() = 0;
    virtual ~ICommandTokens() {}
 };
 
@@ -35,6 +36,7 @@ public:
    CommandTokens(const Brx& aValue);
    virtual TUint Count() const;
    virtual const Brn Next();
+   virtual const Brn Remaining();
 private:
    const Brn GetNextToken(const Brx& aValue, TUint& aIndex);
 private:

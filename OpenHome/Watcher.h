@@ -5,18 +5,24 @@
 #include <OpenHome/Watcher.h>
 
 
+
+
 namespace OpenHome
 {
 
 namespace Av
 {
 
+/**
+    \defgroup watcher Watcher
+    @{
+ */
 
 template <class T>
 class Watcher : public IWatcher<T>//, IDisposable
 {
 public:
-    Watcher(IWatchable<T>& aWatchable, Action aAction);
+    Watcher(IWatchable<T>& aWatchable, FunctorGeneric<void*> aAction);
     //Watcher(IWatchable<T> aWatchable, Action aAction);
 
     // IWatcher<T>
@@ -29,11 +35,11 @@ public:
 
 private:
     void Watch(void*);
-    void DisposeCB(void*);
+    void DisposeCallback(void*);
 
 private:
     IWatchable<T>& iWatchable;
-    Action iAction;
+    FunctorGeneric<void*> iAction;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +48,7 @@ template <class T>
 class WatcherUnordered : public IWatcherUnordered<T>//, public IDisposable
 {
 public:
-    WatcherUnordered(IWatchableUnordered<T>& aWatchable, Action aAction);
+    WatcherUnordered(IWatchableUnordered<T>& aWatchable, FunctorGeneric<void*> aAction);
 
     // IUnorderedWatcher<T>
     virtual void UnorderedOpen();
@@ -56,11 +62,11 @@ public:
 
 private:
     void Watch(void*);
-    void DisposeCB(void*);
+    void DisposeCallback(void*);
 
 private:
     IWatchableUnordered<T>& iWatchable;
-    Action iAction;
+    FunctorGeneric<void*> iAction;
     TBool iInitialised;
 };
 
@@ -70,7 +76,7 @@ template <class T>
 class WatcherOrdered : public IWatcherOrdered<T>//, public IDisposable
 {
 public:
-    WatcherOrdered(IWatchableOrdered<T>& aWatchable, Action aAction);
+    WatcherOrdered(IWatchableOrdered<T>& aWatchable, FunctorGeneric<void*> aAction);
 
     // IOrderedWatcher<T>
     virtual void OrderedOpen();
@@ -85,11 +91,11 @@ public:
 
 private:
     void Watch(void*);
-    void DisposeCB(void*);
+    void DisposeCallback(void*);
 
 private:
     IWatchableOrdered<T>& iWatchable;
-    Action iAction;
+    FunctorGeneric<void*> iAction;
     TBool iInitialised;
 };
 
@@ -105,6 +111,12 @@ public:
     static IDisposable CreateWatcher<T>(this IWatchableOrdered<T> aWatchable, Action<IEnumerable<T>> aAction);
 };
 */
+
+
+/**
+    @}
+ */
+
 
 } // namespace Av
 

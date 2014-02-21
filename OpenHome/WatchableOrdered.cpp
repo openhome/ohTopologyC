@@ -3,6 +3,8 @@
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
+using namespace std;
+
 
 
 template <class T>
@@ -12,6 +14,13 @@ WatchableOrdered<T>::WatchableOrdered(IWatchableThread& aWatchableThread)
 }
 
 
+/**
+    Add an item to the collection at a specified index position
+
+    @param[in] aItem   Reference to the item o be added
+    @param[in] aIndex  An integer specifying the index position
+
+ */
 template <class T>
 void WatchableOrdered<T>::Add(T& aItem, TUint aIndex)
 {
@@ -24,11 +33,13 @@ void WatchableOrdered<T>::Add(T& aItem, TUint aIndex)
     for(TUint i=0; i<watchers.size(); i++ )
     {
          watchers[i]->OrderedAdd(aItem, aIndex);
-
     }
 }
 
+/**
+    Move an item to a new index in the list
 
+ */
 template <class T>
 void WatchableOrdered<T>::Move(T& aItem, TUint aNewIndex)
 {
@@ -51,12 +62,16 @@ void WatchableOrdered<T>::Move(T& aItem, TUint aNewIndex)
 }
 
 
+/**
+    Remove an item from the list
+
+ */
 template <class T>
 void WatchableOrdered<T>::Remove(T& aItem)
 {
     WatchableBase::Assert();
 
-    typename std::vector<IWatcherOrdered<T>*>::iterator item = find(WatchableCollection<T>::iItems.begin(), WatchableCollection<T>::iItems.end(), &aItem);
+    typename vector<IWatcherOrdered<T>*>::iterator item = find(WatchableCollection<T>::iItems.begin(), WatchableCollection<T>::iItems.end(), &aItem);
     ASSERT(item != WatchableCollection<T>::iItems.end())
 
     TUint index = item-WatchableCollection<T>::iItems.begin();
@@ -70,6 +85,10 @@ void WatchableOrdered<T>::Remove(T& aItem)
 }
 
 
+/**
+    Clear the list
+
+ */
 template <class T>
 void WatchableOrdered<T>::Clear()
 {
@@ -89,6 +108,10 @@ void WatchableOrdered<T>::Clear()
 }
 
 
+/**
+    Add a Watcher to the list
+
+ */
 template <class T>
 void WatchableOrdered<T>::AddWatcher(IWatcherOrdered<T>& aWatcher)
 {
@@ -107,6 +130,10 @@ void WatchableOrdered<T>::AddWatcher(IWatcherOrdered<T>& aWatcher)
 }
 
 
+/**
+    Remove a Watcher from the list
+
+ */
 template <class T>
 void WatchableOrdered<T>::RemoveWatcher(IWatcherOrdered<T>& aWatcher)
 {
@@ -128,17 +155,15 @@ void WatchableOrdered<T>::RemoveWatcher(IWatcherOrdered<T>& aWatcher)
 template <class T>
 void WatchableOrdered<T>::Dispose()
 {
-    Action action = MakeFunctorGeneric(*this, &WatchableOrdered::DisposeCB);
+    FunctorGeneric<void*> action = MakeFunctorGeneric(*this, &WatchableOrdered::DisposeCallback);
     WatchableBase::Execute(action);
 }
 
 
 template <class T>
-void WatchableOrdered<T>::DisposeCB(void*)
+void WatchableOrdered<T>::DisposeCallback(void*)
 {
     ASSERT(iWatchers.size() == 0);
 }
-
-
 
 

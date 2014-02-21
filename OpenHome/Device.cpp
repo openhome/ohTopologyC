@@ -1,24 +1,25 @@
 #include<OpenHome/Device.h>
 #include<OpenHome/Buffer.h>
-#include <vector>
+#include<OpenHome/Service.h>
 #include <algorithm>
+#include <vector>
 
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
+using namespace std;
 
 
 
 Device::Device(IInjectorDevice& aDevice)
     :iDevice(aDevice)
+    ,iDisposeHandler(new DisposeHandler())
 {
-    //iDisposeHandler = new DisposeHandler();
 }
 
 
-const Brx& Device::Udn()
+Brn Device::Udn()
 {
-
     //using (iDisposeHandler.Lock())
     //{
         return iDevice.Udn();
@@ -27,18 +28,18 @@ const Brx& Device::Udn()
 }
 
 
-void Device::Create(Action aCallback)
+void Device::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType)
 {
 
     //using (iDisposeHandler.Lock())
     //{
-        iDevice.Create(aCallback, *this);
+        iDevice.Create(aCallback, aServiceType, *this);
     //}
 
 }
 
 
-void Device::Join(Action aAction)
+void Device::Join(Functor aAction)
 {
     //using (iDisposeHandler.Lock())
     //{
@@ -48,13 +49,15 @@ void Device::Join(Action aAction)
 }
 
 
-void Device::Unjoin(Action aAction)
+void Device::Unjoin(Functor aAction)
 {
 /*    using (iDisposeHandler.Lock())
     {
         iDevice.Unjoin(aAction);
     }
 */
+    iDevice.Unjoin(aAction);
+
 }
 
 
@@ -65,15 +68,15 @@ void Device::Dispose()
     iDevice.Dispose();
 }
 
-/*
-TBool Device::HasService(Type aServiceType)
+
+TBool Device::HasService(EServiceType aServiceType)
 {
     //using (iDisposeHandler.Lock())
     //{
         return iDevice.HasService(aServiceType);
     //}
 }
-*/
+
 
 TBool Device::Wait()
 {
@@ -92,35 +95,35 @@ InjectorDeviceAdaptor::InjectorDeviceAdaptor(IInjectorDevice& aDevice)
 }
 
 
-void InjectorDeviceAdaptor::Join(Action aAction)
+void InjectorDeviceAdaptor::Join(Functor aAction)
 {
     iDevice.Join(aAction);
 }
 
 
-void InjectorDeviceAdaptor::Unjoin(Action aAction)
+void InjectorDeviceAdaptor::Unjoin(Functor aAction)
 {
     iDevice.Unjoin(aAction);
 }
 
 
-const Brx& InjectorDeviceAdaptor::Udn()
+Brn InjectorDeviceAdaptor::Udn()
 {
     return iDevice.Udn();
 }
 
 
-void InjectorDeviceAdaptor::Create(Action aCallback, IDevice& aDevice)
+void InjectorDeviceAdaptor::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType, IDevice& aDevice)
 {
-    iDevice.Create(aCallback, aDevice);
+    iDevice.Create(aCallback, aServiceType, aDevice);
 }
 
-/*
-TBool InjectorDeviceAdaptor::HasService(Type aServiceType)
+
+TBool InjectorDeviceAdaptor::HasService(EServiceType aServiceType)
 {
     return iDevice.HasService(aServiceType);
 }
-*/
+
 
 TBool InjectorDeviceAdaptor::Wait()
 {
@@ -143,26 +146,26 @@ void InjectorDeviceAdaptor::Dispose()
 
 InjectorDeviceMock::InjectorDeviceMock(IInjectorDevice& aDevice)
     :iDevice(aDevice)
-    ,iDeviceAdaptor(iDevice)
+    ,iDeviceAdaptor(*(new InjectorDeviceAdaptor(iDevice)))
     ,iOn(false)
 {
 
 }
 
 
-IInjectorDevice* InjectorDeviceMock::On()
+IInjectorDevice& InjectorDeviceMock::On()
 {
     ASSERT(!iOn);
     iOn = true;
-    return (&iDeviceAdaptor);
+    return (iDeviceAdaptor);
 }
 
 
-IInjectorDevice* InjectorDeviceMock::Off()
+IInjectorDevice& InjectorDeviceMock::Off()
 {
     ASSERT(iOn);
     iOn = false;
-    return (&iDeviceAdaptor);
+    return (iDeviceAdaptor);
 }
 
 
@@ -199,13 +202,12 @@ ServiceNotFoundException::ServiceNotFoundException(const Brx& aMessage, Exceptio
 
 InjectorDevice::InjectorDevice(const Brx& aUdn)
     :iUdn(aUdn)
-    //,iDisposeHandler(new DisposeHandler())
-    //,iServices = new Dictionary<Type, Service>();
+    ,iDisposeHandler(new DisposeHandler())
 {
 
 }
 
-void InjectorDevice::Join(Action aAction)
+void InjectorDevice::Join(Functor aAction)
 {
     //using (iDisposeHandler.Lock())
     //{
@@ -213,17 +215,20 @@ void InjectorDevice::Join(Action aAction)
     //}
 }
 
-void InjectorDevice::Unjoin(Action aAction)
+void InjectorDevice::Unjoin(Functor aAction)
 {
-    //using (iDisposeHandler.Lock())
-    //{
-        //std::vector<Action>::iterator joiner = find(iJoiners.begin(), iJoiners.end(), aAction);
-        //ASSERT(joiner != iJoiners.end());
-        //iJoiners.erase(joiner);
-    //}
+/*
+    using (iDisposeHandler.Lock())
+    {
+        iJoiners.Remove(aAction);
+    }
+*/
+    vector<Functor>::iterator  it = find(iJoiners.begin(), iJoiners.end(), aAction);
+    ASSERT(it != iJoiners.end());
+    iJoiners.erase(it);
 }
 
-const Brx& InjectorDevice::Udn()
+Brn InjectorDevice::Udn()
 {
     //using (iDisposeHandler.Lock())
     //{
@@ -231,89 +236,103 @@ const Brx& InjectorDevice::Udn()
     //}
 }
 
-/*
-template <class T>
-void InjectorDevice::Add<T>(Service aService)
+
+void InjectorDevice::Add(EServiceType aServiceType, Service* aService)
 {
     //using (iDisposeHandler.Lock())
     //{
-        iServices.Add(typeof(T), aService);
+        iServices[aServiceType] = aService;
     //}
 }
-*/
 
-/*
-TBool InjectorDevice::HasService(Type aServiceType)
+
+
+TBool InjectorDevice::HasService(EServiceType aServiceType)
 {
     //using (iDisposeHandler.Lock())
     //{
-        return iServices.ContainsKey(aServiceType);
+        return (iServices.count(aServiceType)!=0);
     //}
 }
-*/
 
-void InjectorDevice::Create(Action aCallback, IDevice& aDevice)
+
+void InjectorDevice::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType, IDevice& aDevice)
 {
-    //using (iDisposeHandler.Lock())
-    //{
+
 /*
+    using (iDisposeHandler.Lock())
+    {
         if (!iServices.ContainsKey(typeof(T)))
         {
             throw new ServiceNotFoundException("Cannot find service of type " + typeof(T) + " on " + iUdn);
         }
 
         iServices[typeof(T)].Create<T>(aCallback, aDevice);
+    }
 */
-    //}
+    if (iServices.count(aServiceType)==0)
+    {
+        //throw new ServiceNotFoundException("Cannot find service of type " + typeof(T) + " on " + iUdn);
+    }
+
+    iServices[aServiceType]->Create(aCallback, aServiceType, &aDevice);
 }
 
-/*
-IService InjectorDevice::GetService(const Brx& aType)
+
+IService& InjectorDevice::GetService(const Brx& aType)
 {
-    if (aType == "product")
+    if (aType == Brn("product"))
     {
-        return iServices[typeof(IProxyProduct)];
+        return *iServices[EProxyProduct];
     }
-    else if (aType == "info")
+    else if (aType == Brn("info"))
     {
-        return iServices[typeof(IProxyInfo)];
+        return *iServices[EProxyInfo];
     }
-    else if (aType == "time")
+    else if (aType == Brn("time"))
     {
-        return iServices[typeof(IProxyTime)];
+        return *iServices[EProxyTime];
     }
-    else if (aType == "sender")
+    else if (aType == Brn("sender"))
     {
-        return iServices[typeof(IProxySender)];
+        return *iServices[EProxySender];
     }
-    else if (aType == "volume")
+    else if (aType == Brn("volume"))
     {
-        return iServices[typeof(IProxyVolume)];
+        return *iServices[EProxyVolume];
     }
-    else if (aType == "playlist")
+    else if (aType == Brn("playlist"))
     {
-        return iServices[typeof(IProxyPlaylist)];
+        return *iServices[EProxyPlaylist];
     }
-    else if (aType == "radio")
+    else if (aType == Brn("radio"))
     {
-        return iServices[typeof(IProxyRadio)];
+        return *iServices[EProxyRadio];
     }
-    else if (aType == "receiver")
+    else if (aType == Brn("receiver"))
     {
-        return iServices[typeof(IProxyReceiver)];
+        return *iServices[EProxyReceiver];
     }
     else
     {
-        throw new ServiceNotFoundException();
+        //throw new ServiceNotFoundException();
     }
+
+    ASSERTS();
+    return *iServices[EProxyProduct];
 }
-*/
+
 
 
 TBool InjectorDevice::Wait()
 {
-
     TBool complete = true;
+
+    map<EServiceType, Service*>::iterator it;
+    for (it=iServices.begin(); it!=iServices.end(); it++)
+    {
+        complete &= it->second->Wait();
+    }
 
 /*    foreach (Service service in iServices.Values)
     {
@@ -335,18 +354,25 @@ void InjectorDevice::Execute(ICommandTokens& aTokens)
 
 void InjectorDevice::Dispose()
 {
-/*
-    iDisposeHandler.Dispose();
+    iDisposeHandler->Dispose();
 
-    foreach (Action action in iJoiners)
+    for(TUint i=0; i<iJoiners.size(); i++)
     {
-        action();
+        iJoiners[i]();
     }
 
+
+    map<EServiceType, Service*>::iterator it;
+    for (it=iServices.begin(); it!=iServices.end(); it++)
+    {
+        it->second->Dispose();
+    }
+/*
     foreach (IService s in iServices.Values)
     {
         s.Dispose();
     }
-*/}
+*/
+}
 
 

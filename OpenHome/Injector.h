@@ -18,7 +18,7 @@ namespace Av
 {
 
 
-class INetwork;
+class Network;
 
 
 /*
@@ -75,8 +75,8 @@ public:
     virtual void Execute(ICommandTokens& aTokens);
 
 private:
-    void DisposeCB(void*);
-    void ExecuteCB(void* aObj);
+    void DisposeCallback(void*);
+    void ExecuteCallback(void* aObj);
     InjectorDeviceMock* Create(IInjectorDevice& aDevice);
     void CreateAndAdd(IInjectorDevice& aDevice);
 

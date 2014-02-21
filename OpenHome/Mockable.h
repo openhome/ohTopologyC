@@ -22,13 +22,6 @@ namespace Av
 
 static const TUint kMaxResultBytes = 2000;
 
-
-class TextReader
-{
-public:
-    TextReader();
-};
-
 ///////////////////////////////////////////////
 
 class IMockable
@@ -57,11 +50,11 @@ private:
 class MockableStream
 {
 public:
-    MockableStream(TextReader& aTextReader, IMockable& aMockable);
+    MockableStream(IReader& aTextReader, IMockable& aMockable);
     void Start();
 
 private:
-    TextReader& iTextReader;
+    IReader& iReader;
     IMockable& iMockable;
 };
 
@@ -71,6 +64,7 @@ class MockableScriptRunner
 {
 private:
     static const TUint kMaxFifoEntries = 10;
+    static const TUint kMaxLineBytes = 2000;
 
 
 private:
@@ -82,16 +76,17 @@ private:
 
 public:
     MockableScriptRunner();
-    void Run(FunctorGeneric<void*> aWait, TextReader& aStream, IMockable& aMockable);
+    void Run(FunctorGeneric<void*> aWait, IReader& aStream, IMockable& aMockable);
     void Result(const Brx& aValue);
 
 private:
     void Assert(const Brx& aActual, const Brx& aExpected);
     void Assert(TBool aExpression);
 
+
     //Queue<string> iResultQueue;
     Fifo<Brn> iResultQueue;
-
+    Bws<kMaxLineBytes> iLine;
 };
 
 //////////////////////////////////////////////

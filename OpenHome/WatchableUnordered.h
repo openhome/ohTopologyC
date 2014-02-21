@@ -6,14 +6,22 @@
 #include <vector>
 
 
+
+
 namespace OpenHome
 {
 
 namespace Av
 {
 
+
+/**
+    \ingroup watchable
+    @{
+ */
+
 template <class T>
-class WatchableUnordered : public WatchableCollection<T>, public IWatchableUnordered<T> //, public IDisposable
+class WatchableUnordered : public IWatchableUnordered<T>, public WatchableCollection<T> //, public IDisposable
 {
 public:
     WatchableUnordered(IWatchableThread& aWatchableThread);
@@ -29,13 +37,24 @@ public:
     virtual void Dispose();
 
 private:
-    void DisposeCB(void*);
+    void DisposeCallback(void*);
 
 private:
     std::vector<IWatcherUnordered<T>*> iWatchers;
 };
 
+
+/**
+    @}
+ */
+
+
+
 } // namespace Av
 } // namespace OpenHome
+
+
+
+
 
 #endif // HEADER_WATCHABLE_UNORDERED

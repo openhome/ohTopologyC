@@ -2,7 +2,7 @@
     {   "name": "ohNet",
         "type": "openhome",
         "platform-specific": true,
-        "version": "1.0.899",
+        "version": "1.0.1025",
         "archive-suffix": "-${debugmode}",
         "main-dir": "${dest}${name}-${platform}-${debugmode}",
         "configure-args": [
@@ -60,6 +60,13 @@
         "ignore":           "${platform-ignore[$platform]}",
         "dest":             "dependencies/AnyPlatform/"
     },
+    {   "name": "ohNetmon",
+        "type": "internal",
+        "platform-specific": true,
+        "version": "0.0.11",
+        "archive-suffix": "-${debugmode}",
+        "main-dir": "${dest}${name}-${platform}-${debugmode}"
+    },
     {   "name":             "volkano-tools",
         "version":          "0.0.4",
         "type":             "internal",
@@ -71,19 +78,5 @@
             "*": true },
         "ignore":           "${platform-ignore[$platform]}",
         "dest":             "dependencies/AnyPlatform/${name}/"
-    },
-    {   "name": "openssl",
-        "type": "external",
-        "platform-specific": true,
-        "external-version": "1.0.0d",
-        "internal-version": "0.1.19",
-        "archive-path": "http://core.linn.co.uk/~artifacts/artifacts/openssl/openssl-${external-version}-${internal-version}-${archive-platform}-${debugmode}.tar.bz2"
-    },
-    {   "name": "ohNetmon",
-        "type": "internal",
-        "platform-specific": true,
-        "version": "0.0.4",
-        "archive-suffix": "-${debugmode}",
-        "main-dir": "${dest}${name}-${platform}-${debugmode}"
     }
 ]

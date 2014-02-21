@@ -99,13 +99,13 @@ void WatchableUnordered<T>::RemoveWatcher(IWatcherUnordered<T>& aWatcher)
 template <class T>
 void WatchableUnordered<T>::Dispose()
 {
-    Action action = MakeFunctorGeneric(*this, &WatchableUnordered::DisposeCB);
-    WatchableBase::Execute(action);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &WatchableUnordered::DisposeCallback);
+    WatchableBase::Execute(f);
 }
 
 
 template <class T>
-void WatchableUnordered<T>::DisposeCB(void*)
+void WatchableUnordered<T>::DisposeCallback(void*)
 {
     ASSERT(iWatchers.size() == 0);
 }

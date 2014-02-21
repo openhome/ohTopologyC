@@ -4,12 +4,28 @@
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Buffer.h>
 #include <OpenHome/Command.h>
+#include <OpenHome/Functor.h>
 
 
 using namespace Linn;
 
 namespace OpenHome
 {
+
+
+
+
+enum EServiceType
+{
+    EProxyProduct,
+    EProxyInfo,
+    EProxyTime,
+    EProxySender,
+    EProxyVolume,
+    EProxyPlaylist,
+    EProxyRadio,
+    EProxyReceiver,
+};
 
 
 template<class Type>
@@ -70,10 +86,6 @@ MakeFunctorGeneric(Object& aC, void(CallType::* const &aF)(Type))
 
 ////////////////////////////////////////////////////////////////////
 
-typedef FunctorGeneric<void*> Action;
-
-////////////////////////////////////////////////////////////////////
-
 template<class T1, class T2>
 class ArgsTwo
 {
@@ -85,7 +97,6 @@ private:
     T1 iArg1;
     T2 iArg2;
 };
-
 
 ////////////////////////////////////////////////////////////////////
 
@@ -102,8 +113,8 @@ public:
 class IJoinable
 {
 public:
-    virtual void Join(Action aAction) = 0;
-    virtual void Unjoin(Action aAction) = 0;
+    virtual void Join(Functor aAction) = 0;
+    virtual void Unjoin(Functor aAction) = 0;
     virtual ~IJoinable() {}
 };
 
