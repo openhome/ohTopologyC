@@ -36,7 +36,7 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
     SrcXml* xml = new SrcXml(sources);
 
 
-    device->Add/*<IProxyProduct>*/(EProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes, Brn(""),
+    device->Add(EProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes, Brn(""),
                                     Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brn(""),
                                     Brn("Linn High Fidelity System Component"), Brn("Mock DS"), Brn(""),
                                     Brn(""), Brn("Linn High Fidelity System Component"),

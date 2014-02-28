@@ -11,6 +11,9 @@
 #include <map>
 
 
+EXCEPTION(NotImplementedException);
+
+
 namespace OpenHome
 {
 
@@ -82,7 +85,7 @@ private:
 
 private:
     Network& iNetwork;
-    Bws<100> iResourceRoot; // FIXME: random capacity value
+    //Bws<100> iResourceRoot; // FIXME: random capacity value
     ILog& iLog;
     std::map<Brn, InjectorDeviceMock*, BufferCmp> iMockDevices;
 };

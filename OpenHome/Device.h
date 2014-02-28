@@ -132,6 +132,17 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////
+/*
+class ServiceNotFoundException : public Exception
+{
+public:
+    //ServiceNotFoundException();
+    ServiceNotFoundException(const Brx& aMessage);
+    ServiceNotFoundException(const Brx& aMessage, Exception aInnerException);
+};
+
+*/
+
 
 } // Av
 } // OpenHome

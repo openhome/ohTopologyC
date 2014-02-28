@@ -114,9 +114,8 @@ def build(bld):
             source=[
                 'OpenHome/WatchableThread.cpp',
                 'OpenHome/Watchable.cpp',
-                'OpenHome/Watcher.cpp',
-                'OpenHome/WatchableOrdered.cpp',
-                'OpenHome/WatchableUnordered.cpp',
+                #'OpenHome/WatchableOrdered.cpp',
+                #'OpenHome/WatchableUnordered.cpp',
                 'OpenHome/Command.cpp',
                 'OpenHome/DisposeHandler.cpp',
                 'OpenHome/Device.cpp',
@@ -137,6 +136,7 @@ def build(bld):
            source=[
                 'OpenHome/Tests/TestWatchableThread.cpp',
                 'OpenHome/Tests/TestShell.cpp',
+                'OpenHome/Tests/TestTopology1.cpp',
             ],
             use=['ohTopologyC'],
             target='ohTopologyCTestUtils')
@@ -151,6 +151,10 @@ def build(bld):
            use=['OHNET', 'SHELL', 'ohTopologyC', 'ohTopologyCTestUtils'],
            target='TestShell')
 
+    bld.program(
+           source='OpenHome/Tests/TestTopology1Main.cpp',
+           use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
+           target='TestTopology1')
 
 
 # Bundles

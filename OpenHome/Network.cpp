@@ -1,6 +1,8 @@
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/WatchableThread.h>
+#include <OpenHome/WatchableUnordered.h>
 #include <OpenHome/Network.h>
+#include <OpenHome/Private/Debug.h>
 
 
 using namespace OpenHome;
@@ -10,6 +12,9 @@ using namespace std;
 
 /////////////////////////////////////////////////////////////////
 
+/**
+
+ */
 Network::Network(TUint aMaxCacheEntries, ILog& aLog)
     :iWatchableThread(new WatchableThread(*this))
     ,iDisposable(true)
@@ -22,6 +27,9 @@ Network::Network(TUint aMaxCacheEntries, ILog& aLog)
 }
 
 
+/**
+
+ */
 Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILog& aLog)
     :iWatchableThread(&aWatchableThread)
     ,iDisposable(false)
@@ -33,6 +41,10 @@ Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILo
     //iEventSupervisor = new EventSupervisor(iWatchableThread);
 }
 
+
+/**
+
+ */
 /*
 void Network::ReportException(Exception& aException)
 {
@@ -43,15 +55,21 @@ void Network::ReportException(Exception& aException)
 }
 */
 
+/**
+
+ */
 void Network::Report(Exception& aException)
 {
     //lock (iExceptions)
     //{
-        //iExceptions.push_back(aException);
+        iExceptions.push_back(aException);
     //}
 }
 
 
+/**
+
+ */
 void Network::Report(std::exception& aException)
 {
     //lock (iExceptions)
@@ -61,8 +79,12 @@ void Network::Report(std::exception& aException)
 }
 
 
+/**
+
+ */
 TBool Network::WaitDevices()
 {
+    LOG(kTrace, "Network::WaitDevices \n");
     TBool complete = true;
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::WaitDevicesCallback);
     Execute(f, &complete);
@@ -70,9 +92,13 @@ TBool Network::WaitDevices()
 }
 
 
+/**
+
+ */
 void Network::WaitDevicesCallback(void* aObj)
 {
-    Assert();
+    LOG(kTrace, "Network::WaitDevicesCallback \n");
+    Assert(); /// must be on watchable thread
     TBool* complete = (TBool*)aObj;
 
     std::map<Brn, Device*, BufferCmp>::iterator it;
@@ -85,16 +111,20 @@ void Network::WaitDevicesCallback(void* aObj)
 
 
 
+/**
+
+ */
 void Network::Wait()
 {
+    LOG(kTrace, "Network::Wait \n");
+
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::DoNothing);
 
     for (;;)
     {
         while (!WaitDevices()) ;
 
-        TUint dummy;
-        Execute(f, &dummy);
+        Execute(f, NULL);
 
         if (WaitDevices())
         {
@@ -104,12 +134,18 @@ void Network::Wait()
 }
 
 
+/**
+
+ */
 void Network::DoNothing(void*)
 {
-
+    LOG(kTrace, "Network::DoNothing \n");
 }
 
 
+/**
+
+ */
 void Network::Add(IInjectorDevice& aDevice)
 {
     //using (iDisposeHandler.Lock())
@@ -120,14 +156,16 @@ void Network::Add(IInjectorDevice& aDevice)
 }
 
 
+/**
+
+ */
 void Network::AddCallback(void* aObj)
 {
-    Assert();
+    Assert(); /// must be on watchable thread
 
     IInjectorDevice* device = (IInjectorDevice*)aObj;
     Device* handler = new Device(*device);
 
-    //if (iDevices.ContainsKey(handler.Udn()))
     if ( iDevices.count(handler->Udn()) > 0 )
     {
         handler->Dispose();
@@ -146,18 +184,12 @@ void Network::AddCallback(void* aObj)
         }
     }
 
-
-//    foreach (KeyValuePair<Type, WatchableUnordered<IDevice>> kvp in iDeviceLists)
-//    {
-//        if (device.HasService(kvp.Key))
-//        {
-//            kvp.Value.Add(handler);
-//        }
-//    }
-
 }
 
 
+/**
+
+ */
 void Network::Remove(IInjectorDevice& aDevice)
 {
 /*
@@ -192,6 +224,9 @@ void Network::Remove(IInjectorDevice& aDevice)
 }
 
 
+/**
+
+ */
 void Network::RemoveCallback(void* aObj)
 {
     IInjectorDevice* device = (IInjectorDevice*)aObj;
@@ -217,73 +252,88 @@ void Network::RemoveCallback(void* aObj)
 
 }
 
-//template <class T>
+
+/**
+
+ */
 IWatchableUnordered<IDevice>* Network::Create(EServiceType aServiceType)
 {
     //using (iDisposeHandler.Lock())
     //{
-        Assert();
+        Assert(); /// must be on watchable thread
 
-//        EServiceType key = typeof(T);
-        EServiceType key = aServiceType;
-
-        //WatchableUnordered<IDevice> list;
-
-//      if (iDeviceLists.TryGetValue(key, out list))
         if (iDeviceLists.count(aServiceType)>0)
         {
-            return(iDeviceLists[key]);
+            return(iDeviceLists[aServiceType]);
         }
         else
         {
-            WatchableUnordered<IDevice>* list = new WatchableUnordered<IDevice>(*iWatchableThread);
+            WatchableUnordered<IDevice>* watchables = new WatchableUnordered<IDevice>(*iWatchableThread);
 
-            //iDeviceLists.Add(key, list);
-            iDeviceLists[key] = list;
+            iDeviceLists[aServiceType] = watchables;
 
             std::map<Brn, Device*, BufferCmp>::iterator it;
 
             for(it=iDevices.begin(); it!=iDevices.end(); it++)
             {
-                if (it->second->HasService(key))
+                if (it->second->HasService(aServiceType))
                 {
                     Device* device = it->second;
-                    list->Add(*device);
+                    watchables->Add(*device);
                 }
             }
-/*
-            foreach (Device d in iDevices.Values)
-            {
-                if (d.HasService(key))
-                {
-                    list.Add(d);
-                }
-            }
-*/
-            return(list);
+
+            return(watchables);
         }
     //}
 }
 
 
+/**
+    Assert that we running on the watchable thread
+
+ */
 void Network::Assert()
 {
     iWatchableThread->Assert();
 }
 
 
+/**
+    Schedule a callback on the watchable thread
+
+    @param[in] aCallback   The callback functor to schedule
+    @param[in] aObj  A pointer to the callback function's arguments
+
+ */
 void Network::Schedule(FunctorGeneric<void*> aCallback, void* aObj)
 {
     iWatchableThread->Schedule(aCallback, aObj);
 }
 
 
+/**
+    Execute a callback on the watchable thread
+
+    @param[in] aCallback   The callback functor to execute
+    @param[in] aObj  A pointer to the callback function's arguments
+ */
 void Network::Execute(FunctorGeneric<void*> aCallback, void* aObj)
 {
     iWatchableThread->Execute(aCallback, aObj);
 }
 
 
+
+TBool Network::IsWatchableThread()
+{
+    return(iWatchableThread->IsWatchableThread());
+}
+
+
+/**
+
+ */
 void Network::Dispose()
 {
     Wait();
@@ -298,9 +348,8 @@ void Network::Dispose()
     }
 
 
-    TUint dummy;
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::DisposeCallback);
-    Execute(f, &dummy);
+    Execute(f, NULL);
 
     //iEventSupervisor.Dispose();
     //iDisposeHandler.Dispose();
@@ -317,6 +366,9 @@ void Network::Dispose()
 }
 
 
+/**
+
+ */
 void Network::DisposeCallback(void*)
 {
     std::map<Brn, Device*, BufferCmp>::iterator it;
@@ -333,6 +385,9 @@ void Network::DisposeCallback(void*)
 
 
 
+/**
+
+ */
 IIdCache& Network::IdCache()
 {
     // IdCache not implemented yet
@@ -341,6 +396,9 @@ IIdCache& Network::IdCache()
 }
 
 
+/**
+
+ */
 ITagManager& Network::TagManager()
 {
     // TagManager not implemented yet
@@ -349,6 +407,9 @@ ITagManager& Network::TagManager()
 }
 
 
+/**
+
+ */
 IEventSupervisor& Network::EventSupervisor()
 {
     // EventSupervisor not implemented yet

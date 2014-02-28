@@ -180,6 +180,555 @@ Brn ServiceProduct::ProductId()
 
 
 
+//////////////////////////////////////////////////////////
+
+
+Source::Source(const Brx& aName, const Brx& aType, TBool aVisible)
+    :iName(aName)
+    ,iType(aType)
+    ,iVisible(aVisible)
+{
+
+}
+
+
+Brn Source::Name()
+{
+    return(Brn(iName));
+}
+
+
+void Source::SetName(const Brx& aName)
+{
+    iName.Replace(aName);
+}
+
+
+Brn Source::Type()
+{
+    return(Brn(iType));
+}
+
+
+TBool Source::Visible()
+{
+    return(iVisible);
+}
+
+
+void Source::SetVisible(TBool aValue)
+{
+    iVisible = aValue;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+SrcXml::SrcXml(vector<Source*> aSources)
+{
+    iSources = aSources;
+    CreateSourceXml();
+}
+
+
+const Brx& SrcXml::ToString()
+{
+    return(iSourceXml);
+}
+
+
+void SrcXml::UpdateName(TUint aIndex, const Brx& aName)
+{
+    iSources[aIndex]->SetName(aName);
+    CreateSourceXml();
+}
+
+
+void SrcXml::UpdateVisible(TUint aIndex, TBool aVisible)
+{
+    iSources[aIndex]->SetVisible(aVisible);
+    CreateSourceXml();
+}
+
+
+void SrcXml::CreateSourceXml()
+{
+
+    iSourceXml.Replace(Brn("<SourceList>"));
+
+    for(TUint i=0; i<iSources.size(); i++)
+    {
+        iSourceXml.Append(Brn("<Source>"));
+        iSourceXml.Append(Brn("<Name>"));
+        iSourceXml.Append(iSources[i]->Name());
+        iSourceXml.Append(Brn("</Name>"));
+        iSourceXml.Append(Brn("<Type>"));
+        iSourceXml.Append(iSources[i]->Type());
+        iSourceXml.Append(Brn("</Type>"));
+        iSourceXml.Append(Brn("<Visible>"));
+
+        if (iSources[i]->Visible())
+        {
+            iSourceXml.Append(Brn("true"));
+        }
+        else
+        {
+            iSourceXml.Append(Brn("false"));
+        }
+
+        iSourceXml.Append(Brn("</Visible>"));
+        iSourceXml.Append(Brn("</Source>"));
+    }
+
+    iSourceXml.Append(Brn("</SourceList>"));
+
+/*
+    XmlDocument doc = new XmlDocument();
+
+    XmlElement sources = doc.CreateElement("SourceList");
+
+    foreach (Source s in iSources)
+    {
+        XmlElement source = doc.CreateElement("Source");
+
+        XmlElement name = doc.CreateElement("Name");
+        XmlElement type = doc.CreateElement("Type");
+        XmlElement visible = doc.CreateElement("Visible");
+
+        name.AppendChild(doc.CreateTextNode(s.Name));
+        type.AppendChild(doc.CreateTextNode(s.Type));
+        visible.AppendChild(doc.CreateTextNode(s.Visible.ToString()));
+
+        source.AppendChild(name);
+        source.AppendChild(type);
+        source.AppendChild(visible);
+
+        sources.AppendChild(source);
+    }
+
+    doc.AppendChild(sources);
+
+    iSourceXml = doc.OuterXml;
+*/
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+ServiceProductMock::ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aRoom, const Brx& aName, TUint aSourceIndex, SrcXml* aSourceXmlFactory, TBool aStandby,
+    const Brx& aAttributes, const Brx& aManufacturerImageUri, const Brx& aManufacturerInfo, const Brx& aManufacturerName, const Brx& aManufacturerUrl, const Brx& aModelImageUri, const Brx& aModelInfo, const Brx& aModelName,
+    const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog& aLog)
+    : ServiceProduct(aNetwork, aDevice, aLog)
+    ,iSourceXmlFactory(aSourceXmlFactory)
+{
+    iAttributes.Set(aAttributes);
+    iManufacturerImageUri.Set(aManufacturerImageUri);
+    iManufacturerInfo.Set(aManufacturerInfo);
+    iManufacturerName.Set(aManufacturerName);
+    iManufacturerUrl.Set(aManufacturerUrl);
+    iModelImageUri.Set(aModelImageUri);
+    iModelInfo.Set(aModelInfo);
+    iModelName.Set(aModelName);
+    iModelUrl.Set(aModelUrl);
+    iProductImageUri.Set(aProductImageUri);
+    iProductInfo.Set(aProductInfo);
+    iProductUrl.Set(aProductUrl);
+    iProductId.Set(aProductId);
+
+    iRoom->Update(Brn(aRoom));
+    iName->Update(Brn(aName));
+    iSourceIndex->Update(aSourceIndex);
+    iSourceXml->Update(Brn(iSourceXmlFactory->ToString()));
+    iStandby->Update(aStandby);
+}
+
+
+void ServiceProductMock::Execute(ICommandTokens& aCommands)
+{
+    Brn command = aCommands.Next();
+
+    if (Ascii::CaseInsensitiveEquals(command, Brn("attributes")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iAttributes = string.Join(" ", command.Next());
+        iAttributes.Set(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerimageuri")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iManufacturerImageUri = string.Join(" ", value);
+        iManufacturerImageUri.Set(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerinfo")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iManufacturerInfo = string.Join(" ", value);
+        iManufacturerInfo.Set(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturername")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iManufacturerName = string.Join(" ", value);
+        iManufacturerName.Set(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerurl")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iManufacturerUrl = string.Join(" ", value);
+        iManufacturerUrl.Set(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("modelimageuri")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iModelImageUri = string.Join(" ", value);
+        iModelImageUri.Set(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("modelinfo")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iModelInfo = string.Join(" ", value);
+        iModelInfo.Set(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("modelname")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iManufacturerName = string.Join(" ", value);
+        iManufacturerName.Set(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("modelurl")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iModelUrl = string.Join(" ", value);
+        iModelUrl.Set(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("productimageuri")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iProductImageUri = string.Join(" ", value);
+        iProductImageUri.Set(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("productinfo")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iProductInfo = string.Join(" ", value);
+        iProductInfo.Set(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("producturl")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iProductUrl = string.Join(" ", value);
+        iProductUrl.Set(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("productid")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iProductId = string.Join(" ", value);
+        iProductId.Set(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("room")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iRoom.Update(string.Join(" ", value));
+        iRoom->Update(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("name")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iName.Update(string.Join(" ", value));
+        iName->Update(aCommands.Remaining());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("sourceindex")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iSourceIndex.Update(uint.Parse(value.First()));
+        iSourceIndex->Update(Ascii::Uint(aCommands.Next()));
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("standby")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iStandby.Update(TBool.Parse(value.First()));
+        Brn val = aCommands.Next();
+        TBool standby = Ascii::CaseInsensitiveEquals(val, Brn("true"));
+        iStandby->Update(standby);
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("registration")))
+    {
+        //IEnumerable<string> value = aValue.Skip(1);
+        //iRegistration.Update(value.First());
+        iRegistration->Update(aCommands.Next());
+    }
+
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("source")))
+    {
+        /*
+        IEnumerable<string> value = aValue.Skip(1);
+        uint index = uint.Parse(value.First());
+        value = value.Skip(1);
+        string property = value.First();
+        value = value.Skip(1);
+        */
+
+        TUint index = Ascii::Uint(aCommands.Next());
+        Brn property = aCommands.Next();
+
+        if (Ascii::CaseInsensitiveEquals(property, Brn("name")))
+        {
+            iSourceXmlFactory->UpdateName(index, aCommands.Remaining());
+            iSourceXml->Update(Brn(iSourceXmlFactory->ToString()));
+        }
+        else if (Ascii::CaseInsensitiveEquals(property, Brn("visible")))
+        {
+            Brn val = aCommands.Next();
+            TBool visible = Ascii::CaseInsensitiveEquals(val, Brn("true"));
+            iSourceXmlFactory->UpdateVisible(index, visible);
+            iSourceXml->Update(Brn(iSourceXmlFactory->ToString()));
+        }
+
+        else
+        {
+            THROW(NotSupportedException);
+        }
+
+    }
+
+    else
+    {
+        THROW(NotSupportedException);
+    }
+
+
+}
+
+
+/*
+Task ServiceProductMock::SetSourceIndex(TUint aValue)
+{
+    Task task = Task.Factory.StartNew(() =>
+    {
+        iNetwork.Schedule(() =>
+        {
+            iSourceIndex.Update(aValue);
+        });
+    });
+    return task;
+}
+*/
+
+/*
+void ServiceProductMock::SetSourceIndexCallback(void* aObj)
+{
+    iSourceIndex->Update(*((TUint*)aObj));
+
+}
+*/
+
+/*
+Task ServiceProductMock::SetSourceIndexByName(const Brx& aValue)
+{
+    THROW(NotSupportedException);
+}
+*/
+
+
+/*
+Task ServiceProductMock::SetStandby(TBool aValue)
+{
+    Task task = Task.Factory.StartNew(() =>
+    {
+        iNetwork.Schedule(() =>
+        {
+            iStandby.Update(aValue);
+        });
+    });
+    return task;
+}
+*/
+
+/*
+void ServiceProductMock::SetStandbyCallback(void* aObj)
+{
+    iStandby->Update(*((TBool*)aObj));
+}
+*/
+
+/*
+Task ServiceProductMock::SetRegistration(const Brx& aValue)
+{
+    Task task = Task.Factory.StartNew(() =>
+    {
+        iNetwork.Schedule(() =>
+        {
+            iRegistration.Update(aValue);
+        });
+    });
+    return task;
+}
+*/
+
+/*
+void ServiceProductMock::SetRegistrationCallback(void* aObj)
+{
+    iRegistration->Update(Brn(*((const Brx*)aObj)));
+}
+*/
+
+/////////////////////////////////////////////////////////////////////
+
+
+ProxyProduct::ProxyProduct(ServiceProduct& aService, IDevice& aDevice)
+    :iService(aService)
+    ,iDevice(aDevice)
+    //: Proxy<ServiceProduct>(aService, aDevice)
+{
+}
+
+IDevice& ProxyProduct::Device()
+{
+    return (iDevice);
+}
+
+
+IWatchable<Brn>& ProxyProduct::Room()
+{
+    return iService.Room();
+}
+
+
+IWatchable<Brn>& ProxyProduct::Name()
+{
+    return iService.Name();
+}
+
+
+IWatchable<TUint>& ProxyProduct::SourceIndex()
+{
+    return iService.SourceIndex();
+}
+
+
+IWatchable<Brn>& ProxyProduct::SourceXml()
+{
+    return iService.SourceXml();
+}
+
+
+IWatchable<TBool>& ProxyProduct::Standby()
+{
+    return iService.Standby();
+}
+
+
+IWatchable<Brn>& ProxyProduct::Registration()
+{
+    return iService.Registration();
+}
+
+/*
+Task ProxyProduct::SetSourceIndex(TUint aValue)
+{
+    return iService.SetSourceIndex(aValue);
+}
+
+
+Task ProxyProduct::SetSourceIndexByName(const Brx& aValue)
+{
+    return iService.SetSourceIndexByName(aValue);
+}
+
+
+Task ProxyProduct::SetStandby(TBool aValue)
+{
+    return iService.SetStandby(aValue);
+}
+
+
+Task ProxyProduct::SetRegistration(const Brx& aValue)
+{
+    return iService.SetRegistration(aValue);
+}
+*/
+
+Brn ProxyProduct::Attributes()
+{
+    return iService.Attributes();
+}
+
+
+Brn ProxyProduct::ManufacturerImageUri()
+{
+    return iService.ManufacturerImageUri();
+}
+
+
+Brn ProxyProduct::ManufacturerInfo()
+{
+    return iService.ManufacturerInfo();
+}
+
+
+Brn ProxyProduct::ManufacturerName()
+{
+    return iService.ManufacturerName();
+}
+
+
+Brn ProxyProduct::ManufacturerUrl()
+{
+    return iService.ManufacturerUrl();
+}
+
+
+Brn ProxyProduct::ModelImageUri()
+{
+    return iService.ModelImageUri();
+}
+
+
+Brn ProxyProduct::ModelInfo()
+{
+    return iService.ModelInfo();
+}
+
+
+Brn ProxyProduct::ModelName()
+{
+    return iService.ModelName();
+}
+
+
+Brn ProxyProduct::ModelUrl()
+{
+    return iService.ModelUrl();
+}
+
+
+Brn ProxyProduct::ProductImageUri()
+{
+    return iService.ProductImageUri();
+}
+
+
+Brn ProxyProduct::ProductInfo()
+{
+    return iService.ProductInfo();
+}
+
+
+Brn ProxyProduct::ProductUrl()
+{
+    return iService.ProductUrl();
+}
+
+
+Brn ProxyProduct::ProductId()
+{
+    return iService.ProductId();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 /*
     class ServiceProductNetwork : ServiceProduct
     {
@@ -553,533 +1102,3 @@ Brn ServiceProduct::ProductId()
         CpProxyLinnCoUkVolkano1 iServiceVolkano;
     }
 */
-
-//////////////////////////////////////////////////////////
-
-
-Source::Source(const Brx& aName, const Brx& aType, TBool aVisible)
-    :iName(aName)
-    ,iType(aType)
-    ,iVisible(aVisible)
-{
-
-}
-
-
-Brn Source::Name()
-{
-    return(Brn(iName));
-}
-
-
-void Source::SetName(const Brx& aName)
-{
-    iName.Replace(aName);
-}
-
-
-Brn Source::Type()
-{
-    return(Brn(iType));
-}
-
-
-TBool Source::Visible()
-{
-    return(iVisible);
-}
-
-
-void Source::SetVisible(TBool aValue)
-{
-    iVisible = aValue;
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-SrcXml::SrcXml(vector<Source*> aSources)
-{
-    iSources = aSources;
-    CreateSourceXml();
-}
-
-
-const Brx& SrcXml::ToString()
-{
-    return(iSourceXml);
-}
-
-
-void SrcXml::UpdateName(TUint aIndex, const Brx& aName)
-{
-    iSources[aIndex]->SetName(aName);
-    CreateSourceXml();
-}
-
-
-void SrcXml::UpdateVisible(TUint aIndex, TBool aVisible)
-{
-    iSources[aIndex]->SetVisible(aVisible);
-    CreateSourceXml();
-}
-
-
-void SrcXml::CreateSourceXml()
-{
-
-    iSourceXml.Replace(Brn("<SourceList>"));
-
-    //for(TUint i=0; i<iSources.size(); i++)
-
-    for(TUint i=0; i<5; i++)
-    {
-        iSourceXml.Append(Brn("<Source>"));
-        iSourceXml.Append(Brn("<Name>"));
-        iSourceXml.Append(iSources[i]->Name());
-        iSourceXml.Append(Brn("</Name>"));
-        iSourceXml.Append(Brn("<Type>"));
-        iSourceXml.Append(iSources[i]->Type());
-        iSourceXml.Append(Brn("</Type>"));
-        iSourceXml.Append(Brn("<Visible>"));
-
-        if (iSources[i]->Visible())
-        {
-            iSourceXml.Append(Brn("true"));
-        }
-        else
-        {
-            iSourceXml.Append(Brn("false"));
-        }
-
-        iSourceXml.Append(Brn("</Visible>"));
-        iSourceXml.Append(Brn("</Source>"));
-    }
-
-    iSourceXml.Append(Brn("</SourceList>"));
-
-/*
-    XmlDocument doc = new XmlDocument();
-
-    XmlElement sources = doc.CreateElement("SourceList");
-
-    foreach (Source s in iSources)
-    {
-        XmlElement source = doc.CreateElement("Source");
-
-        XmlElement name = doc.CreateElement("Name");
-        XmlElement type = doc.CreateElement("Type");
-        XmlElement visible = doc.CreateElement("Visible");
-
-        name.AppendChild(doc.CreateTextNode(s.Name));
-        type.AppendChild(doc.CreateTextNode(s.Type));
-        visible.AppendChild(doc.CreateTextNode(s.Visible.ToString()));
-
-        source.AppendChild(name);
-        source.AppendChild(type);
-        source.AppendChild(visible);
-
-        sources.AppendChild(source);
-    }
-
-    doc.AppendChild(sources);
-
-    iSourceXml = doc.OuterXml;
-*/
-}
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-ServiceProductMock::ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aRoom, const Brx& aName, TUint aSourceIndex, SrcXml* aSourceXmlFactory, TBool aStandby,
-    const Brx& aAttributes, const Brx& aManufacturerImageUri, const Brx& aManufacturerInfo, const Brx& aManufacturerName, const Brx& aManufacturerUrl, const Brx& aModelImageUri, const Brx& aModelInfo, const Brx& aModelName,
-    const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog aLog)
-    : ServiceProduct(aNetwork, aDevice, aLog)
-    ,iSourceXmlFactory(aSourceXmlFactory)
-{
-    iAttributes.Set(aAttributes);
-    iManufacturerImageUri.Set(aManufacturerImageUri);
-    iManufacturerInfo.Set(aManufacturerInfo);
-    iManufacturerName.Set(aManufacturerName);
-    iManufacturerUrl.Set(aManufacturerUrl);
-    iModelImageUri.Set(aModelImageUri);
-    iModelInfo.Set(aModelInfo);
-    iModelName.Set(aModelName);
-    iModelUrl.Set(aModelUrl);
-    iProductImageUri.Set(aProductImageUri);
-    iProductInfo.Set(aProductInfo);
-    iProductUrl.Set(aProductUrl);
-    iProductId.Set(aProductId);
-
-    iRoom->Update(Brn(aRoom));
-    iName->Update(Brn(aName));
-    iSourceIndex->Update(aSourceIndex);
-    iSourceXml->Update(Brn(iSourceXmlFactory->ToString()));
-    iStandby->Update(aStandby);
-}
-
-
-void ServiceProductMock::Execute(ICommandTokens& aCommands)
-{
-    Brn command = aCommands.Next();
-
-    if (Ascii::CaseInsensitiveEquals(command, Brn("attributes")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iAttributes = string.Join(" ", command.Next());
-        iAttributes.Set(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerimageuri")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iManufacturerImageUri = string.Join(" ", value);
-        iManufacturerImageUri.Set(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerinfo")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iManufacturerInfo = string.Join(" ", value);
-        iManufacturerInfo.Set(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturername")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iManufacturerName = string.Join(" ", value);
-        iManufacturerName.Set(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerurl")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iManufacturerUrl = string.Join(" ", value);
-        iManufacturerUrl.Set(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("modelimageuri")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iModelImageUri = string.Join(" ", value);
-        iModelImageUri.Set(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("modelinfo")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iModelInfo = string.Join(" ", value);
-        iModelInfo.Set(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("modelname")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iManufacturerName = string.Join(" ", value);
-        iManufacturerName.Set(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("modelurl")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iModelUrl = string.Join(" ", value);
-        iModelUrl.Set(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("productimageuri")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iProductImageUri = string.Join(" ", value);
-        iProductImageUri.Set(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("productinfo")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iProductInfo = string.Join(" ", value);
-        iProductInfo.Set(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("producturl")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iProductUrl = string.Join(" ", value);
-        iProductUrl.Set(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("productid")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iProductId = string.Join(" ", value);
-        iProductId.Set(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("room")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iRoom.Update(string.Join(" ", value));
-        iRoom->Update(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("name")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iName.Update(string.Join(" ", value));
-        iName->Update(aCommands.Remaining());
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("sourceindex")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iSourceIndex.Update(uint.Parse(value.First()));
-        iSourceIndex->Update(Ascii::Uint(aCommands.Next()));
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("standby")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iStandby.Update(TBool.Parse(value.First()));
-        Brn val = aCommands.Next();
-        if (Ascii::CaseInsensitiveEquals(val, Brn("true")))
-        {
-            iStandby->Update(true);
-        }
-        else
-        {
-            iStandby->Update(false);
-        }
-    }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("registration")))
-    {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iRegistration.Update(value.First());
-        iRegistration->Update(aCommands.Next());
-    }
-
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("source")))
-    {
-        /*
-        IEnumerable<string> value = aValue.Skip(1);
-        uint index = uint.Parse(value.First());
-        value = value.Skip(1);
-        string property = value.First();
-        value = value.Skip(1);
-        */
-
-        TUint index = Ascii::Uint(aCommands.Next());
-        Brn property = aCommands.Next();
-
-        if (Ascii::CaseInsensitiveEquals(property, Brn("name")))
-        {
-            iSourceXmlFactory->UpdateName(index, aCommands.Remaining());
-            iSourceXml->Update(Brn(iSourceXmlFactory->ToString()));
-        }
-        else if (Ascii::CaseInsensitiveEquals(property, Brn("visible")))
-        {
-            Brn val = aCommands.Next();
-            if (Ascii::CaseInsensitiveEquals(val, Brn("true")))
-            {
-                iSourceXmlFactory->UpdateVisible(index, true);
-            }
-            else
-            {
-                iSourceXmlFactory->UpdateVisible(index, false);
-            }
-
-            iSourceXml->Update(Brn(iSourceXmlFactory->ToString()));
-        }
-/*
-        else
-        {
-            throw new NotSupportedException();
-        }
-*/
-    }
-/*
-    else
-    {
-        throw new NotSupportedException();
-    }
-
-*/
-}
-
-
-/*
-Task ServiceProductMock::SetSourceIndex(TUint aValue)
-{
-    Task task = Task.Factory.StartNew(() =>
-    {
-        iNetwork.Schedule(() =>
-        {
-            iSourceIndex.Update(aValue);
-        });
-    });
-    return task;
-}
-
-
-Task ServiceProductMock::SetSourceIndexByName(const Brx& aValue)
-{
-    throw new NotSupportedException();
-}
-
-
-Task ServiceProductMock::SetStandby(TBool aValue)
-{
-    Task task = Task.Factory.StartNew(() =>
-    {
-        iNetwork.Schedule(() =>
-        {
-            iStandby.Update(aValue);
-        });
-    });
-    return task;
-}
-
-
-Task ServiceProductMock::SetRegistration(const Brx& aValue)
-{
-    Task task = Task.Factory.StartNew(() =>
-    {
-        iNetwork.Schedule(() =>
-        {
-            iRegistration.Update(aValue);
-        });
-    });
-    return task;
-}
-*/
-
-/////////////////////////////////////////////////////////////////////
-
-
-ProxyProduct::ProxyProduct(ServiceProduct& aService, IDevice& aDevice)
-    : Proxy<ServiceProduct>(aService, aDevice)
-{
-}
-
-
-IWatchable<Brn>& ProxyProduct::Room()
-{
-    return iService.Room();
-}
-
-
-IWatchable<Brn>& ProxyProduct::Name()
-{
-    return iService.Name();
-}
-
-
-IWatchable<TUint>& ProxyProduct::SourceIndex()
-{
-    return iService.SourceIndex();
-}
-
-
-IWatchable<Brn>& ProxyProduct::SourceXml()
-{
-    return iService.SourceXml();
-}
-
-
-IWatchable<TBool>& ProxyProduct::Standby()
-{
-    return iService.Standby();
-}
-
-
-IWatchable<Brn>& ProxyProduct::Registration()
-{
-    return iService.Registration();
-}
-
-/*
-Task ProxyProduct::SetSourceIndex(TUint aValue)
-{
-    return iService.SetSourceIndex(aValue);
-}
-
-
-Task ProxyProduct::SetSourceIndexByName(const Brx& aValue)
-{
-    return iService.SetSourceIndexByName(aValue);
-}
-
-
-Task ProxyProduct::SetStandby(TBool aValue)
-{
-    return iService.SetStandby(aValue);
-}
-
-
-Task ProxyProduct::SetRegistration(const Brx& aValue)
-{
-    return iService.SetRegistration(aValue);
-}
-*/
-
-Brn ProxyProduct::Attributes()
-{
-    return iService.Attributes();
-}
-
-
-Brn ProxyProduct::ManufacturerImageUri()
-{
-    return iService.ManufacturerImageUri();
-}
-
-
-Brn ProxyProduct::ManufacturerInfo()
-{
-    return iService.ManufacturerInfo();
-}
-
-
-Brn ProxyProduct::ManufacturerName()
-{
-    return iService.ManufacturerName();
-}
-
-
-Brn ProxyProduct::ManufacturerUrl()
-{
-    return iService.ManufacturerUrl();
-}
-
-
-Brn ProxyProduct::ModelImageUri()
-{
-    return iService.ModelImageUri();
-}
-
-
-Brn ProxyProduct::ModelInfo()
-{
-    return iService.ModelInfo();
-}
-
-
-Brn ProxyProduct::ModelName()
-{
-    return iService.ModelName();
-}
-
-
-Brn ProxyProduct::ModelUrl()
-{
-    return iService.ModelUrl();
-}
-
-
-Brn ProxyProduct::ProductImageUri()
-{
-    return iService.ProductImageUri();
-}
-
-
-Brn ProxyProduct::ProductInfo()
-{
-    return iService.ProductInfo();
-}
-
-
-Brn ProxyProduct::ProductUrl()
-{
-    return iService.ProductUrl();
-}
-
-
-Brn ProxyProduct::ProductId()
-{
-    return iService.ProductId();
-}
-
-
-
-

@@ -15,6 +15,7 @@ Service::Service(INetwork& aNetwork, IInjectorDevice* aDevice, ILog& aLog)
     ,iRefCount(0)
 //    ,iSubscribeTask(null);
 {
+
 }
 
 
@@ -24,7 +25,7 @@ void Service::Dispose()
 
     //iDisposeHandler.Dispose();
     //iCancelSubscribe.Cancel();
-    //OnCancelSubscribe();
+    OnCancelSubscribe();
 
     // wait for any inflight subscriptions to complete
 
@@ -41,14 +42,13 @@ void Service::Dispose()
         }
     }
 */
-    //OnUnsubscribe();
+    OnUnsubscribe();
 
     //iCancelSubscribe.Dispose();
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::DisposeCallback);
 
-    TUint dummy;
-    iNetwork.Schedule(f, &dummy);
+    iNetwork.Schedule(f, NULL);
 }
 
 
@@ -95,17 +95,18 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType,
 {
     Assert();
 
-/*
+
     //using (iDisposeHandler.Lock())
     //{
         if (iRefCount == 0)
         {
-            ASSERT(iSubscribeTask == null);
-            iSubscribeTask = OnSubscribe();
+            //ASSERT(iSubscribeTask == null);
+            //iSubscribeTask = OnSubscribe();
         }
 
         iRefCount++;
 
+/*
         if (iSubscribeTask != null)
         {
             iSubscribeTask = iSubscribeTask.ContinueWith((t) =>
@@ -115,7 +116,7 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType,
                     // we must access t.Exception property to supress finalized task exceptions
                     if (t.Exception == null && !iCancelSubscribe.IsCancellationRequested)
                     {
-                        aCallback((T)OnCreate(aDevice));
+                        aCallback(OnCreate(aDevice));
                     }
                     else
                     {
@@ -129,12 +130,13 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType,
             });
         }
         else
+*/
         {
-            aCallback((T)OnCreate(aDevice));
+            aCallback(OnCreate(aDevice));
         }
     //}
 
-*/
+
 }
 
 
@@ -248,7 +250,6 @@ TBool Service::Wait()
     return(false);
 }
 
-// IWatchableThread
 
 void Service::Assert()
 {
@@ -258,15 +259,13 @@ void Service::Assert()
 
 void Service::Schedule(FunctorGeneric<void*> aCallback, void* aObj)
 {
-    TBool dummy;
-    iNetwork.Schedule(aCallback, &dummy);
+    iNetwork.Schedule(aCallback, NULL);
 }
 
 
 void Service::Execute(FunctorGeneric<void*> aCallback, void* aObj)
 {
-    TBool dummy;
-    iNetwork.Execute(aCallback, &dummy);
+    iNetwork.Execute(aCallback, NULL);
 }
 
 
@@ -276,36 +275,8 @@ TBool Service::IsWatchableThread()
 }
 
 
-// IMockable
-
 void Service::Execute(ICommandTokens& aCommand)
 {
-}
-
-
-
-/////////////////////////////////////////////////////
-
-
-template <class T>
-Proxy<T>::Proxy(T aService, IDevice& aDevice)
-    :iService(aService)
-    ,iDevice(aDevice)
-{
-}
-
-
-template <class T>
-IDevice& Proxy<T>::Device()
-{
-    return (iDevice);
-}
-
-
-template <class T>
-void Proxy<T>::Dispose()
-{
-    iService.Unsubscribe();
 }
 
 

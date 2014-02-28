@@ -15,7 +15,7 @@ namespace OpenHome
 namespace Av
 {
 
-class Source
+class Source
 {
 public:
     static const TUint kMaxNameBytes = 50;
@@ -88,6 +88,7 @@ public:
     virtual Brn ProductId() = 0;
 };
 
+
 /////////////////////////////////////////////////////////////////
 
 class ServiceProduct : public Service
@@ -97,7 +98,7 @@ protected:
 
 public:
     virtual void Dispose();
-    virtual IProxy* OnCreate(IDevice* aDevice);
+    virtual IProxy* OnCreate(IDevice* aDevice);
 
     // IServiceProduct methods
     virtual IWatchable<Brn>& Room();
@@ -113,6 +114,7 @@ public:
     //virtual Task SetStandby(TBool aValue);
     //virtual Task SetRegistration(const Brx& aValue);
 
+
     // IProduct methods
     virtual Brn Attributes();
     virtual Brn ManufacturerImageUri();
@@ -127,6 +129,13 @@ public:
     virtual Brn ProductInfo();
     virtual Brn ProductUrl();
     virtual Brn ProductId();
+
+private:
+    //virtual void SetSourceIndexCallback(void* aValue);
+    //virtual void SetSourceIndexByNameCallback(void* aValue);
+    //virtual void SetStandbyCallback(void* aValue);
+    //virtual void SetRegistrationCallback(void* aValue);
+
 
 protected:
     Brn iAttributes;
@@ -150,20 +159,25 @@ protected:
     Watchable<Brn>* iRegistration;
 };
 
-/////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 
 class ServiceProductMock : public ServiceProduct
 {
 public:
     ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aRoom, const Brx& aName, TUint aSourceIndex, SrcXml* aSourceXmlFactory, TBool aStandby,
         const Brx& aAttributes, const Brx& aManufacturerImageUri, const Brx& aManufacturerInfo, const Brx& aManufacturerName, const Brx& aManufacturerUrl, const Brx& aModelImageUri, const Brx& aModelInfo, const Brx& aModelName,
-        const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog aLog);
+        const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog& aLog);
 
     virtual void Execute(ICommandTokens& aValue);
     //virtual Task SetSourceIndex(TUint aValue);
     //virtual Task SetSourceIndexByName(const Brx& aValue);
     //virtual Task SetStandby(TBool aValue);
     //virtual Task SetRegistration(const Brx& aValue);
+    //virtual void SetSourceIndexCallback(void* aValue);
+    //virtual void SetSourceIndexByNameCallback(void* aValue);
+    //virtual void SetStandbyCallback(void* aValue);
+    //virtual void SetRegistrationCallback(void* aValue);
+
 
 private:
     SrcXml* iSourceXmlFactory;
@@ -172,77 +186,87 @@ private:
 
 /////////////////////////////////////////////////////////////////
 
-class ProxyProduct : public Proxy<ServiceProduct>, public IProxyProduct
+class ProxyProduct : public IProxyProduct//, public Proxy<ServiceProduct>
 {
 public:
     ProxyProduct(ServiceProduct& aService, IDevice& aDevice);
-    IWatchable<Brn>& Room();
-    IWatchable<Brn>& Name();
-    IWatchable<TUint>& SourceIndex();
-    IWatchable<Brn>& SourceXml();
-    IWatchable<TBool>& Standby();
-    IWatchable<Brn>& Registration();
 
-    //Task SetSourceIndex(TUint aValue);
-    //Task SetSourceIndexByName(const Brx& aValue);
-    //Task SetStandby(TBool aValue);
-    //Task SetRegistration(const Brx& aValue);
+    // IProduct
+    virtual IWatchable<Brn>& Room();
+    virtual IWatchable<Brn>& Name();
+    virtual IWatchable<TUint>& SourceIndex();
+    virtual IWatchable<Brn>& SourceXml();
+    virtual IWatchable<TBool>& Standby();
+    virtual IWatchable<Brn>& Registration();
 
-    Brn Attributes();
-    Brn ManufacturerImageUri();
-    Brn ManufacturerInfo();
-    Brn ManufacturerName();
-    Brn ManufacturerUrl();
-    Brn ModelImageUri();
-    Brn ModelInfo();
-    Brn ModelName();
-    Brn ModelUrl();
-    Brn ProductImageUri();
-    Brn ProductInfo();
-    Brn ProductUrl();
-    Brn ProductId();
+    //virtual Task SetSourceIndex(TUint aValue);
+    //virtual Task SetSourceIndexByName(const Brx& aValue);
+    //virtual Task SetStandby(TBool aValue);
+    //virtual Task SetRegistration(const Brx& aValue);
+
+    virtual Brn Attributes();
+    virtual Brn ManufacturerImageUri();
+    virtual Brn ManufacturerInfo();
+    virtual Brn ManufacturerName();
+    virtual Brn ManufacturerUrl();
+    virtual Brn ModelImageUri();
+    virtual Brn ModelInfo();
+    virtual Brn ModelName();
+    virtual Brn ModelUrl();
+    virtual Brn ProductImageUri();
+    virtual Brn ProductInfo();
+    virtual Brn ProductUrl();
+    virtual Brn ProductId();
+
+
+    // IProxy
+    virtual IDevice& Device();
+    // IDisposable
+    //virtual void Dispose();
+
+//protected:
+//    Proxy(T aService, IDevice& aDevice);
+
+protected:
+    ServiceProduct& iService;
+
+private:
+    IDevice& iDevice;
+
+
 };
 
-////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 
-/*
+/*
 class ServiceProductNetwork : ServiceProduct
 {
+public:
     public ServiceProductNetwork(INetwork aNetwork, IInjectorDevice aDevice, CpDevice aCpDevice, ILog aLog  )
 
-    public override void Dispose()
-    protected override Task OnSubscribe()
+    virtual void Dispose();
+    virtual Task SetSourceIndex(TUint aValue);
+    virtual Task SetSourceIndexByName(const Brx& aValue);
+    virtual Task SetStandby(TBool aValue);
+    virtual Task SetRegistration(const Brx& aValue);
 
-    protected override void OnCancelSubscribe()
+protected:
+    virtual Task OnSubscribe();
+    virtual void OnCancelSubscribe();
+    virtual void OnUnsubscribe();
 
-    private void HandleInitialEvent()
+private:
+    void HandleInitialEvent();
+    void HandleInitialEventConfiguration();
+    void HandleRoomChanged();
+    void HandleNameChanged();
+    void HandleSourceIndexChanged();
+    void HandleSourceXmlChanged();
+    void HandleStandbyChanged();
+    void HandleParameterXmlChanged();
+    void ParseParameterXml(const Brx& aParameterXml);
 
-    private void HandleInitialEventConfiguration()
-
-    protected override void OnUnsubscribe()
-
-    public override Task SetSourceIndex(TUint aValue)
-
-    public override Task SetSourceIndexByName(const Brx& aValue)
-
-    public override Task SetStandby(TBool aValue)
-
-    public override Task SetRegistration(const Brx& aValue)
-
-    private void HandleRoomChanged()
-
-    private void HandleNameChanged()
-
-    private void HandleSourceIndexChanged()
-
-    private void HandleSourceXmlChanged()
-
-    private void HandleStandbyChanged()
-
-    private void HandleParameterXmlChanged()
-
-    private void ParseParameterXml(const Brx& aParameterXml)
-
+private:
     private readonly CpDevice iCpDevice;
     private TaskCompletionSource<TBool> iSubscribedSource;
     private TaskCompletionSource<TBool> iSubscribedConfigurationSource;

@@ -32,10 +32,9 @@ WatchableThread::~WatchableThread()
         delete iFree.Read();
     }
 
-    TUint x;
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &WatchableThread::Shutdown);
 
-    Schedule(f, &x);
+    Schedule(f, 0);
 
     delete iThread;  // kills then joins
     delete iFree.Read();  // last one

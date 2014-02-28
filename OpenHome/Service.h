@@ -1,11 +1,13 @@
 #ifndef HEADER_SERVICE
 #define HEADER_SERVICE
 
-
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/WatchableThread.h>
 #include <OpenHome/OhTopologyC.h>
 #include <vector>
+
+EXCEPTION(ServiceNotFoundException)
+
 
 namespace OpenHome
 {
@@ -21,9 +23,30 @@ class IDevice;
 class IProxy //: public IDisposable
 {
 public:
-    virtual IDevice& Device();
+    virtual IDevice& Device() = 0;
 };
 
+////////////////////////////////////////////////
+
+/*
+template <class T>
+class Proxy : public IProxy
+{
+public:
+    // IProxy
+    virtual IDevice& Device();
+    // IDisposable
+    virtual void Dispose();
+
+protected:
+    Proxy(T aService, IDevice& aDevice);
+
+protected:
+    T& iService;
+private:
+    IDevice& iDevice;
+};
+*/
 ////////////////////////////////////////////////
 
 class IService : public IMockable, public IDisposable
@@ -88,25 +111,30 @@ private:
     TUint iRefCount;
 };
 
-////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////
+/*
+template <class T>
+Proxy<T>::Proxy(T aService, IDevice& aDevice)
+    :iService(aService)
+    ,iDevice(aDevice)
+{
+}
+
 
 template <class T>
-class Proxy
+IDevice& Proxy<T>::Device()
 {
-public:
-    // IProxy
-    virtual IDevice& Device();
-    // IDisposable
-    virtual void Dispose();
+    return (iDevice);
+}
 
-protected:
-    Proxy(T aService, IDevice& aDevice);
 
-protected:
-    T& iService;
-private:
-    IDevice& iDevice;
-};
+template <class T>
+void Proxy<T>::Dispose()
+{
+    iService.Unsubscribe();
+}
+*/
 
 
 } // Av

@@ -1,4 +1,5 @@
 #include<OpenHome/Device.h>
+#include<OpenHome/OhTopologyC.h>
 #include<OpenHome/Buffer.h>
 #include<OpenHome/Service.h>
 #include <algorithm>
@@ -30,12 +31,10 @@ Brn Device::Udn()
 
 void Device::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType)
 {
-
     //using (iDisposeHandler.Lock())
     //{
         iDevice.Create(aCallback, aServiceType, *this);
     //}
-
 }
 
 
@@ -45,7 +44,6 @@ void Device::Join(Functor aAction)
     //{
         iDevice.Join(aAction);
     //}
-
 }
 
 
@@ -57,7 +55,6 @@ void Device::Unjoin(Functor aAction)
     }
 */
     iDevice.Unjoin(aAction);
-
 }
 
 
@@ -272,6 +269,7 @@ void InjectorDevice::Create(FunctorGeneric<void*> aCallback, EServiceType aServi
 */
     if (iServices.count(aServiceType)==0)
     {
+        THROW(ServiceNotFoundException);
         //throw new ServiceNotFoundException("Cannot find service of type " + typeof(T) + " on " + iUdn);
     }
 
@@ -315,7 +313,7 @@ IService& InjectorDevice::GetService(const Brx& aType)
     }
     else
     {
-        //throw new ServiceNotFoundException();
+        THROW(ServiceNotFoundException);
     }
 
     ASSERTS();
@@ -344,10 +342,11 @@ TBool InjectorDevice::Wait()
 
 // IMockable
 
-void InjectorDevice::Execute(ICommandTokens& aTokens)
+void InjectorDevice::Execute(ICommandTokens& aCommands)
 {
     //GetService(aValue.First()).Execute(aValue.Skip(1));
-    //GetService(aTokens.Next()).Execute(aTokens.Next(1));
+    Brn command = aCommands.Next();
+    GetService(command).Execute(aCommands);
 }
 
 // IDisposable
@@ -375,4 +374,23 @@ void InjectorDevice::Dispose()
 */
 }
 
+
+////////////////////////////////////////////////////////////
+
+//ServiceNotFoundException::ServiceNotFoundException()
+//    :Exception()
+//{
+//}
+
+/*
+ServiceNotFoundException::ServiceNotFoundException(const Brx& aMessage)
+    : Exception(aMessage.Ptr())
+{
+}
+
+ServiceNotFoundException::ServiceNotFoundException(const Brx& aMessage, Exception aInnerException)
+    : Exception(aMessage, aInnerException)
+{
+}
+*/
 

@@ -1,5 +1,5 @@
-#ifndef HEADER_NETWORK
-#define HEADER_NETWORK
+#ifndef HEADER_OHTOPOLOGYC_NETWORK
+#define HEADER_OHTOPOLOGYC_NETWORK
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/WatchableThread.h>
@@ -75,6 +75,7 @@ public:
     virtual void Assert();
     virtual void Schedule(FunctorGeneric<void*> aCallback, void* aObj);
     virtual void Execute(FunctorGeneric<void*> aCallback, void* aObj);
+    virtual TBool IsWatchableThread();
 
     // IDisposable
     virtual void Dispose();
@@ -111,4 +112,4 @@ private:
 } // OpenHome
 
 
-#endif // HEADER_NETWORK
+#endif // HEADER_OHTOPOLOGYC_NETWORK

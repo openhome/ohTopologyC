@@ -3,6 +3,7 @@
 #include <OpenHome/Network.h>
 #include <OpenHome/Injector.h>
 #include <OpenHome/Device.h>
+#include <OpenHome/DeviceFactory.h>
 #include <OpenHome/Private/Ascii.h>
 #include <map>
 
@@ -102,7 +103,7 @@ TBool InjectorSender::FilterOut(CpDevice& aCpDevice)
 
 InjectorMock::InjectorMock(Network& aNetwork, const Brx& aResourceRoot, ILog& aLog)
     :iNetwork(aNetwork)
-    ,iResourceRoot(aResourceRoot)
+    //,iResourceRoot(aResourceRoot)
     ,iLog(aLog)
     //,iMockDevices(Dictionary<const Brx&, InjectorDeviceMock>())
 {
@@ -112,8 +113,7 @@ InjectorMock::InjectorMock(Network& aNetwork, const Brx& aResourceRoot, ILog& aL
 void InjectorMock::Dispose()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &InjectorMock::DisposeCallback);
-    TUint dummy;
-    iNetwork.Execute(f, &dummy);
+    iNetwork.Execute(f, NULL);
 }
 
 
@@ -127,7 +127,6 @@ void InjectorMock::DisposeCallback(void*)
 
 
 void InjectorMock::Execute(ICommandTokens& aTokens)
-//void InjectorMock::Execute(IEnumerable<const Brx&> aValue)
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &InjectorMock::ExecuteCallback);
     iNetwork.Execute(f, &aTokens);
@@ -160,7 +159,7 @@ void InjectorMock::ExecuteCallback(void* aObj)
     else if (Ascii::CaseInsensitiveEquals(command,Brn("large")))
     {
         ASSERTS();
-        //THROW(new NotImplementedException());
+        THROW(NotImplementedException);
     }
     else if (Ascii::CaseInsensitiveEquals(command,Brn("create")))
     {
@@ -171,12 +170,12 @@ void InjectorMock::ExecuteCallback(void* aObj)
 
         if (type == Brn("ds"))
         {
-            //Create(DeviceFactory.CreateDs(iNetwork, udn, iLog));
+            Create(*DeviceFactory::CreateDs(iNetwork, udn, iLog));
             return;
         }
         else if (type == Brn("dsm"))
         {
-            //Create(DeviceFactory.CreateDsm(iNetwork, udn, iLog));
+            //Create(*DeviceFactory:CreateDsm(iNetwork, udn, iLog));
             return;
         }
     }

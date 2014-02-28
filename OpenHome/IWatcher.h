@@ -39,14 +39,13 @@ class IWatcherUnordered
 public:
     virtual void UnorderedOpen() = 0;
     virtual void UnorderedInitialised() = 0;
-    virtual void UnorderedAdd(T aItem) = 0;
-    virtual void UnorderedRemove(T aItem) = 0;
+    virtual void UnorderedAdd(T& aItem) = 0;
+    virtual void UnorderedRemove(T& aItem) = 0;
     virtual void UnorderedClose() = 0;
     virtual ~IWatcherUnordered() {}
 };
 
 //////////////////////////////////////////////////////////////////////
-
 
 template <class T>
 class IWatcher

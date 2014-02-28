@@ -4,6 +4,7 @@
 #include <OpenHome/WatchableThread.h>
 #include <OpenHome/IWatchable.h>
 #include <vector>
+#include <algorithm>
 
 
 
@@ -47,10 +48,10 @@ class Watchable : public IWatchable<T>, public WatchableBase //, public IDisposa
 public:
     Watchable(IWatchableThread& aWatchableThread, const Brx& aId, T aValue);
     TBool Update(T aValue);
-    T Value() const;
+    T Value();
 
     // IWatchable<T>
-    virtual const Brx& Id() const;
+    virtual const Brx& Id();
     virtual void AddWatcher(IWatcher<T>& aWatcher);
     virtual void RemoveWatcher(IWatcher<T>& aWatcher);
 
@@ -63,47 +64,169 @@ private:
 protected:
     Brn iId;
     T iValue;
+    TBool iUpdating;
 
 private :
     std::vector<IWatcher<T>*> iWatchers;
     std::vector<IWatcher<T>*> iRecentlyRemoved;
 };
 
-//////////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////
+
+/**
+
+ */
 template <class T>
-class WatchableCollection : public WatchableBase
+Watchable<T>::Watchable(IWatchableThread& aWatchableThread, const Brx& aId, T aValue)
+    :WatchableBase(aWatchableThread)
+    ,iId(aId)
+    ,iValue(aValue)
+    ,iUpdating(true)
 {
-public:
-    //IEnumerable<T> Values() const;
+    //ASSERT(aValue != NULL);
+}
 
-protected:
-    WatchableCollection(IWatchableThread& aWatchableThread);
 
-protected:
-    std::vector<T> iItems;
-};
+/**
 
-//////////////////////////////////////////////////////////////////////////////////
+ */
+template <class T>
+TBool Watchable<T>::Update(T aValue)
+{
+    // ASSERT(aValue != NULL);
 
+    Assert();
+
+    //if (iValue.Equals(aValue))
+    if (iValue == aValue)
+    {
+        return (false);
+    }
+
+    iUpdating = true;
+    T previous = iValue;
+    iValue = aValue;
+
+    std::vector<IWatcher<T>*> watchers(iWatchers);
+
+    for(TUint i=0; i<watchers.size(); i++)
+    {
+        IWatcher<T>* watcher = watchers[i];
+
+        typename std::vector<IWatcher<T>*>::iterator it = std::find(iRecentlyRemoved.begin(), iRecentlyRemoved.end(), watcher);
+
+        if (it==iRecentlyRemoved.end()) // not found
+        {
+            watcher->ItemUpdate(iId, iValue, previous);
+        }
+    }
+
+    iRecentlyRemoved.clear();
+    iUpdating = false;
+
+    return (true);
+}
+
+
+/**
+
+ */
+template <class T>
+T Watchable<T>::Value()
+{
+    Assert();
+    return (iValue);
+}
+
+
+/**
+
+ */
+template <class T>
+const Brx& Watchable<T>::Id()
+{
+    return (iId);
+}
+
+
+/**
+
+ */
+template <class T>
+void Watchable<T>::AddWatcher(IWatcher<T>& aWatcher)
+{
+    Assert();
+    typename std::vector<IWatcher<T>*>::iterator it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
+    ASSERT(it==iWatchers.end());
+    iWatchers.push_back(&aWatcher);
+    aWatcher.ItemOpen(iId, iValue);
 /*
-template <class T>
-class WatchableExtensions
-{
-public:
-    static void Execute(IWatchableThread& aWatchableThread);
-    static void Insert(std::vector<T> aItems, TUint aIndex, T aItem);
-    static void RemoveAt(std::vector<T> aItems, TUint aIndex);
-    static T ElementAt(std::vector<T> aItems, TUint aIndex);
-    static TUint ElementCount(std::vector<T> aItems);
-    //static TUint ElementCount<K, V>(this IDictionary<K, V> aDictionary);
-
-private:
-    static void ExecuteCallback(void*);
-
-};
-
+    Assert();
+    Do.Assert(!iWatchers.Contains(aWatcher));
+    iWatchers.Add(aWatcher);
+    aWatcher.ItemOpen(iId, iValue);
 */
+}
+
+
+/**
+
+ */
+template <class T>
+void Watchable<T>::RemoveWatcher(IWatcher<T>& aWatcher)
+{
+    Assert();
+
+    typename std::vector<IWatcher<T>*>::iterator it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
+    ASSERT(it!=iWatchers.end());
+    iWatchers.erase(it);
+
+    it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
+    ASSERT(it==iWatchers.end());
+
+    aWatcher.ItemClose(iId, iValue);
+
+    if (iUpdating)
+    {
+        iRecentlyRemoved.push_back(&aWatcher);
+    }
+/*
+    Assert();
+    Do.Assert(iWatchers.Remove(aWatcher));
+    Do.Assert(!iWatchers.Contains(aWatcher));
+    aWatcher.ItemClose(iId, iValue);
+    if (iUpdating)
+    {
+        iRecentlyRemoved.Add(aWatcher);
+    }
+*/
+}
+
+
+/**
+
+ */
+template <class T>
+void Watchable<T>::Dispose()
+{
+    FunctorGeneric<void*> action = MakeFunctorGeneric(*this, &Watchable::DisposeCallback);
+    Execute(action, NULL);
+}
+
+
+/**
+
+ */
+template <class T>
+void Watchable<T>::DisposeCallback(void*)
+{
+    ASSERT(iWatchers.size() == 0);
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
 
 
 /**
@@ -114,7 +237,6 @@ private:
 
 
 } // namespace Av
-
 } // namespace OpenHome
 
 

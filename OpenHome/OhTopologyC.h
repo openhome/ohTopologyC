@@ -7,6 +7,9 @@
 #include <OpenHome/Functor.h>
 
 
+EXCEPTION(NotSupportedException);
+
+
 using namespace Linn;
 
 namespace OpenHome
@@ -141,9 +144,18 @@ public:
 class ILog
 {
 public:
+    virtual void Write(const Brx& aInfo) = 0;
     virtual ~ILog() {}
 };
 
+
+////////////////////////////////////////////////////////////////////
+
+class LogDummy : public ILog
+{
+public:
+    virtual void Write(const Brx& aInfo) {}
+};
 
 /*
 class ServiceNotFoundException : public Exception

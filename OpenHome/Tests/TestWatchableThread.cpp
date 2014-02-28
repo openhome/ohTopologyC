@@ -4,6 +4,7 @@
 #include <OpenHome/Private/Arch.h>
 #include <OpenHome/Private/Converter.h>
 #include <OpenHome/Private/Thread.h>
+#include <OpenHome/Private/Http.h>
 #include <exception>
 
 using namespace OpenHome;
@@ -108,7 +109,6 @@ TUint TestExceptionReporter::CountStd() const
 
 ////////////////////////////////////////////////////////////////////
 
-// SuitePowerManager
 
 SuiteWatchableThread::SuiteWatchableThread()
     :SuiteUnitTest("SuiteWatchableThread")

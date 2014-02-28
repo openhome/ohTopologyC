@@ -2,7 +2,6 @@
 #define HEADER_TOPOLOGY1
 
 #include <OpenHome/OhNetTypes.h>
-//#include <OpenHome/WatchableThread.h>
 #include <OpenHome/WatchableUnordered.h>
 #include <OpenHome/IWatcher.h>
 #include <OpenHome/IWatchable.h>
@@ -14,8 +13,6 @@
 #include <vector>
 #include <map>
 
-
-EXCEPTION(ServiceNotFoundException)
 
 
 
@@ -43,11 +40,13 @@ public:
     void Dispose();
     IWatchableUnordered<IProxyProduct>& Products();
     INetwork& Network();
-    void UnorderedOpen();
-    void UnorderedInitialised();
-    void UnorderedClose();
-    void UnorderedAdd(IDevice& aItem);
-    void UnorderedRemove(IDevice& aItem);
+
+    // IWatcherUnordered
+    virtual void UnorderedOpen();
+    virtual void UnorderedInitialised();
+    virtual void UnorderedClose();
+    virtual void UnorderedAdd(IDevice& aItem);
+    virtual void UnorderedRemove(IDevice& aItem);
 
 private:
     void ExecuteCallback(void* aObj);

@@ -8,6 +8,9 @@
 namespace OpenHome
 {
 
+namespace Av
+{
+
 
 class IControl //: IDisposable
 {
@@ -15,7 +18,10 @@ public:
     virtual const Brx& Id() = 0;
 };
 
-
+/**
+    \addtogroup watcher
+    @{
+ */
 
 template<class T>
 class WatcherControl : public IWatcher<T>, public IControl
@@ -45,6 +51,11 @@ private:
 };
 
 
+/**
+    @}
+ */
+
+} // Av
 
 } // OpenHome
 

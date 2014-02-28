@@ -21,8 +21,8 @@ template <class T>
 class IWatchable
 {
 public:
-    virtual T Value() const = 0;
-    virtual const Brx& Id() const = 0;
+    virtual T Value() = 0;
+    virtual const Brx& Id() = 0;
     virtual void AddWatcher(IWatcher<T>& aWatcher) = 0;
     virtual void RemoveWatcher(IWatcher<T>& aWatcher) = 0;
     virtual ~IWatchable() {}
@@ -31,17 +31,7 @@ public:
 //////////////////////////////////////////////////////////////////////
 
 template <class T>
-class IWatchableCollection
-{
-public:
-    //virtual IEnumerable<T> Values() = 0;
-    virtual ~IWatchableCollection() {}
-};
-
-//////////////////////////////////////////////////////////////////////
-
-template <class T>
-class IWatchableUnordered : public IWatchableCollection<T>
+class IWatchableUnordered
 {
 public:
     virtual void AddWatcher(IWatcherUnordered<T>& aWatcher) = 0;
@@ -52,7 +42,7 @@ public:
 //////////////////////////////////////////////////////////////////////
 
 template <class T>
-class IWatchableOrdered : public IWatchableCollection<T>
+class IWatchableOrdered
 {
 public:
     virtual void AddWatcher(IWatcherOrdered<T>& aWatcher) = 0;

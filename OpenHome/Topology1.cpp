@@ -2,10 +2,6 @@
 #include <OpenHome/OhNetTypes.h>
 #include <algorithm>
 
-
-
-
-
 using namespace OpenHome;
 using namespace OpenHome::Av;
 using namespace std;
@@ -31,8 +27,9 @@ Topology1::Topology1(INetwork* aNetwork, ILog& aLog)
 }
 
 
-void Topology1::ExecuteCallback(void* aObj)
+void Topology1::ExecuteCallback(void*)
 {
+    LOG(kTrace, "Topology1::ExecuteCallback \n");
     iDevices = iNetwork->Create(EProxyProduct);
     iDevices->AddWatcher(*this);
 }
