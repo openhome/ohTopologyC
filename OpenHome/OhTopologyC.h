@@ -154,7 +154,7 @@ public:
 class LogDummy : public ILog
 {
 public:
-    virtual void Write(const Brx& aInfo) {}
+    virtual void Write(const Brx&) {}
 };
 
 /*

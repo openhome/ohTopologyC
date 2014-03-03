@@ -91,7 +91,7 @@ IInjectorDevice& Service::Device()
 }
 
 
-void Service::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType, IDevice* aDevice)
+void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceType*/, IDevice* aDevice)
 {
     Assert();
 
@@ -257,13 +257,13 @@ void Service::Assert()
 }
 
 
-void Service::Schedule(FunctorGeneric<void*> aCallback, void* aObj)
+void Service::Schedule(FunctorGeneric<void*> aCallback, void* /*aObj*/)
 {
     iNetwork.Schedule(aCallback, NULL);
 }
 
 
-void Service::Execute(FunctorGeneric<void*> aCallback, void* aObj)
+void Service::Execute(FunctorGeneric<void*> aCallback, void* /*aObj*/)
 {
     iNetwork.Execute(aCallback, NULL);
 }
@@ -275,7 +275,7 @@ TBool Service::IsWatchableThread()
 }
 
 
-void Service::Execute(ICommandTokens& aCommand)
+void Service::Execute(ICommandTokens& /*aCommand*/)
 {
 }
 

@@ -114,8 +114,6 @@ def build(bld):
             source=[
                 'OpenHome/WatchableThread.cpp',
                 'OpenHome/Watchable.cpp',
-                #'OpenHome/WatchableOrdered.cpp',
-                #'OpenHome/WatchableUnordered.cpp',
                 'OpenHome/Command.cpp',
                 'OpenHome/DisposeHandler.cpp',
                 'OpenHome/Device.cpp',
@@ -127,7 +125,7 @@ def build(bld):
                 'OpenHome/ServiceProduct.cpp',
                 'OpenHome/Topology1.cpp',
             ],
-            use=['OHNET', 'OPENSSL', 'OHNETMON'],
+            use=['OHNET'],
             target='ohTopologyC')
 
 

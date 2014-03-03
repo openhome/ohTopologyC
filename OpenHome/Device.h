@@ -39,7 +39,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////
 
 
-class Device : public IDevice, public IDisposable
+class Device : public IDevice, public IDisposable, public INonCopyable
 {
 public:
     Device(IInjectorDevice& aDevice);
@@ -97,7 +97,7 @@ private:
 
 ///////////////////////////////////////////////////////////////
 
-class InjectorDeviceAdaptor : public IInjectorDevice
+class InjectorDeviceAdaptor : public IInjectorDevice, public INonCopyable
 {
 public:
     InjectorDeviceAdaptor(IInjectorDevice& aDevice);
@@ -116,7 +116,7 @@ private :
 
 ///////////////////////////////////////////////////////////////
 
-class InjectorDeviceMock : public IMockable, public IDisposable
+class InjectorDeviceMock : public IMockable, public IDisposable, public INonCopyable
 {
 public:
     InjectorDeviceMock(IInjectorDevice& aDevice);

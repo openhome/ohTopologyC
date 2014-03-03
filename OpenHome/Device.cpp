@@ -311,13 +311,13 @@ IService& InjectorDevice::GetService(const Brx& aType)
     {
         return *iServices[EProxyReceiver];
     }
-    else
-    {
+    //else
+    //{
         THROW(ServiceNotFoundException);
-    }
+    //}
 
-    ASSERTS();
-    return *iServices[EProxyProduct];
+    //ASSERTS();
+    //return *iServices[EProxyProduct];
 }
 
 

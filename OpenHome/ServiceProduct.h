@@ -186,7 +186,7 @@ private:
 
 /////////////////////////////////////////////////////////////////
 
-class ProxyProduct : public IProxyProduct//, public Proxy<ServiceProduct>
+class ProxyProduct : public IProxyProduct, public INonCopyable//, public Proxy<ServiceProduct>
 {
 public:
     ProxyProduct(ServiceProduct& aService, IDevice& aDevice);
@@ -232,8 +232,6 @@ protected:
 
 private:
     IDevice& iDevice;
-
-
 };
 
 ////////////////////////////////////////////////////////////

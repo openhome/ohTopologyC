@@ -7,6 +7,7 @@
 #include <algorithm>
 
 
+#pragma warning( disable: 4505 )
 
 namespace OpenHome
 {
@@ -21,7 +22,7 @@ namespace Av
     @{
  */
 
-class WatchableBase : public IWatchableThread//, public INonCopyable
+class WatchableBase : public IWatchableThread, public INonCopyable
 {
 protected:
     WatchableBase(IWatchableThread& aWatchableThread);
@@ -48,9 +49,9 @@ class Watchable : public IWatchable<T>, public WatchableBase //, public IDisposa
 public:
     Watchable(IWatchableThread& aWatchableThread, const Brx& aId, T aValue);
     TBool Update(T aValue);
-    T Value();
 
     // IWatchable<T>
+    virtual T Value();
     virtual const Brx& Id();
     virtual void AddWatcher(IWatcher<T>& aWatcher);
     virtual void RemoveWatcher(IWatcher<T>& aWatcher);

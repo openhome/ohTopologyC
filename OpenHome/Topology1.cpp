@@ -7,7 +7,7 @@ using namespace OpenHome::Av;
 using namespace std;
 
 
-Topology1::Topology1(INetwork* aNetwork, ILog& aLog)
+Topology1::Topology1(INetwork* aNetwork, ILog& /*aLog*/)
     :iDisposed(false)
     ,iNetwork(aNetwork)
     //,iLog = aLog;

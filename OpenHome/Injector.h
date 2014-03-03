@@ -70,7 +70,7 @@ protected:
 /////////////////////////////////////////////////////////////////
 */
 
-class InjectorMock : public IMockable, public IDisposable
+class InjectorMock : public IMockable, public IDisposable, public INonCopyable
 {
 public:
     InjectorMock(Network& aNetwork, const Brx& aResourceRoot, ILog& aLog);

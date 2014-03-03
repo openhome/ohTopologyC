@@ -57,7 +57,7 @@ public:
 
 ////////////////////////////////////////////////
 
-class Service : public IService, public IWatchableThread
+class Service : public IService, public IWatchableThread, public INonCopyable
 {
 public:
     virtual TBool Wait();

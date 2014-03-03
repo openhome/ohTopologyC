@@ -15,10 +15,11 @@ using namespace std;
 /**
 
  */
-Network::Network(TUint aMaxCacheEntries, ILog& aLog)
-    :iWatchableThread(new WatchableThread(*this))
-    ,iDisposable(true)
+Network::Network(TUint /*aMaxCacheEntries*/, ILog&/* aLog*/)
+    //:iWatchableThread(new WatchableThread(*this))
+    //,iDisposable(true)
 {
+    iWatchableThread = new WatchableThread(*this);
     //iDispose = () => { iWatchableThread.Dispose(); };
     //iDisposeHandler = new DisposeHandler();
     //iCache = new IdCache(aMaxCacheEntries);
@@ -30,7 +31,7 @@ Network::Network(TUint aMaxCacheEntries, ILog& aLog)
 /**
 
  */
-Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILog& aLog)
+Network::Network(IWatchableThread& aWatchableThread, TUint /*aMaxCacheEntries*/, ILog&)
     :iWatchableThread(&aWatchableThread)
     ,iDisposable(false)
 {
@@ -70,7 +71,7 @@ void Network::Report(Exception& aException)
 /**
 
  */
-void Network::Report(std::exception& aException)
+void Network::Report(std::exception& /*aException*/)
 {
     //lock (iExceptions)
     //{
