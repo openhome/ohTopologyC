@@ -33,7 +33,7 @@ void Mockable::Execute(ICommandTokens& aTokens)
 {
     Brn next(aTokens.Next());
     Brn remaining(aTokens.Remaining());
-	iMockables[next]->Execute(aTokens);
+    iMockables[next]->Execute(aTokens);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ MockableScriptRunner::MockableScriptRunner()
 /**
 
  */
-void MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMockable)
+TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMockable)
 {
 
     TBool wait = true;
@@ -61,10 +61,6 @@ void MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMock
     try
     {
         lastline = aStream.ReadUntil('\n');
-        //LOG(kTrace, "\n### start...\n");
-        //LOG(kTrace, "lastline = \n");
-        //LOG(kTrace, lastline);
-        //LOG(kTrace, "\n");
     }
     catch(ReaderError)
     {
@@ -80,10 +76,6 @@ void MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMock
         try
         {
             lastline = aStream.ReadUntil('\n');
-            //LOG(kTrace, "\n### for loop\n");
-            //LOG(kTrace, "lastline = ");
-            //LOG(kTrace, lastline);
-            //LOG(kTrace, "\n");
         }
         catch(ReaderError)
         {
@@ -100,7 +92,6 @@ void MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMock
                 (!lastline.BeginsWith(Brn("empty"))) &&
                 (!lastline.BeginsWith(Brn("break"))))
         {
-            //line += "\n" + lastline;
             iLine.Append(Brn("\n"));
             iLine.Append(lastline);
 
@@ -114,8 +105,6 @@ void MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMock
             }
         }
 
-
-        //LOG(kTrace, "finshed search loop\n");
 
         if (eof)
         {
@@ -133,9 +122,7 @@ void MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMock
         }
 
         CommandTokens commands(iLine);
-        //var commands = Tokeniser.Parse(line);
 
-        //if (commands.Any())
         if (commands.Count()>0)
         {
             LOG(kTrace, "commands(%d): ", commands.Count());
@@ -155,7 +142,6 @@ void MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMock
             if (Ascii::CaseInsensitiveEquals(command, Brn("mock")))
             {
                 LOG(kTrace, "mock... \n");
-                //aMockable.Execute(commands.Skip(1));
                 aMockable.Execute(commands);
 
                 wait = true;
@@ -178,44 +164,23 @@ void MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMock
                     wait = false;
                 }
 
-                //string expected = line.Substring("expect".Length + 1);
                 Brn expected = iLine.Split(Brn("expect").Bytes() + 1);
-				
+
                 if (iResultQueue.SlotsUsed()>0)
                 {
-					//Bws<1000> result;
-					//result.Replace(iResultQueue.Read());
                     Bwh* result = iResultQueue.Read();
 
-                    LOG(kTrace, "expected = ");
-                    LOG(kTrace, expected);
-                    LOG(kTrace, "\nresult = ");
-                    
-					//Brn buf(result->Ptr(), result->Bytes());
-					
-					LOG(kTrace, *result);
-
-                    //Assert(buf, expected);
-					delete result;
+                    if (!Test(*result, expected))
+                    {
+                        delete result;
+                        return(false);
+                    }
                 }
                 else
                 {
                     THROW(QueueEmpty);
                 }
 
-/*
-                try
-                {
-                    Brn result = iResultQueue.Read();
-
-                    Assert(result, expected);
-                }
-                catch (InvalidOperationException)
-                {
-                    //Console.WriteLine(string.Format("Failed\nExpected: {0} but queue was empty", expected));
-                    throw;
-                }
-*/
             }
             else if (Ascii::CaseInsensitiveEquals(command, Brn("empty")))
             {
@@ -246,6 +211,8 @@ void MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMock
         }
     }
 
+
+    return(true);
 }
 
 
@@ -256,29 +223,19 @@ void MockableScriptRunner::Result(Bwh* aValue)
 {
     LOG(kTrace, "MockableScriptRunner::Result: \n");
     LOG(kTrace, *aValue);
-	
-	iResultQueue.Write(aValue);
-    //Console.WriteLine(aValue);
+
+    iResultQueue.Write(aValue);
 }
 
 
 /**
 
  */
-void MockableScriptRunner::Assert(const Brx& aActual, const Brx& aExpected)
+TBool MockableScriptRunner::Test(const Brx& aActual, const Brx& aExpected)
 {
-    Brn actual(aActual);
-    Brn expected(aExpected);
-	
-	if (!actual.Equals(expected))
-    {
-        //Console.WriteLine(string.Format("Failed\nExpected: {0}\nReceived: {1}", aExpected, aActual));
-        throw new AssertError();
-    }
-    else
-    {
-        //Console.Write('.');
-    }
+    //Brn actual(aActual);
+    //Brn expected(aExpected);
+    return(aActual.Equals(aExpected));
 }
 
 

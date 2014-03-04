@@ -55,30 +55,30 @@ public:
     virtual void UnorderedInitialised() {/*LOG(kTrace, "ProductWatcher::UnorderedInitialised \n");*/}
 
     virtual void UnorderedAdd(IProxyProduct& aWatcher)
-	{
-		//LOG(kTrace, "ProductWatcher::UnorderedAdd \n");
-		Bws<100> buf;
-		buf.Replace(Brn("product added "));
-		buf.Append(aWatcher.Device().Udn());
+    {
+        //LOG(kTrace, "ProductWatcher::UnorderedAdd \n");
+        Bws<100> buf;
+        buf.Replace(Brn("product added "));
+        buf.Append(aWatcher.Device().Udn());
 
-		Bwh* result = new Bwh(buf);
-		iRunner->Result(result);
-	}
+        Bwh* result = new Bwh(buf);
+        iRunner->Result(result);
+    }
 
     virtual void UnorderedRemove(IProxyProduct& aWatcher)
     {
         //LOG(kTrace, "ProductWatcher::UnorderedRemove \n");
-		Bws<100> buf;
-		buf.Replace(Brn("product removed "));
-		buf.Append(aWatcher.Device().Udn());
+        Bws<100> buf;
+        buf.Replace(Brn("product removed "));
+        buf.Append(aWatcher.Device().Udn());
 
-		Bwh* result = new Bwh(buf);
-		iRunner->Result(result);
+        Bwh* result = new Bwh(buf);
+        iRunner->Result(result);
     }
 
 private:
     MockableScriptRunner* iRunner;
-	//Bws<100> iResult;
+    //Bws<100> iResult;
 };
 
 
@@ -142,24 +142,17 @@ void SuiteTopology1::Test1()
 
     MockableScriptRunner* runner = new MockableScriptRunner();
 
-	ProductWatcher* watcher = new ProductWatcher(runner);
+    ProductWatcher* watcher = new ProductWatcher(runner);
 
     FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopology1::ScheduleCallback);
     network->Schedule(fs, watcher);
 
     Functor f = MakeFunctor(*network, &Network::Wait);
 
-    //try
-    //{
-        runner->Run(f, reader, *mocker);
-    //}
-    //catch(MockableScriptRunner.AssertError)
-    //{
-    //    return 1;
-    //}
+    TEST(runner->Run(f, reader, *mocker));
 
-    //FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology1::ExecuteCallback);
-    //network->Execute(fe, watcher);
+    FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology1::ExecuteCallback);
+    network->Execute(fe, watcher);
 
 /*
     topology.Dispose();
@@ -190,7 +183,7 @@ void SuiteTopology1::ScheduleCallback(void* aObj)
 
 void TestTopology1(Environment& aEnv)
 {
-    Debug::SetLevel(Debug::kTrace);
+    //Debug::SetLevel(Debug::kTrace);
     Runner runner("Topology1 tests\n");
     runner.Add(new SuiteTopology1(aEnv));
     runner.Run();

@@ -64,11 +64,11 @@ private:
 
 public:
     MockableScriptRunner();
-    void Run(Functor aWait, IReader& aStream, IMockable& aMockable);
+    TBool Run(Functor aWait, IReader& aStream, IMockable& aMockable);
     void Result(Bwh* aValue);
 
 private:
-    void Assert(const Brx& aActual, const Brx& aExpected);
+    TBool Test(const Brx& aActual, const Brx& aExpected);
     void Assert(TBool aExpression);
 
 
