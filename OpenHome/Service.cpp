@@ -132,7 +132,9 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceTyp
         else
 */
         {
-            aCallback(OnCreate(aDevice));
+            IProxy* product = OnCreate(aDevice);
+            ArgsTwo<IDevice*, IProxy*>* args = new ArgsTwo<IDevice*, IProxy*>(aDevice, product);
+            aCallback(args);
         }
     //}
 
@@ -247,7 +249,7 @@ TBool Service::Wait()
 
     return (tasks.Length == 0);
 */
-    return(false);
+    return(true);
 }
 
 

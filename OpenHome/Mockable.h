@@ -65,7 +65,7 @@ private:
 public:
     MockableScriptRunner();
     void Run(Functor aWait, IReader& aStream, IMockable& aMockable);
-    void Result(const Brx& aValue);
+    void Result(Bwh* aValue);
 
 private:
     void Assert(const Brx& aActual, const Brx& aExpected);
@@ -73,7 +73,7 @@ private:
 
 
     //Queue<string> iResultQueue;
-    Fifo<Brn> iResultQueue;
+    Fifo<Bwh*> iResultQueue;
     Bws<kMaxLineBytes> iLine;
 };
 

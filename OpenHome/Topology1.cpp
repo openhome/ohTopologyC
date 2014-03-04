@@ -130,8 +130,13 @@ void Topology1::UnorderedAdd(IDevice& aDevice)
 
 void Topology1::UnorderedAddCallback(void* aObj)
 {
-    IDevice* device = (IDevice*)aObj;
-    IProxyProduct* product = ((IProxyProduct*)aObj)+1;
+	ArgsTwo<IDevice*, IProxyProduct*>* args = ((ArgsTwo<IDevice*, IProxyProduct*>*)aObj);
+
+    IDevice* device = args->Arg1();
+    IProxyProduct* product = args->Arg2();
+
+	//IDevice* device = (IDevice*)aObj;
+    //IProxyProduct* product = ((IProxyProduct*)aObj)+1;
 
     vector<IDevice*>::iterator it = find(iPendingSubscriptions.begin(), iPendingSubscriptions.end(), device);
 

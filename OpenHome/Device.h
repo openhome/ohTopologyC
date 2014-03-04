@@ -90,7 +90,7 @@ protected:
     std::map<EServiceType, Service*> iServices;
 
 private:
-    Brn iUdn;
+    Bws<100> iUdn;
     DisposeHandler* iDisposeHandler;
     std::vector<Functor> iJoiners;
 };

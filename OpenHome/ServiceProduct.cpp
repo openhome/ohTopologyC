@@ -12,16 +12,16 @@ using namespace std;
 ServiceProduct::ServiceProduct(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     :Service(aNetwork, &aDevice, aLog)
 
-/*
-    ,iName(new Watchable<Brn>(aNetwork, Brn("Name"), Brx::Empty()))
-    ,iSourceIndex(new Watchable<TUint>(aNetwork, Brn("SourceIndex"), 0))
-    ,iSourceXml(new Watchable<Brn>(aNetwork, Brn("SourceXml"), Brx::Empty()))
-    ,iStandby(new Watchable<TBool>(aNetwork, Brn("Standby"), false))
-    ,iRegistration(new Watchable<Brn>(aNetwork, Brn("Registration"), Brx::Empty()))
-*/
+
+
 {
     //Brn empty(Brx::Empty());
     iRoom = new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("Room"), Brx::Empty());
+    iName = new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("Name"), Brx::Empty());
+    iSourceIndex = new Watchable<TUint>((IWatchableThread&)aNetwork, Brn("SourceIndex"), 0);
+    iSourceXml = new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("SourceXml"), Brx::Empty());
+    iStandby = new Watchable<TBool>((IWatchableThread&)aNetwork, Brn("Standby"), false);
+    iRegistration = new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("Registration"), Brx::Empty());
 }
 
 

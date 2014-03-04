@@ -76,7 +76,8 @@ void WatchableThread::Run()
 
 void WatchableThread::Assert()
 {
-    ASSERT(IsWatchableThread());
+    TBool wt = IsWatchableThread();
+    ASSERT(wt);
 }
 
 

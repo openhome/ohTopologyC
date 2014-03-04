@@ -229,7 +229,7 @@ Brn InjectorDevice::Udn()
 {
     //using (iDisposeHandler.Lock())
     //{
-        return iUdn;
+        return (Brn(iUdn));
     //}
 }
 

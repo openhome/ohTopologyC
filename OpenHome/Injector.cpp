@@ -149,11 +149,11 @@ void InjectorMock::ExecuteCallback(void* aObj)
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("medium")))
     {
-        //CreateAndAdd(DeviceFactory.CreateDs(iNetwork, "4c494e4e-0026-0f99-1111-ef000004013f", "Kitchen", "Sneaky Music DS", "Info Time Volume Sender", iLog));
-        //CreateAndAdd(DeviceFactory.CreateDsm(iNetwork, "4c494e4e-0026-0f99-1112-ef000004013f", "Sitting Room", "Klimax DSM", "Info Time Volume Sender", iLog));
-        //CreateAndAdd(DeviceFactory.CreateDsm(iNetwork, "4c494e4e-0026-0f99-1113-ef000004013f", "Bedroom", "Kiko DSM", "Info Time Volume Sender", iLog));
-        //CreateAndAdd(DeviceFactory.CreateDs(iNetwork, "4c494e4e-0026-0f99-1114-ef000004013f", "Dining Room", "Majik DS", "Info Time Volume Sender", iLog));
-        //CreateAndAdd(DeviceFactory.CreateMediaServer(iNetwork, "4c494e4e-0026-0f99-0000-000000000000", iResourceRoot, iLog));
+        CreateAndAdd(*DeviceFactory::CreateDs(iNetwork, Brn("4c494e4e-0026-0f99-1111-ef000004013f"), Brn("Kitchen"), Brn("Sneaky Music DS"), Brn("Info Time Volume Sender"), iLog));
+        CreateAndAdd(*DeviceFactory::CreateDsm(iNetwork, Brn("4c494e4e-0026-0f99-1112-ef000004013f"), Brn("Sitting Room"), Brn("Klimax DSM"), Brn("Info Time Volume Sender"), iLog));
+        CreateAndAdd(*DeviceFactory::CreateDsm(iNetwork, Brn("4c494e4e-0026-0f99-1113-ef000004013f"), Brn("Bedroom"), Brn("Kiko DSM"), Brn("Info Time Volume Sender"), iLog));
+        CreateAndAdd(*DeviceFactory::CreateDs(iNetwork, Brn("4c494e4e-0026-0f99-1114-ef000004013f"), Brn("Dining Room"), Brn("Majik DS"), Brn("Info Time Volume Sender"), iLog));
+        //CreateAndAdd(*DeviceFactory.CreateMediaServer(iNetwork, "4c494e4e-0026-0f99-0000-000000000000", iResourceRoot, iLog));
         return;
     }
     else if (Ascii::CaseInsensitiveEquals(command,Brn("large")))

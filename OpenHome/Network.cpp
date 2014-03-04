@@ -85,7 +85,7 @@ void Network::Report(std::exception& /*aException*/)
  */
 TBool Network::WaitDevices()
 {
-    LOG(kTrace, "Network::WaitDevices \n");
+    //LOG(kTrace, "Network::WaitDevices \n");
     TBool complete = true;
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::WaitDevicesCallback);
     Execute(f, &complete);
@@ -98,7 +98,7 @@ TBool Network::WaitDevices()
  */
 void Network::WaitDevicesCallback(void* aObj)
 {
-    LOG(kTrace, "Network::WaitDevicesCallback \n");
+    //LOG(kTrace, "Network::WaitDevicesCallback \n");
     Assert(); /// must be on watchable thread
     TBool* complete = (TBool*)aObj;
 
@@ -117,7 +117,7 @@ void Network::WaitDevicesCallback(void* aObj)
  */
 void Network::Wait()
 {
-    LOG(kTrace, "Network::Wait \n");
+    //LOG(kTrace, "Network::Wait \n");
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::DoNothing);
 
@@ -140,7 +140,7 @@ void Network::Wait()
  */
 void Network::DoNothing(void*)
 {
-    LOG(kTrace, "Network::DoNothing \n");
+    //LOG(kTrace, "Network::DoNothing \n");
 }
 
 

@@ -81,38 +81,41 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
 }
 
 
-/*
-IInjectorDevice* DeviceFactory::CreateDsm(INetwork aNetwork, const Brx& aUdn, ILog aLog)
+
+IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, ILog& aLog)
 {
-    return CreateDsm(aNetwork, aUdn, "Main Room", "Mock Dsm", "Info Time Volume Sender", aLog);
+    return CreateDsm(aNetwork, aUdn, Brn("Main Room"), Brn("Mock Dsm"), Brn("Info Time Volume Sender"), aLog);
 }
 
-IInjectorDevice* DeviceFactory::CreateDsm(INetwork aNetwork, const Brx& aUdn, const Brx& aRoom, const Brx& aName, const Brx& aAttributes, ILog aLog)
+IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, const Brx& aRoom, const Brx& aName, const Brx& aAttributes, ILog& aLog)
 {
-    InjectorDevice device = new InjectorDevice(aUdn);
+    InjectorDevice* device = new InjectorDevice(aUdn);
     // add a factory for each type of watchable service
-
+	
     // product service
-    List<Source> sources = new List<Source>();
-    sources.Add(new Source("Playlist", "Playlist", true));
-    sources.Add(new Source("Radio", "Radio", true));
-    sources.Add(new Source("UPnP AV", "UpnpAv", false));
-    sources.Add(new Source("Songcast", "Receiver", true));
-    sources.Add(new Source("Net Aux", "NetAux", false));
-    sources.Add(new Source("Analog1", "Analog", true));
-    sources.Add(new Source("Analog2", "Analog", true));
-    sources.Add(new Source("Phono", "Analog", true));
-    sources.Add(new Source("SPDIF1", "Digital", true));
-    sources.Add(new Source("SPDIF2", "Digital", true));
-    sources.Add(new Source("TOSLINK1", "Digital", true));
-    sources.Add(new Source("TOSLINK2", "Digital", true));
-    SourceXml xml = new SourceXml(sources.ToArray());
+    vector<Source*> sources;
+    sources.push_back(new Source(Brn("Playlist"), Brn("Playlist"), true));
+    sources.push_back(new Source(Brn("Radio"), Brn("Radio"), true));
+    sources.push_back(new Source(Brn("UPnP AV"), Brn("UpnpAv"), false));
+    sources.push_back(new Source(Brn("Songcast"), Brn("Receiver"), true));
+    sources.push_back(new Source(Brn("Net Aux"), Brn("NetAux"), false));
+    sources.push_back(new Source(Brn("Analog1"), Brn("Analog"), true));
+    sources.push_back(new Source(Brn("Analog2"), Brn("Analog"), true));
+    sources.push_back(new Source(Brn("Phono"), Brn("Analog"), true));
+    sources.push_back(new Source(Brn("SPDIF1"), Brn("Digital"), true));
+    sources.push_back(new Source(Brn("SPDIF2"), Brn("Digital"), true));
+    sources.push_back(new Source(Brn("TOSLINK1"), Brn("Digital"), true));
+    sources.push_back(new Source(Brn("TOSLINK2"), Brn("Digital"), true));
 
-    device->Add<IProxyProduct>(new ServiceProductMock(aNetwork, device, aRoom, aName, 0, xml, true, aAttributes,
-        "", "Linn Products Ltd", "Linn", "http://www.linn.co.uk",
-        "", "Linn High Fidelity System Component", "Mock DSM", "",
-        "", "Linn High Fidelity System Component", "", aUdn, aLog));
+//	SourceXml xml = new SourceXml(sources.ToArray());
+    SrcXml* xml = new SrcXml(sources);
 
+    device->Add(EProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes,
+				Brn(""), Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"),
+				Brn(""), Brn("Linn High Fidelity System Component"), Brn("Mock DSM"), Brn(""),
+				Brn(""), Brn("Linn High Fidelity System Component"), Brn(""), aUdn, aLog));
+
+/*
     // volume service
     device->Add<IProxyVolume>(new ServiceVolumeMock(aNetwork, device, aUdn, 0, 15, 0, 0, false, 50, 100, 100, 1024, 100, 80, aLog));
 
@@ -136,25 +139,25 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork aNetwork, const Brx& aUdn, co
     presets.Add(null);
     presets.Add(aNetwork.TagManager.FromDidlLite("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>Linn Classical (Classical)</dc:title><res protocolInfo=\"*:*:*:*\" bitrate=\"40000\">http://opml.radiotime.com/Tune.ashx?id=s122116&amp;formats=mp3,wma,aac,wmvideo,ogg&amp;partnerId=ah2rjr68&amp;username=linnproducts&amp;c=ebrowse</res><upnp:albumArtURI>http://d1i6vahw24eb07.cloudfront.net/s122116q.png</upnp:albumArtURI><upnp:class>object.item.audioItem</upnp:class></item></DIDL-Lite>"));
     presets.Add(aNetwork.TagManager.FromDidlLite("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>BBC World Service (World News)</dc:title><res protocolInfo=\"*:*:*:*\" bitrate=\"4000\">http://opml.radiotime.com/Tune.ashx?id=s50646&amp;formats=mp3,wma,aac,wmvideo,ogg&amp;partnerId=ah2rjr68&amp;username=linnproducts&amp;c=ebrowse</res><upnp:albumArtURI>http://d1i6vahw24eb07.cloudfront.net/s50646q.png</upnp:albumArtURI><upnp:class>object.item.audioItem</upnp:class></item></DIDL-Lite>"));
-    presets.Add(aNetwork.TagManager.FromDidlLite("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>Sky Radio News (World News)</dc:title><res protocolInfo=\"*:*:*:*\" bitrate=\"4000\">http://opml.radiotime.com/Tune.ashx?id=s81093&amp;formats=mp3,wma,aac,wmvideo,ogg&amp;partnerId=ah2rjr68&amp;username=linnproducts&amp;c=ebrowse</res><upnp:albumArtURI>http://d1i6vahw24eb07.cloudfront.net/s81093q.png</upnp:albumArtURI><upnp:class>object.item.audioItem</upnp:class></item></DIDL-Lite>"));
+    presets.Add(aNetwork.TagManager.FromDidlLite("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>Sky Radio News (World News)</dc:title><res protocolInfo=\"*:*:*:*\" bitrate=\"4000\">http://opml.radiotime.com/Tune.ashx?id=s81093&amp;formats=mp3,wma,aac,wmvideo,ogg&amp;partnerId=`ah2rjr68&amp;username=linnproducts&amp;c=ebrowse</res><upnp:albumArtURI>http://d1i6vahw24eb07.cloudfront.net/s81093q.png</upnp:albumArtURI><upnp:class>object.item.audioItem</upnp:class></item></DIDL-Lite>"));
 
     device->Add<IProxyRadio>(new ServiceRadioMock(aNetwork, device, 0, presets, InfoMetadata.Empty, Brx:Empty(), "Stopped", 100, aLog));
 
     // playlist service
     List<IMediaMetadata> tracks = new List<IMediaMetadata>();
     device->Add<IProxyPlaylist>(new ServicePlaylistMock(aNetwork, device, 0, tracks, false, false, "Stopped", Brx:Empty(), 1000, aLog));
-
+*/
     return device;
 }
 
+/*
 IInjectorDevice* DeviceFactory::CreateMediaServer(INetwork aNetwork, const Brx& aUdn, const Brx& aResourceRoot, ILog aLog)
 {
     return (new DeviceMediaEndpointMock(aNetwork, aUdn, aResourceRoot, aLog));
 }
-*/
 
 
-/*
+
 IInjectorDevice* DeviceFactory::Create(INetwork& aNetwork, CpDevice& aDevice, ILog aLog)
 {
     InjectorDevice* device = new InjectorDevice(aDevice.Udn());

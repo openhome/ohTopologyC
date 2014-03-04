@@ -7,7 +7,7 @@
 #include <algorithm>
 
 
-#pragma warning( disable: 4505 )
+//#pragma warning( disable: 4505 )
 
 namespace OpenHome
 {
@@ -51,13 +51,13 @@ public:
     TBool Update(T aValue);
 
     // IWatchable<T>
-    virtual T Value();
-    virtual const Brx& Id();
-    virtual void AddWatcher(IWatcher<T>& aWatcher);
-    virtual void RemoveWatcher(IWatcher<T>& aWatcher);
+    //virtual T Value();
+    //virtual const Brx& Id();
+    //virtual void AddWatcher(IWatcher<T>& aWatcher);
+    //virtual void RemoveWatcher(IWatcher<T>& aWatcher);
 
     // IDisposable
-    virtual void Dispose();
+    //virtual void Dispose();
 
 private:
     void DisposeCallback(void*);
@@ -133,27 +133,30 @@ TBool Watchable<T>::Update(T aValue)
 /**
 
  */
+/*
 template <class T>
 T Watchable<T>::Value()
 {
     Assert();
     return (iValue);
 }
-
+*/
 
 /**
 
  */
+/*
 template <class T>
 const Brx& Watchable<T>::Id()
 {
     return (iId);
 }
-
+*/
 
 /**
 
  */
+/*
 template <class T>
 void Watchable<T>::AddWatcher(IWatcher<T>& aWatcher)
 {
@@ -162,18 +165,13 @@ void Watchable<T>::AddWatcher(IWatcher<T>& aWatcher)
     ASSERT(it==iWatchers.end());
     iWatchers.push_back(&aWatcher);
     aWatcher.ItemOpen(iId, iValue);
-/*
-    Assert();
-    Do.Assert(!iWatchers.Contains(aWatcher));
-    iWatchers.Add(aWatcher);
-    aWatcher.ItemOpen(iId, iValue);
-*/
 }
-
+*/
 
 /**
 
  */
+/*
 template <class T>
 void Watchable<T>::RemoveWatcher(IWatcher<T>& aWatcher)
 {
@@ -192,29 +190,20 @@ void Watchable<T>::RemoveWatcher(IWatcher<T>& aWatcher)
     {
         iRecentlyRemoved.push_back(&aWatcher);
     }
-/*
-    Assert();
-    Do.Assert(iWatchers.Remove(aWatcher));
-    Do.Assert(!iWatchers.Contains(aWatcher));
-    aWatcher.ItemClose(iId, iValue);
-    if (iUpdating)
-    {
-        iRecentlyRemoved.Add(aWatcher);
-    }
-*/
 }
-
+*/
 
 /**
 
  */
+/*
 template <class T>
 void Watchable<T>::Dispose()
 {
     FunctorGeneric<void*> action = MakeFunctorGeneric(*this, &Watchable::DisposeCallback);
     Execute(action, NULL);
 }
-
+*/
 
 /**
 

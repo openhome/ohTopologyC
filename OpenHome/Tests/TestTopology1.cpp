@@ -50,31 +50,35 @@ class ProductWatcher : public IWatcherUnordered<IProxyProduct>
 public:
     ProductWatcher(MockableScriptRunner* aRunner) : iRunner(aRunner) {}
 
-    void UnorderedOpen() {LOG(kTrace, "ProductWatcher::UnorderedOpen \n");}
-    void UnorderedClose() {LOG(kTrace, "ProductWatcher::UnorderedClose \n");}
-    void UnorderedInitialised() {LOG(kTrace, "ProductWatcher::UnorderedInitialised \n");}
+    virtual void UnorderedOpen() {}
+    virtual void UnorderedClose() {/*LOG(kTrace, "ProductWatcher::UnorderedClose \n");*/}
+    virtual void UnorderedInitialised() {/*LOG(kTrace, "ProductWatcher::UnorderedInitialised \n");*/}
 
-    void UnorderedAdd(IProxyProduct& aWatcher)
+    virtual void UnorderedAdd(IProxyProduct& aWatcher)
+	{
+		//LOG(kTrace, "ProductWatcher::UnorderedAdd \n");
+		Bws<100> buf;
+		buf.Replace(Brn("product added "));
+		buf.Append(aWatcher.Device().Udn());
+
+		Bwh* result = new Bwh(buf);
+		iRunner->Result(result);
+	}
+
+    virtual void UnorderedRemove(IProxyProduct& aWatcher)
     {
-        LOG(kTrace, "ProductWatcher::UnorderedAdd \n");
+        //LOG(kTrace, "ProductWatcher::UnorderedRemove \n");
+		Bws<100> buf;
+		buf.Replace(Brn("product removed "));
+		buf.Append(aWatcher.Device().Udn());
 
-        Bws<100> result;
-        result.Replace(Brn("product added "));
-        result.Append(aWatcher.Device().Udn());
-        iRunner->Result(result);
-    }
-
-    void UnorderedRemove(IProxyProduct& aWatcher)
-    {
-        LOG(kTrace, "ProductWatcher::UnorderedRemove \n");
-        Bws<100> result;
-        result.Replace(Brn("product removed "));
-        result.Append(aWatcher.Device().Udn());
-        iRunner->Result(result);
+		Bwh* result = new Bwh(buf);
+		iRunner->Result(result);
     }
 
 private:
     MockableScriptRunner* iRunner;
+	//Bws<100> iResult;
 };
 
 
@@ -138,17 +142,12 @@ void SuiteTopology1::Test1()
 
     MockableScriptRunner* runner = new MockableScriptRunner();
 
-    ProductWatcher* watcher = new ProductWatcher(runner);
+	ProductWatcher* watcher = new ProductWatcher(runner);
 
     FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopology1::ScheduleCallback);
     network->Schedule(fs, watcher);
 
-    LOG(kTrace, "Topology1::1 \n");
-
-
     Functor f = MakeFunctor(*network, &Network::Wait);
-
-
 
     //try
     //{
@@ -159,8 +158,8 @@ void SuiteTopology1::Test1()
     //    return 1;
     //}
 
-    FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology1::ExecuteCallback);
-    network->Execute(fe, watcher);
+    //FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology1::ExecuteCallback);
+    //network->Execute(fe, watcher);
 
 /*
     topology.Dispose();
