@@ -218,6 +218,7 @@ void SuiteWatchableThread::TestFunctor2x(void*)
         iWatchableThread->Assert();
         FunctorGeneric<void*> f2 = MakeFunctorGeneric(*this, &SuiteWatchableThread::TestFunctor2);
         iWatchableThread->Execute(f2, NULL);
+        result = true;
     }
     catch(AssertionFailed)
     {
