@@ -122,6 +122,8 @@ TBool WatchableThread::IsWatchableThread()
     return(Thread::Current()==iThread);
 }
 
+
+
 /////////////////////////////////////////////////////////
 
 AutoSem::AutoSem(Semaphore* aSem)

@@ -3,8 +3,8 @@
 
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/Watchable.h>
+#include <OpenHome/OhTopologyC.h>
 #include<vector>
-
 
 
 
@@ -20,7 +20,7 @@ namespace Av
     @{
  */
 template <class T>
-class WatchableOrdered : public IWatchableOrdered<T>, public WatchableBase//, public WatchableCollection<T>, public IDisposable
+class WatchableOrdered : public IWatchableOrdered<T>, public WatchableBase, public IDisposable
 {
 public:
     WatchableOrdered(IWatchableThread& aWatchableThread);

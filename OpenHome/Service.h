@@ -21,7 +21,7 @@ class IDevice;
 
 
 
-class IProxy //: public IDisposable
+class IProxy : public IDisposable
 {
 public:
     virtual IDevice& Device() = 0;
@@ -47,6 +47,31 @@ protected:
 private:
     IDevice& iDevice;
 };
+
+////////////////////////////////////////////////
+
+template <class T>
+Proxy<T>::Proxy(T aService, IDevice& aDevice)
+    :iService(aService)
+    ,iDevice(aDevice)
+{
+}
+
+
+template <class T>
+IDevice& Proxy<T>::Device()
+{
+    return (iDevice);
+}
+
+
+template <class T>
+void Proxy<T>::Dispose()
+{
+    iService.Unsubscribe();
+}
+
+
 */
 ////////////////////////////////////////////////
 
@@ -114,28 +139,6 @@ private:
 
 
 /////////////////////////////////////////////////////
-/*
-template <class T>
-Proxy<T>::Proxy(T aService, IDevice& aDevice)
-    :iService(aService)
-    ,iDevice(aDevice)
-{
-}
-
-
-template <class T>
-IDevice& Proxy<T>::Device()
-{
-    return (iDevice);
-}
-
-
-template <class T>
-void Proxy<T>::Dispose()
-{
-    iService.Unsubscribe();
-}
-*/
 
 
 } // Av

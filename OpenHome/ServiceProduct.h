@@ -221,8 +221,9 @@ public:
 
     // IProxy
     virtual IDevice& Device();
+
     // IDisposable
-    //virtual void Dispose();
+    virtual void Dispose();
 
 //protected:
 //    Proxy(T aService, IDevice& aDevice);

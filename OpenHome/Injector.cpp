@@ -10,6 +10,7 @@
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
+using namespace std;
 
 /*
 Injector::Injector(Network& aNetwork, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog aLog)
@@ -115,10 +116,12 @@ void InjectorMock::Dispose()
 
 void InjectorMock::DisposeCallback(void*)
 {
-    //foreach (var d in iMockDevices.Values)
-    //{
-    //    d.Dispose();
-    //}
+    map<Brn, InjectorDeviceMock*, BufferCmp>::iterator it;
+
+    for(it=iMockDevices.begin();it!=iMockDevices.end();it++)
+    {
+        it->second->Dispose();
+    }
 }
 
 

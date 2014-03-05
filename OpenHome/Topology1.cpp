@@ -13,15 +13,6 @@ Topology1::Topology1(INetwork* aNetwork, ILog& /*aLog*/)
     //,iLog = aLog;
     ,iProducts(new WatchableUnordered<IProxyProduct>(*iNetwork))
 {
-
-/*
-    iNetwork.Execute(() =>
-    {
-        iDevices = iNetwork.Create<IProxyProduct>();
-        iDevices.AddWatcher(this);
-    });
-*/
-
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::ExecuteCallback);
     iNetwork->Execute(f, 0);
 }
@@ -37,31 +28,39 @@ void Topology1::ExecuteCallback(void*)
 
 void Topology1::Dispose()
 {
-/*
+
     if (iDisposed)
     {
-        throw new ObjectDisposedException("Topology1.Dispose");
+        //throw new ObjectDisposedException("Topology1.Dispose");
     }
 
-    iNetwork.Execute(() =>
-    {
-        iDevices.RemoveWatcher(this);
-        iPendingSubscriptions.Clear();
-    });
-    iDevices = null;
+
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::DisposeCallback);
+    iNetwork->Execute(f, NULL);
+
+    //iDevices = null;
 
     // dispose of all products, which will in turn unsubscribe
-    foreach (var p in iProductLookup.Values)
+    map<IDevice*, IProxyProduct*>::iterator it;
+    for(it=iProductLookup.begin(); it!=iProductLookup.end(); it++)
     {
-        p.Dispose();
+        it->second->Dispose();
     }
-    iProductLookup = null;
+
+    //iProductLookup = null;
 
     iProducts->Dispose();
-    iProducts = null;
+    //iProducts = null;
 
     iDisposed = true;
-*/
+
+}
+
+
+void Topology1::DisposeCallback(void*)
+{
+    iDevices->RemoveWatcher(*this);
+    iPendingSubscriptions.empty();
 }
 
 
@@ -130,18 +129,15 @@ void Topology1::UnorderedAdd(IDevice& aDevice)
 
 void Topology1::UnorderedAddCallback(void* aObj)
 {
-	ArgsTwo<IDevice*, IProxyProduct*>* args = ((ArgsTwo<IDevice*, IProxyProduct*>*)aObj);
+    ArgsTwo<IDevice*, IProxyProduct*>* args = ((ArgsTwo<IDevice*, IProxyProduct*>*)aObj);
 
     IDevice* device = args->Arg1();
     IProxyProduct* product = args->Arg2();
 
-	//IDevice* device = (IDevice*)aObj;
-    //IProxyProduct* product = ((IProxyProduct*)aObj)+1;
 
     vector<IDevice*>::iterator it = find(iPendingSubscriptions.begin(), iPendingSubscriptions.end(), device);
 
-    if (it!=iPendingSubscriptions.end())
-    //if (!iDisposed && iPendingSubscriptions.Contains(aDevice))
+    if ((!iDisposed) && (it!=iPendingSubscriptions.end()))
     {
         try
         {
@@ -150,7 +146,7 @@ void Topology1::UnorderedAddCallback(void* aObj)
         catch (ServiceNotFoundException)
         {
             // NOTE: we need to log the fact that product is not added due to a service not being found
-            //product.Dispose();
+            product->Dispose();
             return;
         }
         iProductLookup[device] = product;
@@ -158,7 +154,7 @@ void Topology1::UnorderedAddCallback(void* aObj)
     }
     else
     {
-        //product->Dispose();
+        product->Dispose();
     }
 }
 

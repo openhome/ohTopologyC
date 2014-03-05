@@ -23,7 +23,7 @@ void Service::Dispose()
 {
     Assert();
 
-    //iDisposeHandler.Dispose();
+    iDisposeHandler->Dispose();
     //iCancelSubscribe.Cancel();
     OnCancelSubscribe();
 
@@ -47,7 +47,6 @@ void Service::Dispose()
     //iCancelSubscribe.Dispose();
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::DisposeCallback);
-
     iNetwork.Schedule(f, NULL);
 }
 

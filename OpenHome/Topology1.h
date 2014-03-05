@@ -33,7 +33,7 @@ public:
 
 ///////////////////////////////////////////////////////
 
-class Topology1 : public ITopology1, public IWatcherUnordered<IDevice>//, public IDisposable
+class Topology1 : public ITopology1, public IWatcherUnordered<IDevice>, public IDisposable
 {
 public:
     Topology1(INetwork* aNetwork, ILog& aLog);
@@ -51,13 +51,13 @@ public:
 private:
     void ExecuteCallback(void* aObj);
     void UnorderedAddCallback(void* aObj);
+    void DisposeCallback(void*);
 
 
 private:
     TBool iDisposed;
     INetwork* iNetwork;
-
-// private readonly ILog iLog;
+    //private readonly ILog iLog;
     std::vector<IDevice*> iPendingSubscriptions;
     std::map<IDevice*, IProxyProduct*> iProductLookup;
     WatchableUnordered<IProxyProduct>* iProducts;

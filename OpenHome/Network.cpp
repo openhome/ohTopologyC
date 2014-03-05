@@ -16,12 +16,9 @@ using namespace std;
 
  */
 Network::Network(TUint /*aMaxCacheEntries*/, ILog&/* aLog*/)
-    //:iWatchableThread(new WatchableThread(*this))
-    //,iDisposable(true)
+    :iWatchableThread(new WatchableThread(*this))
+    ,iDisposeHandler(new DisposeHandler())
 {
-    iWatchableThread = new WatchableThread(*this);
-    //iDispose = () => { iWatchableThread.Dispose(); };
-    iDisposeHandler = new DisposeHandler();
     //iCache = new IdCache(aMaxCacheEntries);
     //iTagManager = new TagManager();
     //iEventSupervisor = new EventSupervisor(iWatchableThread);
@@ -33,10 +30,8 @@ Network::Network(TUint /*aMaxCacheEntries*/, ILog&/* aLog*/)
  */
 Network::Network(IWatchableThread& aWatchableThread, TUint /*aMaxCacheEntries*/, ILog&)
     :iWatchableThread(&aWatchableThread)
-    ,iDisposable(false)
+    ,iDisposeHandler(new DisposeHandler())
 {
-    //iDispose = () => { };
-    //iDisposeHandler = new DisposeHandler();
     //iCache = new IdCache(aMaxCacheEntries);
     //iTagManager = new TagManager();
     //iEventSupervisor = new EventSupervisor(iWatchableThread);
@@ -309,26 +304,18 @@ void Network::Dispose()
 {
     Wait();
 
-    //foreach (WatchableUnordered<IDevice> list in iDeviceLists.Values)
     std::map<EServiceType , WatchableUnordered<IDevice>*>::iterator it;
 
     for(it=iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
     {
         it->second->Dispose();
-        //list.Dispose();
     }
-
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::DisposeCallback);
     Execute(f, NULL);
 
     //iEventSupervisor.Dispose();
-    //iDisposeHandler.Dispose();
-    //iDispose();
-    if(iDisposable)
-    {
-        //iWatchableThread->Dispose();
-    }
+    iDisposeHandler->Dispose();
 
     if (iExceptions.size() > 0)
     {
@@ -348,10 +335,7 @@ void Network::DisposeCallback(void*)
     {
         it->second->Dispose();
     }
-    //foreach (var device in iDevices.Values)
-    //{
-        //device.Dispose();
-    //}
+
 }
 
 

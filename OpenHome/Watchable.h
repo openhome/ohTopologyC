@@ -44,7 +44,7 @@ private:
 //////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-class Watchable : public IWatchable<T>, public WatchableBase //, public IDisposable
+class Watchable : public IWatchable<T>, public WatchableBase, public IDisposable
 {
 public:
     Watchable(IWatchableThread& aWatchableThread, const Brx& aId, T aValue);
@@ -57,7 +57,7 @@ public:
     //virtual void RemoveWatcher(IWatcher<T>& aWatcher);
 
     // IDisposable
-    //virtual void Dispose();
+    virtual void Dispose();
 
 private:
     void DisposeCallback(void*);
@@ -196,14 +196,13 @@ void Watchable<T>::RemoveWatcher(IWatcher<T>& aWatcher)
 /**
 
  */
-/*
 template <class T>
 void Watchable<T>::Dispose()
 {
     FunctorGeneric<void*> action = MakeFunctorGeneric(*this, &Watchable::DisposeCallback);
     Execute(action, NULL);
 }
-*/
+
 
 /**
 

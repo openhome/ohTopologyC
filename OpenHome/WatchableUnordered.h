@@ -5,6 +5,7 @@
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/Watchable.h>
 #include <OpenHome/Private/Debug.h>
+#include <OpenHome/OhTopologyC.h>
 #include <vector>
 #include <algorithm>
 
@@ -26,7 +27,7 @@ namespace Av
  */
 
 template <class T>
-class WatchableUnordered : public IWatchableUnordered<T>, public WatchableBase //, public WatchableCollection<T>, public IDisposable
+class WatchableUnordered : public WatchableBase, public IWatchableUnordered<T>, public IDisposable //, public WatchableCollection<T>
 {
 public:
     WatchableUnordered(IWatchableThread& aWatchableThread);

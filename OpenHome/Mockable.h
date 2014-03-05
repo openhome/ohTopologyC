@@ -22,14 +22,6 @@ namespace Av
 static const TUint kMaxResultBytes = 2000;
 
 ///////////////////////////////////////////////
-/*
-class IMockable
-{
-public:
-    virtual void Execute(ICommandTokens& aTokens) = 0;
-};
-*/
-///////////////////////////////////////////////
 
 class Mockable : public IMockable
 {
@@ -71,8 +63,6 @@ private:
     TBool Test(const Brx& aActual, const Brx& aExpected);
     void Assert(TBool aExpression);
 
-
-    //Queue<string> iResultQueue;
     Fifo<Bwh*> iResultQueue;
     Bws<kMaxLineBytes> iLine;
 };

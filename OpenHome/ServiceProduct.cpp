@@ -11,43 +11,25 @@ using namespace std;
 
 ServiceProduct::ServiceProduct(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     :Service(aNetwork, &aDevice, aLog)
-
-
-
+    ,iRoom(new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("Room"), Brx::Empty()))
+    ,iName(new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("Name"), Brx::Empty()))
+    ,iSourceIndex(new Watchable<TUint>((IWatchableThread&)aNetwork, Brn("SourceIndex"), 0))
+    ,iSourceXml(new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("SourceXml"), Brx::Empty()))
+    ,iStandby(new Watchable<TBool>((IWatchableThread&)aNetwork, Brn("Standby"), false))
+    ,iRegistration(new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("Registration"), Brx::Empty()))
 {
-    //Brn empty(Brx::Empty());
-    iRoom = new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("Room"), Brx::Empty());
-    iName = new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("Name"), Brx::Empty());
-    iSourceIndex = new Watchable<TUint>((IWatchableThread&)aNetwork, Brn("SourceIndex"), 0);
-    iSourceXml = new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("SourceXml"), Brx::Empty());
-    iStandby = new Watchable<TBool>((IWatchableThread&)aNetwork, Brn("Standby"), false);
-    iRegistration = new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("Registration"), Brx::Empty());
 }
 
 
 void ServiceProduct::Dispose()
 {
-    //base.Dispose();
-
-/*
-    iRoom.Dispose();
-    iRoom = null;
-
-    iName.Dispose();
-    iName = null;
-
-    iSourceIndex.Dispose();
-    iSourceIndex = null;
-
-    iSourceXml.Dispose();
-    iSourceXml = null;
-
-    iStandby.Dispose();
-    iStandby = null;
-
-    iRegistration.Dispose();
-    iRegistration = null;
-*/
+    Service::Dispose();
+    iRoom->Dispose();
+    iName->Dispose();
+    iSourceIndex->Dispose();
+    iSourceXml->Dispose();
+    iStandby->Dispose();
+    iRegistration->Dispose();
 }
 
 
@@ -280,35 +262,6 @@ void SrcXml::CreateSourceXml()
     }
 
     iSourceXml.Append(Brn("</SourceList>"));
-
-/*
-    XmlDocument doc = new XmlDocument();
-
-    XmlElement sources = doc.CreateElement("SourceList");
-
-    foreach (Source s in iSources)
-    {
-        XmlElement source = doc.CreateElement("Source");
-
-        XmlElement name = doc.CreateElement("Name");
-        XmlElement type = doc.CreateElement("Type");
-        XmlElement visible = doc.CreateElement("Visible");
-
-        name.AppendChild(doc.CreateTextNode(s.Name));
-        type.AppendChild(doc.CreateTextNode(s.Type));
-        visible.AppendChild(doc.CreateTextNode(s.Visible.ToString()));
-
-        source.AppendChild(name);
-        source.AppendChild(type);
-        source.AppendChild(visible);
-
-        sources.AppendChild(source);
-    }
-
-    doc.AppendChild(sources);
-
-    iSourceXml = doc.OuterXml;
-*/
 }
 
 
@@ -354,86 +307,58 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerimageuri")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iManufacturerImageUri = string.Join(" ", value);
         iManufacturerImageUri.Set(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerinfo")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iManufacturerInfo = string.Join(" ", value);
         iManufacturerInfo.Set(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturername")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iManufacturerName = string.Join(" ", value);
         iManufacturerName.Set(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerurl")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iManufacturerUrl = string.Join(" ", value);
         iManufacturerUrl.Set(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("modelimageuri")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iModelImageUri = string.Join(" ", value);
         iModelImageUri.Set(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("modelinfo")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iModelInfo = string.Join(" ", value);
         iModelInfo.Set(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("modelname")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iManufacturerName = string.Join(" ", value);
         iManufacturerName.Set(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("modelurl")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iModelUrl = string.Join(" ", value);
         iModelUrl.Set(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("productimageuri")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iProductImageUri = string.Join(" ", value);
         iProductImageUri.Set(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("productinfo")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iProductInfo = string.Join(" ", value);
         iProductInfo.Set(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("producturl")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iProductUrl = string.Join(" ", value);
         iProductUrl.Set(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("productid")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iProductId = string.Join(" ", value);
         iProductId.Set(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("room")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iRoom.Update(string.Join(" ", value));
         iRoom->Update(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("name")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iName.Update(string.Join(" ", value));
         iName->Update(aCommands.Remaining());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("sourceindex")))
@@ -724,6 +649,10 @@ Brn ProxyProduct::ProductId()
     return iService.ProductId();
 }
 
+void ProxyProduct::Dispose()
+{
+    iService.Unsubscribe();
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 

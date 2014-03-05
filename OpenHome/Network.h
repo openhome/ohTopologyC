@@ -97,7 +97,6 @@ private:
 private:
     std::vector<Exception> iExceptions;
     IWatchableThread* iWatchableThread;
-    TBool iDisposable;
     DisposeHandler* iDisposeHandler;
     IIdCache* iIdCache;
     ITagManager* iTagManager;
