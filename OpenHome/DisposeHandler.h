@@ -34,7 +34,7 @@ private:
 
 ////////////////////////////////////////////////
 
-class DisposeLock : public IDisposable
+class DisposeLock : public IDisposable, public INonCopyable
 {
 public:
     DisposeLock(DisposeHandler& aHandler);
