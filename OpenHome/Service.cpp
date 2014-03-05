@@ -266,12 +266,6 @@ void Service::Execute(FunctorGeneric<void*> aCallback, void* /*aObj*/)
 }
 
 
-TBool Service::IsWatchableThread()
-{
-    return(iNetwork.IsWatchableThread());
-}
-
-
 void Service::Execute(ICommandTokens& /*aCommand*/)
 {
 }

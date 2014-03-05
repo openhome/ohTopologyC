@@ -145,14 +145,14 @@ void SuiteWatchableThread::Test1()
     FunctorGeneric<void*> fb = MakeFunctorGeneric(*this, &SuiteWatchableThread::TestFunctorBlock);
     FunctorGeneric<void*> f2x = MakeFunctorGeneric(*this, &SuiteWatchableThread::TestFunctor2x);
 
-    TUint x;
+    //TUint x;
 
     // test Execute calls functor
-    iWatchableThread->Execute(f1, &x);
+    iWatchableThread->Execute(f1, NULL);
     iSema1.Wait();
 
     // test Schedule calls functor
-    iWatchableThread->Schedule(f2, &x);
+    iWatchableThread->Schedule(f2, NULL);
     iSema2.Wait();
 
     // test Execute blocks when other functors are scheduled
@@ -161,10 +161,10 @@ void SuiteWatchableThread::Test1()
 
     for (TUint i=0; i<WatchableThread::kMaxFifoEntries; i++)
     {
-        iWatchableThread->Schedule(f1, &x);
+        iWatchableThread->Schedule(f1, NULL);
     }
 
-    iWatchableThread->Execute(f2, &x);
+    iWatchableThread->Execute(f2, NULL);
     iSema2.Wait();
     for (TUint i=0; i<WatchableThread::kMaxFifoEntries; i++)
     {
@@ -180,16 +180,16 @@ void SuiteWatchableThread::Test1()
 
     for (TUint i=0; i<6; i++)
     {
-        iWatchableThread->Schedule(f1, &x);
+        iWatchableThread->Schedule(f1, NULL);
     }
 
 
 
-    iWatchableThread->Schedule(f2x, &x); //this will call execute on WT
+    iWatchableThread->Schedule(f2x, NULL); //this will call execute on WT
 
     for (TUint i=0; i<3; i++)
     {
-        iWatchableThread->Schedule(fb, &x); // these will block
+        iWatchableThread->Schedule(fb, NULL); // these will block
     }
 
 
@@ -201,7 +201,6 @@ void SuiteWatchableThread::Test1()
         iSemaBlock.Signal();  // unblock the remaining scheduled blocking functors
     }
 
-    Log::Print("Completed Test1\n");
 }
 
 
@@ -213,27 +212,57 @@ void SuiteWatchableThread::TestFunctorBlock(void*)
 
 void SuiteWatchableThread::TestFunctor2x(void*)
 {
-    TUint x;
-    //Log::Print("2x \n");
-    TEST(iWatchableThread->IsWatchableThread());
-    FunctorGeneric<void*> f2 = MakeFunctorGeneric(*this, &SuiteWatchableThread::TestFunctor2);
-    iWatchableThread->Execute(f2, &x);
+    TBool result;
+    try
+    {
+        iWatchableThread->Assert();
+        FunctorGeneric<void*> f2 = MakeFunctorGeneric(*this, &SuiteWatchableThread::TestFunctor2);
+        iWatchableThread->Execute(f2, NULL);
+    }
+    catch(AssertionFailed)
+    {
+        result = false;
+    }
+
+    TEST(result);
 }
 
 
 void SuiteWatchableThread::TestFunctor2(void*)
 {
-    //Log::Print("2 \n");
-    TEST(iWatchableThread->IsWatchableThread());
-    iSema2.Signal();
+    TBool result;
+
+    try
+    {
+        iWatchableThread->Assert();
+        iSema2.Signal();
+        result = true;
+    }
+    catch(AssertionFailed)
+    {
+        result = false;
+    }
+
+    TEST(result);
 }
 
 
 void SuiteWatchableThread::TestFunctor1(void*)
 {
-    //Log::Print("1 \n");
-    TEST(iWatchableThread->IsWatchableThread());
-    iSema1.Signal();
+    TBool result;
+
+    try
+    {
+        iWatchableThread->Assert();
+        iSema1.Signal();
+        result = true;
+    }
+    catch(AssertionFailed)
+    {
+        result = false;
+    }
+
+    TEST(result);
 }
 
 
@@ -253,8 +282,6 @@ void SuiteWatchableThread::TestFunctorExceptionStd(void*)
 
 void SuiteWatchableThread::Test2()
 {
-    TUint x;
-
     FunctorGeneric<void*> f1 = MakeFunctorGeneric(*this, &SuiteWatchableThread::TestFunctor1);
 
     ////////////////////////
@@ -265,8 +292,8 @@ void SuiteWatchableThread::Test2()
     // executing
     for (TUint i=0; i<WatchableThread::kMaxFifoEntries;i++)
     {
-        iWatchableThread->Execute(f, &x);
-        iWatchableThread->Execute(f1, &x);
+        iWatchableThread->Execute(f, NULL);
+        iWatchableThread->Execute(f1, NULL);
         iSema1.Wait();
         count++;
         TEST(iExceptionReporter->Count()==count);
@@ -275,10 +302,10 @@ void SuiteWatchableThread::Test2()
     // scheduling
     for (TUint i=0; i<WatchableThread::kMaxFifoEntries;i++)
     {
-        iWatchableThread->Schedule(f, &x);
+        iWatchableThread->Schedule(f, NULL);
     }
 
-    iWatchableThread->Execute(f1, &x);
+    iWatchableThread->Execute(f1, NULL);
     iSema1.Wait();
     TEST(iExceptionReporter->Count()==(count+WatchableThread::kMaxFifoEntries));
 
@@ -291,8 +318,8 @@ void SuiteWatchableThread::Test2()
     // executing
     for (TUint i=0; i<WatchableThread::kMaxFifoEntries;i++)
     {
-        iWatchableThread->Execute(fstd, &x);
-        iWatchableThread->Execute(f1, &x);
+        iWatchableThread->Execute(fstd, NULL);
+        iWatchableThread->Execute(f1, NULL);
         iSema1.Wait();
         countstd++;
 
@@ -302,10 +329,10 @@ void SuiteWatchableThread::Test2()
     // scheduling
     for (TUint i=0; i<WatchableThread::kMaxFifoEntries;i++)
     {
-        iWatchableThread->Schedule(fstd, &x);
+        iWatchableThread->Schedule(fstd, NULL);
     }
 
-    iWatchableThread->Execute(f1, &x);
+    iWatchableThread->Execute(f1, NULL);
     iSema1.Wait();
     TEST(iExceptionReporter->CountStd()==(countstd+WatchableThread::kMaxFifoEntries));
 }

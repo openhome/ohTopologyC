@@ -47,34 +47,6 @@ void WatchableBase::Execute(FunctorGeneric<void*> aCallback, void* aObj)
 }
 
 
-/**
-
- */
-TBool WatchableBase::IsWatchableThread()
-{
-    return(iWatchableThread.IsWatchableThread());
-}
-
-
-/**
-
- */
-void WatchableBase::Lock()
-{
-
-}
-
-
-/**
-
- */
-void WatchableBase::Unlock()
-{
-
-}
-
-
-
 
 
 

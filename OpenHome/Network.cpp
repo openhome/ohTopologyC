@@ -290,13 +290,6 @@ void Network::Execute(FunctorGeneric<void*> aCallback, void* aObj)
 }
 
 
-
-TBool Network::IsWatchableThread()
-{
-    return(iWatchableThread->IsWatchableThread());
-}
-
-
 /**
 
  */
