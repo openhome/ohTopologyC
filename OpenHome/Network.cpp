@@ -16,9 +16,9 @@ using namespace std;
 
  */
 Network::Network(TUint /*aMaxCacheEntries*/, ILog&/* aLog*/)
-    :iWatchableThread(new WatchableThread(*this))
-    ,iDisposeHandler(new DisposeHandler())
+    :iDisposeHandler(new DisposeHandler())
 {
+    iWatchableThread = new WatchableThread(*this);
     //iCache = new IdCache(aMaxCacheEntries);
     //iTagManager = new TagManager();
     //iEventSupervisor = new EventSupervisor(iWatchableThread);
