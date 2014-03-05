@@ -8,7 +8,6 @@ using namespace OpenHome::Av;
 
 
 
-
 DisposeHandler::DisposeHandler()
     :iCount(0)
     ,iDisposed(false)
@@ -16,12 +15,6 @@ DisposeHandler::DisposeHandler()
 {
 }
 
-/*
-IDisposable* DisposeHandler::Lock()
-{
-    return (new DisposeLock(this));
-}
-*/
 
 TBool DisposeHandler::WhenNotDisposed(Functor aAction)
 {

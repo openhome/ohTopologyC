@@ -17,14 +17,12 @@ class DisposeHandler : IDisposable
 {
 public:
     DisposeHandler();
-    //IDisposable* Lock();
     TBool WhenNotDisposed(Functor aAction);
-    // IDisposable
-    void Dispose();
-
     void Enter();
     void Leave();
 
+    // IDisposable
+    virtual void Dispose();
 
 private:
     TInt iCount;
@@ -40,7 +38,7 @@ public:
     DisposeLock(DisposeHandler& aHandler);
 
     // IDisposable
-    void Dispose();
+    virtual void Dispose();
 
 private:
     DisposeHandler& iHandler;
