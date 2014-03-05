@@ -29,8 +29,8 @@ Network::Network(TUint /*aMaxCacheEntries*/, ILog&/* aLog*/)
 
  */
 Network::Network(IWatchableThread& aWatchableThread, TUint /*aMaxCacheEntries*/, ILog&)
-    :iWatchableThread(&aWatchableThread)
-    ,iDisposeHandler(new DisposeHandler())
+    :iDisposeHandler(new DisposeHandler())
+    ,iWatchableThread(&aWatchableThread)
 {
     //iCache = new IdCache(aMaxCacheEntries);
     //iTagManager = new TagManager();
