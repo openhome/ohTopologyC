@@ -16,12 +16,12 @@ DisposeHandler::DisposeHandler()
 {
 }
 
-
+/*
 IDisposable* DisposeHandler::Lock()
 {
     return (new DisposeLock(this));
 }
-
+*/
 
 TBool DisposeHandler::WhenNotDisposed(Functor aAction)
 {
@@ -62,15 +62,15 @@ void DisposeHandler::Dispose()
 
 ///////////////////////////////////////////////////////////
 
-DisposeLock::DisposeLock(DisposeHandler* aHandler)
+DisposeLock::DisposeLock(DisposeHandler& aHandler)
     :iHandler(aHandler)
 {
-    iHandler->Enter();
+    iHandler.Enter();
 }
 
 
 void DisposeLock::Dispose()
 {
-    iHandler->Leave();
+    iHandler.Leave();
 }
 

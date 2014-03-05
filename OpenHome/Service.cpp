@@ -9,8 +9,8 @@ using namespace std;
 Service::Service(INetwork& aNetwork, IInjectorDevice* aDevice, ILog& aLog)
     :iNetwork(aNetwork)
     ,iLog(aLog)
+    ,iDisposeHandler(new DisposeHandler())
     ,iDevice(aDevice)
-    //,iDisposeHandler(new DisposeHandler())
     //,iCancelSubscribe(new CancellationTokenSource())
     ,iRefCount(0)
 //    ,iSubscribeTask(null);
@@ -84,10 +84,8 @@ void Service::HandleAggregate(AggregateException aException)
 
 IInjectorDevice& Service::Device()
 {
-    //using (iDisposeHandler.Lock())
-    //{
-        return(*iDevice);
-    //}
+    DisposeLock lock(*iDisposeHandler);
+    return(*iDevice);
 }
 
 
@@ -95,48 +93,46 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceTyp
 {
     Assert();
 
+    DisposeLock lock(*iDisposeHandler);
 
-    //using (iDisposeHandler.Lock())
-    //{
-        if (iRefCount == 0)
-        {
-            //ASSERT(iSubscribeTask == null);
-            //iSubscribeTask = OnSubscribe();
-        }
+    if (iRefCount == 0)
+    {
+        //ASSERT(iSubscribeTask == null);
+        //iSubscribeTask = OnSubscribe();
+    }
 
-        iRefCount++;
+    iRefCount++;
 
 /*
-        if (iSubscribeTask != null)
+    if (iSubscribeTask != null)
+    {
+        iSubscribeTask = iSubscribeTask.ContinueWith((t) =>
         {
-            iSubscribeTask = iSubscribeTask.ContinueWith((t) =>
+            iNetwork.Schedule(() =>
             {
-                iNetwork.Schedule(() =>
+                // we must access t.Exception property to supress finalized task exceptions
+                if (t.Exception == null && !iCancelSubscribe.IsCancellationRequested)
                 {
-                    // we must access t.Exception property to supress finalized task exceptions
-                    if (t.Exception == null && !iCancelSubscribe.IsCancellationRequested)
+                    aCallback(OnCreate(aDevice));
+                }
+                else
+                {
+                    --iRefCount;
+                    if (iRefCount == 0)
                     {
-                        aCallback(OnCreate(aDevice));
+                        iSubscribeTask = null;
                     }
-                    else
-                    {
-                        --iRefCount;
-                        if (iRefCount == 0)
-                        {
-                            iSubscribeTask = null;
-                        }
-                    }
-                });
+                }
             });
-        }
-        else
+        });
+    }
+    else
 */
-        {
-            IProxy* product = OnCreate(aDevice);
-            ArgsTwo<IDevice*, IProxy*>* args = new ArgsTwo<IDevice*, IProxy*>(aDevice, product);
-            aCallback(args);
-        }
-    //}
+    {
+        IProxy* product = OnCreate(aDevice);
+        ArgsTwo<IDevice*, IProxy*>* args = new ArgsTwo<IDevice*, IProxy*>(aDevice, product);
+        aCallback(args);
+    }
 
 
 }

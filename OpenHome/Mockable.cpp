@@ -151,7 +151,6 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
                 LOG(kTrace, "expect... \n");
                 if (wait)
                 {
-                    //LOG(kTrace, "wait = true \n");
                     try
                     {
                         aWait();
@@ -233,8 +232,6 @@ void MockableScriptRunner::Result(Bwh* aValue)
  */
 TBool MockableScriptRunner::Test(const Brx& aActual, const Brx& aExpected)
 {
-    //Brn actual(aActual);
-    //Brn expected(aExpected);
     return(aActual.Equals(aExpected));
 }
 

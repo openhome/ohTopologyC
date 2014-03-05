@@ -4,6 +4,7 @@
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/WatchableThread.h>
 #include <OpenHome/OhTopologyC.h>
+#include <OpenHome/DisposeHandler.h>
 #include <vector>
 
 EXCEPTION(ServiceNotFoundException)
@@ -101,7 +102,7 @@ private:
 protected:
     INetwork& iNetwork;
     ILog& iLog;
-    //DisposeHandler* iDisposeHandler;
+    DisposeHandler* iDisposeHandler;
     //Task iSubscribeTask;
 
 private:

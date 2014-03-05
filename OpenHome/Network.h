@@ -6,6 +6,7 @@
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/WatchableUnordered.h>
+#include <OpenHome/DisposeHandler.h>
 #include <OpenHome/Device.h>
 #include <OpenHome/Buffer.h>
 #include <vector>
@@ -97,7 +98,7 @@ private:
     std::vector<Exception> iExceptions;
     IWatchableThread* iWatchableThread;
     TBool iDisposable;
-    //DisposeHandler& iDisposeHandler;
+    DisposeHandler* iDisposeHandler;
     IIdCache* iIdCache;
     ITagManager* iTagManager;
     IEventSupervisor* iEventSupervisor;

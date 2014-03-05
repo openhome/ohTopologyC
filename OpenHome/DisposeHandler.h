@@ -1,3 +1,6 @@
+#ifndef HEADER_OHTOPOLOGYC_DISPOSE_HANDLER
+#define HEADER_OHTOPOLOGYC_DISPOSE_HANDLER
+
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Functor.h>
 #include <OpenHome/Private/Thread.h>
@@ -14,7 +17,7 @@ class DisposeHandler : IDisposable
 {
 public:
     DisposeHandler();
-    IDisposable* Lock();
+    //IDisposable* Lock();
     TBool WhenNotDisposed(Functor aAction);
     // IDisposable
     void Dispose();
@@ -34,13 +37,13 @@ private:
 class DisposeLock : public IDisposable
 {
 public:
-    DisposeLock(DisposeHandler* aHandler);
+    DisposeLock(DisposeHandler& aHandler);
 
     // IDisposable
     void Dispose();
 
 private:
-    DisposeHandler* iHandler;
+    DisposeHandler& iHandler;
 };
 
 
@@ -48,3 +51,5 @@ private:
 
 } // Av
 } // OpenHome
+
+#endif // HEADER_OHTOPOLOGYC_DISPOSE_HANDLER

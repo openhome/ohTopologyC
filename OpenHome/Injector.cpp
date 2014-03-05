@@ -49,10 +49,8 @@ void Injector::Removed(CpDeviceList aList, CpDevice& aDevice)
 
 IInjectorDevice Injector::Create(INetwork& aNetwork, CpDevice& aDevice)
 {
-    using (iDisposeHandler.Lock())
-    {
+    DisposeLock lock(*iDisposeHandler);
         return (DeviceFactory.Create(aNetwork, aDevice, iLog));
-    }
 }
 
 
@@ -64,10 +62,8 @@ TBool Injector::FilterOut(CpDevice aCpDevice)
 
 void Injector::Refresh()
 {
-    using (iDisposeHandler.Lock())
-    {
+    DisposeLock lock(*iDisposeHandler);
         iDeviceList.Refresh();
-    }
 }
 
 

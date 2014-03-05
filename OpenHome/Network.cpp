@@ -21,7 +21,7 @@ Network::Network(TUint /*aMaxCacheEntries*/, ILog&/* aLog*/)
 {
     iWatchableThread = new WatchableThread(*this);
     //iDispose = () => { iWatchableThread.Dispose(); };
-    //iDisposeHandler = new DisposeHandler();
+    iDisposeHandler = new DisposeHandler();
     //iCache = new IdCache(aMaxCacheEntries);
     //iTagManager = new TagManager();
     //iEventSupervisor = new EventSupervisor(iWatchableThread);
@@ -149,11 +149,9 @@ void Network::DoNothing(void*)
  */
 void Network::Add(IInjectorDevice& aDevice)
 {
-    //using (iDisposeHandler.Lock())
-    //{
-        FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::AddCallback);
-        Schedule(f, &aDevice);
-    //}
+    DisposeLock lock(*iDisposeHandler);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::AddCallback);
+    Schedule(f, &aDevice);
 }
 
 
@@ -193,33 +191,7 @@ void Network::AddCallback(void* aObj)
  */
 void Network::Remove(IInjectorDevice& aDevice)
 {
-/*
-    using (iDisposeHandler.Lock())
-    {
-        Schedule(() =>
-        {
-            Device handler;
-
-            if (iDevices.TryGetValue(aDevice.Udn, out handler))
-            {
-                foreach (KeyValuePair<Type, WatchableUnordered<IDevice>> kvp in iDeviceLists)
-                {
-                    if (aDevice.HasService(kvp.Key))
-                    {
-                        kvp.Value.Remove(handler);
-                    }
-                }
-
-                iDevices.Remove(handler.Udn);
-
-                iCache.Remove(handler.Udn);
-
-                handler.Dispose();
-            }
-        });
-    }
-*/
-
+    DisposeLock lock(*iDisposeHandler);
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::RemoveCallback);
     Schedule(f, &aDevice);
 }
@@ -259,34 +231,32 @@ void Network::RemoveCallback(void* aObj)
  */
 IWatchableUnordered<IDevice>* Network::Create(EServiceType aServiceType)
 {
-    //using (iDisposeHandler.Lock())
-    //{
-        Assert(); /// must be on watchable thread
+    DisposeLock lock(*iDisposeHandler);
+    Assert(); /// must be on watchable thread
 
-        if (iDeviceLists.count(aServiceType)>0)
+    if (iDeviceLists.count(aServiceType)>0)
+    {
+        return(iDeviceLists[aServiceType]);
+    }
+    else
+    {
+        WatchableUnordered<IDevice>* watchables = new WatchableUnordered<IDevice>(*iWatchableThread);
+
+        iDeviceLists[aServiceType] = watchables;
+
+        std::map<Brn, Device*, BufferCmp>::iterator it;
+
+        for(it=iDevices.begin(); it!=iDevices.end(); it++)
         {
-            return(iDeviceLists[aServiceType]);
-        }
-        else
-        {
-            WatchableUnordered<IDevice>* watchables = new WatchableUnordered<IDevice>(*iWatchableThread);
-
-            iDeviceLists[aServiceType] = watchables;
-
-            std::map<Brn, Device*, BufferCmp>::iterator it;
-
-            for(it=iDevices.begin(); it!=iDevices.end(); it++)
+            if (it->second->HasService(aServiceType))
             {
-                if (it->second->HasService(aServiceType))
-                {
-                    Device* device = it->second;
-                    watchables->Add(*device);
-                }
+                Device* device = it->second;
+                watchables->Add(*device);
             }
-
-            return(watchables);
         }
-    //}
+
+        return(watchables);
+    }
 }
 
 
