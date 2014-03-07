@@ -26,27 +26,32 @@ namespace Av
 class ITopology1
 {
 public:
-    IWatchableUnordered<IProxyProduct>& Products();
-    INetwork& Network();
+    virtual IWatchableUnordered<IProxyProduct*>& Products() = 0;
+    virtual INetwork& Network() = 0;
+    virtual ~ITopology1() {}
 };
 
 
 ///////////////////////////////////////////////////////
 
-class Topology1 : public ITopology1, public IWatcherUnordered<IDevice>, public IDisposable
+class Topology1 : public ITopology1, public IWatcherUnordered<IDevice*>, public IDisposable
 {
 public:
     Topology1(INetwork* aNetwork, ILog& aLog);
-    void Dispose();
-    IWatchableUnordered<IProxyProduct>& Products();
-    INetwork& Network();
+
+    // IDisposable
+    virtual void Dispose();
+
+    // ITopology1
+    virtual IWatchableUnordered<IProxyProduct*>& Products();
+    virtual INetwork& Network();
 
     // IWatcherUnordered
     virtual void UnorderedOpen();
     virtual void UnorderedInitialised();
     virtual void UnorderedClose();
-    virtual void UnorderedAdd(IDevice& aItem);
-    virtual void UnorderedRemove(IDevice& aItem);
+    virtual void UnorderedAdd(IDevice* aItem);
+    virtual void UnorderedRemove(IDevice* aItem);
 
 private:
     void ExecuteCallback(void* aObj);
@@ -60,8 +65,8 @@ private:
     //private readonly ILog iLog;
     std::vector<IDevice*> iPendingSubscriptions;
     std::map<IDevice*, IProxyProduct*> iProductLookup;
-    WatchableUnordered<IProxyProduct>* iProducts;
-    IWatchableUnordered<IDevice>* iDevices;
+    WatchableUnordered<IProxyProduct*>* iProducts;
+    IWatchableUnordered<IDevice*>* iDevices;
 };
 
 

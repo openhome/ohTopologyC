@@ -25,14 +25,13 @@ namespace Av
     \ingroup watchable
     @{
  */
-
 template <class T>
 class WatchableUnordered : public WatchableBase, public IWatchableUnordered<T>, public IDisposable //, public WatchableCollection<T>
 {
 public:
     WatchableUnordered(IWatchableThread& aWatchableThread);
-    virtual void Add(T& aItem);
-    virtual void Remove(T& aItem);
+    virtual void Add(T aItem);
+    virtual void Remove(T aItem);
     virtual void Clear();
 
     // IWatchableUnordered<T>
@@ -46,7 +45,7 @@ private:
     void DisposeCallback(void*);
 
 private:
-    std::vector<T*> iWatchables;
+    std::vector<T> iWatchables;
     std::vector<IWatcherUnordered<T>*> iWatchers;
 };
 
@@ -70,12 +69,12 @@ WatchableUnordered<T>::WatchableUnordered(IWatchableThread& aWatchableThread)
     @param[in] aWatchable   Reference to the watchable being added
  */
 template <class T>
-void WatchableUnordered<T>::Add(T& aWatchable)
+void WatchableUnordered<T>::Add(T aWatchable)
 {
     //LOG(kTrace, "WatchableUnordered<T>::Add \n");
     WatchableBase::Assert(); /// must be on watchable thread
 
-    iWatchables.push_back(&aWatchable); /// add aWatchable to iWatchables
+    iWatchables.push_back(aWatchable); /// add aWatchable to iWatchables
     std::vector<IWatcherUnordered<T>*> watchers(iWatchers); /// get snapshot of iWatchers (can't mutex when calling out to unknown code)
 
     for(TUint i=0; i<watchers.size(); i++ )
@@ -91,12 +90,12 @@ void WatchableUnordered<T>::Add(T& aWatchable)
     @param[in] aWatchable   Reference to the watchable being removed
  */
 template <class T>
-void WatchableUnordered<T>::Remove(T& aWatchable)
+void WatchableUnordered<T>::Remove(T aWatchable)
 {
     //LOG(kTrace, "WatchableUnordered<T>::Remove \n");
     WatchableBase::Assert(); /// must be on watchable thread
 
-    typename std::vector<T*>::iterator it = std::find(iWatchables.begin(), iWatchables.end(), &aWatchable);
+    typename std::vector<T>::iterator it = std::find(iWatchables.begin(), iWatchables.end(), aWatchable);
     ASSERT(it != iWatchables.end()); /// aWatchable must exist in iWatchables
     iWatchables.erase(it); /// remove aWatchable from iWatchables
 
@@ -118,14 +117,14 @@ void WatchableUnordered<T>::Clear()
     Assert(); /// must be on watchable thread
 
     std::vector<IWatcherUnordered<T>*> watchers(iWatchers); /// get snapshot (can't mutex when calling out to unknown code)
-    std::vector<T*> watchables(iWatchables); /// get snapshot (can't mutex when calling out to unknown code)
+    std::vector<T> watchables(iWatchables); /// get snapshot (can't mutex when calling out to unknown code)
     iWatchables.clear(); /// clear list of watchables, iWatchables
 
     for(TUint i=0; i<watchers.size(); i++ )
     {
         for(TUint x=0; x<watchables.size(); x++ )
         {
-            watchers[i]->UnorderedRemove(*watchables[x]); /// remove every watchable from every watcher's list
+            watchers[i]->UnorderedRemove(watchables[x]); /// remove every watchable from every watcher's list
         }
     }
 }
@@ -147,7 +146,7 @@ void WatchableUnordered<T>::AddWatcher(IWatcherUnordered<T>& aWatcher)
     for (TUint i=0; i<iWatchables.size(); i++)
     {
         //LOG(kTrace, "WatchableUnordered<T>::AddWatcher  adding watchables...\n");
-        aWatcher.UnorderedAdd(*iWatchables[i]); /// add all watchables to aWatcher
+        aWatcher.UnorderedAdd(iWatchables[i]); /// add all watchables to aWatcher
     }
 
     aWatcher.UnorderedInitialised(); /// set aWatcher status to Initialised

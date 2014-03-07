@@ -168,13 +168,13 @@ void Network::AddCallback(void* aObj)
 
     iDevices[handler->Udn()] = handler;
 
-    std::map<EServiceType, WatchableUnordered<IDevice>*>::iterator it;
+    std::map<EServiceType, WatchableUnordered<IDevice*>*>::iterator it;
 
     for(it = iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
     {
         if (device->HasService(it->first))
         {
-            it->second->Add(*handler);
+            it->second->Add(handler);
         }
     }
 
@@ -203,13 +203,13 @@ void Network::RemoveCallback(void* aObj)
     {
         Device* handler = iDevices[device->Udn()];
 
-        map<EServiceType, WatchableUnordered<IDevice>*>::iterator it;
+        map<EServiceType, WatchableUnordered<IDevice*>*>::iterator it;
 
         for(it = iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
         {
             if (device->HasService(it->first))
             {
-                it->second->Remove(*handler);
+                it->second->Remove(handler);
             }
         }
 
@@ -224,7 +224,7 @@ void Network::RemoveCallback(void* aObj)
 /**
 
  */
-IWatchableUnordered<IDevice>* Network::Create(EServiceType aServiceType)
+IWatchableUnordered<IDevice*>* Network::Create(EServiceType aServiceType)
 {
     DisposeLock lock(*iDisposeHandler);
     Assert(); /// must be on watchable thread
@@ -235,7 +235,7 @@ IWatchableUnordered<IDevice>* Network::Create(EServiceType aServiceType)
     }
     else
     {
-        WatchableUnordered<IDevice>* watchables = new WatchableUnordered<IDevice>(*iWatchableThread);
+        WatchableUnordered<IDevice*>* watchables = new WatchableUnordered<IDevice*>(*iWatchableThread);
 
         iDeviceLists[aServiceType] = watchables;
 
@@ -246,7 +246,7 @@ IWatchableUnordered<IDevice>* Network::Create(EServiceType aServiceType)
             if (it->second->HasService(aServiceType))
             {
                 Device* device = it->second;
-                watchables->Add(*device);
+                watchables->Add(device);
             }
         }
 
@@ -297,7 +297,7 @@ void Network::Dispose()
 {
     Wait();
 
-    std::map<EServiceType , WatchableUnordered<IDevice>*>::iterator it;
+    std::map<EServiceType , WatchableUnordered<IDevice*>*>::iterator it;
 
     for(it=iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
     {

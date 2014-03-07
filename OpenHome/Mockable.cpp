@@ -254,3 +254,39 @@ void MockableScriptRunner::Assert(TBool aExpression)
 
 ////////////////////////////////////////////////////////////////////////
 
+
+ResultWatcherFactory::ResultWatcherFactory(MockableScriptRunner& aRunner)
+    :iRunner(aRunner)
+{
+    //iWatchers = new Dictionary<string, List<IDisposable>>();
+}
+
+
+
+void ResultWatcherFactory::Destroy(const Brx& aId)
+{
+    //iWatchers[aId].ForEach(w => w.Dispose());
+    std::vector<IDisposable*> v = iWatchers[Brn(aId)];
+    for(TUint i=0; i<v.size(); i++)
+    {
+        v[i]->Dispose();
+    }
+
+    iWatchers.erase(Brn(aId));
+}
+
+
+void ResultWatcherFactory::Dispose()
+{
+    std::map<Brn, std::vector<IDisposable*>, BufferCmp>::iterator it;
+    for(it=iWatchers.begin();it!=iWatchers.end(); it++)
+    {
+        std::vector<IDisposable*> v = it->second;
+        for(TUint i=0; i<v.size(); i++)
+        {
+            v[i]->Dispose();
+        }
+
+    }
+
+}

@@ -51,7 +51,7 @@ public:
     virtual IIdCache& IdCache() = 0;
     virtual ITagManager& TagManager() = 0;
     virtual IEventSupervisor& EventSupervisor() = 0;
-    virtual IWatchableUnordered<IDevice>* Create(EServiceType aServiceType) = 0;
+    virtual IWatchableUnordered<IDevice*>* Create(EServiceType aServiceType) = 0;
 };
 
 //////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ public:
     virtual IIdCache& IdCache();
     virtual ITagManager& TagManager();
     virtual IEventSupervisor& EventSupervisor();
-    virtual IWatchableUnordered<IDevice>* Create(EServiceType aServiceType);
+    virtual IWatchableUnordered<IDevice*>* Create(EServiceType aServiceType);
 
     // IWatchableThread
     virtual void Assert();
@@ -101,7 +101,7 @@ private:
     ITagManager* iTagManager;
     IEventSupervisor* iEventSupervisor;
     std::map<Brn, Device*, BufferCmp> iDevices;
-    std::map<EServiceType, WatchableUnordered<IDevice>*> iDeviceLists;
+    std::map<EServiceType, WatchableUnordered<IDevice*>*> iDeviceLists;
 };
 
 

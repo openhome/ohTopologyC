@@ -11,7 +11,7 @@ Topology1::Topology1(INetwork* aNetwork, ILog& /*aLog*/)
     :iDisposed(false)
     ,iNetwork(aNetwork)
     //,iLog = aLog;
-    ,iProducts(new WatchableUnordered<IProxyProduct>(*iNetwork))
+    ,iProducts(new WatchableUnordered<IProxyProduct*>(*iNetwork))
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::ExecuteCallback);
     iNetwork->Execute(f, 0);
@@ -64,7 +64,7 @@ void Topology1::DisposeCallback(void*)
 }
 
 
-IWatchableUnordered<IProxyProduct>& Topology1::Products()
+IWatchableUnordered<IProxyProduct*>& Topology1::Products()
 {
     return(*iProducts);
 }
@@ -91,13 +91,13 @@ void Topology1::UnorderedClose()
 }
 
 
-void Topology1::UnorderedAdd(IDevice& aDevice)
+void Topology1::UnorderedAdd(IDevice* aDevice)
 {
-    iPendingSubscriptions.push_back(&aDevice);
+    iPendingSubscriptions.push_back(aDevice);
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::UnorderedAddCallback);
 
-    aDevice.Create(f, EProxyProduct);
+    aDevice->Create(f, EProxyProduct);
 
 
 /*
@@ -141,7 +141,7 @@ void Topology1::UnorderedAddCallback(void* aObj)
     {
         try
         {
-            iProducts->Add(*product);
+            iProducts->Add(product);
         }
         catch (ServiceNotFoundException)
         {
@@ -159,20 +159,20 @@ void Topology1::UnorderedAddCallback(void* aObj)
 }
 
 
-void Topology1::UnorderedRemove(IDevice& aDevice)
+void Topology1::UnorderedRemove(IDevice* aDevice)
 {
-    vector<IDevice*>::iterator it = find(iPendingSubscriptions.begin(), iPendingSubscriptions.end(), &aDevice);
+    vector<IDevice*>::iterator it = find(iPendingSubscriptions.begin(), iPendingSubscriptions.end(), aDevice);
     if (it!=iPendingSubscriptions.end())
     {
         iPendingSubscriptions.erase(it);
         return;
     }
 
-    if (iProductLookup.count(&aDevice)>0)
+    if (iProductLookup.count(aDevice)>0)
     {
-        IProxyProduct* product = iProductLookup[&aDevice];
-        iProducts->Remove(*product);
-        iProductLookup.erase(&aDevice);
+        IProxyProduct* product = iProductLookup[aDevice];
+        iProducts->Remove(product);
+        iProductLookup.erase(aDevice);
         //product->Dispose();
     }
 

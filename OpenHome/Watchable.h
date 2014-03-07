@@ -49,8 +49,8 @@ public:
     // IWatchable<T>
     //virtual T Value();
     //virtual const Brx& Id();
-    //virtual void AddWatcher(IWatcher<T>& aWatcher);
-    //virtual void RemoveWatcher(IWatcher<T>& aWatcher);
+    virtual void AddWatcher(IWatcher<T>& aWatcher);
+    virtual void RemoveWatcher(IWatcher<T>& aWatcher);
 
     // IDisposable
     virtual void Dispose();
@@ -152,7 +152,6 @@ const Brx& Watchable<T>::Id()
 /**
 
  */
-/*
 template <class T>
 void Watchable<T>::AddWatcher(IWatcher<T>& aWatcher)
 {
@@ -162,12 +161,11 @@ void Watchable<T>::AddWatcher(IWatcher<T>& aWatcher)
     iWatchers.push_back(&aWatcher);
     aWatcher.ItemOpen(iId, iValue);
 }
-*/
+
 
 /**
 
  */
-/*
 template <class T>
 void Watchable<T>::RemoveWatcher(IWatcher<T>& aWatcher)
 {
@@ -187,7 +185,7 @@ void Watchable<T>::RemoveWatcher(IWatcher<T>& aWatcher)
         iRecentlyRemoved.push_back(&aWatcher);
     }
 }
-*/
+
 
 /**
 

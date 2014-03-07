@@ -25,9 +25,9 @@ class WatchableOrdered : public IWatchableOrdered<T>, public WatchableBase, publ
 public:
     WatchableOrdered(IWatchableThread& aWatchableThread);
 
-    virtual void Add(T& aValue, TUint aIndex);
-    virtual void Move(T& aValue, TUint aIndex);
-    virtual void Remove(T& aValue);
+    virtual void Add(T aValue, TUint aIndex);
+    virtual void Move(T aValue, TUint aIndex);
+    virtual void Remove(T aValue);
     virtual void Clear();
 
     // IWatchableOrdered<T>
@@ -87,7 +87,7 @@ void WatchableOrdered<T>::Add(T& aWatchable, TUint aIndex)
     @param[in] aNewIndex  Integer index where watchable is to be moved
  */
 template <class T>
-void WatchableOrdered<T>::Move(T& aWatchable, TUint aNewIndex)
+void WatchableOrdered<T>::Move(T aWatchable, TUint aNewIndex)
 {
     WatchableBase::Assert(); /// must be on watchable thread
 
@@ -113,7 +113,7 @@ void WatchableOrdered<T>::Move(T& aWatchable, TUint aNewIndex)
     @param[in] aWatchable   Reference to the watchable being removed
  */
 template <class T>
-void WatchableOrdered<T>::Remove(T& aWatchable)
+void WatchableOrdered<T>::Remove(T aWatchable)
 {
     WatchableBase::Assert(); /// must be on watchable thread
 

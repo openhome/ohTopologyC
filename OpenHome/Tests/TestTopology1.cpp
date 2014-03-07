@@ -45,7 +45,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 
-class ProductWatcher : public IWatcherUnordered<IProxyProduct>
+class ProductWatcher : public IWatcherUnordered<IProxyProduct*>
 {
 public:
     ProductWatcher(MockableScriptRunner* aRunner) : iRunner(aRunner) {}
@@ -54,23 +54,23 @@ public:
     virtual void UnorderedClose() {/*LOG(kTrace, "ProductWatcher::UnorderedClose \n");*/}
     virtual void UnorderedInitialised() {/*LOG(kTrace, "ProductWatcher::UnorderedInitialised \n");*/}
 
-    virtual void UnorderedAdd(IProxyProduct& aWatcher)
+    virtual void UnorderedAdd(IProxyProduct* aWatcher)
     {
         //LOG(kTrace, "ProductWatcher::UnorderedAdd \n");
         Bws<100> buf;
         buf.Replace(Brn("product added "));
-        buf.Append(aWatcher.Device().Udn());
+        buf.Append(aWatcher->Device().Udn());
 
         Bwh* result = new Bwh(buf);
         iRunner->Result(result);
     }
 
-    virtual void UnorderedRemove(IProxyProduct& aWatcher)
+    virtual void UnorderedRemove(IProxyProduct* aWatcher)
     {
         //LOG(kTrace, "ProductWatcher::UnorderedRemove \n");
         Bws<100> buf;
         buf.Replace(Brn("product removed "));
-        buf.Append(aWatcher.Device().Udn());
+        buf.Append(aWatcher->Device().Udn());
 
         Bwh* result = new Bwh(buf);
         iRunner->Result(result);
