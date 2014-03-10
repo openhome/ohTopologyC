@@ -220,7 +220,7 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
  */
 void MockableScriptRunner::Result(Bwh* aValue)
 {
-    LOG(kTrace, "MockableScriptRunner::Result: \n");
+    LOG(kTrace, "\nMockableScriptRunner::Result: \n");
     LOG(kTrace, *aValue);
 
     iResultQueue.Write(aValue);

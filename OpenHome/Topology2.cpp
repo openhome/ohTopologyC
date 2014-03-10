@@ -1,9 +1,11 @@
 #include <OpenHome/Topology2.h>
-
+#include <OpenHome/Net/Private/XmlParser.h>
+#include <OpenHome/Private/Ascii.h>
 
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
+using namespace OpenHome::Net;
 using namespace std;
 
 
@@ -164,7 +166,7 @@ IWatchable<Brn>& Topology2Group::Registration()
 
 
 //IEnumerable<IWatchable<ITopology2Source>>& Topology2Group::Sources()
-std::vector<IWatchable<ITopology2Source*>*> Topology2Group::Sources()
+std::vector<Watchable<ITopology2Source*>*> Topology2Group::Sources()
 {
     return(iWatchableSources);
 }
@@ -239,30 +241,63 @@ void Topology2Group::ProcessSourceXml(const Brx& aSourceXml, TBool aInitial)
                 }
             }
         }
-
-        ITopology2Source source = new Topology2Source(index, name, type, visible);
-
-        if (aInitial)
-        {
-            iSources.Add(source);
-            iWatchableSources.Add(new Watchable<ITopology2Source>(iThread, string.Format("{0}({1})", iId, index.ToString()), source));
-        }
-        else
-        {
-            ITopology2Source oldSource = iSources[(int)index];
-            if (oldSource.Name != source.Name ||
-                oldSource.Visible != source.Visible ||
-                oldSource.Index != source.Index ||
-                oldSource.Type != source.Type)
-            {
-                iSources[(int)index] = source;
-                iWatchableSources[(int)index].Update(source);
-            }
-        }
-
-        ++index;
-    }
 */
+        Brn xmlDoc = Brn(aSourceXml);
+        Brn remaining = xmlDoc;
+        Brn sourceTag;
+        Brn name;
+        Brn type;
+        Brn visibleStr;
+        TBool visible;
+        TUint index = 0;
+
+        while(!remaining.Equals(Brx::Empty()))
+        {
+            sourceTag = XmlParserBasic::Find(Brn("Source"), xmlDoc, remaining);
+            xmlDoc = remaining;
+            name = XmlParserBasic::Find(Brn("Name"), sourceTag);
+            type = XmlParserBasic::Find(Brn("Type"), sourceTag);
+            visibleStr = XmlParserBasic::Find(Brn("Visible"), sourceTag);
+
+            if(visibleStr.Equals(Brn("True")))
+            {
+                visible = true;
+            }
+            else
+            {
+                visible = false;
+            }
+
+            ITopology2Source* source = new Topology2Source(index, name, type, visible);
+
+            if (aInitial)
+            {
+                iSources.push_back(source);
+
+                //iWatchableSources.push_back(new Watchable<ITopology2Source*>(iThread, string.Format("{0}({1})", iId, index.ToString()), source));
+                Bws<100> id;
+                id.Replace(iId);
+                id.Append(Brn("("));
+                Ascii::AppendDec(id, index);
+                id.Append(Brn(")"));
+                iWatchableSources.push_back(new Watchable<ITopology2Source*>(iThread, id, source));
+            }
+            else
+            {
+                ITopology2Source* oldSource = iSources[index];
+                if ((!oldSource->Name().Equals(source->Name())) ||
+                    (oldSource->Visible() != source->Visible()) ||
+                    (oldSource->Index() != source->Index()) ||
+                    (!oldSource->Type().Equals(source->Type())) )
+                {
+                    iSources[index] = source;
+                    iWatchableSources[index]->Update(source);
+                }
+            }
+
+            index++;
+        }
+
 }
 
 

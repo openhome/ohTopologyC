@@ -109,7 +109,7 @@ public:
         iFactory->Create<TBool>(aItem->Device().Udn(), aItem->Standby(), fStandby);
 
 
-        std::vector<IWatchable<ITopology2Source*>*> sources(aItem->Sources());
+        std::vector<Watchable<ITopology2Source*>*> sources(aItem->Sources());
         for(TUint i=0; i<sources.size(); i++)
         {
             FunctorGeneric<ArgsTwo<ITopology2Source*, FunctorGeneric<const Brx&>>*> fSources = MakeFunctorGeneric(*this, &GroupWatcher::SourcesCallback);
@@ -310,10 +310,10 @@ void SuiteTopology2::Test1()
     network->Execute(fe, watcher);
 
 
-    iTopology2->Dispose();
-    topology1->Dispose();
-    mockInjector->Dispose();
-    network->Dispose();
+    //iTopology2->Dispose();
+    //topology1->Dispose();
+    //mockInjector->Dispose();
+    //network->Dispose();
 }
 
 
@@ -338,7 +338,7 @@ void SuiteTopology2::ScheduleCallback(void* aObj)
 
 void TestTopology2(Environment& aEnv)
 {
-    //Debug::SetLevel(Debug::kTrace);
+    Debug::SetLevel(Debug::kTrace);
     Runner runner("Topology2 tests\n");
     runner.Add(new SuiteTopology2(aEnv));
     runner.Run();

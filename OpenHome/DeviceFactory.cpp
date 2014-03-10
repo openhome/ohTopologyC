@@ -21,6 +21,7 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, IL
 
 IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, const Brx& aRoom, const Brx& aName, const Brx& aAttributes, ILog& aLog)
 {
+    //LOG(kTrace, ">DeviceFactory::CreateDs \n");
     InjectorDevice* device = new InjectorDevice(aUdn);
     // add a factory for each type of watchable service
 
@@ -34,6 +35,8 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
     sources.push_back(new Source(Brn("Net Aux"), Brn("NetAux"), false));
 
     SrcXml* xml = new SrcXml(sources);
+
+
 
 
     device->Add(EProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes, Brn(""),
@@ -91,7 +94,7 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
 {
     InjectorDevice* device = new InjectorDevice(aUdn);
     // add a factory for each type of watchable service
-	
+
     // product service
     vector<Source*> sources;
     sources.push_back(new Source(Brn("Playlist"), Brn("Playlist"), true));
@@ -107,13 +110,13 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
     sources.push_back(new Source(Brn("TOSLINK1"), Brn("Digital"), true));
     sources.push_back(new Source(Brn("TOSLINK2"), Brn("Digital"), true));
 
-//	SourceXml xml = new SourceXml(sources.ToArray());
+//  SourceXml xml = new SourceXml(sources.ToArray());
     SrcXml* xml = new SrcXml(sources);
 
     device->Add(EProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes,
-				Brn(""), Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"),
-				Brn(""), Brn("Linn High Fidelity System Component"), Brn("Mock DSM"), Brn(""),
-				Brn(""), Brn("Linn High Fidelity System Component"), Brn(""), aUdn, aLog));
+                Brn(""), Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"),
+                Brn(""), Brn("Linn High Fidelity System Component"), Brn("Mock DSM"), Brn(""),
+                Brn(""), Brn("Linn High Fidelity System Component"), Brn(""), aUdn, aLog));
 
 /*
     // volume service

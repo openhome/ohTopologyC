@@ -2,6 +2,7 @@
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/ServiceProduct.h>
 #include <OpenHome/Private/Ascii.h>
+#include <OpenHome/Private/Debug.h>
 #include <vector>
 
 using namespace OpenHome;
@@ -234,6 +235,7 @@ void SrcXml::UpdateVisible(TUint aIndex, TBool aVisible)
 
 void SrcXml::CreateSourceXml()
 {
+    //LOG(kTrace, ">SrcXml::CreateSourceXml: \n");
 
     iSourceXml.Replace(Brn("<SourceList>"));
 
@@ -262,6 +264,8 @@ void SrcXml::CreateSourceXml()
     }
 
     iSourceXml.Append(Brn("</SourceList>"));
+
+    //LOG(kTrace, iSourceXml);
 }
 
 
