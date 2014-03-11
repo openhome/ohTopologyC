@@ -73,9 +73,6 @@ class ResultWatcherFactory : public IDisposable, public INonCopyable
 {
 public:
     ResultWatcherFactory(MockableScriptRunner& aRunner);
-    //void Create(const Brx& aId, IWatchable<T>& aWatchable, Action<T, Action<const Brx&>> aAction);
-    //void Create(const Brx& aId, IWatchableUnordered<T>& aWatchable, Action<T, Action<const Brx&>> aAction);
-    //void Create(const Brx& aId, IWatchableOrdered<T>& aWatchable, Action<T, Action<const Brx&>> aAction);
 
     template <class T>
     void Create(const Brx& aId, IWatchable<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>*> aAction);
@@ -83,7 +80,7 @@ public:
     template <class T>
     void Create(const Brx& aId, IWatchableUnordered<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>> aAction);
 
-	template <class T>
+    template <class T>
     void Create(const Brx& aId, IWatchableOrdered<T>& aWatchable,FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>> aAction);
 
     void Destroy(const Brx& aId);
@@ -201,16 +198,6 @@ private:
 };
 
 //////////////////////////////////////////////
-
-
-/*
-//template <class T>
-ResultWatcherFactory::ResultWatcherFactory(MockableScriptRunner& aRunner)
-    :iRunner(aRunner)
-{
-    //iWatchers = new Dictionary<string, List<IDisposable>>();
-}
-*/
 
 
 template <class T>

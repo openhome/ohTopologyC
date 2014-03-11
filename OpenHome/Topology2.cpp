@@ -64,7 +64,6 @@ void Topology2Group::Dispose()
     iProduct.SourceXml().RemoveWatcher(*this);
     //iProduct = null;
 
-    //vector<Watchable<ITopology2Source*>*>::iterator it;
     for(TUint i=0; i<iWatchableSources.size(); i++)
     {
         ((Watchable<ITopology2Source*>*)iWatchableSources[i])->Dispose();
@@ -198,113 +197,68 @@ void Topology2Group::SetRegistration(const Brx& /*aValue*/)
 
 void Topology2Group::ProcessSourceXml(const Brx& aSourceXml, TBool aInitial)
 {
-/*
+    Brn xmlDoc = Brn(aSourceXml);
+    Brn remaining = xmlDoc;
+    Brn sourceTag;
+    Brn name;
+    Brn type;
+    Brn visibleStr;
+    TBool visible;
     TUint index = 0;
 
-    XmlDocument document = new XmlDocument();
-    document.LoadXml(aSourceXml);
-
-    XmlNodeList sources = document.SelectNodes("SourceList/Source");
-    foreach (XmlNode s in sources)
+    while(!remaining.Equals(Brx::Empty()))
     {
-        XmlNode nameNode = s.SelectSingleNode("Name");
-        XmlNode typeNode = s.SelectSingleNode("Type");
-        XmlNode visibleNode = s.SelectSingleNode("Visible");
-
-        string name = string.Empty;
-        string type = string.Empty;
-        TBool visible = false;
-        if (nameNode != null && nameNode.FirstChild != null)
+        try
         {
-            name = nameNode.FirstChild.Value;
+            sourceTag = XmlParserBasic::Find(Brn("Source"), xmlDoc, remaining);
+            xmlDoc = remaining;
+            name = XmlParserBasic::Find(Brn("Name"), sourceTag);
+            type = XmlParserBasic::Find(Brn("Type"), sourceTag);
+            visibleStr = XmlParserBasic::Find(Brn("Visible"), sourceTag);
         }
-        if (typeNode != null && typeNode.FirstChild != null)
+        catch(XmlError)
         {
-            type = typeNode.FirstChild.Value;
+            remaining.Set(Brx::Empty());
+            break;
         }
-        if (visibleNode != null && visibleNode.FirstChild != null)
+
+        if(Ascii::CaseInsensitiveEquals(visibleStr, Brn("True")))
         {
-            string value = visibleNode.FirstChild.Value;
-            try
-            {
-                visible = TBool.Parse(value);
-            }
-            catch (FormatException)
-            {
-                try
-                {
-                    visible = TUint.Parse(value) > 0;
-                }
-                catch (FormatException)
-                {
-                    visible = false;
-                }
-            }
+            visible = true;
         }
-*/
-        Brn xmlDoc = Brn(aSourceXml);
-        Brn remaining = xmlDoc;
-        Brn sourceTag;
-        Brn name;
-        Brn type;
-        Brn visibleStr;
-        TBool visible;
-        TUint index = 0;
-
-        while(!remaining.Equals(Brx::Empty()))
+        else
         {
-            try
-			{
-				sourceTag = XmlParserBasic::Find(Brn("Source"), xmlDoc, remaining);
-				xmlDoc = remaining;
-				name = XmlParserBasic::Find(Brn("Name"), sourceTag);
-				type = XmlParserBasic::Find(Brn("Type"), sourceTag);
-				visibleStr = XmlParserBasic::Find(Brn("Visible"), sourceTag);
-			}
-			catch(XmlError)
-			{
-				remaining.Set(Brx::Empty());
-				break;
-			}
-
-            if(Ascii::CaseInsensitiveEquals(visibleStr, Brn("True")))
-            {
-                visible = true;
-            }
-            else
-            {
-                visible = false;
-            }
-
-            ITopology2Source* source = new Topology2Source(index, name, type, visible);
-
-            if (aInitial)
-            {
-                iSources.push_back(source);
-
-                //iWatchableSources.push_back(new Watchable<ITopology2Source*>(iThread, string.Format("{0}({1})", iId, index.ToString()), source));
-                Bws<100> id;
-                id.Replace(iId);
-                id.Append(Brn("("));
-                Ascii::AppendDec(id, index);
-                id.Append(Brn(")"));
-                iWatchableSources.push_back(new Watchable<ITopology2Source*>(iThread, id, source));
-            }
-            else
-            {
-                ITopology2Source* oldSource = iSources[index];
-                if ((!oldSource->Name().Equals(source->Name())) ||
-                    (oldSource->Visible() != source->Visible()) ||
-                    (oldSource->Index() != source->Index()) ||
-                    (!oldSource->Type().Equals(source->Type())) )
-                {
-                    iSources[index] = source;
-                    iWatchableSources[index]->Update(source);
-                }
-            }
-
-            index++;
+            visible = false;
         }
+
+        ITopology2Source* source = new Topology2Source(index, name, type, visible);
+
+        if (aInitial)
+        {
+            iSources.push_back(source);
+
+            Bws<100> id;
+            id.Replace(iId);
+            id.Append(Brn("("));
+            Ascii::AppendDec(id, index);
+            id.Append(Brn(")"));
+            iWatchableSources.push_back(new Watchable<ITopology2Source*>(iThread, id, source));
+        }
+        else
+        {
+            ITopology2Source* oldSource = iSources[index];
+            if ((!oldSource->Name().Equals(source->Name())) ||
+                (oldSource->Visible() != source->Visible()) ||
+                (oldSource->Index() != source->Index()) ||
+                (!oldSource->Type().Equals(source->Type())) )
+            {
+                iSources[index] = source;
+                iWatchableSources[index]->Update(source);
+            }
+        }
+
+        index++;
+    }
 
 }
 
