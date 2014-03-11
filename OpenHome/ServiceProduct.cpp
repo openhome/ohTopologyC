@@ -161,11 +161,6 @@ Brn ServiceProduct::ProductId()
 
 ////////////////////////////////////////////////////////////
 
-
-
-//////////////////////////////////////////////////////////
-
-
 Source::Source(const Brx& aName, const Brx& aType, TBool aVisible)
     :iName(aName)
     ,iType(aType)
@@ -235,8 +230,6 @@ void SrcXml::UpdateVisible(TUint aIndex, TBool aVisible)
 
 void SrcXml::CreateSourceXml()
 {
-    //LOG(kTrace, ">SrcXml::CreateSourceXml: \n");
-
     iSourceXml.Replace(Brn("<SourceList>"));
 
     for(TUint i=0; i<iSources.size(); i++)
@@ -264,8 +257,6 @@ void SrcXml::CreateSourceXml()
     }
 
     iSourceXml.Append(Brn("</SourceList>"));
-
-    //LOG(kTrace, iSourceXml);
 }
 
 
@@ -305,103 +296,87 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
 
     if (Ascii::CaseInsensitiveEquals(command, Brn("attributes")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iAttributes = string.Join(" ", command.Next());
-        iAttributes.Set(aCommands.Remaining());
+        iAttributes.Set(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerimageuri")))
     {
-        iManufacturerImageUri.Set(aCommands.Remaining());
+        iManufacturerImageUri.Set(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerinfo")))
     {
-        iManufacturerInfo.Set(aCommands.Remaining());
+        iManufacturerInfo.Set(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturername")))
     {
-        iManufacturerName.Set(aCommands.Remaining());
+        iManufacturerName.Set(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerurl")))
     {
-        iManufacturerUrl.Set(aCommands.Remaining());
+        iManufacturerUrl.Set(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("modelimageuri")))
     {
-        iModelImageUri.Set(aCommands.Remaining());
+        iModelImageUri.Set(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("modelinfo")))
     {
-        iModelInfo.Set(aCommands.Remaining());
+        iModelInfo.Set(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("modelname")))
     {
-        iManufacturerName.Set(aCommands.Remaining());
+        iManufacturerName.Set(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("modelurl")))
     {
-        iModelUrl.Set(aCommands.Remaining());
+        iModelUrl.Set(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("productimageuri")))
     {
-        iProductImageUri.Set(aCommands.Remaining());
+        iProductImageUri.Set(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("productinfo")))
     {
-        iProductInfo.Set(aCommands.Remaining());
+        iProductInfo.Set(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("producturl")))
     {
-        iProductUrl.Set(aCommands.Remaining());
+        iProductUrl.Set(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("productid")))
     {
-        iProductId.Set(aCommands.Remaining());
+        iProductId.Set(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("room")))
     {
-        iRoom->Update(aCommands.Remaining());
+        iRoom->Update(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("name")))
     {
-        iName->Update(aCommands.Remaining());
+        iName->Update(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("sourceindex")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iSourceIndex.Update(uint.Parse(value.First()));
         iSourceIndex->Update(Ascii::Uint(aCommands.Next()));
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("standby")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iStandby.Update(TBool.Parse(value.First()));
         Brn val = aCommands.Next();
         TBool standby = Ascii::CaseInsensitiveEquals(val, Brn("true"));
         iStandby->Update(standby);
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("registration")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        //iRegistration.Update(value.First());
         iRegistration->Update(aCommands.Next());
     }
 
     else if (Ascii::CaseInsensitiveEquals(command, Brn("source")))
     {
-        /*
-        IEnumerable<string> value = aValue.Skip(1);
-        uint index = uint.Parse(value.First());
-        value = value.Skip(1);
-        string property = value.First();
-        value = value.Skip(1);
-        */
-
         TUint index = Ascii::Uint(aCommands.Next());
         Brn property = aCommands.Next();
 
         if (Ascii::CaseInsensitiveEquals(property, Brn("name")))
         {
-            iSourceXmlFactory->UpdateName(index, aCommands.Remaining());
+            iSourceXmlFactory->UpdateName(index, aCommands.RemainingTrimmed());
             iSourceXml->Update(Brn(iSourceXmlFactory->ToString()));
         }
         else if (Ascii::CaseInsensitiveEquals(property, Brn("visible")))

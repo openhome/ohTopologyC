@@ -43,7 +43,7 @@ private:
 class MockableScriptRunner
 {
 private:
-    static const TUint kMaxFifoEntries = 100;
+    static const TUint kMaxFifoEntries = 1000;
     static const TUint kMaxLineBytes = 2000;
 
 
@@ -69,7 +69,7 @@ private:
 
 //////////////////////////////////////////////
 
-class ResultWatcherFactory : public IDisposable
+class ResultWatcherFactory : public IDisposable, public INonCopyable
 {
 public:
     ResultWatcherFactory(MockableScriptRunner& aRunner);
@@ -77,14 +77,15 @@ public:
     //void Create(const Brx& aId, IWatchableUnordered<T>& aWatchable, Action<T, Action<const Brx&>> aAction);
     //void Create(const Brx& aId, IWatchableOrdered<T>& aWatchable, Action<T, Action<const Brx&>> aAction);
 
-    template <typename T>
+    template <class T>
     void Create(const Brx& aId, IWatchable<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>*> aAction);
-/*
-    template <typename T>
+
+    template <class T>
     void Create(const Brx& aId, IWatchableUnordered<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>> aAction);
-    template <typename T>
+
+	template <class T>
     void Create(const Brx& aId, IWatchableOrdered<T>& aWatchable,FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>> aAction);
-*/
+
     void Destroy(const Brx& aId);
 
     // IDisposable
@@ -99,7 +100,7 @@ private:
 
 
 template <class T>
-class ResultWatcher : public IWatcher<T>, public IDisposable
+class ResultWatcher : public IWatcher<T>, public IDisposable, public INonCopyable
 {
 public:
     ResultWatcher(MockableScriptRunner& aRunner, const Brx& aId, IWatchable<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>*> aAction);
@@ -133,7 +134,7 @@ private:
 //////////////////////////////////////////////////////
 
 template <class T>
-class ResultUnorderedWatcher : public IWatcherUnordered<T>, public IDisposable
+class ResultUnorderedWatcher : public IWatcherUnordered<T>, public IDisposable, public INonCopyable
 {
 public:
     ResultUnorderedWatcher(MockableScriptRunner& aRunner, const Brx& aId, IWatchableUnordered<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>*> aAction);
@@ -166,7 +167,7 @@ private:
 /////////////////////////////////////////////////
 
 template <class T>
-class ResultOrderedWatcher : public IWatcherOrdered<T>, public IDisposable
+class ResultOrderedWatcher : public IWatcherOrdered<T>, public IDisposable, public INonCopyable
 {
 public:
     ResultOrderedWatcher(MockableScriptRunner& aRunner, const Brx& aId, IWatchableOrdered<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>*> aAction);
@@ -212,7 +213,7 @@ ResultWatcherFactory::ResultWatcherFactory(MockableScriptRunner& aRunner)
 */
 
 
-template <typename T>
+template <class T>
 void ResultWatcherFactory::Create(const Brx& aId, IWatchable<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>*> aAction)
 {
     Brn id(aId);
@@ -226,8 +227,8 @@ void ResultWatcherFactory::Create(const Brx& aId, IWatchable<T>& aWatchable, Fun
     iWatchers[id].push_back(new ResultWatcher<T>(iRunner, aId, aWatchable, aAction));
 }
 
-/*
-template <typename T>
+
+template <class T>
 void ResultWatcherFactory::Create(const Brx& aId, IWatchableUnordered<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>> aAction)
 {
     Brn id(aId);
@@ -242,7 +243,7 @@ void ResultWatcherFactory::Create(const Brx& aId, IWatchableUnordered<T>& aWatch
 }
 
 
-template <typename T>
+template <class T>
 void ResultWatcherFactory::Create(const Brx& aId, IWatchableOrdered<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>> aAction)
 {
     Brn id(aId);
@@ -256,7 +257,7 @@ void ResultWatcherFactory::Create(const Brx& aId, IWatchableOrdered<T>& aWatchab
     iWatchers[id].push_back(new ResultOrderedWatcher<T>(iRunner, aId, aWatchable, aAction));
 
 }
-*/
+
 
 
 
@@ -275,7 +276,7 @@ ResultWatcher<T>::ResultWatcher(MockableScriptRunner& aRunner, const Brx& aId, I
 
 
 template <class T>
-void ResultWatcher<T>::ItemOpen(const Brx& aId, T aValue)
+void ResultWatcher<T>::ItemOpen(const Brx& /*aId*/, T aValue)
 {
     // ignoring aId - we're using iId
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultWatcher::ItemOpenCallback);
@@ -288,7 +289,6 @@ template <class T>
 void ResultWatcher<T>::ItemOpenCallback(const Brx& aValue)
 {
     Bws<100> buf;
-
     buf.Replace(iId);
     buf.Append(Brn(" open "));
     buf.Append(aValue);
@@ -298,7 +298,7 @@ void ResultWatcher<T>::ItemOpenCallback(const Brx& aValue)
 
 
 template <class T>
-void ResultWatcher<T>::ItemUpdate(const Brx& aId, T aValue, T aPrevious)
+void ResultWatcher<T>::ItemUpdate(const Brx& /*aId*/, T aValue, T /*aPrevious*/)
 {
     // ignoring aId - we're using iId
     // ignoring aPrevious - not used
@@ -322,7 +322,7 @@ void ResultWatcher<T>::ItemUpdateCallback(const Brx& aValue)
 
 
 template <class T>
-void ResultWatcher<T>::ItemClose(const Brx& aId, T aValue)
+void ResultWatcher<T>::ItemClose(const Brx& /*aId*/, T aValue)
 {
     // ignoring aId - we're using iId
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultWatcher::ItemCloseCallback);
@@ -332,14 +332,14 @@ void ResultWatcher<T>::ItemClose(const Brx& aId, T aValue)
 
 
 template <class T>
-void ResultWatcher<T>::ItemCloseCallback(const Brx& aValue)
+void ResultWatcher<T>::ItemCloseCallback(const Brx& /*aValue*/)
 {
-    Bws<100> buf;
+    /*Bws<100> buf;
     buf.Replace(iId);
     buf.Append(Brn(" close "));
     buf.Append(aValue);
     Bwh* result = new Bwh(buf);
-    iRunner.Result(result);
+    iRunner.Result(result);*/
 }
 
 

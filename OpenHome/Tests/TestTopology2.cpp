@@ -3,6 +3,7 @@
 #include <OpenHome/Mockable.h>
 #include <OpenHome/Injector.h>
 #include <OpenHome/Private/Http.h>
+#include <OpenHome/Private/Ascii.h>
 #include <exception>
 
 
@@ -80,10 +81,6 @@ public:
 
         iFactory->Destroy(aItem->Device().Udn());
         iRunner->Result(result);
-/*
-        iFactory->Destroy(aItem.Device().Udn());
-        iRunner->Result(aItem.Device().Udn() + " Group Removed");
-*/
     }
 
 
@@ -116,19 +113,6 @@ public:
 
             iFactory->Create<ITopology2Source*>(aItem->Device().Udn(), *sources[i], fSources);
         }
-
-/*
-        iFactory->Create<Brn>(aItem.Device().Udn(), aItem.Room, (v, w) => w("Room " + v) );
-        iFactory->Create<string>(aItem.Device().Udn(), aItem.Name, (v, w) => w("Name " + v));
-        iFactory->Create<TUint>(aItem.Device().Udn(), aItem.SourceIndex, (v, w) => w("SourceIndex " + v));
-        iFactory->Create<bool>(aItem.Device().Udn(), aItem.Standby, (v, w) => w("Standby " + v));
-
-        foreach (IWatchable<ITopology2Source> s in aItem.Sources)
-        {
-            iFactory->Create<ITopology2Source>(aItem.Device().Udn(), s, (v, w) => w("Source " + v.Index + " " + v.Name + " " + v.Type + " " + v.Visible));
-        }
-*/
-
     }
 
 
@@ -141,9 +125,12 @@ private:
         FunctorGeneric<const Brx&> f = args->Arg2();
         Bws<100> buf;
         buf.Replace(Brn("Source "));
-        buf.Append(src->Index());
+        Ascii::AppendDec(buf, src->Index());
         buf.Append(Brn(" "));
-        buf.Append(src->Name());
+        
+		Brn name(src->Name());
+
+		buf.Append(src->Name());
         buf.Append(Brn(" "));
         buf.Append(src->Type());
         buf.Append(Brn(" "));
@@ -155,7 +142,6 @@ private:
         {
             buf.Append(Brn("False"));
         }
-        //f(new Bwh(buf));
         f(buf);
         delete args;
     }
@@ -168,7 +154,6 @@ private:
         Bws<100> buf;
         buf.Replace(Brn("Room "));
         buf.Append(str);
-        //f(new Bwh(buf));
         f(buf);
         delete args;
     }
@@ -183,7 +168,6 @@ private:
         Bws<100> buf;
         buf.Replace(Brn("Name "));
         buf.Append(str);
-        //f(new Bwh(buf));
         f(buf);
         delete args;
 
@@ -198,7 +182,6 @@ private:
         Bws<100> buf;
         buf.Replace(Brn("SourceIndex "));
         Ascii::AppendDec(buf, i);
-        //f(new Bwh(buf));
         f(buf);
         delete args;
 
@@ -221,7 +204,6 @@ private:
         {
             buf.Append(Brn("False"));
         }
-        //f(new Bwh(buf));
         f(buf);
         delete args;
 
@@ -242,10 +224,7 @@ private:
 /////////////////////////////////////////////////////////////////////
 
 
-class HttpReader;
-
-
-////////////////////////////////////////////////////////////////////
+//class HttpReader;
 
 
 SuiteTopology2::SuiteTopology2(Environment& aEnv)
@@ -280,23 +259,18 @@ void SuiteTopology2::Test1()
     {
         ASSERTS();
     }
-
-
+	
     Mockable* mocker = new Mockable();
-
     ILog* log = new LogDummy();
     Network* network = new Network(50, *log);
 
     InjectorMock* mockInjector = new InjectorMock(*network, Brx::Empty(), *log);
     mocker->Add(Brn("network"), *mockInjector);
 
-
-
-    Topology1* topology1 = new Topology1(network, *log);
+	Topology1* topology1 = new Topology1(network, *log);
     iTopology2 = new Topology2(topology1, *log);
 
     MockableScriptRunner* runner = new MockableScriptRunner();
-
     GroupWatcher* watcher = new GroupWatcher(runner);
 
     FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopology2::ScheduleCallback);
@@ -338,121 +312,10 @@ void SuiteTopology2::ScheduleCallback(void* aObj)
 
 void TestTopology2(Environment& aEnv)
 {
-    Debug::SetLevel(Debug::kTrace);
+    //Debug::SetLevel(Debug::kTrace);
     Runner runner("Topology2 tests\n");
     runner.Add(new SuiteTopology2(aEnv));
     runner.Run();
 }
 
 
-
-/*
-namespace TestTopology2
-{
-    class Program
-    {
-        class GroupWatcher : IUnorderedWatcher<ITopology2Group>, IDisposable
-        {
-            public GroupWatcher(MockableScriptRunner aRunner)
-            {
-                iRunner = aRunner;
-                iFactory = new ResultWatcherFactory(aRunner);
-            }
-
-            public void Dispose()
-            {
-                iFactory.Dispose();
-            }
-
-            public void UnorderedOpen()
-            {
-            }
-
-            public void UnorderedInitialised()
-            {
-            }
-
-            public void UnorderedClose()
-            {
-            }
-
-            public void UnorderedAdd(ITopology2Group aItem)
-            {
-                iRunner.Result(aItem.Device.Udn + " Group Added");
-                iFactory.Create<string>(aItem.Device.Udn, aItem.Room, (v, w) => w("Room " + v));
-                iFactory.Create<string>(aItem.Device.Udn, aItem.Name, (v, w) => w("Name " + v));
-                iFactory.Create<TUint>(aItem.Device.Udn, aItem.SourceIndex, (v, w) => w("SourceIndex " + v));
-                iFactory.Create<bool>(aItem.Device.Udn, aItem.Standby, (v, w) => w("Standby " + v));
-
-                foreach (IWatchable<ITopology2Source> s in aItem.Sources)
-                {
-                    iFactory.Create<ITopology2Source>(aItem.Device.Udn, s, (v, w) => w("Source " + v.Index + " " + v.Name + " " + v.Type + " " + v.Visible));
-                }
-            }
-
-            public void UnorderedRemove(ITopology2Group aItem)
-            {
-                iFactory.Destroy(aItem.Device.Udn);
-                iRunner.Result(aItem.Device.Udn + " Group Removed");
-            }
-
-            private readonly MockableScriptRunner iRunner;
-            private readonly ResultWatcherFactory iFactory;
-        }
-
-        static int Main(string[] args)
-        {
-            if (args.Length != 1)
-            {
-                Console.WriteLine("Usage: TestTopology2.exe <testscript>");
-                return 1;
-            }
-
-            Mockable mocker = new Mockable();
-
-            Log log = new Log(new LogConsole());
-
-            Network network = new Network(50, log);
-            DeviceInjectorMock mockInjector = new DeviceInjectorMock(network, Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), log);
-            mocker.Add("network", mockInjector);
-
-            Topology2 topology1 = new Topology2(network, log);
-            Topology2 topology2 = new Topology2(topology1, log);
-
-            MockableScriptRunner runner = new MockableScriptRunner();
-
-            GroupWatcher watcher = new GroupWatcher(runner);
-
-            network.Schedule(() =>
-            {
-                topology2.Groups.AddWatcher(watcher);
-            });
-
-            try
-            {
-                runner.Run(network.Wait, new StreamReader(args[0]), mocker);
-            }
-            catch (MockableScriptRunner.AssertError)
-            {
-                return 1;
-            }
-
-            network.Execute(() =>
-            {
-                topology2.Groups.RemoveWatcher(watcher);
-                watcher.Dispose();
-            });
-
-            topology2.Dispose();
-
-            topology1.Dispose();
-
-            mockInjector.Dispose();
-
-            network.Dispose();
-
-            return 0;
-        }
-    }
-}
-*/

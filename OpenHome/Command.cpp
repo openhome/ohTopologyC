@@ -28,6 +28,13 @@ const Brn CommandTokens::Next()
    return (GetNextToken(iValue, iIndex));
 }
 
+const Brn CommandTokens::RemainingTrimmed()
+{
+	Brn trimmed = Ascii::Trim(Remaining());
+    return(trimmed);
+}
+
+
 const Brn CommandTokens::Remaining()
 {
     return(iValue.Split(iIndex));

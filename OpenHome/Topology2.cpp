@@ -109,29 +109,29 @@ IDevice& Topology2Group::Device()
 }
 
 
-void Topology2Group::ItemOpen(const Brx& aId, Brn aValue)
+void Topology2Group::ItemOpen(const Brx& /*aId*/, Brn aValue)
 {
     ProcessSourceXml(aValue, true);
 }
 
 
-void Topology2Group::ItemClose(const Brx& aId, Brn aValue)
+void Topology2Group::ItemClose(const Brx& /*aId*/, Brn /*aValue*/)
 {
 }
 
 
-void Topology2Group::ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious)
+void Topology2Group::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn /*aPrevious*/)
 {
-/*
-    try
-    {
+
+    //try
+    //{
         ProcessSourceXml(aValue, false);
-    }
-    catch (XmlException)
-    {
+    //}
+    //catch (XmlException)
+    //{
         // TO DO: find some way to write XML to log file
-    }
-*/
+    //}
+
 }
 
 
@@ -172,7 +172,7 @@ std::vector<Watchable<ITopology2Source*>*> Topology2Group::Sources()
 }
 
 
-void Topology2Group:: SetStandby(TBool aValue)
+void Topology2Group:: SetStandby(TBool /*aValue*/)
 {
     //if (iProduct != null)
     //{
@@ -180,7 +180,7 @@ void Topology2Group:: SetStandby(TBool aValue)
     //}
 }
 
-void Topology2Group::SetSourceIndex(TUint aValue)
+void Topology2Group::SetSourceIndex(TUint /*aValue*/)
 {
     //if (iProduct != null)
     //{
@@ -188,7 +188,7 @@ void Topology2Group::SetSourceIndex(TUint aValue)
     //}
 }
 
-void Topology2Group::SetRegistration(const Brx& aValue)
+void Topology2Group::SetRegistration(const Brx& /*aValue*/)
 {
     //if (iProduct != null)
     //{
@@ -253,13 +253,21 @@ void Topology2Group::ProcessSourceXml(const Brx& aSourceXml, TBool aInitial)
 
         while(!remaining.Equals(Brx::Empty()))
         {
-            sourceTag = XmlParserBasic::Find(Brn("Source"), xmlDoc, remaining);
-            xmlDoc = remaining;
-            name = XmlParserBasic::Find(Brn("Name"), sourceTag);
-            type = XmlParserBasic::Find(Brn("Type"), sourceTag);
-            visibleStr = XmlParserBasic::Find(Brn("Visible"), sourceTag);
+            try
+			{
+				sourceTag = XmlParserBasic::Find(Brn("Source"), xmlDoc, remaining);
+				xmlDoc = remaining;
+				name = XmlParserBasic::Find(Brn("Name"), sourceTag);
+				type = XmlParserBasic::Find(Brn("Type"), sourceTag);
+				visibleStr = XmlParserBasic::Find(Brn("Visible"), sourceTag);
+			}
+			catch(XmlError)
+			{
+				remaining.Set(Brx::Empty());
+				break;
+			}
 
-            if(visibleStr.Equals(Brn("True")))
+            if(Ascii::CaseInsensitiveEquals(visibleStr, Brn("True")))
             {
                 visible = true;
             }
@@ -304,7 +312,7 @@ void Topology2Group::ProcessSourceXml(const Brx& aSourceXml, TBool aInitial)
 
 /////////////////////////////////////////////////////////////
 
-Topology2::Topology2(ITopology1* aTopology1, ILog& aLog)
+Topology2::Topology2(ITopology1* aTopology1, ILog& /*aLog*/)
     :iTopology1(aTopology1)
     ,iNetwork(iTopology1->Network())
     //,iLog(aLog)

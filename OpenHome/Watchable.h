@@ -7,7 +7,15 @@
 #include <algorithm>
 
 
-//#pragma warning( disable: 4505 )
+/*
+	Windows compiler warns (4505) that it has removed certain unreferenced local functions.
+	Debugger has been used to proved that these functions _are_ referenced.
+	The warning is wrong - so I'm disabling it.
+*/
+#ifdef _MSC_VER
+#pragma warning (disable : 4505)
+#endif
+
 
 namespace OpenHome
 {

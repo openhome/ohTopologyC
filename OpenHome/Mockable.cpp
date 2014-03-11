@@ -82,8 +82,6 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
             eof = true;
         }
 
-
-
         while ((!eof) &&
                 (lastline != Brx::Empty()) &&
                 (!lastline.BeginsWith(Brn("//"))) &&
@@ -174,6 +172,7 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
                         delete result;
                         return(false);
                     }
+					delete result;
                 }
                 else
                 {
@@ -258,14 +257,12 @@ void MockableScriptRunner::Assert(TBool aExpression)
 ResultWatcherFactory::ResultWatcherFactory(MockableScriptRunner& aRunner)
     :iRunner(aRunner)
 {
-    //iWatchers = new Dictionary<string, List<IDisposable>>();
 }
 
 
 
 void ResultWatcherFactory::Destroy(const Brx& aId)
 {
-    //iWatchers[aId].ForEach(w => w.Dispose());
     std::vector<IDisposable*> v = iWatchers[Brn(aId)];
     for(TUint i=0; i<v.size(); i++)
     {

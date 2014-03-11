@@ -74,7 +74,7 @@ public:
 
 ////////////////////////////////////////////////////////
 
-class Topology2Group : public ITopology2Group, public IWatcher<Brn>
+class Topology2Group : public ITopology2Group, public IWatcher<Brn>, public INonCopyable
 {
 public:
     Topology2Group(IWatchableThread& aThread, const Brx& aId, IProxyProduct& aProduct);
@@ -129,7 +129,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////////
 
-class Topology2 : public ITopology2, public IWatcherUnordered<IProxyProduct*>, public IDisposable
+class Topology2 : public ITopology2, public IWatcherUnordered<IProxyProduct*>, public IDisposable, public INonCopyable
 {
 public:
     Topology2(ITopology1* aTopology1, ILog& aLog);

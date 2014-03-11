@@ -219,13 +219,14 @@ void InjectorMock::ExecuteCallback(void* aObj)
     {
         ASSERT(val.Count()>1);
         Brn udn(val.Next());
-        Brn cmd(val.Next());
+        //Brn cmd(val.Next());
 
         if (iMockDevices.count(udn) > 0)
         {
             InjectorDeviceMock* device = iMockDevices[udn];
-            CommandTokens cmds(val.Next());
-            device->Execute(cmds);
+            //CommandTokens cmds(val.Next());
+            //device->Execute(cmds);
+            device->Execute(val);
             return;
         }
     }

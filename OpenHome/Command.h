@@ -16,6 +16,7 @@ public:
    virtual TUint Count() const = 0;
    virtual const Brn Next() = 0;
    virtual const Brn Remaining() = 0;
+   virtual const Brn RemainingTrimmed() = 0;
    virtual ~ICommandTokens() {}
 };
 
@@ -37,6 +38,7 @@ public:
    virtual TUint Count() const;
    virtual const Brn Next();
    virtual const Brn Remaining();
+   virtual const Brn RemainingTrimmed();
 private:
    const Brn GetNextToken(const Brx& aValue, TUint& aIndex);
 private:
