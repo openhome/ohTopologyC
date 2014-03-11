@@ -65,7 +65,7 @@ WatchableOrdered<T>::WatchableOrdered(IWatchableThread& aWatchableThread)
     @param[in] aIndex  Integer index where watchable is to be added
  */
 template <class T>
-void WatchableOrdered<T>::Add(T& aWatchable, TUint aIndex)
+void WatchableOrdered<T>::Add(T aWatchable, TUint aIndex)
 {
     WatchableBase::Assert(); /// must be on watchable thread
 
