@@ -43,6 +43,7 @@ private:
 private:
     std::vector<T> iWatchables;
     std::vector<IWatcherOrdered<T>*> iWatchers;
+    TUint iCount;
 };
 
 
@@ -67,7 +68,7 @@ WatchableOrdered<T>::WatchableOrdered(IWatchableThread& aWatchableThread)
 template <class T>
 void WatchableOrdered<T>::Add(T aWatchable, TUint aIndex)
 {
-    WatchableBase::Assert(); /// must be on watchable thread
+    Assert(); /// must be on watchable thread
 
     iWatchables.insert(iWatchables.begin()+aIndex, aWatchable); /// insert aWatchable into iWatchables
 
@@ -89,7 +90,7 @@ void WatchableOrdered<T>::Add(T aWatchable, TUint aIndex)
 template <class T>
 void WatchableOrdered<T>::Move(T aWatchable, TUint aNewIndex)
 {
-    WatchableBase::Assert(); /// must be on watchable thread
+    Assert(); /// must be on watchable thread
 
     typename std::vector<T>::iterator it = std::find(iWatchables.begin(), iWatchables.end(), aWatchable);
     ASSERT(it != iWatchables.end()); /// aWatchable must exist in iWatchables
@@ -115,7 +116,7 @@ void WatchableOrdered<T>::Move(T aWatchable, TUint aNewIndex)
 template <class T>
 void WatchableOrdered<T>::Remove(T aWatchable)
 {
-    WatchableBase::Assert(); /// must be on watchable thread
+    Assert(); /// must be on watchable thread
 
     typename std::vector<T>::iterator it = std::find(iWatchables.begin(), iWatchables.end(), aWatchable);
     ASSERT(it != iWatchables.end()); /// aWatchable must exist in iWatchables
@@ -138,7 +139,7 @@ void WatchableOrdered<T>::Remove(T aWatchable)
 template <class T>
 void WatchableOrdered<T>::Clear()
 {
-    WatchableBase::Assert(); /// must be on watchable thread
+    Assert(); /// must be on watchable thread
 
     std::vector<IWatcherOrdered<T>*> watchers(iWatchers); /// get snapshot (can't mutex when calling out to unknown code)
     std::vector<T> watchables(iWatchables); /// get snapshot (can't mutex when calling out to unknown code)
@@ -162,7 +163,7 @@ void WatchableOrdered<T>::Clear()
 template <class T>
 void WatchableOrdered<T>::AddWatcher(IWatcherOrdered<T>& aWatcher)
 {
-    WatchableBase::Assert(); /// must be on watchable thread
+    Assert(); /// must be on watchable thread
     iWatchers.push_back(&aWatcher); /// add aWatcher to iWatchers
     aWatcher.OrderedOpen(); /// set aWatcher status to Open
 
@@ -183,7 +184,7 @@ void WatchableOrdered<T>::AddWatcher(IWatcherOrdered<T>& aWatcher)
 template <class T>
 void WatchableOrdered<T>::RemoveWatcher(IWatcherOrdered<T>& aWatcher)
 {
-    WatchableBase::Assert(); /// must be on watchable thread
+    Assert(); /// must be on watchable thread
 
     typename std::vector<IWatcherOrdered<T>*>::iterator it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
 
@@ -199,18 +200,18 @@ void WatchableOrdered<T>::RemoveWatcher(IWatcherOrdered<T>& aWatcher)
 template <class T>
 void WatchableOrdered<T>::Dispose()
 {
-    FunctorGeneric<void*> action = MakeFunctorGeneric(*this, &WatchableOrdered::DisposeCallback);
-    WatchableBase::Execute(action, 0);
+    iCount = 0;
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &WatchableOrdered::DisposeCallback);
+    Execute(f, 0);
+    ASSERT(iCount==0);
 }
 
 
 template <class T>
 void WatchableOrdered<T>::DisposeCallback(void*)
 {
-    ASSERT(iWatchers.size() == 0);
+    iCount = iWatchers.size();
 }
-
-
 
 
 

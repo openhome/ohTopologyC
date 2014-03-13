@@ -47,6 +47,7 @@ private:
 private:
     std::vector<T> iWatchables;
     std::vector<IWatcherUnordered<T>*> iWatchers;
+    TUint iCount;
 };
 
 
@@ -72,7 +73,7 @@ template <class T>
 void WatchableUnordered<T>::Add(T aWatchable)
 {
     //LOG(kTrace, "WatchableUnordered<T>::Add \n");
-    WatchableBase::Assert(); /// must be on watchable thread
+    Assert(); /// must be on watchable thread
 
     iWatchables.push_back(aWatchable); /// add aWatchable to iWatchables
     std::vector<IWatcherUnordered<T>*> watchers(iWatchers); /// get snapshot of iWatchers (can't mutex when calling out to unknown code)
@@ -93,7 +94,7 @@ template <class T>
 void WatchableUnordered<T>::Remove(T aWatchable)
 {
     //LOG(kTrace, "WatchableUnordered<T>::Remove \n");
-    WatchableBase::Assert(); /// must be on watchable thread
+    Assert(); /// must be on watchable thread
 
     typename std::vector<T>::iterator it = std::find(iWatchables.begin(), iWatchables.end(), aWatchable);
     ASSERT(it != iWatchables.end()); /// aWatchable must exist in iWatchables
@@ -176,15 +177,17 @@ void WatchableUnordered<T>::RemoveWatcher(IWatcherUnordered<T>& aWatcher)
 template <class T>
 void WatchableUnordered<T>::Dispose()
 {
+    iCount = 0;
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &WatchableUnordered::DisposeCallback);
     Execute(f, 0);
+    ASSERT(iCount==0);
 }
 
 
 template <class T>
 void WatchableUnordered<T>::DisposeCallback(void*)
 {
-    ASSERT(iWatchers.size() == 0);
+    iCount = iWatchers.size();
 }
 
 

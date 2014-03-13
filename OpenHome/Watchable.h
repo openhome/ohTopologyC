@@ -8,9 +8,9 @@
 
 
 /*
-	Windows compiler warns (4505) that it has removed certain unreferenced local functions.
-	Debugger has been used to proved that these functions _are_ referenced.
-	The warning is wrong - so I'm disabling it.
+    Windows compiler warns (4505) that it has removed certain unreferenced local functions.
+    Debugger has been used to proved that these functions _are_ referenced.
+    The warning is wrong - so I'm disabling it.
 */
 #ifdef _MSC_VER
 #pragma warning (disable : 4505)
@@ -74,6 +74,7 @@ protected:
 private :
     std::vector<IWatcher<T>*> iWatchers;
     std::vector<IWatcher<T>*> iRecentlyRemoved;
+    TUint iCount;
 };
 
 
@@ -201,8 +202,10 @@ void Watchable<T>::RemoveWatcher(IWatcher<T>& aWatcher)
 template <class T>
 void Watchable<T>::Dispose()
 {
+    iCount = 0;
     FunctorGeneric<void*> action = MakeFunctorGeneric(*this, &Watchable::DisposeCallback);
     Execute(action, NULL);
+    ASSERT(iCount==0);
 }
 
 
@@ -212,7 +215,7 @@ void Watchable<T>::Dispose()
 template <class T>
 void Watchable<T>::DisposeCallback(void*)
 {
-    ASSERT(iWatchers.size() == 0);
+    iCount = iWatchers.size();
 }
 
 
