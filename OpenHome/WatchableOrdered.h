@@ -91,7 +91,7 @@ void WatchableOrdered<T>::Move(T aWatchable, TUint aNewIndex)
 {
     WatchableBase::Assert(); /// must be on watchable thread
 
-    typename std::vector<IWatcherOrdered<T>*>::iterator it = std::find(iWatchables.begin(), iWatchables.end(), &aWatchable);
+    typename std::vector<T>::iterator it = std::find(iWatchables.begin(), iWatchables.end(), aWatchable);
     ASSERT(it != iWatchables.end()); /// aWatchable must exist in iWatchables
 
     TUint oldIndex = it-iWatchables.begin();
@@ -117,13 +117,13 @@ void WatchableOrdered<T>::Remove(T aWatchable)
 {
     WatchableBase::Assert(); /// must be on watchable thread
 
-    typename std::vector<IWatcherOrdered<T>*>::iterator it = std::find(iWatchables.begin(), iWatchables.end(), &aWatchable);
+    typename std::vector<T>::iterator it = std::find(iWatchables.begin(), iWatchables.end(), aWatchable);
     ASSERT(it != iWatchables.end()); /// aWatchable must exist in iWatchables
 
     TUint index = it-iWatchables.begin();
     iWatchables.erase(it); /// remove aWatchable from iWatchables
 
-    std::vector<IWatcherUnordered<T>*> watchers(iWatchers); /// get snapshot (can't mutex when calling out to unknown code)
+    std::vector<IWatcherOrdered<T>*> watchers(iWatchers); /// get snapshot (can't mutex when calling out to unknown code)
     for(TUint i=0; i<watchers.size(); i++ )
     {
         watchers[i]->OrderedRemove(aWatchable, index); /// remove aWatchable from every watcher's list
@@ -140,15 +140,15 @@ void WatchableOrdered<T>::Clear()
 {
     WatchableBase::Assert(); /// must be on watchable thread
 
-    std::vector<IWatcherUnordered<T>*> watchers(iWatchers); /// get snapshot (can't mutex when calling out to unknown code)
-    std::vector<T*> watchables(iWatchables); /// get snapshot (can't mutex when calling out to unknown code)
+    std::vector<IWatcherOrdered<T>*> watchers(iWatchers); /// get snapshot (can't mutex when calling out to unknown code)
+    std::vector<T> watchables(iWatchables); /// get snapshot (can't mutex when calling out to unknown code)
     iWatchables.clear(); /// clear list of watchables, iWatchables
 
     for(TUint i=0; i<watchers.size(); i++ )
     {
         for(TUint x=0; x<watchables.size(); x++ )
         {
-            watchers[i]->OrderedRemove(*(watchables[x]), x); /// remove every watchable from every watcher's list
+            watchers[i]->OrderedRemove(watchables[x], x); /// remove every watchable from every watcher's list
         }
     }
 }
@@ -168,7 +168,7 @@ void WatchableOrdered<T>::AddWatcher(IWatcherOrdered<T>& aWatcher)
 
     for(TUint i=0; i<iWatchables.size(); i++)
     {
-        aWatcher.OrderedAdd(*(iWatchables[i]), i); /// add all watchables to aWatcher
+        aWatcher.OrderedAdd(iWatchables[i], i); /// add all watchables to aWatcher
     }
 
     aWatcher.OrderedInitialised(); /// set aWatcher status to Initialised
@@ -185,7 +185,7 @@ void WatchableOrdered<T>::RemoveWatcher(IWatcherOrdered<T>& aWatcher)
 {
     WatchableBase::Assert(); /// must be on watchable thread
 
-    typename std::vector<T>::iterator it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
+    typename std::vector<IWatcherOrdered<T>*>::iterator it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
 
     if (it != iWatchers.end()) /// check aWatcher exists
     {
@@ -200,7 +200,7 @@ template <class T>
 void WatchableOrdered<T>::Dispose()
 {
     FunctorGeneric<void*> action = MakeFunctorGeneric(*this, &WatchableOrdered::DisposeCallback);
-    WatchableBase::Execute(action);
+    WatchableBase::Execute(action, 0);
 }
 
 
