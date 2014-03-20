@@ -244,35 +244,35 @@ IService& InjectorDevice::GetService(const Brx& aType)
 {
     if (aType == Brn("product"))
     {
-        return *iServices[EProxyProduct];
+        return *iServices[eProxyProduct];
     }
     else if (aType == Brn("info"))
     {
-        return *iServices[EProxyInfo];
+        return *iServices[eProxyInfo];
     }
     else if (aType == Brn("time"))
     {
-        return *iServices[EProxyTime];
+        return *iServices[eProxyTime];
     }
     else if (aType == Brn("sender"))
     {
-        return *iServices[EProxySender];
+        return *iServices[eProxySender];
     }
     else if (aType == Brn("volume"))
     {
-        return *iServices[EProxyVolume];
+        return *iServices[eProxyVolume];
     }
     else if (aType == Brn("playlist"))
     {
-        return *iServices[EProxyPlaylist];
+        return *iServices[eProxyPlaylist];
     }
     else if (aType == Brn("radio"))
     {
-        return *iServices[EProxyRadio];
+        return *iServices[eProxyRadio];
     }
     else if (aType == Brn("receiver"))
     {
-        return *iServices[EProxyReceiver];
+        return *iServices[eProxyReceiver];
     }
     THROW(ServiceNotFoundException);
 }

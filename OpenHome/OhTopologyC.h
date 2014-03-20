@@ -20,14 +20,14 @@ namespace OpenHome
 
 enum EServiceType
 {
-    EProxyProduct,
-    EProxyInfo,
-    EProxyTime,
-    EProxySender,
-    EProxyVolume,
-    EProxyPlaylist,
-    EProxyRadio,
-    EProxyReceiver,
+    eProxyProduct,
+    eProxyInfo,
+    eProxyTime,
+    eProxySender,
+    eProxyVolume,
+    eProxyPlaylist,
+    eProxyRadio,
+    eProxyReceiver,
 };
 
 

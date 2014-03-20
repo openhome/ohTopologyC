@@ -52,7 +52,7 @@ class Watchable : public IWatchable<T>, public WatchableBase, public IDisposable
 {
 public:
     Watchable(IWatchableThread& aWatchableThread, const Brx& aId, T aValue);
-    TBool Update(T aValue);
+    virtual TBool Update(T aValue);
 
     // IWatchable<T>
     //virtual T Value();

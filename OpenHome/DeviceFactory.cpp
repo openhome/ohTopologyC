@@ -39,7 +39,7 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
 
 
 
-    device->Add(EProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes, Brn(""),
+    device->Add(eProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes, Brn(""),
                                     Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brn(""),
                                     Brn("Linn High Fidelity System Component"), Brn("Mock DS"), Brn(""),
                                     Brn(""), Brn("Linn High Fidelity System Component"),
@@ -113,7 +113,7 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
 //  SourceXml xml = new SourceXml(sources.ToArray());
     SrcXml* xml = new SrcXml(sources);
 
-    device->Add(EProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes,
+    device->Add(eProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes,
                 Brn(""), Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"),
                 Brn(""), Brn("Linn High Fidelity System Component"), Brn("Mock DSM"), Brn(""),
                 Brn(""), Brn("Linn High Fidelity System Component"), Brn(""), aUdn, aLog));

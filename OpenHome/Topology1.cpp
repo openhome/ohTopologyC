@@ -21,7 +21,7 @@ Topology1::Topology1(INetwork* aNetwork, ILog& /*aLog*/)
 void Topology1::ExecuteCallback(void*)
 {
     LOG(kTrace, "Topology1::ExecuteCallback \n");
-    iDevices = iNetwork->Create(EProxyProduct);
+    iDevices = iNetwork->Create(eProxyProduct);
     iDevices->AddWatcher(*this);
 }
 
@@ -97,7 +97,7 @@ void Topology1::UnorderedAdd(IDevice* aDevice)
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::UnorderedAddCallback);
 
-    aDevice->Create(f, EProxyProduct);
+    aDevice->Create(f, eProxyProduct);
 
 
 /*

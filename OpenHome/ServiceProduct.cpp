@@ -1,6 +1,7 @@
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/ServiceProduct.h>
+#include <OpenHome/Network.h>
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/Private/Debug.h>
 #include <vector>
@@ -12,12 +13,12 @@ using namespace std;
 
 ServiceProduct::ServiceProduct(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     :Service(aNetwork, &aDevice, aLog)
-    ,iRoom(new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("Room"), Brx::Empty()))
-    ,iName(new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("Name"), Brx::Empty()))
-    ,iSourceIndex(new Watchable<TUint>((IWatchableThread&)aNetwork, Brn("SourceIndex"), 0))
-    ,iSourceXml(new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("SourceXml"), Brx::Empty()))
-    ,iStandby(new Watchable<TBool>((IWatchableThread&)aNetwork, Brn("Standby"), false))
-    ,iRegistration(new Watchable<Brn>((IWatchableThread&)aNetwork, Brn("Registration"), Brx::Empty()))
+    ,iRoom(new Watchable<Brn>(aNetwork, Brn("Room"), Brx::Empty()))
+    ,iName(new Watchable<Brn>(aNetwork, Brn("Name"), Brx::Empty()))
+    ,iSourceIndex(new Watchable<TUint>(aNetwork, Brn("SourceIndex"), 0))
+    ,iSourceXml(new Watchable<Brn>(aNetwork, Brn("SourceXml"), Brx::Empty()))
+    ,iStandby(new Watchable<TBool>(aNetwork, Brn("Standby"), false))
+    ,iRegistration(new Watchable<Brn>(aNetwork, Brn("Registration"), Brx::Empty()))
 {
 }
 
@@ -485,11 +486,6 @@ ProxyProduct::ProxyProduct(ServiceProduct& aService, IDevice& aDevice)
 {
 }
 
-IDevice& ProxyProduct::Device()
-{
-    return (iDevice);
-}
-
 
 IWatchable<Brn>& ProxyProduct::Room()
 {
@@ -631,6 +627,11 @@ Brn ProxyProduct::ProductId()
 void ProxyProduct::Dispose()
 {
     iService.Unsubscribe();
+}
+
+IDevice& ProxyProduct::Device()
+{
+    return (iDevice);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

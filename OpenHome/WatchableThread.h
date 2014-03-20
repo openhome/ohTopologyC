@@ -27,7 +27,6 @@ public:
     virtual void Assert() = 0;
     virtual void Schedule(FunctorGeneric<void*> aCallback, void* aObj) = 0;
     virtual void Execute(FunctorGeneric<void*> aCallback, void* aObj) = 0;
-    //virtual TBool IsWatchableThread() = 0;
 };
 
 ///////////////////////////////////////////////

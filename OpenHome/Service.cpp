@@ -15,7 +15,6 @@ Service::Service(INetwork& aNetwork, IInjectorDevice* aDevice, ILog& aLog)
     ,iRefCount(0)
 //    ,iSubscribeTask(null);
 {
-
 }
 
 
