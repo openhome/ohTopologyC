@@ -26,9 +26,9 @@ void ServiceReceiver::Dispose()
     iTransportState = NULL;
 }
 
-IProxy* ServiceReceiver::OnCreate(IDevice& aDevice)
+IProxy* ServiceReceiver::OnCreate(IDevice* aDevice)
 {
-    return(new ProxyReceiver(*this, aDevice));
+    return(new ProxyReceiver(*this, *aDevice));
 }
 
 IWatchable<IInfoMetadata*>& ServiceReceiver::Metadata()
@@ -362,3 +362,5 @@ IDevice& ProxyReceiver::Device()
 {
     return(iDevice);
 }
+
+

@@ -65,7 +65,7 @@ class ServiceSender : public Service
 {
 public:
     virtual void Dispose();
-    virtual IProxy* OnCreate(IDevice& aDevice);
+    virtual IProxy* OnCreate(IDevice* aDevice);
     virtual IWatchable<TBool>& Audio();
     virtual IWatchable<ISenderMetadata*>& Metadata();
     virtual IWatchable<Brn>& Status();
@@ -201,7 +201,7 @@ class ServiceSenderMock : public ServiceSender
 {
 public:
     ServiceSenderMock(INetwork& aNetwork, IInjectorDevice& aDevice,  const Brx& aAttributes, const Brx& aPresentationUrl,
-                        TBool aAudio, ISenderMetadata& aMetadata, const Brx& aStatus, ILog& aLog);
+                      TBool aAudio, ISenderMetadata* aMetadata, const Brx& aStatus, ILog& aLog);
 
     virtual void Execute(ICommandTokens& aValue);
 };

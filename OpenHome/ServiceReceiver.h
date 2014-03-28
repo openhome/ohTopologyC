@@ -34,7 +34,7 @@ class ServiceReceiver : public Service
 {
 public:
     virtual void Dispose();
-    virtual IProxy* OnCreate(IDevice& aDevice);
+    virtual IProxy* OnCreate(IDevice* aDevice);
 
     virtual IWatchable<IInfoMetadata*>& Metadata();
     virtual IWatchable<Brn>& TransportState();

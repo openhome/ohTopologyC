@@ -107,9 +107,9 @@ void ServiceSender::Dispose()
     iStatus = NULL;
 }
 
-IProxy* ServiceSender::OnCreate(IDevice& aDevice)
+IProxy* ServiceSender::OnCreate(IDevice* aDevice)
 {
-    return(new ProxySender(*this, aDevice));
+    return(new ProxySender(*this, *aDevice));
 }
 
 IWatchable<TBool>& ServiceSender::Audio()
@@ -253,13 +253,13 @@ Brn ServiceSender::PresentationUrl()
 ///////////////////////////////////////////////////////////////////
 
 ServiceSenderMock::ServiceSenderMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aAttributes, const Brx& aPresentationUrl,
-                                     TBool aAudio, ISenderMetadata& aMetadata, const Brx& aStatus, ILog& aLog)
+                                     TBool aAudio, ISenderMetadata* aMetadata, const Brx& aStatus, ILog& aLog)
     :ServiceSender(aNetwork, aDevice, aLog)
 {
     iAttributes.Set(aAttributes);
     iPresentationUrl.Set(aPresentationUrl);
     iAudio->Update(aAudio);
-    iMetadata->Update(&aMetadata);
+    iMetadata->Update(aMetadata);
     iStatus->Update(Brn(aStatus));
 }
 
