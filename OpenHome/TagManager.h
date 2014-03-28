@@ -123,7 +123,7 @@ public:
     //ITagRealmPlaylist Playlist() = 0;
     //ITagRealmContainer Container() = 0;
 
-    virtual IMediaMetadata& FromDidlLite(const Brx& aMetadata);
+    virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata);
 };
 
 
@@ -131,7 +131,7 @@ public:
 class TagManager : public ITagManager//, public ITagManagerInitialiser
 {
 public:
-    virtual IMediaMetadata& FromDidlLite(const Brx& aMetadata);
+    virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata);
 };
 
 

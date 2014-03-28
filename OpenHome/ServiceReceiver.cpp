@@ -221,7 +221,8 @@ ServiceReceiverMock::ServiceReceiverMock(INetwork& aNetwork, IInjectorDevice& aD
     :ServiceReceiver(aNetwork, aDevice, aLog)
 {
     iProtocolInfo.Set(aProtocolInfo);
-    iMetadata->Update(new InfoMetadata(aNetwork.TagManager().FromDidlLite(aMetadata), aUri));
+	
+	iMetadata->Update(new InfoMetadata(*aNetwork.TagManager().FromDidlLite(aMetadata), aUri));
     iTransportState->Update(Brn(aTransportState));
 }
 
@@ -292,7 +293,7 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
         TUint allButLastTokenBytes = remaining.Bytes()-lastToken.Bytes();
         Brn allButLastToken(remaining.Split(0, allButLastTokenBytes));
 
-        IInfoMetadata* metadata = new InfoMetadata(iNetwork.TagManager().FromDidlLite(allButLastToken), lastToken);
+        IInfoMetadata* metadata = new InfoMetadata(*iNetwork.TagManager().FromDidlLite(allButLastToken), lastToken);
         iMetadata->Update(metadata);
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("transportstate")))

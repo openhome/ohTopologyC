@@ -4,10 +4,8 @@
 #include <OpenHome/DisposeHandler.h>
 #include <OpenHome/MetaData.h>
 #include <OpenHome/TagManager.h>
-//#include <OpenHome/Enumerable.h>
 #include <OpenHome/Private/Debug.h>
 #include <vector>
-
 
 
 using namespace OpenHome;
@@ -16,7 +14,7 @@ using namespace std;
 
 
 
-IMediaMetadata& TagManager::FromDidlLite(const Brx& aMetadata)
+IMediaMetadata* TagManager::FromDidlLite(const Brx& aMetadata)
 {
     MediaMetadata* metadata = new MediaMetadata();
 
@@ -126,7 +124,7 @@ IMediaMetadata& TagManager::FromDidlLite(const Brx& aMetadata)
 
     //metadata->Add(System().Folder(), aMetadata);
 
-    return *metadata;
+    return metadata;
 
 }
 
