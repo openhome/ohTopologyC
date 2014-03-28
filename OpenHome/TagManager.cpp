@@ -4,14 +4,14 @@
 #include <OpenHome/DisposeHandler.h>
 #include <OpenHome/MetaData.h>
 #include <OpenHome/TagManager.h>
-#include <OpenHome/Enumerable.h>
+//#include <OpenHome/Enumerable.h>
 #include <OpenHome/Private/Debug.h>
 #include <vector>
 
 
 
 using namespace OpenHome;
-using namespace Av;
+using namespace OpenHome::Av;
 using namespace std;
 
 

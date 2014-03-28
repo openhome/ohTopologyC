@@ -99,7 +99,7 @@ public:
 
 //////////////////////////////////////////////////////////////
 
-class ProxyReceiver : /*public Proxy<ServiceReceiver*>,*/ public IProxyReceiver
+class ProxyReceiver : /*public Proxy<ServiceReceiver*>,*/ public IProxyReceiver, public INonCopyable
 {
 public:
     ProxyReceiver(ServiceReceiver& aService, IDevice& aDevice);

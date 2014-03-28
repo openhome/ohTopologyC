@@ -214,40 +214,40 @@ void ReceiverWatcher::SetSender(ITopologymSender* aSender)
     iGroup.SetSender(aSender);
 }
 
-void ReceiverWatcher::ItemOpen(const Brx& aId, Brn aValue)
+void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, Brn aValue)
 {
 //    iTransportState = Brn(aValue);
     iTransportState.Set(aValue);
 }
 
-void ReceiverWatcher::ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious)
+void ReceiverWatcher::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn /*aPrevious*/)
 {
     iTransportState.Set(aValue);
     iTopology.ReceiverChanged(*this);
 }
 
-void ReceiverWatcher::ItemClose(const Brx& aId, Brn aValue)
+void ReceiverWatcher::ItemClose(const Brx& /*aId*/, Brn /*aValue*/)
 {
     iTransportState.Set(Brx::Empty());
 }
 
-void ReceiverWatcher::ItemOpen(const Brx& aId, IInfoMetadata* aValue)
+void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, IInfoMetadata* aValue)
 {
     iMetadata = aValue;
 }
 
-void ReceiverWatcher::ItemUpdate(const Brx& aId, IInfoMetadata* aValue, IInfoMetadata* aPrevious)
+void ReceiverWatcher::ItemUpdate(const Brx& /*aId*/, IInfoMetadata* aValue, IInfoMetadata* /*aPrevious*/)
 {
     iMetadata = aValue;
     iTopology.ReceiverChanged(*this);
 }
 
-void ReceiverWatcher::ItemClose(const Brx& aId, IInfoMetadata* aValue)
+void ReceiverWatcher::ItemClose(const Brx& /*aId*/, IInfoMetadata* /*aValue*/)
 {
     iMetadata = NULL;
 }
 
-void ReceiverWatcher::ItemOpen(const Brx& aId, ITopology2Source* aValue)
+void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aValue)
 {
     if (aValue->Type().Equals(Brn("Receiver")))
     {
@@ -290,11 +290,11 @@ void ReceiverWatcher::CreateCallback(void* aReceiver)
 }
 
 
-void ReceiverWatcher::ItemUpdate(const Brx& aId, ITopology2Source* aValue, ITopology2Source* aPrevious)
+void ReceiverWatcher::ItemUpdate(const Brx& /*aId*/, ITopology2Source* /*aPrevious*/, ITopology2Source* /*aPrevious*/)
 {
 }
 
-void ReceiverWatcher::ItemClose(const Brx& aId, ITopology2Source* aValue)
+void ReceiverWatcher::ItemClose(const Brx& /*aId*/, ITopology2Source* /*aValue*/)
 {
 }
 
@@ -374,12 +374,12 @@ IDevice& SenderWatcher::Device()
     return iDevice;
 }
 
-void SenderWatcher::ItemOpen(const Brx& aId, ISenderMetadata* aValue)
+void SenderWatcher::ItemOpen(const Brx& /*aId*/, ISenderMetadata* aValue)
 {
     iMetadata = aValue;
 }
 
-void SenderWatcher::ItemUpdate(const Brx& aId, ISenderMetadata* aValue, ISenderMetadata* aPrevious)
+void SenderWatcher::ItemUpdate(const Brx& /*aId*/, ISenderMetadata* aValue, ISenderMetadata* aPrevious)
 {
     iMetadata = aValue;
     iTopology.SenderChanged(iDevice, iMetadata->Uri(), aPrevious->Uri());
@@ -394,7 +394,7 @@ void SenderWatcher::ItemClose(const Brx& /*aId*/, ISenderMetadata* /*aValue*/)
 /////////////////////////////////////////////////////////////
 
 
-Topologym::Topologym(ITopology2* aTopology2, ILog& aLog)
+Topologym::Topologym(ITopology2* aTopology2, ILog& /*aLog*/)
     :iTopology2(aTopology2)
     ,iNetwork(aTopology2->Network())
     ,iGroups(new WatchableUnordered<ITopologymGroup*>(iNetwork))

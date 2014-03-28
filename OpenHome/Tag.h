@@ -1,3 +1,7 @@
+#ifndef HEADER_OHTOPC_TAG
+#define HEADER_OHTOPC_TAG
+
+
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Buffer.h>
 #include <stddef.h>
@@ -740,4 +744,9 @@ private:
 */
 
 
-}
+} // Av
+
+} // OpenHome
+
+
+#endif // HEADER_OHTOPC_TAG
