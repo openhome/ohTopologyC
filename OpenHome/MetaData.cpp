@@ -16,6 +16,8 @@ IInfoMetadata* InfoMetadata::Empty()
 
 
 InfoMetadata::InfoMetadata()
+    :iMetadata(NULL)
+    ,iUri(Brx::Empty())
 {
 //    iMetadata = null;
 //    iUri = null;
@@ -44,6 +46,7 @@ Brn InfoMetadata::Uri()
 ///////////////////////////////////////////////////////////////
 
 InfoMetatext::InfoMetatext()
+    :iMetatext(NULL)
 {
 //    iMetatext = null;
 }

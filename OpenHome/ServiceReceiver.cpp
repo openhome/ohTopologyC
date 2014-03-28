@@ -219,10 +219,9 @@ CpProxyAvOpenhomeOrgReceiver1 iService;
 ServiceReceiverMock::ServiceReceiverMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aMetadata, const Brx& aProtocolInfo,
                                          const Brx& aTransportState, const Brx& aUri, ILog& aLog)
     :ServiceReceiver(aNetwork, aDevice, aLog)
-    //,iProtocolInfo(aProtocolInfo)
 {
     iProtocolInfo.Set(aProtocolInfo);
-    //iMetadata->Update(new InfoMetadata(aNetwork.TagManager.FromDidlLite(aMetadata), aUri));
+    iMetadata->Update(new InfoMetadata(aNetwork.TagManager().FromDidlLite(aMetadata), aUri));
     iTransportState->Update(Brn(aTransportState));
 }
 
@@ -274,7 +273,7 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
         }
 
 
-        //IInfoMetadata* metadata = new InfoMetadata(iNetwork.TagManager.FromDidlLite(string.Join(" ", value.Take(value.Count() - 1))), value.Last());
+        //IInfoMetadata* metadata = new InfoMetadata(iNetwork.TagManager().FromDidlLite(string.Join(" ", value.Take(value.Count() - 1))), value.Last());
 
         // Get the remaining tokens
         Brn remaining(aValue.RemainingTrimmed());
@@ -293,8 +292,8 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
         TUint allButLastTokenBytes = remaining.Bytes()-lastToken.Bytes();
         Brn allButLastToken(remaining.Split(0, allButLastTokenBytes));
 
-        //IInfoMetadata* metadata = new InfoMetadata(iNetwork.TagManager().FromDidlLite(allButLastToken), lastToken);
-        //iMetadata->Update(*metadata);
+        IInfoMetadata* metadata = new InfoMetadata(iNetwork.TagManager().FromDidlLite(allButLastToken), lastToken);
+        iMetadata->Update(metadata);
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("transportstate")))
     {

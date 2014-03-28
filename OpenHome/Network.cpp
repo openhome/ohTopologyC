@@ -38,6 +38,13 @@ Network::Network(IWatchableThread& aWatchableThread, TUint /*aMaxCacheEntries*/,
 }
 
 
+ITagManager& Network::TagManager()
+{
+    DisposeLock lock(*iDisposeHandler);
+    return (*iTagManager);
+}
+
+
 /**
 
  */
@@ -341,17 +348,6 @@ IIdCache& Network::IdCache()
     // IdCache not implemented yet
     ASSERTS();
     return(*iIdCache);
-}
-
-
-/**
-
- */
-ITagManager& Network::TagManager()
-{
-    // TagManager not implemented yet
-    ASSERTS();
-    return(*iTagManager);
 }
 
 

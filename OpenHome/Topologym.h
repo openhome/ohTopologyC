@@ -82,6 +82,7 @@ public:
     virtual IWatchable<TBool>& Standby() = 0;
     virtual IWatchable<TUint>& SourceIndex() = 0;
     //virtual IEnumerable<IWatchable<ITopology2Source*>*>& Sources() = 0;
+    virtual std::vector<Watchable<ITopology2Source*>*> Sources() = 0;
     virtual IWatchable<Brn>& Registration() = 0;
     virtual IWatchable<ITopologymSender*>& Sender() = 0;
 
@@ -114,6 +115,8 @@ public:
     virtual IWatchable<TBool>& Standby();
     virtual IWatchable<TUint>& SourceIndex();
     //virtual IEnumerable<IWatchable<ITopology2Source*>*> Sources();
+    virtual std::vector<Watchable<ITopology2Source*>*> Sources();
+
     virtual IWatchable<Brn>& Registration();
     virtual IWatchable<ITopologymSender*>& Sender();
     virtual void SetStandby(TBool aValue);
@@ -152,12 +155,15 @@ public:
     virtual void ItemClose(const Brx& aId, ITopology2Source* aValue);
 
 private:
+    void CreateCallback(void* aReceiver);
+
+private:
     TBool iDisposed;
     Topologym& iTopology;
     TopologymGroup& iGroup;
     IProxyReceiver* iReceiver;
     Brn iTransportState;
-    //IInfoMetadata& iMetadata;
+    IInfoMetadata* iMetadata;
 };
 
 /////////////////////////////////////////////////////////

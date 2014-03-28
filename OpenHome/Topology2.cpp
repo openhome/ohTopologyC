@@ -165,7 +165,7 @@ IWatchable<Brn>& Topology2Group::Registration()
 
 
 //IEnumerable<IWatchable<ITopology2Source>>& Topology2Group::Sources()
-std::vector<Watchable<ITopology2Source*>*> Topology2Group::Sources()
+const std::vector<Watchable<ITopology2Source*>*> Topology2Group::Sources()
 {
     return(iWatchableSources);
 }

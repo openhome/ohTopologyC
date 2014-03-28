@@ -168,9 +168,6 @@ void SuiteTopologym::Test1()
     InjectorMock* mockInjector = new InjectorMock(*network, Brx::Empty(), *log);
     mocker->Add(Brn("network"), *mockInjector);
 
-    //Topology1* topology1 = new Topology1(network, *log);
-    //iTopologym = new Topologym(topology1, *log);
-
 
     Topology1* topology1 = new Topology1(network, *log);
     Topology2* topology2 = new Topology2(topology1, *log);

@@ -106,12 +106,11 @@ IWatchable<TUint>& TopologymGroup::SourceIndex()
     return iGroup.SourceIndex();
 }
 
-/*
-IEnumerable<IWatchable<ITopology2Source*>*>& TopologymGroup::Sources()
+//IEnumerable<IWatchable<ITopology2Source*>*>& TopologymGroup::Sources()
+vector<Watchable<ITopology2Source*>*> TopologymGroup::Sources()
 {
     return iGroup.Sources();
 }
-*/
 
 IWatchable<Brn>& TopologymGroup::Registration()
 {
@@ -151,6 +150,11 @@ ReceiverWatcher::ReceiverWatcher(Topologym& aTopology, TopologymGroup& aGroup)
     ,iTopology(aTopology)
     ,iGroup(aGroup)
 {
+    for(TUint i=0; i<iGroup.Sources().size(); i++)
+    {
+        iGroup.Sources()[i]->AddWatcher(*this);
+
+    }
 /*
     foreach (IWatchable<ITopology2Source*> s in iGroup.Sources)
     {
@@ -161,22 +165,27 @@ ReceiverWatcher::ReceiverWatcher(Topologym& aTopology, TopologymGroup& aGroup)
 
 void ReceiverWatcher::Dispose()
 {
+    for(TUint i=0; i<iGroup.Sources().size(); i++)
+    {
+        iGroup.Sources()[i]->RemoveWatcher(*this);
+
+    }
 /*
     foreach (IWatchable<ITopology2Source*> s in iGroup.Sources)
     {
         s.RemoveWatcher(this);
     }
 */
-/*
-    if (iReceiver != null)
-    {
-        iReceiver.TransportState.RemoveWatcher(this);
-        iReceiver.Metadata.RemoveWatcher(this);
 
-        iReceiver.Dispose();
-        iReceiver = null;
+    if (iReceiver != NULL)
+    {
+        iReceiver->TransportState().RemoveWatcher(*this);
+        iReceiver->Metadata().RemoveWatcher(*this);
+
+        iReceiver->Dispose();
+        iReceiver = NULL;
     }
-*/
+
     SetSender(TopologymSender::Empty());
 
     //iGroup = null;
@@ -187,14 +196,17 @@ void ReceiverWatcher::Dispose()
 
 Brn ReceiverWatcher::ListeningToUri()
 {
+    if (iTransportState.Equals(Brx::Empty()) || iTransportState.Equals(Brn("Stopped")))
+    {
+        return(Brx::Empty());
+    }
 /*
     if (string.IsNullOrEmpty(iTransportState) || iTransportState == "Stopped")
     {
         return null;
     }
-    return iMetadata.Uri;
 */
-    return(Brx::Empty());
+    return iMetadata->Uri();
 }
 
 void ReceiverWatcher::SetSender(ITopologymSender* aSender)
@@ -216,29 +228,30 @@ void ReceiverWatcher::ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious)
 
 void ReceiverWatcher::ItemClose(const Brx& aId, Brn aValue)
 {
-    //iTransportState = null;
+    iTransportState.Set(Brx::Empty());
 }
 
 void ReceiverWatcher::ItemOpen(const Brx& aId, IInfoMetadata* aValue)
 {
-    //iMetadata = aValue;
+    iMetadata = aValue;
 }
 
 void ReceiverWatcher::ItemUpdate(const Brx& aId, IInfoMetadata* aValue, IInfoMetadata* aPrevious)
 {
-    //iMetadata = aValue;
+    iMetadata = aValue;
     iTopology.ReceiverChanged(*this);
 }
 
 void ReceiverWatcher::ItemClose(const Brx& aId, IInfoMetadata* aValue)
 {
-    //iMetadata = null;
+    iMetadata = NULL;
 }
 
 void ReceiverWatcher::ItemOpen(const Brx& aId, ITopology2Source* aValue)
 {
     if (aValue->Type().Equals(Brn("Receiver")))
     {
+        iGroup.Device().Create(MakeFunctorGeneric(*this, &ReceiverWatcher::CreateCallback), eProxyReceiver);
 /*
         iGroup.Device.Create<IProxyReceiver*>((receiver) =>
         {
@@ -258,6 +271,25 @@ void ReceiverWatcher::ItemOpen(const Brx& aId, ITopology2Source* aValue)
     }
 }
 
+
+void ReceiverWatcher::CreateCallback(void* aReceiver)
+{
+    IProxyReceiver* receiver = (IProxyReceiver*)aReceiver;
+
+    if (!iDisposed)
+    {
+        iReceiver = receiver;
+        iReceiver->TransportState().AddWatcher(*this);
+        iReceiver->Metadata().AddWatcher(*this);
+        iTopology.ReceiverChanged(*this);
+    }
+    else
+    {
+        receiver->Dispose();
+    }
+}
+
+
 void ReceiverWatcher::ItemUpdate(const Brx& aId, ITopology2Source* aValue, ITopology2Source* aPrevious)
 {
 }
@@ -276,7 +308,6 @@ SenderWatcher::SenderWatcher(Topologym& aTopology, ITopology2Group& aGroup)
     ,iMetadata(SenderMetadata::Empty())
     ,iDisposed(false)
 {
-
     aGroup.Device().Create(MakeFunctorGeneric(*this, &SenderWatcher::CreateCallback), eProxySender);
 
 /*
@@ -334,10 +365,7 @@ void SenderWatcher::Dispose()
 Brn SenderWatcher::Uri()
 {
     DisposeLock lock(*iDisposeHandler);
-
     return iMetadata->Uri();
-
-    //return(Brx::Empty());
 }
 
 IDevice& SenderWatcher::Device()

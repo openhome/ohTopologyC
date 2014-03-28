@@ -9,6 +9,7 @@
 #include <OpenHome/DisposeHandler.h>
 #include <OpenHome/Device.h>
 #include <OpenHome/Buffer.h>
+#include <OpenHome/TagManager.h>
 #include <vector>
 #include <map>
 
@@ -83,6 +84,7 @@ public:
     // IExceptionReporter
     virtual void Report(Exception& aException);
     virtual void Report(std::exception& aException);
+
 
 private:
     void ReportException(Exception& aException);
