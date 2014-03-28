@@ -4,7 +4,7 @@
 
 
 using namespace OpenHome;
-using namespace Av;
+using namespace OpenHome::Av;
 using namespace std;
 
 
@@ -172,7 +172,7 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
                         delete result;
                         return(false);
                     }
-					delete result;
+                    delete result;
                 }
                 else
                 {

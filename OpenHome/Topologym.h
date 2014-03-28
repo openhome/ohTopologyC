@@ -93,7 +93,7 @@ public:
 
 /////////////////////////////////////////////////////////
 
-class TopologymGroup : public ITopologymGroup
+class TopologymGroup : public ITopologymGroup, public INonCopyable
 {
 public:
     TopologymGroup(INetwork& aNetwork, ITopology2Group& aGroup);
@@ -132,7 +132,7 @@ private:
 
 /////////////////////////////////////////////////////////
 
-class ReceiverWatcher : public IWatcher<Brn>, public IWatcher<IInfoMetadata*>, public IWatcher<ITopology2Source*>, public IDisposable
+class ReceiverWatcher : public IWatcher<Brn>, public IWatcher<IInfoMetadata*>, public IWatcher<ITopology2Source*>, public IDisposable, public INonCopyable
 {
 public:
     ReceiverWatcher(Topologym& aTopology, TopologymGroup& aGroup);
@@ -168,7 +168,7 @@ private:
 
 /////////////////////////////////////////////////////////
 
-class SenderWatcher : public IWatcher<ISenderMetadata*>, public IDisposable
+class SenderWatcher : public IWatcher<ISenderMetadata*>, public IDisposable, public INonCopyable
 {
 public:
     SenderWatcher(Topologym& aTopology, ITopology2Group& aGroup);
@@ -205,7 +205,7 @@ public:
 
 /////////////////////////////////////////////////////////
 
-class Topologym : public ITopologym, public IWatcherUnordered<ITopology2Group*>, public IDisposable
+class Topologym : public ITopologym, public IWatcherUnordered<ITopology2Group*>, public IDisposable, public INonCopyable
 {
 public:
     Topologym(ITopology2* aTopology2, ILog& aLog);

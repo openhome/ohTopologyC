@@ -208,7 +208,7 @@ public:
 
 ///////////////////////////////////////////////////////////////
 
-class ProxySender : /*public Proxy<ServiceSender*>,*/ public IProxySender
+class ProxySender : /*public Proxy<ServiceSender*>,*/ public IProxySender, public INonCopyable
 {
 public:
     ProxySender(ServiceSender& aService, IDevice& aDevice);
