@@ -15,7 +15,7 @@ namespace OpenHome {
 class TestScriptHttpReader : public HttpReader
 {
 public:
-    TestScriptHttpReader(Environment& aEnv, const std::vector<Brn>& aArgs)
+    TestScriptHttpReader(Environment& aEnv, std::vector<Brn>& aArgs)
         :HttpReader(aEnv)
     {
         OptionParser parser;

@@ -298,9 +298,14 @@ void SuiteTopology2::ScheduleCallback(void* aObj)
 
 ////////////////////////////////////////////
 
-void TestTopology2(Environment& aEnv, const std::vector<Brn>& aArgs)
+void TestTopology2(Environment& aEnv, std::vector<Brn>& aArgs)
 {
-    //Debug::SetLevel(Debug::kTrace);
+    if(aArgs.size()<2)
+    {
+        aArgs.push_back(Brn("--path"));
+        aArgs.push_back(Brn("~eamonnb/Topology2TestScript.txt"));
+    }
+
     TestScriptHttpReader reader(aEnv, aArgs);
 
     Runner runner("Topology2 tests\n");

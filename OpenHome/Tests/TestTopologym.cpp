@@ -201,8 +201,13 @@ void SuiteTopologym::ScheduleCallback(void* aObj)
 
 ////////////////////////////////////////////
 
-void TestTopologym(Environment& aEnv, const std::vector<Brn>& aArgs)
+void TestTopologym(Environment& aEnv, std::vector<Brn>& aArgs)
 {
+    if(aArgs.size()<2)
+    {
+        aArgs.push_back(Brn("--path"));
+        aArgs.push_back(Brn("~eamonnb/TopologymTestScript.txt"));
+    }
     TestScriptHttpReader reader(aEnv, aArgs);
     Runner runner("Topologym tests\n");
     runner.Add(new SuiteTopologym(reader));
