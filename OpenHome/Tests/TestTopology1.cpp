@@ -163,6 +163,13 @@ void SuiteTopology1::ScheduleCallback(void* aObj)
 
 void TestTopology1(Environment& aEnv, const std::vector<Brn>& aArgs)
 {
+/*
+    if(aArgs.size()==0)
+    {
+        Log::Print("NO ARGUMENTS SUPPLIED!!!");
+        ASSERTS();
+    }
+*/
     TestScriptHttpReader reader(aEnv, aArgs);
 
     Runner runner("Topology1 tests\n");
