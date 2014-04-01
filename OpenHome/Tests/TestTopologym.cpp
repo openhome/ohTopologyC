@@ -156,7 +156,6 @@ void SuiteTopologym::Test1()
     InjectorMock* mockInjector = new InjectorMock(*network, Brx::Empty(), *log);
     mocker->Add(Brn("network"), *mockInjector);
 
-
     Topology1* topology1 = new Topology1(network, *log);
     Topology2* topology2 = new Topology2(topology1, *log);
     iTopologym = new Topologym(topology2, *log);
@@ -180,58 +179,6 @@ void SuiteTopologym::Test1()
     //topology1->Dispose();
     //mockInjector->Dispose();
     //network->Dispose();
-
-
-/*
-    Mockable mocker = new Mockable();
-    Log log = new Log(new LogConsole());
-    Network network = new Network(50, log);
-    DeviceInjectorMock mockInjector = new DeviceInjectorMock(network, Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), log);
-    mocker.Add("network", mockInjector);
-
-
-
-    Topology1 topology1 = new Topology1(network, log);
-    Topology2 topology2 = new Topology2(topology1, log);
-    Topologym topologym = new Topologym(topology2, log);
-
-    MockableScriptRunner runner = new MockableScriptRunner();
-
-    RoomWatcher watcher = new RoomWatcher(runner);
-
-    network.Schedule(() =>
-    {
-        topologym.Groups.AddWatcher(watcher);
-    });
-
-    try
-    {
-        runner.Run(network.Wait, new StreamReader(args[0]), mocker);
-    }
-    catch (MockableScriptRunner.AssertError)
-    {
-        return 1;
-    }
-
-    network.Execute(() =>
-    {
-        topologym.Groups.RemoveWatcher(watcher);
-        watcher.Dispose();
-    });
-
-    topologym.Dispose();
-
-    topology2.Dispose();
-
-    topology1.Dispose();
-
-    mockInjector.Dispose();
-
-    network.Dispose();
-
-
-*/
-
 }
 
 
@@ -254,7 +201,7 @@ void SuiteTopologym::ScheduleCallback(void* aObj)
 
 ////////////////////////////////////////////
 
-void TestTopologym(Environment& aEnv, const std::vector<Brn>& aArgss)
+void TestTopologym(Environment& aEnv, const std::vector<Brn>& aArgs)
 {
     TestScriptHttpReader reader(aEnv, aArgs);
     Runner runner("Topologym tests\n");

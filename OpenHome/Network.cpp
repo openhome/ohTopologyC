@@ -22,7 +22,7 @@ Network::Network(TUint /*aMaxCacheEntries*/, ILog&/* aLog*/)
 {
     iWatchableThread = new WatchableThread(*this);
     //iCache = new IdCache(aMaxCacheEntries);
-    //iTagManager = new TagManager();
+    iTagManager = new OpenHome::Av::TagManager();
     //iEventSupervisor = new EventSupervisor(iWatchableThread);
 }
 
@@ -35,7 +35,7 @@ Network::Network(IWatchableThread& aWatchableThread, TUint /*aMaxCacheEntries*/,
     ,iWatchableThread(&aWatchableThread)
 {
     //iCache = new IdCache(aMaxCacheEntries);
-    //iTagManager = new TagManager();
+    iTagManager = new OpenHome::Av::TagManager();
     //iEventSupervisor = new EventSupervisor(iWatchableThread);
 }
 

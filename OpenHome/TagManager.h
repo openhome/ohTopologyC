@@ -6,6 +6,7 @@
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/DisposeHandler.h>
 #include <OpenHome/MetaData.h>
+#include <OpenHome/Tag.h>
 #include <vector>
 #include <map>
 
@@ -16,14 +17,55 @@ namespace OpenHome
 namespace Av
 {
 
-/////////////////////////////////////////////////
 
-class ITag
+
+class ITagManager
 {
+public:
+    virtual TUint MaxSystemTagId() = 0;
+    virtual ITag* Tag(TUint aId) = 0;
+    //ITagRealm this[TagRealm aRealm]) = 0;
+    virtual ITagRealm& Realm(ETagRealm aRealm) = 0;
 
+    //virtual ITagRealmSystem System() = 0;
+    //virtual ITagRealmGlobal Global() = 0;
+    virtual ITagRealmAudio& Audio() = 0;
+    //virtual ITagRealmVideo Video() = 0;
+    //virtual ITagRealmImage Image() = 0;
+    //virtual ITagRealmPlaylist Playlist() = 0;
+    //virtual ITagRealmContainer Container() = 0;
+
+    virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata) = 0;
 };
 
-/////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+class TagManager : public ITagManager//, public ITagManagerInitialiser
+{
+private:
+    static const TUint kMaxSystemTagId = 49;
+
+public:
+    virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata);
+    virtual TUint MaxSystemTagId();
+    virtual ITag* Tag(TUint aId);
+    virtual ITagRealm& Realm(ETagRealm aRealm);
+    virtual ITagRealmAudio& Audio();
+
+private:
+    std::map<TUint, ITag*> iTags;
+    std::map<ETagRealm, ITagRealm*> iRealms;
+
+    //ITagRealmSystem* iSystem;
+    ITagRealmGlobal* iGlobal;
+    ITagRealmAudio* iAudio;
+    //ITagRealmVideo* iVideo;
+    //ITagRealmImage* iImage;
+    //ITagRealmPlaylist* iPlaylist;
+    //ITagRealmContainer* iContainer;
+};
+
+/////////////////////////////////////////////////
 
 class IMediaValue
 {
@@ -106,33 +148,6 @@ private:
 
 ///////////////////////////////////////////////////
 
-
-class ITagManager
-{
-public:
-//    TUint MaxSystemTagId() = 0;
-//    ITag* Tag(TUint aId) = 0;
-    //ITag this[uint aId]() = 0;
-    //ITagRealm this[TagRealm aRealm]() = 0;
-//    ITagRealm& TagRealm(ETagRealm aRealm) = 0;
-    //ITagRealmSystem System() = 0;
-//    ITagRealmGlobal& Global() = 0;
-//    ITagRealmAudio& Audio() = 0;
-    //ITagRealmVideo Video() = 0;
-    //ITagRealmImage Image() = 0;
-    //ITagRealmPlaylist Playlist() = 0;
-    //ITagRealmContainer Container() = 0;
-
-    virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata);
-};
-
-
-
-class TagManager : public ITagManager//, public ITagManagerInitialiser
-{
-public:
-    virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata);
-};
 
 
 } // Av

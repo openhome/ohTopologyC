@@ -364,7 +364,7 @@ void SenderWatcher::Dispose()
 
 Brn SenderWatcher::Uri()
 {
-    DisposeLock lock(*iDisposeHandler);
+    DisposeLock lock(*waf tests);
     return iMetadata->Uri();
 }
 

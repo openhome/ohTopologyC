@@ -145,22 +145,6 @@ class ITagRealmAudio : public ITagRealm
     }
 */
 
-class ITagManager
-{
-public:
-    virtual TUint MaxSystemTagId() = 0;
-    virtual ITag* Tag(TUint aId) = 0;
-    //ITagRealm this[TagRealm aRealm]) = 0;
-    virtual ITagRealm& Realm(ETagRealm aRealm) = 0;
-
-    //virtual ITagRealmSystem System() = 0;
-    //virtual ITagRealmGlobal Global() = 0;
-    virtual ITagRealmAudio& Audio() = 0;
-    //virtual ITagRealmVideo Video() = 0;
-    //virtual ITagRealmImage Image() = 0;
-    //virtual ITagRealmPlaylist Playlist() = 0;
-    //virtual ITagRealmContainer Container() = 0;
-};
 
 ///////////////////////////////////////////////
 
@@ -616,6 +600,7 @@ private:
         Dictionary<TagRealm, ITagRealm> iRealms;
 
         ITagRealmSystem iSystem;
+
         ITagRealmGlobal iGlobal;
         ITagRealmAudio iAudio;
         ITagRealmVideo iVideo;

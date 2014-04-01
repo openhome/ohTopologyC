@@ -128,6 +128,32 @@ IMediaMetadata* TagManager::FromDidlLite(const Brx& aMetadata)
 
 }
 
+
+TUint TagManager::MaxSystemTagId()
+{
+    return(kMaxSystemTagId);
+}
+
+
+ITag* TagManager::Tag(TUint aId)
+{
+    return(iTags[aId]);
+}
+
+
+ITagRealm& TagManager::Realm(ETagRealm aRealm)
+{
+    return(*(iRealms[aRealm]));
+}
+
+
+ITagRealmAudio& TagManager::Audio()
+{
+    return (*iAudio);
+}
+
+
+
 ////////////////////////////////////////////////////////
 
 

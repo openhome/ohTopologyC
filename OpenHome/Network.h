@@ -22,8 +22,9 @@ namespace Av
 
 
 class IIdCache;
-class ITagManager;
+//class ITagManager;
 class IEventSupervisor;
+//class TagManager;
 
 
 
