@@ -254,7 +254,7 @@ void SuiteTopologym::ScheduleCallback(void* aObj)
 
 ////////////////////////////////////////////
 
-void TestTopologym(Environment& aEnv, const std::vector<Brn>& aArgs)
+void TestTopologym(Environment& aEnv, const std::vector<Brn>& aArgss)
 {
     TestScriptHttpReader reader(aEnv, aArgs);
     Runner runner("Topologym tests\n");
