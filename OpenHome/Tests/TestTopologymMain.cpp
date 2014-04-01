@@ -1,10 +1,15 @@
 #include <OpenHome/Private/TestFramework.h>
+#include <OpenHome/Private/OptionParser.h>
+#include <OpenHome/Buffer.h>
 
-extern void TestTopologym(OpenHome::Environment& aEnv);
+using namespace OpenHome;
 
-void OpenHome::TestFramework::Runner::Main(TInt /*aArgc*/, TChar* /*aArgv*/[], Net::InitialisationParams* aInitParams)
+extern void TestTopologym(OpenHome::Environment& aEnv, const std::vector<Brn>& aArgs);
+
+void OpenHome::TestFramework::Runner::Main(TInt aArgc, TChar* aArgv[], Net::InitialisationParams* aInitParams)
 {
     Net::Library* lib = new Net::Library(aInitParams);
-    TestTopologym(lib->Env());
+    std::vector<Brn> args = OptionParser::ConvertArgs(aArgc, aArgv);
+    TestTopologym(lib->Env(), args);
     delete lib;
 }

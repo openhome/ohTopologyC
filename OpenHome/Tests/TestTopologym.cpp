@@ -2,7 +2,7 @@
 #include <OpenHome/Topologym.h>
 #include <OpenHome/Mockable.h>
 #include <OpenHome/Injector.h>
-#include <OpenHome/Private/Http.h>
+#include <OpenHome/Tests/TestScriptHttpReader.h>
 #include <OpenHome/Private/Ascii.h>
 #include <exception>
 
@@ -27,7 +27,7 @@ class TestExceptionReporter;
 class SuiteTopologym: public SuiteUnitTest, public INonCopyable
 {
 public:
-    SuiteTopologym(Environment& aEnv);
+    SuiteTopologym(IReader& aReader);
 
 private:
     // from SuiteUnitTest
@@ -41,7 +41,7 @@ private:
 
 private:
     Topologym* iTopologym;
-    Environment& iEnv;
+    IReader& iReader;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -128,9 +128,9 @@ private:
 //class HttpReader;
 
 
-SuiteTopologym::SuiteTopologym(Environment& aEnv)
+SuiteTopologym::SuiteTopologym(IReader& aReader)
     :SuiteUnitTest("SuiteTopologym")
-    ,iEnv(aEnv)
+    ,iReader(aReader)
 {
     AddTest(MakeFunctor(*this, &SuiteTopologym::Test1));
 }
@@ -149,18 +149,6 @@ void SuiteTopologym::TearDown()
 
 void SuiteTopologym::Test1()
 {
-    LOG(kTrace, "\n");
-
-    Brn uriPath("http://eng.linn.co.uk/~eamonnb/TopologymTestScript.txt");
-    Uri uri(uriPath);
-
-    HttpReader reader(iEnv);
-
-    if (!reader.Connect(uri))
-    {
-        ASSERTS();
-    }
-
     Mockable* mocker = new Mockable();
     ILog* log = new LogDummy();
     Network* network = new Network(50, *log);
@@ -177,13 +165,12 @@ void SuiteTopologym::Test1()
 
     RoomWatcher* watcher = new RoomWatcher(runner);
 
-
     FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopologym::ScheduleCallback);
     network->Schedule(fs, watcher);
 
     Functor f = MakeFunctor(*network, &Network::Wait);
 
-    TEST(runner->Run(f, reader, *mocker));
+    TEST(runner->Run(f, iReader, *mocker));
 
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopologym::ExecuteCallback);
     network->Execute(fe, watcher);
@@ -267,11 +254,11 @@ void SuiteTopologym::ScheduleCallback(void* aObj)
 
 ////////////////////////////////////////////
 
-void TestTopologym(Environment& aEnv)
+void TestTopologym(Environment& aEnv, const std::vector<Brn>& aArgs)
 {
-    //Debug::SetLevel(Debug::kTrace);
+    TestScriptHttpReader reader(aEnv, aArgs);
     Runner runner("Topologym tests\n");
-    runner.Add(new SuiteTopologym(aEnv));
+    runner.Add(new SuiteTopologym(reader));
     runner.Run();
 }
 

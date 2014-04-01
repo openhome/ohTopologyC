@@ -1,4 +1,4 @@
-#include <OpenHome/OhNetTypes.h>
+//#include <OpenHome/OhNetTypes.h>
 #include <OpenHome/WatchableThread.h>
 #include <OpenHome/Watchable.h>
 #include <OpenHome/Private/Printer.h>

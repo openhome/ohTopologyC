@@ -8,9 +8,13 @@ suiteRunner = MakeSuiteRunner(context)
 # testharness honours a '#' within this string :)
 tests = '''
     TestWatchableThread
+    TestWatchable
+    TestTopology1 -s {ws_hostname} -p {ws_port} --path Topology1TestScript.txt
+    TestTopology2 -s {ws_hostname} -p {ws_port} --path Topology2TestScript.txt
+    TestTopologym -s {ws_hostname} -p {ws_port} --path TopologymTestScript.txt
     '''
 
-w = StaticWebServer(os.path.join('dependencies', 'AnyPlatform'))
+w = StaticWebServer(os.path.join('dependencies', 'AnyPlatform', 'TesScripts'))
 w.start()
 
 try:

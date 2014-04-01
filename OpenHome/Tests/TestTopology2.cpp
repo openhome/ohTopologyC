@@ -2,7 +2,7 @@
 #include <OpenHome/Topology2.h>
 #include <OpenHome/Mockable.h>
 #include <OpenHome/Injector.h>
-#include <OpenHome/Private/Http.h>
+#include <OpenHome/Tests/TestScriptHttpReader.h>
 #include <OpenHome/Private/Ascii.h>
 #include <exception>
 
@@ -27,7 +27,7 @@ class TestExceptionReporter;
 class SuiteTopology2: public SuiteUnitTest, public INonCopyable
 {
 public:
-    SuiteTopology2(Environment& aEnv);
+    SuiteTopology2(IReader& aReader);
 
 private:
     // from SuiteUnitTest
@@ -41,7 +41,7 @@ private:
 
 private:
     Topology2* iTopology2;
-    Environment& iEnv;
+    IReader& iReader;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -127,10 +127,10 @@ private:
         buf.Replace(Brn("Source "));
         Ascii::AppendDec(buf, src->Index());
         buf.Append(Brn(" "));
-        
-		Brn name(src->Name());
 
-		buf.Append(src->Name());
+        Brn name(src->Name());
+
+        buf.Append(src->Name());
         buf.Append(Brn(" "));
         buf.Append(src->Type());
         buf.Append(Brn(" "));
@@ -227,9 +227,9 @@ private:
 //class HttpReader;
 
 
-SuiteTopology2::SuiteTopology2(Environment& aEnv)
+SuiteTopology2::SuiteTopology2(IReader& aReader)
     :SuiteUnitTest("SuiteTopology2")
-    ,iEnv(aEnv)
+    ,iReader(aReader)
 {
     AddTest(MakeFunctor(*this, &SuiteTopology2::Test1));
 }
@@ -248,18 +248,6 @@ void SuiteTopology2::TearDown()
 
 void SuiteTopology2::Test1()
 {
-    LOG(kTrace, "\n");
-
-    Brn uriPath("http://eng.linn.co.uk/~eamonnb/Topology2TestScript.txt");
-    Uri uri(uriPath);
-
-    HttpReader reader(iEnv);
-
-    if (!reader.Connect(uri))
-    {
-        ASSERTS();
-    }
-	
     Mockable* mocker = new Mockable();
     ILog* log = new LogDummy();
     Network* network = new Network(50, *log);
@@ -267,7 +255,7 @@ void SuiteTopology2::Test1()
     InjectorMock* mockInjector = new InjectorMock(*network, Brx::Empty(), *log);
     mocker->Add(Brn("network"), *mockInjector);
 
-	Topology1* topology1 = new Topology1(network, *log);
+    Topology1* topology1 = new Topology1(network, *log);
     iTopology2 = new Topology2(topology1, *log);
 
     MockableScriptRunner* runner = new MockableScriptRunner();
@@ -278,7 +266,7 @@ void SuiteTopology2::Test1()
 
     Functor f = MakeFunctor(*network, &Network::Wait);
 
-    TEST(runner->Run(f, reader, *mocker));
+    TEST(runner->Run(f, iReader, *mocker));
 
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology2::ExecuteCallback);
     network->Execute(fe, watcher);
@@ -310,11 +298,13 @@ void SuiteTopology2::ScheduleCallback(void* aObj)
 
 ////////////////////////////////////////////
 
-void TestTopology2(Environment& aEnv)
+void TestTopology2(Environment& aEnv, const std::vector<Brn>& aArgs)
 {
     //Debug::SetLevel(Debug::kTrace);
+    TestScriptHttpReader reader(aEnv, aArgs);
+
     Runner runner("Topology2 tests\n");
-    runner.Add(new SuiteTopology2(aEnv));
+    runner.Add(new SuiteTopology2(reader));
     runner.Run();
 }
 
