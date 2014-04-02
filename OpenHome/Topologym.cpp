@@ -272,9 +272,10 @@ void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aValue)
 }
 
 
-void ReceiverWatcher::CreateCallback(void* aReceiver)
+void ReceiverWatcher::CreateCallback(void* aArgs)
 {
-    IProxyReceiver* receiver = (IProxyReceiver*)aReceiver;
+	ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
+	IProxyReceiver* receiver = (IProxyReceiver*)(args->Arg2());
 
     if (!iDisposed)
     {
@@ -328,17 +329,20 @@ SenderWatcher::SenderWatcher(Topologym& aTopology, ITopology2Group& aGroup)
 }
 
 
-void SenderWatcher::CreateCallback(void* aSender)
+void SenderWatcher::CreateCallback(void* aArgs)
 {
-    if (!iDisposed)
+	ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
+	IProxySender* sender = (IProxySender*)(args->Arg2());
+	
+	if (!iDisposed)
     {
-        iSender = (IProxySender*)aSender;
+        iSender = sender;
         iSender->Metadata().AddWatcher(*this);
         iTopology.SenderChanged(iDevice, iMetadata->Uri(), Brx::Empty());
     }
     else
     {
-        ((IProxySender*)aSender)->Dispose();
+        sender->Dispose();
     }
 }
 
