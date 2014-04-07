@@ -54,7 +54,6 @@ public:
     {
     }
 
-    // IUnorderedWatcher<ITopologymGroup*>
 
     void UnorderedOpen() {}
     void UnorderedInitialised() {}
@@ -97,16 +96,14 @@ private:
 
         if (sender->Enabled())
         {
-            //w("Sender True " + v.Device.Udn);
             buf.Replace(Brn("Sender True "));
-           
-			IDevice* device = &sender->Device();
-			buf.Append(device->Udn());
+
+            IDevice* device = &sender->Device();
+            buf.Append(device->Udn());
             f(buf);
         }
         else
         {
-            //w("Sender False");
             f(Brn("Sender False"));
         }
     }
@@ -149,41 +146,28 @@ void SuiteTopologym::TearDown()
 
 void SuiteTopologym::Test1()
 {
-	//try
-	//{
-		Mockable* mocker = new Mockable();
-		ILog* log = new LogDummy();
-		Network* network = new Network(50, *log);
+    Mockable* mocker = new Mockable();
+    ILog* log = new LogDummy();
+    Network* network = new Network(50, *log);
 
-		InjectorMock* mockInjector = new InjectorMock(*network, Brx::Empty(), *log);
-		mocker->Add(Brn("network"), *mockInjector);
+    InjectorMock* mockInjector = new InjectorMock(*network, Brx::Empty(), *log);
+    mocker->Add(Brn("network"), *mockInjector);
 
-		Topology1* topology1 = new Topology1(network, *log);
-		Topology2* topology2 = new Topology2(topology1, *log);
-		iTopologym = new Topologym(topology2, *log);
+    Topology1* topology1 = new Topology1(network, *log);
+    Topology2* topology2 = new Topology2(topology1, *log);
+    iTopologym = new Topologym(topology2, *log);
 
-		MockableScriptRunner* runner = new MockableScriptRunner();
-		RoomWatcher* watcher = new RoomWatcher(runner);
+    MockableScriptRunner* runner = new MockableScriptRunner();
+    RoomWatcher* watcher = new RoomWatcher(runner);
 
-		FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopologym::ScheduleCallback);
-		network->Schedule(fs, watcher);
+    FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopologym::ScheduleCallback);
+    network->Schedule(fs, watcher);
 
-		Functor f = MakeFunctor(*network, &Network::Wait);
+    Functor f = MakeFunctor(*network, &Network::Wait);
 
-		TEST(runner->Run(f, iReader, *mocker));
-		FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopologym::ExecuteCallback);
-		network->Execute(fe, watcher);
-	//}
-/*
-	catch(AssertionFailed& ex)
-	{
-		Print("AssertionFailed: %s:%u\n", ex.File(), ex.Line());
-	}
-	catch(Exception& ex)
-	{
-		Print("Exception: %s:%u\n", ex.File(), ex.Line());
-	}
-*/
+    TEST(runner->Run(f, iReader, *mocker));
+    FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopologym::ExecuteCallback);
+    network->Execute(fe, watcher);
 
     iTopologym->Dispose();
     topology2->Dispose();

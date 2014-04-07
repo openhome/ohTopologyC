@@ -51,12 +51,11 @@ public:
     ProductWatcher(MockableScriptRunner* aRunner) : iRunner(aRunner) {}
 
     virtual void UnorderedOpen() {}
-    virtual void UnorderedClose() {/*LOG(kTrace, "ProductWatcher::UnorderedClose \n");*/}
-    virtual void UnorderedInitialised() {/*LOG(kTrace, "ProductWatcher::UnorderedInitialised \n");*/}
+    virtual void UnorderedClose() {}
+    virtual void UnorderedInitialised() {}
 
     virtual void UnorderedAdd(IProxyProduct* aWatcher)
     {
-        //LOG(kTrace, "ProductWatcher::UnorderedAdd \n");
         Bws<100> buf;
         buf.Replace(Brn("product added "));
         buf.Append(aWatcher->Device().Udn());
@@ -67,7 +66,6 @@ public:
 
     virtual void UnorderedRemove(IProxyProduct* aWatcher)
     {
-        //LOG(kTrace, "ProductWatcher::UnorderedRemove \n");
         Bws<100> buf;
         buf.Replace(Brn("product removed "));
         buf.Append(aWatcher->Device().Udn());
@@ -133,7 +131,7 @@ void SuiteTopology1::Test1()
 
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology1::ExecuteCallback);
     network->Execute(fe, watcher);
-	
+
     iTopology1->Dispose();
     mockInjector->Dispose();
     network->Dispose();
