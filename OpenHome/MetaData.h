@@ -32,6 +32,7 @@ class IInfoMetadata
 public:
     virtual IMediaMetadata& Metadata() = 0;
     virtual const Brx& Uri() = 0;
+    virtual ~IInfoMetadata() {}
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -59,7 +60,7 @@ private:
 private:
     IMediaMetadata* iMetadata;
     Bws<500> iUri;
-	static IInfoMetadata* iEmpty;
+    static IInfoMetadata* iEmpty;
 };
 
 
