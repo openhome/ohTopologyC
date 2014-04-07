@@ -49,7 +49,7 @@ public:
         Endpoint endptClient(0, addr);
         Endpoint::AddressBuf buf;
         endptClient.AppendAddress(buf);
-        Log::Print("Using network interface %s\n", buf.Ptr());
+        //Log::Print("Using network interface %s\n", buf.Ptr());
 
         // set up server uri
         Endpoint endptServer = Endpoint(optionPort.Value(), optionServer.Value());
@@ -60,11 +60,10 @@ public:
 
         Uri uri(iUriBuf);
 
-        Log::Print("HttpReader setup \n");
-
-        Log::Print("Uri:");
-        Log::Print(iUriBuf);
-        Log::Print("\n");
+        //Log::Print("HttpReader setup \n");
+        //Log::Print("Uri:");
+        //Log::Print(iUriBuf);
+        //Log::Print("\n");
 
 
         if (!Connect(uri))

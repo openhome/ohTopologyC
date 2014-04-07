@@ -133,13 +133,10 @@ void SuiteTopology1::Test1()
 
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology1::ExecuteCallback);
     network->Execute(fe, watcher);
-
-/*
-    topology.Dispose();
-    mockInjector.Dispose();
-    network.Dispose();
-*/
-
+	
+    iTopology1->Dispose();
+    mockInjector->Dispose();
+    network->Dispose();
 }
 
 

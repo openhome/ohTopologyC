@@ -20,10 +20,8 @@ ServiceReceiver::ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, I
 void ServiceReceiver::Dispose()
 {
     Service::Dispose();
-
     iMetadata->Dispose();
     iMetadata = NULL;
-
     iTransportState->Dispose();
     iTransportState = NULL;
 }

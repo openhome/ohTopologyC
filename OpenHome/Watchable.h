@@ -205,7 +205,10 @@ void Watchable<T>::Dispose()
     iCount = 0;
     FunctorGeneric<void*> action = MakeFunctorGeneric(*this, &Watchable::DisposeCallback);
     Execute(action, NULL);
-    ASSERT(iCount==0);
+    if (iCount>0)
+	{
+		ASSERTS();
+	}
 }
 
 

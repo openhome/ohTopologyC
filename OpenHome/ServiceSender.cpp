@@ -116,13 +116,10 @@ ServiceSender::ServiceSender(INetwork& aNetwork, IInjectorDevice& aDevice, ILog&
 void ServiceSender::Dispose()
 {
     Service::Dispose();
-
     iAudio->Dispose();
     iAudio = NULL;
-
     iMetadata->Dispose();
     iMetadata = NULL;
-
     iStatus->Dispose();
     iStatus = NULL;
 }

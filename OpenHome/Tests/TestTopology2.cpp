@@ -272,10 +272,10 @@ void SuiteTopology2::Test1()
     network->Execute(fe, watcher);
 
 
-    //iTopology2->Dispose();
-    //topology1->Dispose();
-    //mockInjector->Dispose();
-    //network->Dispose();
+    iTopology2->Dispose();
+    topology1->Dispose();
+    mockInjector->Dispose();
+    network->Dispose();
 }
 
 
