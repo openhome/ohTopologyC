@@ -65,8 +65,8 @@ public:
     Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILog& aLog);
 
     void Wait();
-    void Add(IInjectorDevice& aDevice);
-    void Remove(IInjectorDevice& aDevice);
+    void Add(IInjectorDevice* aDevice);
+    void Remove(IInjectorDevice* aDevice);
 
     // INetwork
     virtual IIdCache& IdCache();

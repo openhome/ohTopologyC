@@ -42,7 +42,7 @@ public:
 class Device : public IDevice, public IDisposable, public INonCopyable
 {
 public:
-    Device(IInjectorDevice& aDevice);
+    Device(IInjectorDevice* aDevice);
     virtual Brn Udn();
 
     // IDevice
@@ -58,7 +58,7 @@ public:
     virtual TBool Wait();
 
 private:
-    IInjectorDevice& iDevice;
+    IInjectorDevice* iDevice;
     DisposeHandler* iDisposeHandler;
 };
 
@@ -100,7 +100,7 @@ private:
 class InjectorDeviceAdaptor : public IInjectorDevice, public INonCopyable
 {
 public:
-    InjectorDeviceAdaptor(IInjectorDevice& aDevice);
+    InjectorDeviceAdaptor(IInjectorDevice* aDevice);
     virtual void Join(Functor aAction);
     virtual void Unjoin(Functor aAction);
     virtual Brn Udn();
@@ -111,7 +111,7 @@ public:
     virtual void Dispose();
 
 private :
-    IInjectorDevice& iDevice;
+    IInjectorDevice* iDevice;
 };
 
 ///////////////////////////////////////////////////////////////
@@ -119,15 +119,15 @@ private :
 class InjectorDeviceMock : public IMockable, public IDisposable, public INonCopyable
 {
 public:
-    InjectorDeviceMock(IInjectorDevice& aDevice);
-    IInjectorDevice& On();
-    IInjectorDevice& Off();
+    InjectorDeviceMock(IInjectorDevice* aDevice);
+    IInjectorDevice* On();
+    IInjectorDevice* Off();
     virtual void Dispose();
     virtual void Execute(ICommandTokens& aTokens);
 
 private:
-    IInjectorDevice& iDevice;
-    InjectorDeviceAdaptor& iDeviceAdaptor;
+    IInjectorDevice* iDevice;
+    InjectorDeviceAdaptor* iDeviceAdaptor;
     TBool iOn;
 };
 

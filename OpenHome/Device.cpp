@@ -12,7 +12,7 @@ using namespace std;
 
 
 
-Device::Device(IInjectorDevice& aDevice)
+Device::Device(IInjectorDevice* aDevice)
     :iDevice(aDevice)
     ,iDisposeHandler(new DisposeHandler())
 {
@@ -22,7 +22,7 @@ Device::Device(IInjectorDevice& aDevice)
 Brn Device::Udn()
 {
     DisposeLock lock(*iDisposeHandler);
-    Brn udn(iDevice.Udn());
+    Brn udn(iDevice->Udn());
 
     return(udn);
 }
@@ -31,48 +31,48 @@ Brn Device::Udn()
 void Device::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType)
 {
     DisposeLock lock(*iDisposeHandler);
-    iDevice.Create(aCallback, aServiceType, *this);
+    iDevice->Create(aCallback, aServiceType, *this);
 }
 
 
 void Device::Join(Functor aAction)
 {
     DisposeLock lock(*iDisposeHandler);
-    iDevice.Join(aAction);
+    iDevice->Join(aAction);
 }
 
 
 void Device::Unjoin(Functor aAction)
 {
     DisposeLock lock(*iDisposeHandler);
-    iDevice.Unjoin(aAction);
+    iDevice->Unjoin(aAction);
 }
 
 
 void Device::Dispose()
 {
     iDisposeHandler->Dispose();
-    iDevice.Dispose();
+    iDevice->Dispose();
 }
 
 
 TBool Device::HasService(EServiceType aServiceType)
 {
     DisposeLock lock(*iDisposeHandler);
-    return iDevice.HasService(aServiceType);
+    return iDevice->HasService(aServiceType);
 }
 
 
 TBool Device::Wait()
 {
     DisposeLock lock(*iDisposeHandler);
-    return iDevice.Wait();
+    return iDevice->Wait();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 
-InjectorDeviceAdaptor::InjectorDeviceAdaptor(IInjectorDevice& aDevice)
+InjectorDeviceAdaptor::InjectorDeviceAdaptor(IInjectorDevice* aDevice)
     :iDevice(aDevice)
 {
 }
@@ -80,43 +80,43 @@ InjectorDeviceAdaptor::InjectorDeviceAdaptor(IInjectorDevice& aDevice)
 
 void InjectorDeviceAdaptor::Join(Functor aAction)
 {
-    iDevice.Join(aAction);
+    iDevice->Join(aAction);
 }
 
 
 void InjectorDeviceAdaptor::Unjoin(Functor aAction)
 {
-    iDevice.Unjoin(aAction);
+    iDevice->Unjoin(aAction);
 }
 
 
 Brn InjectorDeviceAdaptor::Udn()
 {
-    return iDevice.Udn();
+    return iDevice->Udn();
 }
 
 
 void InjectorDeviceAdaptor::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType, IDevice& aDevice)
 {
-    iDevice.Create(aCallback, aServiceType, aDevice);
+    iDevice->Create(aCallback, aServiceType, aDevice);
 }
 
 
 TBool InjectorDeviceAdaptor::HasService(EServiceType aServiceType)
 {
-    return iDevice.HasService(aServiceType);
+    return iDevice->HasService(aServiceType);
 }
 
 
 TBool InjectorDeviceAdaptor::Wait()
 {
-    return iDevice.Wait();
+    return iDevice->Wait();
 }
 
 
 void InjectorDeviceAdaptor::Execute(ICommandTokens& aTokens)
 {
-    iDevice.Execute(aTokens);
+    iDevice->Execute(aTokens);
 }
 
 
@@ -127,16 +127,16 @@ void InjectorDeviceAdaptor::Dispose()
 
 /////////////////////////////////////////////////////////////////
 
-InjectorDeviceMock::InjectorDeviceMock(IInjectorDevice& aDevice)
+InjectorDeviceMock::InjectorDeviceMock(IInjectorDevice* aDevice)
     :iDevice(aDevice)
-    ,iDeviceAdaptor(*(new InjectorDeviceAdaptor(iDevice)))
+    ,iDeviceAdaptor(new InjectorDeviceAdaptor(iDevice))
     ,iOn(false)
 {
 
 }
 
 
-IInjectorDevice& InjectorDeviceMock::On()
+IInjectorDevice* InjectorDeviceMock::On()
 {
     ASSERT(!iOn);
     iOn = true;
@@ -144,7 +144,7 @@ IInjectorDevice& InjectorDeviceMock::On()
 }
 
 
-IInjectorDevice& InjectorDeviceMock::Off()
+IInjectorDevice* InjectorDeviceMock::Off()
 {
     ASSERT(iOn);
     iOn = false;
@@ -154,13 +154,13 @@ IInjectorDevice& InjectorDeviceMock::Off()
 
 void InjectorDeviceMock::Dispose()
 {
-    iDevice.Dispose();
+    iDevice->Dispose();
 }
 
 
 void InjectorDeviceMock::Execute(ICommandTokens& aTokens)
 {
-    iDevice.Execute(aTokens);
+    iDevice->Execute(aTokens);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

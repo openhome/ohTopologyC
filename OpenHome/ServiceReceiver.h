@@ -14,11 +14,14 @@ namespace OpenHome
 namespace Av
 {
 
+static const Brn kTransportStatePlaying("Playing");
+static const Brn kTransportStateStopped("Stopped");
+static const Brn kTransportStatePaused("Paused");
 
 class IProxyReceiver : public IProxy
 {
 public:
-    virtual Brn ProtocolInfo() = 0;
+    virtual const Brx& ProtocolInfo() = 0;
     virtual IWatchable<IInfoMetadata*>& Metadata() = 0;
     virtual IWatchable<Brn>& TransportState() = 0;
 /*
@@ -39,7 +42,7 @@ public:
     virtual IWatchable<IInfoMetadata*>& Metadata();
     virtual IWatchable<Brn>& TransportState();
 
-    virtual Brn ProtocolInfo();
+    virtual const Brx& ProtocolInfo();
 /*
     virtual Task Play() = 0;
     virtual Task Play(ISenderMetadata& aMetadata) = 0;
@@ -49,9 +52,11 @@ protected:
     ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
 
 protected:
-    Brn iProtocolInfo;
+    Bws<100> iProtocolInfo;
     Watchable<IInfoMetadata*>* iMetadata;
     Watchable<Brn>* iTransportState;
+	IInfoMetadata* iCurrentMetadata;
+	Bws<100>* iCurrentTransportState;
 };
 
 ////////////////////////////////////////////////////////
@@ -104,7 +109,7 @@ class ProxyReceiver : /*public Proxy<ServiceReceiver*>,*/ public IProxyReceiver,
 public:
     ProxyReceiver(ServiceReceiver& aService, IDevice& aDevice);
 
-    virtual Brn ProtocolInfo();
+    virtual const Brx& ProtocolInfo();
     virtual IWatchable<IInfoMetadata*>& Metadata();
     virtual IWatchable<Brn>& TransportState();
 /*

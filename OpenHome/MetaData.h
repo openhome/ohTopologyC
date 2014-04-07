@@ -31,7 +31,7 @@ class IInfoMetadata
 {
 public:
     virtual IMediaMetadata& Metadata() = 0;
-    virtual Brn Uri() = 0;
+    virtual const Brx& Uri() = 0;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -44,21 +44,25 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 
+
 class InfoMetadata : public IInfoMetadata
 {
 public:
     static IInfoMetadata* Empty();
     InfoMetadata(IMediaMetadata& aMetadata, const Brx& aUri);
     virtual IMediaMetadata& Metadata();
-    virtual Brn Uri();
+    virtual const Brx& Uri();
 
 private:
     InfoMetadata();
 
 private:
     IMediaMetadata* iMetadata;
-    Brn iUri;
+    Bws<500> iUri;
+	static IInfoMetadata* iEmpty;
 };
+
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -69,7 +73,7 @@ public:
     IMediaMetadata& Metatext();
 
 private:
-    /*internal */InfoMetatext();
+    InfoMetatext();
 
 private:
     IMediaMetadata* iMetatext;

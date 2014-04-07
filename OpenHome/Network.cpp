@@ -151,11 +151,11 @@ void Network::DoNothing(void*)
 /**
 
  */
-void Network::Add(IInjectorDevice& aDevice)
+void Network::Add(IInjectorDevice* aDevice)
 {
     DisposeLock lock(*iDisposeHandler);
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::AddCallback);
-    Schedule(f, &aDevice);
+    Schedule(f, aDevice);
 }
 
 
@@ -167,7 +167,7 @@ void Network::AddCallback(void* aObj)
     Assert(); /// must be on watchable thread
 
     IInjectorDevice* device = (IInjectorDevice*)aObj;
-    Device* handler = new Device(*device);
+    Device* handler = new Device(device);
 
     if ( iDevices.count(handler->Udn()) > 0 )
     {
@@ -193,11 +193,11 @@ void Network::AddCallback(void* aObj)
 /**
 
  */
-void Network::Remove(IInjectorDevice& aDevice)
+void Network::Remove(IInjectorDevice* aDevice)
 {
     DisposeLock lock(*iDisposeHandler);
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::RemoveCallback);
-    Schedule(f, &aDevice);
+    Schedule(f, aDevice);
 }
 
 

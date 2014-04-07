@@ -17,9 +17,8 @@ namespace Av
 class ISenderMetadata
 {
 public:
-    virtual Brn Name() = 0;
-    virtual Brn Uri() = 0;
-    virtual Brn ArtworkUri() = 0;
+    virtual const Brx& Uri() = 0;
+    virtual const Brx& ArtworkUri() = 0;
 };
 
 /////////////////////////////////
@@ -31,8 +30,8 @@ public:
     virtual IWatchable<ISenderMetadata*>& Metadata() = 0;
     virtual IWatchable<Brn>& Status() = 0;
 
-    virtual Brn Attributes() = 0;
-    virtual Brn PresentationUrl() = 0;
+    virtual const Brx& Attributes() = 0;
+    virtual const Brx& PresentationUrl() = 0;
 };
 
 /////////////////////////////////
@@ -44,19 +43,20 @@ public:
 
     static SenderMetadata* Empty();
 
-    virtual Brn Name();
-    virtual Brn Uri();
-    virtual Brn ArtworkUri();
-    virtual Brn ToString();
+    virtual const Brx& Name();
+    virtual const Brx& Uri();
+    virtual const Brx& ArtworkUri();
+    virtual const Brx& ToString();
 
 private:
     SenderMetadata();
 
 private:
-    Brn iName;
-    Brn iUri;
-    Brn iArtworkUri;
-    Brn iMetadata;
+    Bws<100> iName;
+    Bws<100> iUri;
+    Bws<100> iArtworkUri;
+    Bws<1000> iMetadata;
+	static SenderMetadata* iEmpty;
 };
 
 ////////////////////////////////////////////////////////////////////
@@ -69,15 +69,15 @@ public:
     virtual IWatchable<TBool>& Audio();
     virtual IWatchable<ISenderMetadata*>& Metadata();
     virtual IWatchable<Brn>& Status();
-    virtual Brn Attributes();
-    virtual Brn PresentationUrl();
+    virtual const Brx& Attributes();
+    virtual const Brx& PresentationUrl();
 
 protected:
     ServiceSender(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
 
 protected:
-    Brn iAttributes;
-    Brn iPresentationUrl;
+    Bws<100> iAttributes;
+    Bws<100> iPresentationUrl;
     Watchable<TBool>* iAudio;
     Watchable<ISenderMetadata*>* iMetadata;
     Watchable<Brn>* iStatus;
@@ -216,8 +216,8 @@ public:
     virtual void Dispose();
     virtual IDevice& Device();
 
-    virtual Brn Attributes();
-    virtual Brn PresentationUrl();
+    virtual const Brx& Attributes();
+    virtual const Brx& PresentationUrl();
     virtual IWatchable<TBool>& Audio();
     virtual IWatchable<ISenderMetadata*>& Metadata();
     virtual IWatchable<Brn>& Status();

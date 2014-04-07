@@ -173,7 +173,7 @@ void Topology1::UnorderedRemove(IDevice* aDevice)
         IProxyProduct* product = iProductLookup[aDevice];
         iProducts->Remove(product);
         iProductLookup.erase(aDevice);
-        //product->Dispose();
+        product->Dispose();
     }
 
 /*

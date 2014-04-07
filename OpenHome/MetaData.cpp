@@ -8,19 +8,17 @@ using namespace OpenHome::Av;
 
 ///////////////////////////////////////////////////////////////
 
+IInfoMetadata* InfoMetadata::iEmpty = new InfoMetadata();
 
 IInfoMetadata* InfoMetadata::Empty()
 {
-    return(new InfoMetadata());
+    return(iEmpty);
 }
 
 
 InfoMetadata::InfoMetadata()
     :iMetadata(NULL)
-    ,iUri(Brx::Empty())
 {
-//    iMetadata = null;
-//    iUri = null;
 }
 
 
@@ -37,9 +35,9 @@ IMediaMetadata& InfoMetadata::Metadata()
 }
 
 
-Brn InfoMetadata::Uri()
+const Brx& InfoMetadata::Uri()
 {
-    return iUri;
+    return (iUri);
 }
 
 

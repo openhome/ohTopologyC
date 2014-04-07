@@ -32,13 +32,14 @@ private:
 
 ////////////////////////////////////////////////
 
-class DisposeLock : public IDisposable, public INonCopyable
+class DisposeLock : public INonCopyable
 {
 public:
     DisposeLock(DisposeHandler& aHandler);
+    ~DisposeLock();
 
     // IDisposable
-    virtual void Dispose();
+    //virtual void Dispose();
 
 private:
     DisposeHandler& iHandler;

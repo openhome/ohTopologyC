@@ -78,10 +78,10 @@ public:
     void Create(const Brx& aId, IWatchable<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>*> aAction);
 
     template <class T>
-    void Create(const Brx& aId, IWatchableUnordered<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>> aAction);
+    void Create(const Brx& aId, IWatchableUnordered<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>*> aAction);
 
     template <class T>
-    void Create(const Brx& aId, IWatchableOrdered<T>& aWatchable,FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>> aAction);
+    void Create(const Brx& aId, IWatchableOrdered<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>*> aAction);
 
     void Destroy(const Brx& aId);
 
@@ -216,7 +216,7 @@ void ResultWatcherFactory::Create(const Brx& aId, IWatchable<T>& aWatchable, Fun
 
 
 template <class T>
-void ResultWatcherFactory::Create(const Brx& aId, IWatchableUnordered<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>> aAction)
+void ResultWatcherFactory::Create(const Brx& aId, IWatchableUnordered<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>*> aAction)
 {
     Brn id(aId);
 
@@ -231,7 +231,7 @@ void ResultWatcherFactory::Create(const Brx& aId, IWatchableUnordered<T>& aWatch
 
 
 template <class T>
-void ResultWatcherFactory::Create(const Brx& aId, IWatchableOrdered<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>> aAction)
+void ResultWatcherFactory::Create(const Brx& aId, IWatchableOrdered<T>& aWatchable, FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>*> aAction)
 {
     Brn id(aId);
 

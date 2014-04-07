@@ -80,8 +80,8 @@ public:
 private:
     void DisposeCallback(void*);
     void ExecuteCallback(void* aObj);
-    InjectorDeviceMock* Create(IInjectorDevice& aDevice);
-    void CreateAndAdd(IInjectorDevice& aDevice);
+    InjectorDeviceMock* Create(IInjectorDevice* aDevice);
+    void CreateAndAdd(IInjectorDevice* aDevice);
 
 private:
     Network& iNetwork;

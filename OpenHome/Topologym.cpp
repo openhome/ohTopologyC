@@ -5,10 +5,11 @@ using namespace OpenHome;
 using namespace OpenHome::Av;
 using namespace std;
 
+TopologymSender* TopologymSender::iEmpty = new TopologymSender();
 
 TopologymSender* TopologymSender::Empty()
 {
-    return(new TopologymSender());
+    return(iEmpty);
 }
 
 
@@ -43,6 +44,7 @@ IDevice& TopologymSender::Device()
 TopologymGroup::TopologymGroup(INetwork& aNetwork, ITopology2Group& aGroup)
     :iGroup(aGroup)
     ,iSender(new Watchable<ITopologymSender*>(aNetwork, Brn("Sender"), TopologymSender::Empty()))
+    ,iDisposed(false)
 {
 }
 
@@ -149,18 +151,15 @@ ReceiverWatcher::ReceiverWatcher(Topologym& aTopology, TopologymGroup& aGroup)
     :iDisposed(false)
     ,iTopology(aTopology)
     ,iGroup(aGroup)
+    ,iReceiver(NULL)
+    ,iTransportState(Brx::Empty())
+    ,iMetadata(NULL)
 {
     for(TUint i=0; i<iGroup.Sources().size(); i++)
     {
         iGroup.Sources()[i]->AddWatcher(*this);
 
     }
-/*
-    foreach (IWatchable<ITopology2Source*> s in iGroup.Sources)
-    {
-        s.AddWatcher(this);
-    }
-*/
 }
 
 void ReceiverWatcher::Dispose()
@@ -170,12 +169,6 @@ void ReceiverWatcher::Dispose()
         iGroup.Sources()[i]->RemoveWatcher(*this);
 
     }
-/*
-    foreach (IWatchable<ITopology2Source*> s in iGroup.Sources)
-    {
-        s.RemoveWatcher(this);
-    }
-*/
 
     if (iReceiver != NULL)
     {
@@ -194,8 +187,10 @@ void ReceiverWatcher::Dispose()
     iDisposed = true;
 }
 
-Brn ReceiverWatcher::ListeningToUri()
+const Brx& ReceiverWatcher::ListeningToUri()
 {
+    //ASSERT(iMetadata!=NULL);
+
     if (iTransportState.Equals(Brx::Empty()) || iTransportState.Equals(Brn("Stopped")))
     {
         return(Brx::Empty());
@@ -217,18 +212,18 @@ void ReceiverWatcher::SetSender(ITopologymSender* aSender)
 void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, Brn aValue)
 {
 //    iTransportState = Brn(aValue);
-    iTransportState.Set(aValue);
+    iTransportState.Replace(aValue);
 }
 
 void ReceiverWatcher::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn /*aPrevious*/)
 {
-    iTransportState.Set(aValue);
+    iTransportState.Replace(aValue);
     iTopology.ReceiverChanged(*this);
 }
 
 void ReceiverWatcher::ItemClose(const Brx& /*aId*/, Brn /*aValue*/)
 {
-    iTransportState.Set(Brx::Empty());
+    iTransportState.Replace(Brx::Empty());
 }
 
 void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, IInfoMetadata* aValue)
@@ -274,8 +269,8 @@ void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aValue)
 
 void ReceiverWatcher::CreateCallback(void* aArgs)
 {
-	ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
-	IProxyReceiver* receiver = (IProxyReceiver*)(args->Arg2());
+    ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
+    IProxyReceiver* receiver = (IProxyReceiver*)(args->Arg2());
 
     if (!iDisposed)
     {
@@ -331,10 +326,10 @@ SenderWatcher::SenderWatcher(Topologym& aTopology, ITopology2Group& aGroup)
 
 void SenderWatcher::CreateCallback(void* aArgs)
 {
-	ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
-	IProxySender* sender = (IProxySender*)(args->Arg2());
-	
-	if (!iDisposed)
+    ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
+    IProxySender* sender = (IProxySender*)(args->Arg2());
+
+    if (!iDisposed)
     {
         iSender = sender;
         iSender->Metadata().AddWatcher(*this);
@@ -366,7 +361,7 @@ void SenderWatcher::Dispose()
     iDisposed = true;
 }
 
-Brn SenderWatcher::Uri()
+const Brx& SenderWatcher::Uri()
 {
     DisposeLock lock(*iDisposeHandler);
     return iMetadata->Uri();
@@ -495,8 +490,6 @@ void Topologym::UnorderedRemove(ITopology2Group* aItem)
 {
     if (iGroupLookup.count(aItem)>0)
     {
-        TopologymGroup* group = iGroupLookup[aItem];
-
         if (Ascii::Contains(aItem->Attributes(), Brn("Sender")))
         {
             iSenderLookup[aItem]->Dispose();
@@ -504,6 +497,8 @@ void Topologym::UnorderedRemove(ITopology2Group* aItem)
         }
 
         // schedule higher layer notification
+        TopologymGroup* group = iGroupLookup[aItem];
+
         iGroups->Remove(group);
         iGroupLookup.erase(aItem);
 
@@ -541,35 +536,24 @@ void Topologym::UnorderedClose()
 
 void Topologym::ReceiverChanged(ReceiverWatcher& aReceiver)
 {
+    Brn receiverUri(aReceiver.ListeningToUri());
+
     map<ITopology2Group*, SenderWatcher*>::iterator it;
     for(it = iSenderLookup.begin(); it!=iSenderLookup.end(); it++)
     {
         SenderWatcher* watcher = it->second;
+        Brn watcherUri(watcher->Uri());
 
-        if (aReceiver.ListeningToUri().Equals(Brx::Empty()))
+        if (receiverUri.Equals(Brx::Empty()))
         {
             aReceiver.SetSender(TopologymSender::Empty());
         }
-        else if(aReceiver.ListeningToUri().Equals(watcher->Uri()))
+        else if(receiverUri.Equals(watcher->Uri()))
         {
+            // set TopologymGroup sender
             aReceiver.SetSender(new TopologymSender(watcher->Device()));
         }
     }
-
-/*
-    foreach (SenderWatcher s in iSenderLookup.Values)
-    {
-        if (string.IsNullOrEmpty(aReceiver.ListeningToUri))
-        {
-            aReceiver.SetSender(TopologymSender::Empty);
-        }
-        else if (aReceiver.ListeningToUri == s.Uri)
-        {
-            // set TopologymGroup sender
-            aReceiver.SetSender(new TopologymSender(s.Device));
-        }
-    }
-*/
 }
 
 void Topologym::SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri)
@@ -583,26 +567,12 @@ void Topologym::SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPre
         {
             watcher->SetSender(TopologymSender::Empty());
         }
-        else if (aUri.Equals(watcher->ListeningToUri()))
+        else if (aUri.Equals(watcher->ListeningToUri()) && (!aUri.Equals(Brx::Empty())))
         {
             // set TopologymGroup sender
             watcher->SetSender(new TopologymSender(aDevice));
         }
     }
-/*
-    foreach (ReceiverWatcher r in iReceiverLookup.Values)
-    {
-        if (aPreviousUri == r.ListeningToUri)
-        {
-            r.SetSender(TopologymSender::Empty);
-        }
-        else if (aUri == r.ListeningToUri)
-        {
-            // set TopologymGroup sender
-            r.SetSender(new TopologymSender(aDevice));
-        }
-    }
-*/
 }
 
 

@@ -147,11 +147,11 @@ void InjectorMock::ExecuteCallback(void* aObj)
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("medium")))
     {
-        CreateAndAdd(*DeviceFactory::CreateDs(iNetwork, Brn("4c494e4e-0026-0f99-1111-ef000004013f"), Brn("Kitchen"), Brn("Sneaky Music DS"), Brn("Info Time Volume Sender"), iLog));
-        CreateAndAdd(*DeviceFactory::CreateDsm(iNetwork, Brn("4c494e4e-0026-0f99-1112-ef000004013f"), Brn("Sitting Room"), Brn("Klimax DSM"), Brn("Info Time Volume Sender"), iLog));
-        CreateAndAdd(*DeviceFactory::CreateDsm(iNetwork, Brn("4c494e4e-0026-0f99-1113-ef000004013f"), Brn("Bedroom"), Brn("Kiko DSM"), Brn("Info Time Volume Sender"), iLog));
-        CreateAndAdd(*DeviceFactory::CreateDs(iNetwork, Brn("4c494e4e-0026-0f99-1114-ef000004013f"), Brn("Dining Room"), Brn("Majik DS"), Brn("Info Time Volume Sender"), iLog));
-        //CreateAndAdd(*DeviceFactory.CreateMediaServer(iNetwork, "4c494e4e-0026-0f99-0000-000000000000", iResourceRoot, iLog));
+        CreateAndAdd(DeviceFactory::CreateDs(iNetwork, Brn("4c494e4e-0026-0f99-1111-ef000004013f"), Brn("Kitchen"), Brn("Sneaky Music DS"), Brn("Info Time Volume Sender"), iLog));
+        CreateAndAdd(DeviceFactory::CreateDsm(iNetwork, Brn("4c494e4e-0026-0f99-1112-ef000004013f"), Brn("Sitting Room"), Brn("Klimax DSM"), Brn("Info Time Volume Sender"), iLog));
+        CreateAndAdd(DeviceFactory::CreateDsm(iNetwork, Brn("4c494e4e-0026-0f99-1113-ef000004013f"), Brn("Bedroom"), Brn("Kiko DSM"), Brn("Info Time Volume Sender"), iLog));
+        CreateAndAdd(DeviceFactory::CreateDs(iNetwork, Brn("4c494e4e-0026-0f99-1114-ef000004013f"), Brn("Dining Room"), Brn("Majik DS"), Brn("Info Time Volume Sender"), iLog));
+        //CreateAndAdd(DeviceFactory.CreateMediaServer(iNetwork, "4c494e4e-0026-0f99-0000-000000000000", iResourceRoot, iLog));
         return;
     }
     else if (Ascii::CaseInsensitiveEquals(command,Brn("large")))
@@ -168,7 +168,7 @@ void InjectorMock::ExecuteCallback(void* aObj)
 
         if (type == Brn("ds"))
         {
-            Create(*DeviceFactory::CreateDs(iNetwork, udn, iLog));
+            Create(DeviceFactory::CreateDs(iNetwork, udn, iLog));
             return;
         }
         else if (type == Brn("dsm"))
@@ -231,15 +231,15 @@ void InjectorMock::ExecuteCallback(void* aObj)
 }
 
 
-InjectorDeviceMock* InjectorMock::Create(IInjectorDevice& aDevice)
+InjectorDeviceMock* InjectorMock::Create(IInjectorDevice* aDevice)
 {
     InjectorDeviceMock* device = new InjectorDeviceMock(aDevice);
-    iMockDevices[Brn(aDevice.Udn())] = device;
+    iMockDevices[Brn(aDevice->Udn())] = device;
     return(device);
 }
 
 
-void InjectorMock::CreateAndAdd(IInjectorDevice& aDevice)
+void InjectorMock::CreateAndAdd(IInjectorDevice* aDevice)
 {
     InjectorDeviceMock* device = Create(aDevice);
     iNetwork.Add(device->On());

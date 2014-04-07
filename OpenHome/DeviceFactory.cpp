@@ -41,13 +41,10 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
 
 
 
-    device->Add(eProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes, Brn(""),
-                                    Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brn(""),
-                                    Brn("Linn High Fidelity System Component"), Brn("Mock DS"), Brn(""),
-                                    Brn(""), Brn("Linn High Fidelity System Component"),
-                                    Brn(""),
-                                    aUdn,
-                                    aLog) );
+    device->Add(eProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes, Brx::Empty(),
+                                    Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brx::Empty(),
+                                    Brn("Linn High Fidelity System Component"), Brn("Mock DS"), Brx::Empty(), Brx::Empty(), 
+									Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn, aLog) );
 
 
 /*
@@ -127,10 +124,10 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
 //  SourceXml xml = new SourceXml(sources.ToArray());
     SrcXml* xml = new SrcXml(sources);
 
-    device->Add(eProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes,
-                Brn(""), Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"),
-                Brn(""), Brn("Linn High Fidelity System Component"), Brn("Mock DSM"), Brn(""),
-                Brn(""), Brn("Linn High Fidelity System Component"), Brn(""), aUdn, aLog));
+    device->Add(eProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes, Brx::Empty(), 
+				Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brx::Empty(), 
+				Brn("Linn High Fidelity System Component"), Brn("Mock DSM"), Brx::Empty(), Brx::Empty(), 
+				Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn, aLog));
 
 /*
     // volume service
@@ -141,13 +138,19 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
 
     // time service
     device->Add<IProxyTime>(new ServiceTimeMock(aNetwork, device, 0, 0, aLog));
-
+*/
     // sender service
-    device->Add<IProxySender>(new ServiceSenderMock(aNetwork, device, aAttributes, Brx:Empty(), false, new SenderMetadata("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>Main Room:Mock DSM</dc:title><res protocolInfo=\"ohz:*:*:u\">ohz://239.255.255.250:51972/" + aUdn + "</res><upnp:albumArtURI>http://10.2.10.27/images/Icon.png</upnp:albumArtURI><upnp:class>object.item.audioItem</upnp:class></item></DIDL-Lite>"), "Enabled", aLog));
+	Bwh senderMeta(Brn("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>Main Room:Mock DSM</dc:title><res protocolInfo=\"ohz:*:*:u\">ohz://239.255.255.250:51972/"));
+    senderMeta.Grow(2000);
+    senderMeta.Append(aUdn);
+    senderMeta.Append(Brn("</res><upnp:albumArtURI>http://10.2.10.27/images/Icon.png</upnp:albumArtURI><upnp:class>object.item.audioItem</upnp:class></item></DIDL-Lite>"));
+	
+	device->Add(eProxySender, new ServiceSenderMock(aNetwork, *device, aAttributes, Brx::Empty(), false, new SenderMetadata(senderMeta), Brn("Enabled"), aLog));
 
     // receiver service
-    device->Add<IProxyReceiver>(new ServiceReceiverMock(aNetwork, device, Brx:Empty(), "ohz:*:*:*,ohm:*:*:*,ohu:*.*.*", "Stopped", Brx:Empty(), aLog));
+    device->Add(eProxyReceiver, new ServiceReceiverMock(aNetwork, *device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty(), aLog));
 
+	/*
     // radio service
     List<IMediaMetadata> presets = new List<IMediaMetadata>();
     presets.Add(aNetwork.TagManager.FromDidlLite("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>Linn Radio (Variety)</dc:title><res protocolInfo=\"*:*:*:*\" bitrate=\"40000\">http://opml.radiotime.com/Tune.ashx?id=s122119&amp;formats=mp3,wma,aac,wmvideo,ogg&amp;partnerId=ah2rjr68&amp;username=linnproducts&amp;c=ebrowse</res><upnp:albumArtURI>http://d1i6vahw24eb07.cloudfront.net/s122119q.png</upnp:albumArtURI><upnp:class>object.item.audioItem</upnp:class></item></DIDL-Lite>"));

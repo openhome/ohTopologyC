@@ -12,6 +12,8 @@ ServiceReceiver::ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, I
     :Service(aNetwork, &aDevice, aLog)
     ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), InfoMetadata::Empty()))
     ,iTransportState(new Watchable<Brn>(aNetwork, Brn("TransportState"), Brx::Empty()))
+	,iCurrentMetadata(NULL)
+	,iCurrentTransportState(NULL)
 {
 }
 
@@ -41,7 +43,7 @@ IWatchable<Brn>& ServiceReceiver::TransportState()
     return(*iTransportState);
 }
 
-Brn ServiceReceiver::ProtocolInfo()
+const Brx& ServiceReceiver::ProtocolInfo()
 {
     return iProtocolInfo;
 }
@@ -220,7 +222,7 @@ ServiceReceiverMock::ServiceReceiverMock(INetwork& aNetwork, IInjectorDevice& aD
                                          const Brx& aTransportState, const Brx& aUri, ILog& aLog)
     :ServiceReceiver(aNetwork, aDevice, aLog)
 {
-    iProtocolInfo.Set(aProtocolInfo);
+    iProtocolInfo.Replace(aProtocolInfo);
 	
 	iMetadata->Update(new InfoMetadata(*aNetwork.TagManager().FromDidlLite(aMetadata), aUri));
     iTransportState->Update(Brn(aTransportState));
@@ -259,7 +261,7 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
 
     if (Ascii::CaseInsensitiveEquals(command, Brn("protocolinfo")))
     {
-        iProtocolInfo = aValue.RemainingTrimmed();
+        iProtocolInfo.Replace(aValue.RemainingTrimmed());
 /*
         IEnumerable<string> value = aValue.Skip(1);
         iProtocolInfo = string.Join(" ", value);
@@ -267,14 +269,10 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("metadata")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
         if (aValue.Count() < 2)
         {
             //throw new NotSupportedException();
         }
-
-
-        //IInfoMetadata* metadata = new InfoMetadata(iNetwork.TagManager().FromDidlLite(string.Join(" ", value.Take(value.Count() - 1))), value.Last());
 
         // Get the remaining tokens
         Brn remaining(aValue.RemainingTrimmed());
@@ -293,16 +291,33 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
         TUint allButLastTokenBytes = remaining.Bytes()-lastToken.Bytes();
         Brn allButLastToken(remaining.Split(0, allButLastTokenBytes));
 
-        IInfoMetadata* metadata = new InfoMetadata(*iNetwork.TagManager().FromDidlLite(allButLastToken), lastToken);
+		// FIXME : use a static function to do the new here (allowing implementation of a fixed size pool of objects in future)
+        IInfoMetadata* metadata = new InfoMetadata(*iNetwork.TagManager().FromDidlLite(allButLastToken), lastToken); 
         iMetadata->Update(metadata);
+
+		if (iCurrentMetadata!=NULL)
+		{
+			delete iCurrentMetadata;
+		}
+
+		iCurrentMetadata = metadata;
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("transportstate")))
     {
-        iTransportState->Update(aValue.Next());
-/*
-        IEnumerable<string> value = aValue.Skip(1);
-        iTransportState.Update(value.First());
-*/
+		Brn state(aValue.Next());
+
+		if (state.Equals(kTransportStatePlaying))
+		{
+			iTransportState->Update(kTransportStatePlaying);
+		}
+		else if (state.Equals(kTransportStateStopped))
+		{
+			iTransportState->Update(kTransportStateStopped);
+		}
+		else if (state.Equals(kTransportStatePaused))
+		{
+			iTransportState->Update(kTransportStatePaused);
+		}
     }
     else
     {
@@ -320,7 +335,7 @@ ProxyReceiver::ProxyReceiver(ServiceReceiver& aService, IDevice& aDevice)
 {
 }
 
-Brn ProxyReceiver::ProtocolInfo()
+const Brx& ProxyReceiver::ProtocolInfo()
 {
     return iService.ProtocolInfo();
 }

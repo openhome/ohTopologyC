@@ -5,7 +5,7 @@ suiteRunner = MakeSuiteRunner(context)
 
 # testharness honours a '#' within this string :)
 tests = '''
-    TestWatchableThread
+    #TestWatchableThread
     TestWatchable
     TestTopology1 -s {ws_hostname} -p {ws_port} --path Topology1TestScript.txt
     TestTopology2 -s {ws_hostname} -p {ws_port} --path Topology2TestScript.txt

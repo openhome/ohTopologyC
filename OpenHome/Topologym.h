@@ -26,14 +26,6 @@ namespace Av
 
 class Topologym;
 
-/*
-class IInfoMetadata
-{
-public:
-    //IMediaMetadata& Metadata = 0;
-    virtual Brn Uri() = 0;
-};
-*/
 
 /////////////////////////////////////////////////////////
 
@@ -63,6 +55,7 @@ private:
 private:
     TBool iEnabled;
     IDevice* iDevice;
+    static TopologymSender* iEmpty;
 };
 
 /////////////////////////////////////////////////////////
@@ -125,9 +118,9 @@ public:
 
 
 private:
-    TBool iDisposed;
     ITopology2Group& iGroup;
     Watchable<ITopologymSender*>* iSender;
+    TBool iDisposed;
 };
 
 /////////////////////////////////////////////////////////
@@ -139,7 +132,7 @@ public:
 
     // IDisposable
     virtual void Dispose();
-    virtual Brn ListeningToUri();
+    virtual const Brx& ListeningToUri();
     virtual void SetSender(ITopologymSender* aSender);
 
     virtual void ItemOpen(const Brx& aId, Brn aValue);
@@ -162,7 +155,7 @@ private:
     Topologym& iTopology;
     TopologymGroup& iGroup;
     IProxyReceiver* iReceiver;
-    Brn iTransportState;
+    Bws<100> iTransportState;
     IInfoMetadata* iMetadata;
 };
 
@@ -174,7 +167,7 @@ public:
     SenderWatcher(Topologym& aTopology, ITopology2Group& aGroup);
     // IDisposable
     virtual void Dispose();
-    virtual Brn Uri();
+    virtual const Brx& Uri();
     virtual IDevice& Device();
     // IWatcher
     virtual void ItemOpen(const Brx& aId, ISenderMetadata* aValue);

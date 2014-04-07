@@ -2,30 +2,50 @@
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/Private/Debug.h>
 #include <OpenHome/Network.h>
+#include <OpenHome/Net/Private/XmlParser.h>
 
 
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
+using namespace OpenHome::Net;
 
+SenderMetadata* SenderMetadata::iEmpty = new SenderMetadata();
 
 SenderMetadata* SenderMetadata::Empty()
 {
-    return(new SenderMetadata());
+	return(iEmpty);
 }
 
 
 SenderMetadata::SenderMetadata()
-    :iName(Brx::Empty())
-    ,iUri(Brx::Empty())
-    ,iArtworkUri(Brx::Empty())
 {
 }
 
 
 SenderMetadata::SenderMetadata(const Brx& aMetadata)
 {
-    iMetadata.Set(aMetadata);
+    iMetadata.Replace(aMetadata);
+
+    try
+    {
+        iName.Replace(XmlParserBasic::Find(Brn("title"), aMetadata));
+		iUri.Replace(XmlParserBasic::Find(Brn("res"), aMetadata));
+		iArtworkUri.Replace(XmlParserBasic::Find(Brn("albumArtURI"), aMetadata));
+
+		if (iName.Equals(Brx::Empty()))
+		{
+				iName.Replace("No name element provided");
+		}
+    }
+    catch(XmlError)
+    {
+	    iName.Replace("Invalid metadata XML");
+    }
+
+	
+	
+	
 /*
     try
     {
@@ -63,22 +83,22 @@ SenderMetadata::SenderMetadata(const Brx& aMetadata)
 */
 }
 
-Brn SenderMetadata::Name()
+const Brx& SenderMetadata::Name()
 {
     return iName;
 }
 
-Brn SenderMetadata::Uri()
+const Brx& SenderMetadata::Uri()
 {
     return iUri;
 }
 
-Brn SenderMetadata::ArtworkUri()
+const Brx& SenderMetadata::ArtworkUri()
 {
     return iArtworkUri;
 }
 
-Brn SenderMetadata::ToString()
+const Brx& SenderMetadata::ToString()
 {
     return iMetadata;
 }
@@ -86,7 +106,7 @@ Brn SenderMetadata::ToString()
 /////////////////////////////////////////////////////////
 
 ServiceSender::ServiceSender(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    : Service(aNetwork, &aDevice, aLog)
+    :Service(aNetwork, &aDevice, aLog)
     ,iAudio(new Watchable<TBool>(aNetwork, Brn("Audio"), false))
     ,iMetadata(new Watchable<ISenderMetadata*>(aNetwork, Brn("Metadata"), SenderMetadata::Empty()))
     ,iStatus(new Watchable<Brn>(aNetwork, Brn("Status"), Brx::Empty()))
@@ -127,12 +147,12 @@ IWatchable<Brn>& ServiceSender::Status()
     return(*iStatus);
 }
 
-Brn ServiceSender::Attributes()
+const Brx& ServiceSender::Attributes()
 {
     return iAttributes;
 }
 
-Brn ServiceSender::PresentationUrl()
+const Brx& ServiceSender::PresentationUrl()
 {
     return iPresentationUrl;
 }
@@ -256,8 +276,8 @@ ServiceSenderMock::ServiceSenderMock(INetwork& aNetwork, IInjectorDevice& aDevic
                                      TBool aAudio, ISenderMetadata* aMetadata, const Brx& aStatus, ILog& aLog)
     :ServiceSender(aNetwork, aDevice, aLog)
 {
-    iAttributes.Set(aAttributes);
-    iPresentationUrl.Set(aPresentationUrl);
+    iAttributes.Replace(aAttributes);
+    iPresentationUrl.Replace(aPresentationUrl);
     iAudio->Update(aAudio);
     iMetadata->Update(aMetadata);
     iStatus->Update(Brn(aStatus));
@@ -269,27 +289,22 @@ void ServiceSenderMock::Execute(ICommandTokens& aValue)
 
     if (Ascii::CaseInsensitiveEquals(command, Brn("attributes")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        iAttributes = aValue.Next();
+        iAttributes.Replace(aValue.Next());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("presentationurl")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
-        iPresentationUrl = aValue.Next();
+        iPresentationUrl.Replace(aValue.Next());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("audio")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
         iAudio->Update(aValue.Next().Equals(Brn("True")));
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("metadata")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
         iMetadata->Update(new SenderMetadata(aValue.Next()));
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("status")))
     {
-        //IEnumerable<string> value = aValue.Skip(1);
         iStatus->Update(aValue.Next());
     }
     else
@@ -307,12 +322,12 @@ ProxySender::ProxySender(ServiceSender& aService, IDevice& aDevice)
 {
 }
 
-Brn ProxySender::Attributes()
+const Brx& ProxySender::Attributes()
 {
     return iService.Attributes();
 }
 
-Brn ProxySender::PresentationUrl()
+const Brx& ProxySender::PresentationUrl()
 {
     return iService.PresentationUrl();
 }

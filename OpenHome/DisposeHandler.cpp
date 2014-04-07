@@ -62,7 +62,7 @@ DisposeLock::DisposeLock(DisposeHandler& aHandler)
 }
 
 
-void DisposeLock::Dispose()
+DisposeLock::~DisposeLock()
 {
     iHandler.Leave();
 }

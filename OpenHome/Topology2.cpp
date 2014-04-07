@@ -359,7 +359,8 @@ void Topology2::UnorderedRemove(IProxyProduct* aProduct)
     {
         // schedule higher layer notification
         Topology2Group* group = iGroupLookup[aProduct];
-        iGroups->Remove(group);
+
+		iGroups->Remove(group);
         iGroupLookup.erase(aProduct);
         group->Dispose();
     }
