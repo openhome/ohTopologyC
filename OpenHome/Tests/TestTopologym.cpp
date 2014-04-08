@@ -6,13 +6,9 @@
 #include <OpenHome/Private/Ascii.h>
 #include <exception>
 
-
 using namespace OpenHome;
 using namespace OpenHome::Av;
 using namespace OpenHome::TestFramework;
-
-
-EXCEPTION(TestException);
 
 
 namespace OpenHome {
@@ -20,7 +16,6 @@ namespace OpenHome {
 namespace Av {
 
 
-class TestExceptionReporter;
 
 /////////////////////////////////////////////////////////////////////
 
@@ -87,10 +82,10 @@ public:
     }
 
 private:
-    void CreateCallback(ArgsTwo<ITopologymSender*, FunctorGeneric<const Brx&>>* aObj)
+    void CreateCallback(ArgsTwo<ITopologymSender*, FunctorGeneric<const Brx&>>* aArgs)
     {
-        ITopologymSender* sender = aObj->Arg1();
-        FunctorGeneric<const Brx&> f = aObj->Arg2();
+        ITopologymSender* sender = aArgs->Arg1();
+        FunctorGeneric<const Brx&> f = aArgs->Arg2();
 
         Bws<100> buf;
 
@@ -106,6 +101,8 @@ private:
         {
             f(Brn("Sender False"));
         }
+
+        delete aArgs;
     }
 
 private:
@@ -120,9 +117,6 @@ private:
 
 
 /////////////////////////////////////////////////////////////////////
-
-
-//class HttpReader;
 
 
 SuiteTopologym::SuiteTopologym(IReader& aReader)

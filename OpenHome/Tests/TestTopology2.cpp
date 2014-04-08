@@ -109,20 +109,17 @@ public:
         std::vector<Watchable<ITopology2Source*>*> sources(aItem->Sources());
         for(TUint i=0; i<sources.size(); i++)
         {
-            FunctorGeneric<ArgsTwo<ITopology2Source*, FunctorGeneric<const Brx&>>*> fSources = MakeFunctorGeneric(*this, &GroupWatcher::SourcesCallback);
-
-            iFactory->Create<ITopology2Source*>(aItem->Device().Udn(), *sources[i], fSources);
+            iFactory->Create<ITopology2Source*>(aItem->Device().Udn(), *sources[i], MakeFunctorGeneric(*this, &GroupWatcher::SourcesCallback));
         }
     }
 
 
 private:
-    void SourcesCallback(ArgsTwo<ITopology2Source*, FunctorGeneric<const Brx&>>* aObj)
+    void SourcesCallback(ArgsTwo<ITopology2Source*, FunctorGeneric<const Brx&>>* aArgs)
     {
         // w("Source " + v.Index + " " + v.Name + " " + v.Type + " " + v.Visible));
-        ArgsTwo<ITopology2Source*, FunctorGeneric<const Brx&>>* args = (ArgsTwo<ITopology2Source*, FunctorGeneric<const Brx&>>*)aObj;
-        ITopology2Source* src = args->Arg1();
-        FunctorGeneric<const Brx&> f = args->Arg2();
+        ITopology2Source* src = aArgs->Arg1();
+        FunctorGeneric<const Brx&> f = aArgs->Arg2();
         Bws<100> buf;
         buf.Replace(Brn("Source "));
         Ascii::AppendDec(buf, src->Index());
@@ -143,57 +140,50 @@ private:
             buf.Append(Brn("False"));
         }
         f(buf);
-        delete args;
+        delete aArgs;
     }
 
-    void RoomCallback(ArgsTwo<Brn, FunctorGeneric<const Brx&>>* aObj)
+    void RoomCallback(ArgsTwo<Brn, FunctorGeneric<const Brx&>>* aArgs)
     {
-        ArgsTwo<Brn, FunctorGeneric<const Brx&>>* args = (ArgsTwo<Brn, FunctorGeneric<const Brx&>>*)aObj;
-        Brn str = args->Arg1();
-        FunctorGeneric<const Brx&> f = args->Arg2();
+        Brn str = aArgs->Arg1();
+        FunctorGeneric<const Brx&> f = aArgs->Arg2();
         Bws<100> buf;
         buf.Replace(Brn("Room "));
         buf.Append(str);
         f(buf);
-        delete args;
+        delete aArgs;
     }
 
 
-    void NameCallback(ArgsTwo<Brn, FunctorGeneric<const Brx&>>* aObj)
+    void NameCallback(ArgsTwo<Brn, FunctorGeneric<const Brx&>>* aArgs)
     {
-
-        ArgsTwo<Brn, FunctorGeneric<const Brx&>>* args = (ArgsTwo<Brn, FunctorGeneric<const Brx&>>*)aObj;
-        Brn str = args->Arg1();
-        FunctorGeneric<const Brx&> f = args->Arg2();
+        Brn str = aArgs->Arg1();
+        FunctorGeneric<const Brx&> f = aArgs->Arg2();
         Bws<100> buf;
         buf.Replace(Brn("Name "));
         buf.Append(str);
         f(buf);
-        delete args;
+        delete aArgs;
 
     }
 
-    void SourceIndexCallback(ArgsTwo<TUint, FunctorGeneric<const Brx&>>* aObj)
+    void SourceIndexCallback(ArgsTwo<TUint, FunctorGeneric<const Brx&>>* aArgs)
     {
-
-        ArgsTwo<TUint, FunctorGeneric<const Brx&>>* args = (ArgsTwo<TUint, FunctorGeneric<const Brx&>>*)aObj;
-        TUint i = args->Arg1();
-        FunctorGeneric<const Brx&> f = args->Arg2();
+        TUint i = aArgs->Arg1();
+        FunctorGeneric<const Brx&> f = aArgs->Arg2();
         Bws<100> buf;
         buf.Replace(Brn("SourceIndex "));
         Ascii::AppendDec(buf, i);
         f(buf);
-        delete args;
+        delete aArgs;
 
     }
 
 
-    void StandbyCallback(ArgsTwo<TBool, FunctorGeneric<const Brx&>>* aObj)
+    void StandbyCallback(ArgsTwo<TBool, FunctorGeneric<const Brx&>>* aArgs)
     {
-
-        ArgsTwo<TBool, FunctorGeneric<const Brx&>>* args = (ArgsTwo<TBool, FunctorGeneric<const Brx&>>*)aObj;
-        TBool i = args->Arg1();
-        FunctorGeneric<const Brx&> f = args->Arg2();
+        TBool i = aArgs->Arg1();
+        FunctorGeneric<const Brx&> f = aArgs->Arg2();
         Bws<100> buf;
         buf.Replace(Brn("Standby "));
         if (i)
@@ -205,7 +195,7 @@ private:
             buf.Append(Brn("False"));
         }
         f(buf);
-        delete args;
+        delete aArgs;
 
     }
 

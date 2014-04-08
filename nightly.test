@@ -12,6 +12,7 @@ tests = '''
     TestTopology1 -s {ws_hostname} -p {ws_port} --path Topology1TestScript.txt
     TestTopology2 -s {ws_hostname} -p {ws_port} --path Topology2TestScript.txt
     TestTopologym -s {ws_hostname} -p {ws_port} --path TopologymTestScript.txt
+    TestTopology3 -s {ws_hostname} -p {ws_port} --path Topology3TestScript.txt
     '''
 
 w = StaticWebServer(os.path.join('dependencies', 'AnyPlatform', 'TesScripts'))

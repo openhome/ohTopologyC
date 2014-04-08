@@ -4,6 +4,7 @@
 #include<OpenHome/Service.h>
 #include <algorithm>
 #include <vector>
+#include <map>
 
 
 using namespace OpenHome;

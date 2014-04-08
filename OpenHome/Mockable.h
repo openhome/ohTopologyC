@@ -366,8 +366,8 @@ template <class T>
 void ResultUnorderedWatcher<T>::UnorderedAdd(T aItem)
 {
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultUnorderedWatcher::UnorderedAddCallback);
-    iAction(aItem, f);
-
+    ArgsTwo<T, FunctorGeneric<const Brx&>>* args = new ArgsTwo<T, FunctorGeneric<const Brx&>>(aItem, f);
+    iAction(args);
 }
 
 
@@ -387,8 +387,8 @@ template <class T>
 void ResultUnorderedWatcher<T>::UnorderedRemove(T aItem)
 {
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultUnorderedWatcher::UnorderedRemoveCallback);
-    iAction(aItem, f);
-
+    ArgsTwo<T, FunctorGeneric<const Brx&>>* args = new ArgsTwo<T, FunctorGeneric<const Brx&>>(aItem, f);
+    iAction(args);
 }
 
 
