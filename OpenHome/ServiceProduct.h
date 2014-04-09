@@ -157,6 +157,11 @@ protected:
     Watchable<Brn>* iSourceXml;
     Watchable<TBool>* iStandby;
     Watchable<Brn>* iRegistration;
+
+	Bws<20>* iCurrentRoom;
+	Bws<50>* iCurrentName;
+	//Bws<1000> iCurrentSourceXml;
+	//Bws<100> iCurrentRegistration;
 };
 
 /////////////////////////////////////////////////////////////////

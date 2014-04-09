@@ -20,18 +20,18 @@ Topology3GroupWatcher::Topology3GroupWatcher(Topology3& aTopology3, ITopologymGr
 
 // IWatcher<string>
 
-void Topology3GroupWatcher::ItemOpen(const Brx& aId, Brn aValue)
+void Topology3GroupWatcher::ItemOpen(const Brx& /*aId*/, Brn aValue)
 {
     iTopology3.AddGroupToRoom(iGroup, aValue);
 }
 
-void Topology3GroupWatcher::ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious)
+void Topology3GroupWatcher::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn aPrevious)
 {
     iTopology3.RemoveGroupFromRoom(iGroup, aPrevious);
     iTopology3.AddGroupToRoom(iGroup, aValue);
 }
 
-void Topology3GroupWatcher::ItemClose(const Brx& aId, Brn aValue)
+void Topology3GroupWatcher::ItemClose(const Brx& /*aId*/, Brn aValue)
 {
     iTopology3.RemoveGroupFromRoom(iGroup, aValue);
 }
@@ -103,7 +103,7 @@ TBool Topology3Room::Remove(ITopologymGroup& aGroup)
 
 ///////////////////////////////////////////////////////
 
-Topology3::Topology3(ITopologym* aTopologym, ILog& aLog)
+Topology3::Topology3(ITopologym* aTopologym, ILog& /*aLog*/)
     :iDisposed(false)
     ,iNetwork(aTopologym->Network())
     ,iTopologym(aTopologym)
@@ -129,8 +129,6 @@ void Topology3::Dispose()
 
 
     iNetwork.Execute(MakeFunctorGeneric(*this, &Topology3::DisposeCallback), NULL);
-
-
     iTopologym = NULL;
 
     //iRoomLookup = NULL;
@@ -221,6 +219,8 @@ void Topology3::AddGroupToRoom(ITopologymGroup& aGroup, const Brx& aRoom)
 
 void Topology3::RemoveGroupFromRoom(ITopologymGroup& aGroup, const Brx& aRoom)
 {
+	Brn roomName(aRoom);
+
     if (iRoomLookup.count(Brn(aRoom)) > 0)
     {
         Topology3Room* room = iRoomLookup[Brn(aRoom)];

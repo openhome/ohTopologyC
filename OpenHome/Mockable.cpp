@@ -221,7 +221,6 @@ void MockableScriptRunner::Result(Bwh* aValue)
 {
     LOG(kTrace, "\nMockableScriptRunner::Result: \n");
     LOG(kTrace, *aValue);
-
     iResultQueue.Write(aValue);
 }
 

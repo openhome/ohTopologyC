@@ -268,6 +268,8 @@ ServiceProductMock::ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDev
     const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog& aLog)
     : ServiceProduct(aNetwork, aDevice, aLog)
     ,iSourceXmlFactory(aSourceXmlFactory)
+//	,iCurrentRoom(aRoom)
+//	,iCurrentName(aName)
 {
     iAttributes.Set(aAttributes);
     iManufacturerImageUri.Set(aManufacturerImageUri);
@@ -283,8 +285,13 @@ ServiceProductMock::ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDev
     iProductUrl.Set(aProductUrl);
     iProductId.Set(aProductId);
 
-    iRoom->Update(Brn(aRoom));
-    iName->Update(Brn(aName));
+	//,iCurrentRegistration(aRegistration)
+
+	iCurrentRoom = new Bws<20>(aRoom);
+	iCurrentName = new Bws<50>(aName);
+
+	iRoom->Update(Brn(*iCurrentRoom));
+    iName->Update(Brn(*iCurrentName));
     iSourceIndex->Update(aSourceIndex);
     iSourceXml->Update(Brn(iSourceXmlFactory->ToString()));
     iStandby->Update(aStandby);
@@ -349,11 +356,23 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("room")))
     {
-        iRoom->Update(aCommands.RemainingTrimmed());
+		Bws<20>* oldRoom = iCurrentRoom;
+		iCurrentRoom = new Bws<20>(aCommands.RemainingTrimmed());
+		iRoom->Update(Brn(*iCurrentRoom));
+		if (oldRoom != NULL)
+		{
+			delete oldRoom;
+		}
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("name")))
     {
-        iName->Update(aCommands.RemainingTrimmed());
+		Bws<50>* oldName = iCurrentName;
+		iCurrentName = new Bws<50>(aCommands.RemainingTrimmed());
+		iName->Update(Brn(*iCurrentName));
+		if (oldName != NULL)
+		{
+			delete oldName;
+		}
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("sourceindex")))
     {
@@ -365,11 +384,6 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
         TBool standby = Ascii::CaseInsensitiveEquals(val, Brn("true"));
         iStandby->Update(standby);
     }
-    else if (Ascii::CaseInsensitiveEquals(command, Brn("registration")))
-    {
-        iRegistration->Update(aCommands.Next());
-    }
-
     else if (Ascii::CaseInsensitiveEquals(command, Brn("source")))
     {
         TUint index = Ascii::Uint(aCommands.Next());

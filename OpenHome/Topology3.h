@@ -33,7 +33,7 @@ public:
 
 ////////////////////////////////////////////////////////
 
-class Topology3GroupWatcher : public IWatcher<Brn>, public IDisposable
+class Topology3GroupWatcher : public IWatcher<Brn>, public IDisposable, public INonCopyable
 {
 public:
     Topology3GroupWatcher(Topology3& aTopology, ITopologymGroup& aGroup);
@@ -87,7 +87,7 @@ public:
 
 /////////////////////////////////////////////////////////
 
-class Topology3 : public ITopology3, public IWatcherUnordered<ITopologymGroup*>, public IDisposable
+class Topology3 : public ITopology3, public IWatcherUnordered<ITopologymGroup*>, public IDisposable, public INonCopyable
 {
 public:
     Topology3(ITopologym* aTopologym, ILog& aLog);

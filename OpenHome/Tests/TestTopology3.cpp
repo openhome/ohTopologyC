@@ -63,13 +63,9 @@ public:
         Bwh* result = new Bwh(buf);
 
         iRunner->Result(result);
-
-
         iFactory->Create<ITopologymGroup*>(aItem->Name(), aItem->Groups(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
 
-
         //iFactory->Create<ITopologymGroup*>(aItem->Name(), aItem->Groups(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
-
         //iRunner.Result("Room Added " + aItem.Name);
         //iFactory.Create<ITopologymGroup>(aItem.Name, aItem.Groups, (v, w) => w(v.Id));
     }

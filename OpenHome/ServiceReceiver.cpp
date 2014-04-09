@@ -13,7 +13,7 @@ ServiceReceiver::ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, I
     ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), InfoMetadata::Empty()))
     ,iTransportState(new Watchable<Brn>(aNetwork, Brn("TransportState"), Brx::Empty()))
 	,iCurrentMetadata(NULL)
-	,iCurrentTransportState(NULL)
+	//,iCurrentTransportState(NULL)
 {
 }
 

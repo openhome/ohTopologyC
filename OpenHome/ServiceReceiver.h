@@ -56,7 +56,7 @@ protected:
     Watchable<IInfoMetadata*>* iMetadata;
     Watchable<Brn>* iTransportState;
 	IInfoMetadata* iCurrentMetadata;
-	Bws<100>* iCurrentTransportState;
+	//Bws<100>* iCurrentTransportState;
 };
 
 ////////////////////////////////////////////////////////
