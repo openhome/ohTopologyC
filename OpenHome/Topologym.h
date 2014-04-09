@@ -76,12 +76,10 @@ public:
     virtual IWatchable<TUint>& SourceIndex() = 0;
     //virtual IEnumerable<IWatchable<ITopology2Source*>*>& Sources() = 0;
     virtual std::vector<Watchable<ITopology2Source*>*> Sources() = 0;
-    virtual IWatchable<Brn>& Registration() = 0;
     virtual IWatchable<ITopologymSender*>& Sender() = 0;
 
     virtual void SetStandby(TBool aValue) = 0;
     virtual void SetSourceIndex(TUint aValue) = 0;
-    virtual void SetRegistration(const Brx& aValue) = 0;
 };
 
 /////////////////////////////////////////////////////////
@@ -110,11 +108,9 @@ public:
     //virtual IEnumerable<IWatchable<ITopology2Source*>*> Sources();
     virtual std::vector<Watchable<ITopology2Source*>*> Sources();
 
-    virtual IWatchable<Brn>& Registration();
     virtual IWatchable<ITopologymSender*>& Sender();
     virtual void SetStandby(TBool aValue);
     virtual void SetSourceIndex(TUint aValue);
-    virtual void SetRegistration(const Brx& aValue);
 
 
 private:

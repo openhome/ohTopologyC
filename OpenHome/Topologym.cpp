@@ -114,10 +114,6 @@ vector<Watchable<ITopology2Source*>*> TopologymGroup::Sources()
     return iGroup.Sources();
 }
 
-IWatchable<Brn>& TopologymGroup::Registration()
-{
-    return iGroup.Registration();
-}
 
 IWatchable<ITopologymSender*>& TopologymGroup::Sender()
 {
@@ -134,10 +130,6 @@ void TopologymGroup::SetSourceIndex(TUint aValue)
     iGroup.SetSourceIndex(aValue);
 }
 
-void TopologymGroup::SetRegistration(const Brx& aValue)
-{
-    iGroup.SetRegistration(aValue);
-}
 
 void TopologymGroup::SetSender(ITopologymSender* aSender)
 {

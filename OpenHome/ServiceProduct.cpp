@@ -18,7 +18,6 @@ ServiceProduct::ServiceProduct(INetwork& aNetwork, IInjectorDevice& aDevice, ILo
     ,iSourceIndex(new Watchable<TUint>(aNetwork, Brn("SourceIndex"), 0))
     ,iSourceXml(new Watchable<Brn>(aNetwork, Brn("SourceXml"), Brx::Empty()))
     ,iStandby(new Watchable<TBool>(aNetwork, Brn("Standby"), false))
-    ,iRegistration(new Watchable<Brn>(aNetwork, Brn("Registration"), Brx::Empty()))
 {
 }
 
@@ -31,7 +30,6 @@ void ServiceProduct::Dispose()
     iSourceIndex->Dispose();
     iSourceXml->Dispose();
     iStandby->Dispose();
-    iRegistration->Dispose();
 }
 
 
@@ -71,15 +69,10 @@ IWatchable<TBool>& ServiceProduct::Standby()
 }
 
 
-IWatchable<Brn>& ServiceProduct::Registration()
-{
-    return(*iRegistration);
-}
 
 //abstract Task SetSourceIndex(TUint aValue);
 //abstract Task SetSourceIndexByName(string aValue);
 //abstract Task SetStandby(TBool aValue);
-//abstract Task SetRegistration(string aValue);
 
 // IProduct methods
 
@@ -268,8 +261,8 @@ ServiceProductMock::ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDev
     const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog& aLog)
     : ServiceProduct(aNetwork, aDevice, aLog)
     ,iSourceXmlFactory(aSourceXmlFactory)
-//	,iCurrentRoom(aRoom)
-//	,iCurrentName(aName)
+//  ,iCurrentRoom(aRoom)
+//  ,iCurrentName(aName)
 {
     iAttributes.Set(aAttributes);
     iManufacturerImageUri.Set(aManufacturerImageUri);
@@ -285,12 +278,10 @@ ServiceProductMock::ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDev
     iProductUrl.Set(aProductUrl);
     iProductId.Set(aProductId);
 
-	//,iCurrentRegistration(aRegistration)
+    iCurrentRoom = new Bws<20>(aRoom);
+    iCurrentName = new Bws<50>(aName);
 
-	iCurrentRoom = new Bws<20>(aRoom);
-	iCurrentName = new Bws<50>(aName);
-
-	iRoom->Update(Brn(*iCurrentRoom));
+    iRoom->Update(Brn(*iCurrentRoom));
     iName->Update(Brn(*iCurrentName));
     iSourceIndex->Update(aSourceIndex);
     iSourceXml->Update(Brn(iSourceXmlFactory->ToString()));
@@ -356,23 +347,23 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("room")))
     {
-		Bws<20>* oldRoom = iCurrentRoom;
-		iCurrentRoom = new Bws<20>(aCommands.RemainingTrimmed());
-		iRoom->Update(Brn(*iCurrentRoom));
-		if (oldRoom != NULL)
-		{
-			delete oldRoom;
-		}
+        Bws<20>* oldRoom = iCurrentRoom;
+        iCurrentRoom = new Bws<20>(aCommands.RemainingTrimmed());
+        iRoom->Update(Brn(*iCurrentRoom));
+        if (oldRoom != NULL)
+        {
+            delete oldRoom;
+        }
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("name")))
     {
-		Bws<50>* oldName = iCurrentName;
-		iCurrentName = new Bws<50>(aCommands.RemainingTrimmed());
-		iName->Update(Brn(*iCurrentName));
-		if (oldName != NULL)
-		{
-			delete oldName;
-		}
+        Bws<50>* oldName = iCurrentName;
+        iCurrentName = new Bws<50>(aCommands.RemainingTrimmed());
+        iName->Update(Brn(*iCurrentName));
+        if (oldName != NULL)
+        {
+            delete oldName;
+        }
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("sourceindex")))
     {
@@ -469,26 +460,7 @@ void ServiceProductMock::SetStandbyCallback(void* aObj)
 }
 */
 
-/*
-Task ServiceProductMock::SetRegistration(const Brx& aValue)
-{
-    Task task = Task.Factory.StartNew(() =>
-    {
-        iNetwork.Schedule(() =>
-        {
-            iRegistration.Update(aValue);
-        });
-    });
-    return task;
-}
-*/
 
-/*
-void ServiceProductMock::SetRegistrationCallback(void* aObj)
-{
-    iRegistration->Update(Brn(*((const Brx*)aObj)));
-}
-*/
 
 /////////////////////////////////////////////////////////////////////
 
@@ -531,11 +503,6 @@ IWatchable<TBool>& ProxyProduct::Standby()
 }
 
 
-IWatchable<Brn>& ProxyProduct::Registration()
-{
-    return iService.Registration();
-}
-
 /*
 Task ProxyProduct::SetSourceIndex(TUint aValue)
 {
@@ -555,10 +522,6 @@ Task ProxyProduct::SetStandby(TBool aValue)
 }
 
 
-Task ProxyProduct::SetRegistration(const Brx& aValue)
-{
-    return iService.SetRegistration(aValue);
-}
 */
 
 Brn ProxyProduct::Attributes()

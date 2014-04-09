@@ -66,12 +66,10 @@ public:
     virtual IWatchable<TUint>& SourceIndex() = 0;
     virtual IWatchable<Brn>& SourceXml() = 0;
     virtual IWatchable<TBool>& Standby() = 0;
-    virtual IWatchable<Brn>& Registration() = 0;
 
     //virtual Task SetSourceIndex(TUint aValue) = 0;
     //virtual Task SetSourceIndexByName(const Brx& aValue) = 0;
     //virtual Task SetStandby(TBool aValue) = 0;
-    //virtual Task SetRegistration(const Brx& aValue) = 0;
 
     virtual Brn Attributes() = 0;
     virtual Brn ManufacturerImageUri() = 0;
@@ -106,13 +104,11 @@ public:
     virtual IWatchable<TUint>& SourceIndex();
     virtual IWatchable<Brn>& SourceXml();
     virtual IWatchable<TBool>& Standby();
-    virtual IWatchable<Brn>& Registration();
 
     // abstract
     //virtual Task SetSourceIndex(TUint aValue);
     //virtual Task SetSourceIndexByName(const Brx& aValue);
     //virtual Task SetStandby(TBool aValue);
-    //virtual Task SetRegistration(const Brx& aValue);
 
 
     // IProduct methods
@@ -134,7 +130,6 @@ private:
     //virtual void SetSourceIndexCallback(void* aValue);
     //virtual void SetSourceIndexByNameCallback(void* aValue);
     //virtual void SetStandbyCallback(void* aValue);
-    //virtual void SetRegistrationCallback(void* aValue);
 
 
 protected:
@@ -156,12 +151,9 @@ protected:
     Watchable<TUint>* iSourceIndex;
     Watchable<Brn>* iSourceXml;
     Watchable<TBool>* iStandby;
-    Watchable<Brn>* iRegistration;
 
-	Bws<20>* iCurrentRoom;
-	Bws<50>* iCurrentName;
-	//Bws<1000> iCurrentSourceXml;
-	//Bws<100> iCurrentRegistration;
+    Bws<20>* iCurrentRoom;
+    Bws<50>* iCurrentName;
 };
 
 /////////////////////////////////////////////////////////////////
@@ -177,11 +169,9 @@ public:
     //virtual Task SetSourceIndex(TUint aValue);
     //virtual Task SetSourceIndexByName(const Brx& aValue);
     //virtual Task SetStandby(TBool aValue);
-    //virtual Task SetRegistration(const Brx& aValue);
     //virtual void SetSourceIndexCallback(void* aValue);
     //virtual void SetSourceIndexByNameCallback(void* aValue);
     //virtual void SetStandbyCallback(void* aValue);
-    //virtual void SetRegistrationCallback(void* aValue);
 
 
 private:
@@ -202,12 +192,10 @@ public:
     virtual IWatchable<TUint>& SourceIndex();
     virtual IWatchable<Brn>& SourceXml();
     virtual IWatchable<TBool>& Standby();
-    virtual IWatchable<Brn>& Registration();
 
     //virtual Task SetSourceIndex(TUint aValue);
     //virtual Task SetSourceIndexByName(const Brx& aValue);
     //virtual Task SetStandby(TBool aValue);
-    //virtual Task SetRegistration(const Brx& aValue);
 
     virtual Brn Attributes();
     virtual Brn ManufacturerImageUri();
@@ -252,7 +240,6 @@ public:
     virtual Task SetSourceIndex(TUint aValue);
     virtual Task SetSourceIndexByName(const Brx& aValue);
     virtual Task SetStandby(TBool aValue);
-    virtual Task SetRegistration(const Brx& aValue);
 
 protected:
     virtual Task OnSubscribe();

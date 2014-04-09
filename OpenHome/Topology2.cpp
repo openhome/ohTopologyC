@@ -158,12 +158,6 @@ IWatchable<TUint>& Topology2Group::SourceIndex()
 }
 
 
-IWatchable<Brn>& Topology2Group::Registration()
-{
-    return(iProduct.Registration());
-}
-
-
 //IEnumerable<IWatchable<ITopology2Source>>& Topology2Group::Sources()
 const std::vector<Watchable<ITopology2Source*>*> Topology2Group::Sources()
 {
@@ -187,13 +181,6 @@ void Topology2Group::SetSourceIndex(TUint /*aValue*/)
     //}
 }
 
-void Topology2Group::SetRegistration(const Brx& /*aValue*/)
-{
-    //if (iProduct != null)
-    //{
-        //iProduct.SetRegistration(aValue);
-    //}
-}
 
 void Topology2Group::ProcessSourceXml(const Brx& aSourceXml, TBool aInitial)
 {
@@ -360,7 +347,7 @@ void Topology2::UnorderedRemove(IProxyProduct* aProduct)
         // schedule higher layer notification
         Topology2Group* group = iGroupLookup[aProduct];
 
-		iGroups->Remove(group);
+        iGroups->Remove(group);
         iGroupLookup.erase(aProduct);
         group->Dispose();
     }
