@@ -21,7 +21,7 @@ template <class T>
 class IWatchable
 {
 public:
-    //virtual T Value() = 0;
+    virtual T Value() = 0;
     //virtual const Brx& Id() = 0;
     virtual void AddWatcher(IWatcher<T>& aWatcher) = 0;
     virtual void RemoveWatcher(IWatcher<T>& aWatcher) = 0;

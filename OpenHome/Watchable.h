@@ -55,7 +55,7 @@ public:
     virtual TBool Update(T aValue);
 
     // IWatchable<T>
-    //virtual T Value();
+    virtual T Value();
     //virtual const Brx& Id();
     virtual void AddWatcher(IWatcher<T>& aWatcher);
     virtual void RemoveWatcher(IWatcher<T>& aWatcher);
@@ -138,14 +138,13 @@ TBool Watchable<T>::Update(T aValue)
 /**
 
  */
-/*
 template <class T>
 T Watchable<T>::Value()
 {
     Assert();
     return (iValue);
 }
-*/
+
 
 /**
 
@@ -206,9 +205,9 @@ void Watchable<T>::Dispose()
     FunctorGeneric<void*> action = MakeFunctorGeneric(*this, &Watchable::DisposeCallback);
     Execute(action, NULL);
     if (iCount>0)
-	{
-		ASSERTS();
-	}
+    {
+        ASSERTS();
+    }
 }
 
 

@@ -76,6 +76,7 @@ public:
 
 class ITagRealmAudio : public ITagRealm
 {
+public:
     virtual ITag* Type() = 0;
     virtual ITag* Description() = 0;
     virtual ITag* Channels() = 0;

@@ -6,7 +6,6 @@
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
-//using namespace OpenHome::Net;
 using namespace std;
 
 
@@ -119,7 +118,6 @@ void Topology3::ScheduleCallback(void*)
 }
 
 
-
 void Topology3::Dispose()
 {
     if (iDisposed)
@@ -219,7 +217,7 @@ void Topology3::AddGroupToRoom(ITopologymGroup& aGroup, const Brx& aRoom)
 
 void Topology3::RemoveGroupFromRoom(ITopologymGroup& aGroup, const Brx& aRoom)
 {
-	Brn roomName(aRoom);
+    Brn roomName(aRoom);
 
     if (iRoomLookup.count(Brn(aRoom)) > 0)
     {

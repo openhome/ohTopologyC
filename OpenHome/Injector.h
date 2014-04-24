@@ -11,9 +11,6 @@
 #include <map>
 
 
-EXCEPTION(NotImplementedException);
-
-
 namespace OpenHome
 {
 

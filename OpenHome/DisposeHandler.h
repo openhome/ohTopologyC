@@ -18,6 +18,7 @@ class DisposeHandler : IDisposable
 public:
     DisposeHandler();
     TBool WhenNotDisposed(Functor aAction);
+    TBool WhenNotDisposed(FunctorGeneric<void*> aCallback, void* aObj);
     void Enter();
     void Leave();
 
@@ -37,9 +38,6 @@ class DisposeLock : public INonCopyable
 public:
     DisposeLock(DisposeHandler& aHandler);
     ~DisposeLock();
-
-    // IDisposable
-    //virtual void Dispose();
 
 private:
     DisposeHandler& iHandler;

@@ -132,6 +132,7 @@ def build(bld):
                 'OpenHome/Topology2.cpp',
                 'OpenHome/Topologym.cpp',
                 'OpenHome/Topology3.cpp',
+                'OpenHome/Topology4.cpp',
             ],
             use=['OHNET'],
             target='ohTopologyC')
@@ -147,6 +148,7 @@ def build(bld):
                 'OpenHome/Tests/TestTopology2.cpp',
                 'OpenHome/Tests/TestTopologym.cpp',
                 'OpenHome/Tests/TestTopology3.cpp',
+                'OpenHome/Tests/TestTopology4.cpp',
             ],
             use=['ohTopologyC'],
             target='ohTopologyCTestUtils')
@@ -185,6 +187,11 @@ def build(bld):
            source='OpenHome/Tests/TestTopology3Main.cpp',
            use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
            target='TestTopology3')
+
+    bld.program(
+           source='OpenHome/Tests/TestTopology4Main.cpp',
+           use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
+           target='TestTopology4')
 
 
 # Bundles

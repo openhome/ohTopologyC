@@ -16,17 +16,31 @@ DisposeHandler::DisposeHandler()
 }
 
 
-TBool DisposeHandler::WhenNotDisposed(Functor aAction)
+TBool DisposeHandler::WhenNotDisposed(Functor aCallback)
 {
     AutoMutex mutex(iMutex);
     if (!iDisposed)
     {
-        aAction();
+        aCallback();
         return (true);
     }
 
     return (false);
 }
+
+
+TBool DisposeHandler::WhenNotDisposed(FunctorGeneric<void*> aCallback, void* aObj)
+{
+    AutoMutex mutex(iMutex);
+    if (!iDisposed)
+    {
+        aCallback(aObj);
+        return (true);
+    }
+
+    return (false);
+}
+
 
 
 void DisposeHandler::Enter()

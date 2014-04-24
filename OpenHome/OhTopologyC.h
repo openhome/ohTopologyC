@@ -8,7 +8,7 @@
 
 
 EXCEPTION(NotSupportedException);
-
+EXCEPTION(NotImplementedException);
 
 using namespace Linn;
 
@@ -16,7 +16,14 @@ namespace OpenHome
 {
 
 
+enum EStandby
+{
+    eOn,
+    eMixed,
+    eOff
+};
 
+///////////////////////
 
 enum EServiceType
 {
@@ -30,6 +37,7 @@ enum EServiceType
     eProxyReceiver,
 };
 
+//////////////////////
 
 template<class Type>
 class FunctorGeneric
