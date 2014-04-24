@@ -47,7 +47,6 @@ private:
 class RootWatcher : public IDisposable
 {
 public:
-
     RootWatcher(MockableScriptRunner* aRunner, ITopology4Root& aRoot)
     {
         iFactory = new ResultWatcherFactory(*aRunner);
@@ -173,7 +172,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////
 
-class RoomWatcher : public IWatcher<vector<ITopology4Root*>>, public IDisposable
+class RoomWatcher : public IWatcher<vector<ITopology4Root*>>, public IDisposable, public INonCopyable
 {
 private:
     MockableScriptRunner* iRunner;

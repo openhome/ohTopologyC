@@ -80,7 +80,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////
 
-class Topology4Source : public ITopology4Source
+class Topology4Source : public ITopology4Source, public INonCopyable
 {
 public:
     Topology4Source(INetwork& aNetwork, Topology4Group& aGroup, ITopology2Source* aSource);
@@ -114,7 +114,7 @@ private:
 
 ///////////////////////////////////////////////////////////////
 
-class MediaPresetExternal : public IMediaPreset, public IWatcher<ITopology4Source*>
+class MediaPresetExternal : public IMediaPreset, public IWatcher<ITopology4Source*>, public INonCopyable
 {
 public:
     MediaPresetExternal(IWatchableThread& aThread, Topology4Group& aGroup, TUint aIndex, IMediaMetadata* aMetadata, Topology4Source& aSource);
@@ -164,7 +164,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////
 
-class Topology4Group : public ITopology4Root, public ITopology4Registration, public IWatcher<TUint>, public IWatcher<Brn>, public IDisposable
+class Topology4Group : public ITopology4Root, public ITopology4Registration, public IWatcher<TUint>, public IWatcher<Brn>, public IDisposable, public INonCopyable
 {
 public:
     Topology4Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopologymGroup& aGroup, const std::vector<ITopology2Source*> aSources, ILog& aLog);
@@ -227,7 +227,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 
-class Topology4GroupWatcher : public IWatcher<Brn>, public IWatcher<ITopology2Source*>, public IDisposable
+class Topology4GroupWatcher : public IWatcher<Brn>, public IWatcher<ITopology2Source*>, public IDisposable, public INonCopyable
 {
 public:
     Topology4GroupWatcher(Topology4Room& aRoom, ITopologymGroup& aGroup);
@@ -267,7 +267,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////
 
-class Topology4Room : public ITopology4Room, public IWatcherUnordered<ITopologymGroup*>, public IWatcher<TBool>, public IDisposable
+class Topology4Room : public ITopology4Room, public IWatcherUnordered<ITopologymGroup*>, public IWatcher<TBool>, public IDisposable, public INonCopyable
 {
 public:
     Topology4Room(INetwork& aNetwork, ITopology3Room& aRoom, ILog& aLog);
@@ -325,7 +325,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////
 
-class Topology4 : public ITopology4, public IWatcherUnordered<ITopology3Room*>, public IDisposable
+class Topology4 : public ITopology4, public IWatcherUnordered<ITopology3Room*>, public IDisposable, public INonCopyable
 {
 public:
     Topology4(ITopology3* aTopology3, ILog& aLog);

@@ -66,21 +66,21 @@ void MediaPresetExternal::Play()
     iSource.Select();
 }
 
-void MediaPresetExternal::ItemOpen(const Brx& aId, ITopology4Source* aValue)
+void MediaPresetExternal::ItemOpen(const Brx& /*aId*/, ITopology4Source* aValue)
 {
     iBuffering->Update(false);
     iPlaying->Update(aValue == &iSource);
     iSelected->Update(aValue == &iSource);
 }
 
-void MediaPresetExternal::ItemUpdate(const Brx& aId, ITopology4Source* aValue, ITopology4Source* aPrevious)
+void MediaPresetExternal::ItemUpdate(const Brx& /*aId*/, ITopology4Source* aValue, ITopology4Source* /*aPrevious*/)
 {
     iBuffering->Update(false);
     iPlaying->Update(aValue == &iSource);
     iSelected->Update(aValue == &iSource);
 }
 
-void MediaPresetExternal::ItemClose(const Brx& aId, ITopology4Source* aValue)
+void MediaPresetExternal::ItemClose(const Brx& /*aId*/, ITopology4Source* /*aValue*/)
 {
     iBuffering->Update(false);
     iPlaying->Update(false);
@@ -532,18 +532,18 @@ void Topology4Group::SetParent(Topology4Group& aGroup, TUint aIndex)
     iParentSourceIndex = aIndex;
 }
 
-void Topology4Group::ItemOpen(const Brx& aId, TUint aValue)
+void Topology4Group::ItemOpen(const Brx& /*aId*/, TUint aValue)
 {
     iSourceIndex = aValue;
 }
 
-void Topology4Group::ItemUpdate(const Brx& aId, TUint aValue, TUint aPrevious)
+void Topology4Group::ItemUpdate(const Brx& /*aId*/, TUint aValue, TUint /*aPrevious*/)
 {
    iSourceIndex = aValue;
    EvaluateSourceFromChild();
 }
 
-void Topology4Group::ItemClose(const Brx& aId, TUint aValue)
+void Topology4Group::ItemClose(const Brx& /*aId*/, TUint /*aValue*/)
 {
 }
 
@@ -585,19 +585,19 @@ void Topology4Group::EvaluateSourceFromChild()
 
 }
 
-void Topology4Group::ItemOpen(const Brx& aId, Brn aValue)
+void Topology4Group::ItemOpen(const Brx& /*aId*/, Brn aValue)
 {
     iHasSender = (aValue == Brn("Enabled"));
     EvaluateSendersFromChild();
 }
 
-void Topology4Group::ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious)
+void Topology4Group::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn /*aPrevious*/)
 {
     iHasSender = (aValue == Brn("Enabled"));
     EvaluateSendersFromChild();
 }
 
-void Topology4Group::ItemClose(const Brx& aId, Brn aValue)
+void Topology4Group::ItemClose(const Brx& /*aId*/, Brn /*aValue*/)
 {
 }
 
@@ -710,7 +710,7 @@ void Topology4GroupWatcher::ItemUpdate(const Brx& /*aId*/, ITopology2Source* aVa
     iRoom.CreateTree();
 }
 
-void Topology4GroupWatcher::ItemClose(const Brx& aId, ITopology2Source* aValue)
+void Topology4GroupWatcher::ItemClose(const Brx& /*aId*/, ITopology2Source* /*aValue*/)
 {
 }
 
@@ -929,7 +929,7 @@ void Topology4Room::InsertIntoTree(Topology4Group& aGroup)
     iRoots.push_back(&aGroup);
 }
 
-void Topology4Room::ItemOpen(const Brx& aId, TBool aValue)
+void Topology4Room::ItemOpen(const Brx& /*aId*/, TBool aValue)
 {
     if (aValue)
     {
@@ -939,7 +939,7 @@ void Topology4Room::ItemOpen(const Brx& aId, TBool aValue)
     EvaluateStandby();
 }
 
-void Topology4Room::ItemUpdate(const Brx& aId, TBool aValue, TBool aPrevious)
+void Topology4Room::ItemUpdate(const Brx& /*aId*/, TBool aValue, TBool /*aPrevious*/)
 {
     if (aValue)
     {
@@ -953,7 +953,7 @@ void Topology4Room::ItemUpdate(const Brx& aId, TBool aValue, TBool aPrevious)
     EvaluateStandby();
 }
 
-void Topology4Room::ItemClose(const Brx& aId, TBool aValue)
+void Topology4Room::ItemClose(const Brx& /*aId*/, TBool aValue)
 {
     if (aValue)
     {
