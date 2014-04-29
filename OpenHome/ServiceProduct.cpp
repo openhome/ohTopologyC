@@ -78,7 +78,7 @@ IWatchable<TBool>& ServiceProduct::Standby()
 
 Brn ServiceProduct::Attributes()
 {
-    return(iAttributes);
+    return(Brn(iAttributes));
 }
 
 
@@ -264,7 +264,7 @@ ServiceProductMock::ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDev
 //  ,iCurrentRoom(aRoom)
 //  ,iCurrentName(aName)
 {
-    iAttributes.Set(aAttributes);
+    iAttributes.Replace(aAttributes);
     iManufacturerImageUri.Set(aManufacturerImageUri);
     iManufacturerInfo.Set(aManufacturerInfo);
     iManufacturerName.Set(aManufacturerName);
@@ -295,8 +295,8 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
 
     if (Ascii::CaseInsensitiveEquals(command, Brn("attributes")))
     {
-        iAttributes.Set(aCommands.RemainingTrimmed());
-    }
+        iAttributes.Replace(aCommands.RemainingTrimmed());
+	}
     else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerimageuri")))
     {
         iManufacturerImageUri.Set(aCommands.RemainingTrimmed());

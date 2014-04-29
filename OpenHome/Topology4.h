@@ -54,7 +54,7 @@ public:
     virtual Brn Type() = 0;
     virtual TBool Visible() = 0;
     virtual IMediaPreset& CreatePreset() = 0;
-    virtual const std::vector<ITopology4Group*> Volumes() = 0;
+    virtual std::vector<ITopology4Group*>& Volumes() = 0;
     virtual IDevice& Device() = 0;
     virtual TBool HasInfo() = 0;
     virtual TBool HasTime() = 0;
@@ -71,7 +71,7 @@ public:
     virtual Brn Type();
     virtual TBool Visible();
     virtual IMediaPreset& CreatePreset();
-    virtual const std::vector<ITopology4Group*> Volumes();
+    virtual std::vector<ITopology4Group*>& Volumes();
     virtual IDevice& Device();
     virtual TBool HasInfo();
     virtual TBool HasTime();
@@ -90,14 +90,14 @@ public:
     virtual Brn Type();
     virtual TBool Visible();
     virtual IMediaPreset& CreatePreset();
-    virtual const std::vector<ITopology4Group*> Volumes();
+    virtual std::vector<ITopology4Group*>& Volumes();
     virtual IDevice& Device();
     virtual TBool HasInfo();
     virtual TBool HasTime();
     virtual void SetDevice(IDevice& aDevice);
     virtual void SetHasInfo(TBool aHasInfo);
     virtual void SetHasTime(TBool aHasTime);
-    virtual void SetVolumes(const std::vector<ITopology4Group*> aVolumes);
+    virtual void SetVolumes(std::vector<ITopology4Group*>* aVolumes);
 
     virtual void Select();
 
@@ -106,7 +106,7 @@ private:
     Topology4Group& iGroup;
     ITopology2Source* iSource;
 
-    const std::vector<ITopology4Group*>* iVolumes;
+    std::vector<ITopology4Group*>* iVolumes;
     IDevice* iDevice;
     TBool iHasInfo;
     TBool iHasTime;
@@ -158,8 +158,8 @@ class ITopology4Root : public ITopology4Group
 {
 public:
     virtual IWatchable<ITopology4Source*>& Source() = 0;
-    virtual const std::vector<ITopology4Source*> Sources() = 0;
-    virtual IWatchable<std::vector<ITopology4Group*>>& Senders() = 0;
+    virtual std::vector<ITopology4Source*>& Sources() = 0;
+    virtual IWatchable<std::vector<ITopology4Group*>*>& Senders() = 0;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -167,7 +167,7 @@ public:
 class Topology4Group : public ITopology4Root, public ITopology4Registration, public IWatcher<TUint>, public IWatcher<Brn>, public IDisposable, public INonCopyable
 {
 public:
-    Topology4Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopologymGroup& aGroup, const std::vector<ITopology2Source*> aSources, ILog& aLog);
+    Topology4Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopologymGroup& aGroup, std::vector<ITopology2Source*> aSources, ILog& aLog);
     virtual void Dispose();
     virtual Brn Name();
     virtual IDevice& Device();
@@ -178,9 +178,9 @@ public:
     virtual IWatchable<ITopologymSender*>& Sender();
     virtual IWatchable<ITopology4Source*>& Source();
     virtual void EvaluateSources();
-    virtual const std::vector<ITopology4Source*> Sources();
+    virtual std::vector<ITopology4Source*>& Sources();
     virtual void EvaluateSenders();
-    virtual IWatchable<std::vector<ITopology4Group*>>& Senders();
+    virtual IWatchable<std::vector<ITopology4Group*>*>& Senders();
     virtual Topology4Group* Parent();
     virtual TBool AddIfIsChild(Topology4Group& aGroup);
     virtual void ItemOpen(const Brx& aId, TUint aValue);
@@ -208,6 +208,8 @@ private:
     Brn iRoom;
     Brn iName;
     ITopologymGroup* iGroup;
+    ITopology4Source* iCurrentSource;
+    std::vector<ITopology4Group*>* iCurrentVectorSenders;
     ILog& iLog;
     TBool iDisposed;
 
@@ -221,7 +223,11 @@ private:
     std::vector<Topology4Source*> iSources;
     std::vector<ITopology4Source*> iVisibleSources;
 
-    Watchable<std::vector<ITopology4Group*>>* iSenders;
+    //std::vector<ITopology4Group*>* iVectorSenders;  // added in ohTopologyC
+    std::vector<ITopology4Group*>* iVectorVolumes;  // added in ohTopologyC
+    std::vector<ITopology4Group*>* iVectorSenderDevices; // added in ohTopologyC
+
+    Watchable<std::vector<ITopology4Group*>*>* iSenders;
     Watchable<ITopology4Source*>* iWatchableSource;
 };
 
@@ -234,7 +240,7 @@ public:
     virtual void Dispose();
     virtual Brn Room();
     virtual Brn Name();
-    virtual const std::vector<ITopology2Source*> Sources();
+    virtual std::vector<ITopology2Source*> Sources();
 
     virtual void ItemOpen(const Brx& aId, Brn aValue);
     virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious);
@@ -259,9 +265,9 @@ class ITopology4Room
 public:
     virtual Brn Name() = 0;
     virtual IWatchable<EStandby>& Standby() = 0;
-    virtual IWatchable<std::vector<ITopology4Root*>>& Roots() = 0;
-    virtual IWatchable<std::vector<ITopology4Source*>>& Sources() = 0;
-    //virtual IWatchable<const std::vector<ITopology4Registration*>> Registrations() = 0;
+    virtual IWatchable<std::vector<ITopology4Root*>*>& Roots() = 0;
+    virtual IWatchable<std::vector<ITopology4Source*>*>& Sources() = 0;
+    virtual IWatchable<std::vector<ITopology4Registration*>*>& Registrations() = 0;
     virtual void SetStandby(TBool aValue) = 0;
 };
 
@@ -274,9 +280,9 @@ public:
     virtual void Dispose();
     virtual Brn Name();
     virtual IWatchable<EStandby>& Standby();
-    virtual IWatchable<std::vector<ITopology4Root*>>& Roots();
-    virtual IWatchable<std::vector<ITopology4Source*>>& Sources();
-    virtual IWatchable<std::vector<ITopology4Registration*>>& Registrations();
+    virtual IWatchable<std::vector<ITopology4Root*>*>& Roots();
+    virtual IWatchable<std::vector<ITopology4Source*>*>& Sources();
+    virtual IWatchable<std::vector<ITopology4Registration*>*>& Registrations();
     virtual void SetStandby(TBool aValue);
     virtual void UnorderedOpen();
     virtual void UnorderedInitialised();
@@ -304,10 +310,14 @@ private:
     TUint iStandbyCount;
     EStandby iStandby;
 
+    std::vector<ITopology4Root*>* iCurrentRoots; // added in ohTopologyC
+    std::vector<ITopology4Source*>* iCurrentSources; // added in ohTopologyC
+    std::vector<ITopology4Registration*>* iCurrentRegistrations; // added in ohTopologyC
+
     Watchable<EStandby>* iWatchableStandby;
-    Watchable<std::vector<ITopology4Root*>>* iWatchableRoots;
-    Watchable<std::vector<ITopology4Source*>>* iWatchableSources;
-    Watchable<std::vector<ITopology4Registration*>>* iWatchableRegistrations;
+    Watchable<std::vector<ITopology4Root*>*>* iWatchableRoots;
+    Watchable<std::vector<ITopology4Source*>*>* iWatchableSources;
+    Watchable<std::vector<ITopology4Registration*>*>* iWatchableRegistrations;
 
     std::map<ITopologymGroup*, Topology4GroupWatcher*> iGroupLookup;
     std::vector<Topology4Group*> iGroups;

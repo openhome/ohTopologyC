@@ -133,7 +133,7 @@ private:
 
 
 protected:
-    Brn iAttributes;
+    Bws<100> iAttributes;
     Brn iManufacturerImageUri;
     Brn iManufacturerInfo;
     Brn iManufacturerName;

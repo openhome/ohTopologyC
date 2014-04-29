@@ -52,7 +52,7 @@ public:
         iFactory = new ResultWatcherFactory(*aRunner);
 
         iFactory->Create<ITopology4Source*>(aRoot.Name(), aRoot.Source(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback1));
-        iFactory->Create<vector<ITopology4Group*>>(aRoot.Name(), aRoot.Senders(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback2));
+        iFactory->Create<vector<ITopology4Group*>*>(aRoot.Name(), aRoot.Senders(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback2));
     }
 
     void CreateCallback1(ArgsTwo<ITopology4Source*, FunctorGeneric<const Brx&>>* aArgs)
@@ -60,12 +60,14 @@ public:
         ITopology4Source* s = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
 
-        Bws<100> info;
+        Bws<5000> info;
         info.SetBytes(0);
 
-        info.Append(Brn("Source"));
-        info.Append(s->Index());
-        info.Append(Brn(" "));
+        info.Append(Brn("Source "));
+        
+		Ascii::AppendDec(info, s->Index());		
+		
+		info.Append(Brn(" "));
         info.Append(s->Group().Name());
         info.Append(Brn(" "));
         info.Append(s->Name());
@@ -82,6 +84,7 @@ public:
             info.Append(Brn("False"));
         }
 
+		Brn udn(s->Device().Udn());
 
         info.Append(Brn(" "));
         if (s->HasInfo())
@@ -103,7 +106,10 @@ public:
             info.Append(Brn("False"));
         }
         info.Append(Brn(" "));
-        info.Append(s->Device().Udn());
+        //info.Append(s->Device().Udn());
+        info.Append(udn);
+
+		info.Append(Brn(" Volume"));
 
         for(TUint i=0; i<s->Volumes().size(); i++)
         {
@@ -114,9 +120,6 @@ public:
         }
 
         f(info);
-
-
-
 
 /*
         string info = "";
@@ -130,19 +133,19 @@ public:
 */
     }
 
-    void CreateCallback2(ArgsTwo<vector<ITopology4Group*>, FunctorGeneric<const Brx&>>* aArgs)
+    void CreateCallback2(ArgsTwo<vector<ITopology4Group*>*, FunctorGeneric<const Brx&>>* aArgs)
     {
-        vector<ITopology4Group*> v = aArgs->Arg1();
+        vector<ITopology4Group*>* v = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
 
-        Bws<100> buf;
+        Bws<1000> buf;
         buf.Replace(Brn("\nSenders begin\n"));
 
 
-        for(TUint i=0; i<v.size(); i++)
+        for(TUint i=0; i<v->size(); i++)
         {
             buf.Append(Brn("Sender "));
-            buf.Append(v[i]->Name());
+            buf.Append((*v)[i]->Name());
             buf.Append(Brn("\n"));
         }
 
@@ -172,7 +175,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////
 
-class RoomWatcher : public IWatcher<vector<ITopology4Root*>>, public IDisposable, public INonCopyable
+class RoomWatcher : public IWatcher<vector<ITopology4Root*>*>, public IDisposable, public INonCopyable
 {
 private:
     MockableScriptRunner* iRunner;
@@ -197,15 +200,15 @@ public:
         }
     }
 
-    void ItemOpen(const Brx& /*aId*/, vector<ITopology4Root*> aValue)
+    void ItemOpen(const Brx& /*aId*/, vector<ITopology4Root*>* aValue)
     {
-        for(TUint i=0; i<aValue.size(); i++)
+        for(TUint i=0; i<aValue->size(); i++)
         {
-            iWatchers.push_back(new RootWatcher(iRunner, *aValue[i]));
+            iWatchers.push_back(new RootWatcher(iRunner, *(*aValue)[i]));
         }
     }
 
-    void ItemUpdate(const Brx& /*aId*/, vector<ITopology4Root*> aValue, vector<ITopology4Root*> /*aPrevious*/)
+    void ItemUpdate(const Brx& /*aId*/, vector<ITopology4Root*>* aValue, vector<ITopology4Root*>* /*aPrevious*/)
     {
         //iWatchers.ForEach(w => w.Dispose());
         for(TUint i=0; i<iWatchers.size(); i++)
@@ -216,13 +219,13 @@ public:
         iWatchers.clear();
 
         //foreach (var r in aValue)
-        for(TUint i=0; i<aValue.size(); i++)
+        for(TUint i=0; i<aValue->size(); i++)
         {
-            iWatchers.push_back(new RootWatcher(iRunner, *aValue[i]));
+            iWatchers.push_back(new RootWatcher(iRunner, *(*aValue)[i]));
         }
     }
 
-    void ItemClose(const Brx& /*aId*/, vector<ITopology4Root*> /*aValue*/)
+    void ItemClose(const Brx& /*aId*/, vector<ITopology4Root*>* /*aValue*/)
     {
     }
 };
@@ -269,9 +272,9 @@ public:
         Bwh* result = new Bwh(buf);
         iRunner->Result(result);
 
-        iFactory->Create<EStandby>(aItem->Name(), aItem->Standby(), MakeFunctorGeneric(*this, &HouseWatcher::CreateCallback1)/* (v, w) => w("Standby " + v)*/);
+        iFactory->Create<EStandby>(aItem->Name(), aItem->Standby(), MakeFunctorGeneric(*this, &HouseWatcher::CreateCallback1));
 
-        iFactory->Create<vector<ITopology4Source*>>(aItem->Name(), aItem->Sources(), MakeFunctorGeneric(*this, &HouseWatcher::CreateCallback2));
+        iFactory->Create<vector<ITopology4Source*>*>(aItem->Name(), aItem->Sources(), MakeFunctorGeneric(*this, &HouseWatcher::CreateCallback2));
 /*
         iFactory->Create<vector<ITopology4Source*>>(aItem.Name, aItem.Sources, (v, w) =>
         {
@@ -316,27 +319,48 @@ public:
         Bws<100> buf;
         buf.Replace(Brn("Standby "));
 
-        Ascii::AppendDec(buf, arg1);
+		if (arg1==eOff)
+		{
+			buf.Append(Brn("eOff"));
+		}
+		else if (arg1==eOn)
+		{
+			buf.Append(Brn("eOn"));
+		}
+		else if (arg1==eMixed)
+		{
+			buf.Append(Brn("eMixed"));
+		}
+		else 
+		{
+			ASSERTS();
+		}
+
         f(buf);
         delete aArgs;
     }
 
-    void CreateCallback2(ArgsTwo<vector<ITopology4Source*>, FunctorGeneric<const Brx&>>* aArgs)
+    void CreateCallback2(ArgsTwo<vector<ITopology4Source*>*, FunctorGeneric<const Brx&>>* aArgs)
     {
-        vector<ITopology4Source*> v = aArgs->Arg1();
+        vector<ITopology4Source*>* v = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
 
 
-        Bws<100> info;
+        Bws<2000> info;
         info.Replace(Brn("\nSources begin\n"));
 
-        for(TUint i=0; i<v.size(); i++)
+        for(TUint i=0; i<v->size(); i++)
         {
-            ITopology4Source* s = v[i];
+            ITopology4Source* s = (*v)[i];
 
-            info.Append(Brn("Source"));
-            info.Append(s->Index());
-            info.Append(Brn(" "));
+            info.Append(Brn("Source "));
+            
+			
+			//info.Append(s->Index());
+            
+			Ascii::AppendDec(info, s->Index());
+			
+			info.Append(Brn(" "));
             info.Append(s->Group().Name());
             info.Append(Brn(" "));
             info.Append(s->Name());
@@ -353,6 +377,7 @@ public:
                 info.Append(Brn("False"));
             }
 
+			Brn udn(s->Device().Udn());
 
             info.Append(Brn(" "));
             if (s->HasInfo())
@@ -374,7 +399,10 @@ public:
                 info.Append(Brn("False"));
             }
             info.Append(Brn(" "));
-            info.Append(s->Device().Udn());
+            
+			//Brn udn(s->Device().Udn());
+			
+			info.Append(udn);
             info.Append(Brn(" "));
             info.Append(Brn("Volume"));
 
@@ -397,7 +425,8 @@ public:
         }
         //info += "Sources end";
         info.Append(Brn("Sources end"));
-        f(info);
+
+		f(info);
     }
 
 private:

@@ -125,7 +125,7 @@ IMediaPreset& Topology4SourceNull::CreatePreset()
     //throw new NotImplementedException();
 }
 
-const std::vector<ITopology4Group*> Topology4SourceNull::Volumes()
+std::vector<ITopology4Group*>& Topology4SourceNull::Volumes()
 {
     THROW(NotImplementedException);
     //throw new NotImplementedException();
@@ -149,7 +149,8 @@ TBool Topology4SourceNull::HasTime()
     //throw new NotImplementedException();
 }
 
-///////////////////////////////////////////////////
+
+///////////////////////////////////////////////////
 
 Topology4Source::Topology4Source(INetwork& aNetwork, Topology4Group& aGroup, ITopology2Source* aSource)
     :iNetwork(aNetwork)
@@ -202,14 +203,14 @@ IMediaPreset& Topology4Source::CreatePreset()
     return (*(new MediaPresetExternal(iNetwork, *group, iSource->Index(), metadata, *this)));
 }
 
-const std::vector<ITopology4Group*> Topology4Source::Volumes()
+std::vector<ITopology4Group*>& Topology4Source::Volumes()
 {
     return *iVolumes;
 }
 
-void Topology4Source::SetVolumes(const std::vector<ITopology4Group*> aVolumes)
+void Topology4Source::SetVolumes(std::vector<ITopology4Group*>* aVolumes)
 {
-    iVolumes = &aVolumes;
+    iVolumes = aVolumes;
 }
 
 IDevice& Topology4Source::Device()
@@ -250,22 +251,21 @@ void Topology4Source::Select()
 
 //////////////////////////////////////////////////////////////////
 
-Topology4Group::Topology4Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopologymGroup& aGroup, const std::vector<ITopology2Source*> aSources, ILog& aLog)
+Topology4Group::Topology4Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopologymGroup& aGroup, std::vector<ITopology2Source*> aSources, ILog& aLog)
     :iNetwork(aNetwork)
     ,iRoom(aRoom)
     ,iName(aName)
     ,iGroup(&aGroup)
+    ,iCurrentSource(NULL)
+    ,iCurrentVectorSenders(NULL)
     ,iLog(aLog)
     ,iDisposed(false)
+    ,iParent(NULL)
+	,iSender(NULL)
 {
-    //iChildren = new vector<Topology4Group>();
-    //iSources = new vector<Topology4Source>();
-    //iVisibleSources = new vector<ITopology4Source>();
-    //iWatchableSource = new Watchable<ITopology4Source>(iNetwork, "source", new Topology4SourceNull());
-
-    vector<ITopology4Group*> v;
-
-    iSenders = new Watchable<vector<ITopology4Group*>>(iNetwork, Brn("senders"), v);
+    iWatchableSource = new Watchable<ITopology4Source*>(iNetwork, Brn("source"), new Topology4SourceNull());
+	
+    iSenders = new Watchable<vector<ITopology4Group*>*>(iNetwork, Brn("senders"), iCurrentVectorSenders);
 
     //foreach (ITopology2Source s in aSources)
     for(TUint i=0; i<aSources.size(); i++)
@@ -301,9 +301,10 @@ Topology4Group::Topology4Group(INetwork& aNetwork, const Brx& aRoom, const Brx& 
 }
 
 
-void Topology4Group::CreateCallback(void* aSender)
+void Topology4Group::CreateCallback(void* aArgs)
 {
-    IProxySender* sender = (IProxySender*)aSender;
+    ArgsTwo<IDevice*, IProxySender*>* args = (ArgsTwo<IDevice*, IProxySender*>*)aArgs;
+    IProxySender* sender = args->Arg2();
 
     if (!iDisposed)
     {
@@ -321,7 +322,7 @@ void Topology4Group::CreateCallback(void* aSender)
 void Topology4Group::Dispose()
 {
     iGroup->SourceIndex().RemoveWatcher(*this);
-    //iGroup = null;
+    iGroup = NULL;
 
     iWatchableSource->Dispose();
     iWatchableSource = NULL;
@@ -336,8 +337,7 @@ void Topology4Group::Dispose()
 
     iSenders->Dispose();
 
-    iDisposed = true;
-}
+    iDisposed = true;}
 
 Brn Topology4Group::Name()
 {
@@ -394,7 +394,7 @@ void Topology4Group::EvaluateSources()
     TBool hasTime = (Ascii::Contains(iGroup->Attributes() ,Brn("Time")) && hasInfo);
 
     // get list of all volume groups
-    vector<ITopology4Group*> volumes;// = new vector<ITopology4Group*>();
+    vector<ITopology4Group*>* volumes = new vector<ITopology4Group*>();
 
     Topology4Group* group = this;
 
@@ -403,7 +403,7 @@ void Topology4Group::EvaluateSources()
         if(Ascii::Contains(group->Group().Attributes(), Brn("Volume")))
         {
             //volumes.Insert(0, group);
-            volumes.insert(volumes.begin(), group);
+            volumes->insert(volumes->begin(), group);
         }
 
         group = group->Parent();
@@ -455,10 +455,19 @@ void Topology4Group::EvaluateSources()
     }
 
     ITopology4Source* source = EvaluateSource();
-    iWatchableSource->Update(source);
+
+    ITopology4Source* oldSource = iCurrentSource;
+    iCurrentSource = source;
+
+    iWatchableSource->Update(iCurrentSource);
+
+    if (oldSource!=NULL)
+    {
+        delete oldSource;
+    }
 }
 
-const std::vector<ITopology4Source*> Topology4Group::Sources()
+std::vector<ITopology4Source*>& Topology4Group::Sources()
 {
     return iVisibleSources;
 }
@@ -473,7 +482,7 @@ void Topology4Group::EvaluateSenders()
         g->EvaluateSenders();
     }
 
-    vector<ITopology4Group*> senderDevices;// = new vector<ITopology4Group>();
+    vector<ITopology4Group*>* vectorSenders = new vector<ITopology4Group*>();
 
     //foreach (Topology4Group g in iChildren)
     for(TUint i=0; i<iChildren.size(); i++)
@@ -481,19 +490,25 @@ void Topology4Group::EvaluateSenders()
         Topology4Group* g = iChildren[i];
         //senderDevices.AddRange(g->Senders().Value());
 
-        vector<ITopology4Group*> v(g->Senders().Value());
-        senderDevices.insert(senderDevices.begin(), v.begin(), v.end());
+        vector<ITopology4Group*> v(*(g->Senders().Value()));
+        vectorSenders->insert(vectorSenders->begin(), v.begin(), v.end());
     }
 
     if (iHasSender)
     {
-        senderDevices.insert(senderDevices.begin(), this);
+        vectorSenders->insert(vectorSenders->begin(), this);
     }
 
-    iSenders->Update(senderDevices);
+    vector<ITopology4Group*>* oldVectorSender = iCurrentVectorSenders;
+    iCurrentVectorSenders = vectorSenders;
+    iSenders->Update(iCurrentVectorSenders);
+    if (oldVectorSender!=NULL)
+    {
+        delete oldVectorSender;
+    }
 }
 
-IWatchable<std::vector<ITopology4Group*>>& Topology4Group::Senders()
+IWatchable<std::vector<ITopology4Group*>*>& Topology4Group::Senders()
 {
     return(*iSenders);
 }
@@ -513,7 +528,6 @@ TBool Topology4Group::AddIfIsChild(Topology4Group& aGroup)
         {
             aGroup.SetParent(*this, s->Index());
             iChildren.push_back(&aGroup);
-
             return true;
         }
     }
@@ -581,8 +595,15 @@ void Topology4Group::EvaluateSourceFromChild()
     }
 
     ITopology4Source* source = EvaluateSource();
-    iWatchableSource->Update(source);
 
+    ITopology4Source* oldSource = iCurrentSource;
+    iCurrentSource = source;
+
+    iWatchableSource->Update(iCurrentSource);
+    if(oldSource!=NULL)
+    {
+//        delete oldSource;
+    }
 }
 
 void Topology4Group::ItemOpen(const Brx& /*aId*/, Brn aValue)
@@ -651,7 +672,6 @@ void Topology4GroupWatcher::Dispose()
 {
     iGroup.Name().RemoveWatcher(*this);
     //foreach (IWatchable<ITopology2Source> s in iGroup.Sources)
-
     vector<Watchable<ITopology2Source*>*> s = iGroup.Sources();
 
     for(TUint i=0; i<s.size(); i++)
@@ -673,7 +693,7 @@ Brn Topology4GroupWatcher::Name()
     return iName;
 }
 
-const std::vector<ITopology2Source*> Topology4GroupWatcher::Sources()
+std::vector<ITopology2Source*> Topology4GroupWatcher::Sources()
 {
     return iSources;
 }
@@ -703,7 +723,7 @@ void Topology4GroupWatcher::ItemUpdate(const Brx& /*aId*/, ITopology2Source* aVa
     vector<ITopology2Source*>::iterator it = find(iSources.begin(), iSources.end(), aPrevious);
     if (it!=iSources.end())
     {
-        iSources[it-iSources.end()] = aValue;
+        iSources[it-iSources.begin()] = aValue;
         //it->first = aValue;
     }
 
@@ -724,18 +744,16 @@ Topology4Room::Topology4Room(INetwork& aNetwork, ITopology3Room& aRoom, ILog& aL
     ,iLog(aLog)
     ,iName(iRoom.Name())
     ,iStandbyCount(0)
-    ,iStandby(eOn)
+    ,iStandby(eOff)
+    ,iCurrentRoots(new vector<ITopology4Root*>())
+    ,iCurrentSources(new vector<ITopology4Source*>())
+    ,iCurrentRegistrations(new vector<ITopology4Registration*>())
+    ,iWatchableStandby(new Watchable<EStandby>(iNetwork, Brn("standby"), eOff))
+    ,iWatchableRoots(new Watchable<vector<ITopology4Root*>*>(iNetwork, Brn("roots"), iCurrentRoots))
+    ,iWatchableSources(new Watchable<vector<ITopology4Source*>*>(iNetwork, Brn("sources"), iCurrentSources))
+    ,iWatchableRegistrations(new Watchable<vector<ITopology4Registration*>*>(iNetwork, Brn("registration"), iCurrentRegistrations))
 {
-    vector<ITopology4Root*> vectorRoot;
-    vector<ITopology4Source*> vectorSource;
-    vector<ITopology4Registration*> vectorRegistration;
-
-    iWatchableRoots = new Watchable<std::vector<ITopology4Root*>>(iNetwork, Brn("roots"), vectorRoot);
-    iWatchableSources = new Watchable<std::vector<ITopology4Source*>>(iNetwork, Brn("sources"), vectorSource);
-    iWatchableRegistrations = new Watchable<std::vector<ITopology4Registration*>>(iNetwork, Brn("registration"), vectorRegistration);
-
     iRoom.Groups().AddWatcher(*this);
-
 }
 
 void Topology4Room::Dispose()
@@ -750,7 +768,6 @@ void Topology4Room::Dispose()
     {
         it->first->Standby().RemoveWatcher(*this);
         it->second->Dispose();
-
     }
     //iGroupLookup = null;
 
@@ -788,17 +805,17 @@ IWatchable<EStandby>& Topology4Room::Standby()
     return *iWatchableStandby;
 }
 
-IWatchable<std::vector<ITopology4Root*>>& Topology4Room::Roots()
+IWatchable<std::vector<ITopology4Root*>*>& Topology4Room::Roots()
 {
     return *iWatchableRoots;
 }
 
-IWatchable<std::vector<ITopology4Source*>>& Topology4Room::Sources()
+IWatchable<std::vector<ITopology4Source*>*>& Topology4Room::Sources()
 {
     return *iWatchableSources;
 }
 
-IWatchable<std::vector<ITopology4Registration*>>& Topology4Room::Registrations()
+IWatchable<std::vector<ITopology4Registration*>*>& Topology4Room::Registrations()
 {
     return *iWatchableRegistrations;
 }
@@ -842,10 +859,10 @@ void Topology4Room::UnorderedRemove(ITopologymGroup* aItem)
 
 void Topology4Room::CreateTree()
 {
-    //vector<ITopology4Registration> registrations = new vector<ITopology4Registration>();
-    //vector<Topology4Group> oldGroups = new vector<Topology4Group>(iGroups);
 
-    vector<ITopology4Registration*> registrations;
+    vector<ITopology4Registration*>* registrations = new vector<ITopology4Registration*>();
+
+    //vector<Topology4Group> oldGroups = new vector<Topology4Group>(iGroups);
     vector<Topology4Group*> oldGroups(iGroups);
 
     iGroups.clear();
@@ -861,12 +878,12 @@ void Topology4Room::CreateTree()
         //if (!string.IsNullOrEmpty(group->ProductId()))
         if (!group->ProductId().Equals(Brx::Empty()))
         {
-            registrations.push_back(group);
+            registrations->push_back(group);
         }
     }
 
-    vector<ITopology4Root*> roots;
-    vector<ITopology4Source*> sources;
+    vector<ITopology4Root*>* roots = new vector<ITopology4Root*>();
+    vector<ITopology4Source*>* sources = new vector<ITopology4Source*>();
     //foreach (Topology4Group g in iRoots)
     for(TUint i=0; i<iRoots.size(); i++)
     {
@@ -876,13 +893,38 @@ void Topology4Room::CreateTree()
         group->EvaluateSenders();
 
         //sources.AddRange(group->Sources());
-        sources.insert(sources.end(), group->Sources().begin(), group->Sources().end());
-        roots.push_back(group);
+        auto s = &(group->Sources());
+        sources->insert(sources->end(), s->begin(), s->end());
+
+        roots->push_back(group);
     }
+
+
+
+    vector<ITopology4Root*>* oldRoots = iCurrentRoots;
+    vector<ITopology4Source*>* oldSources = iCurrentSources;
+    vector<ITopology4Registration*>* oldRegistrations = iCurrentRegistrations;
+
+    iCurrentRoots = roots;
+    iCurrentSources = sources;
+    iCurrentRegistrations = registrations;
 
     iWatchableRoots->Update(roots);
     iWatchableSources->Update(sources);
     iWatchableRegistrations->Update(registrations);
+
+    if (oldRoots!=NULL)
+    {
+        delete oldRoots;
+    }
+    if (oldSources!=NULL)
+    {
+        delete oldSources;
+    }
+    if (oldRegistrations!=NULL)
+    {
+        delete oldRegistrations;
+    }
 
     //foreach (Topology4Group g in oldGroups)
     for(TUint i=0; i<oldGroups.size(); i++)
@@ -894,7 +936,8 @@ void Topology4Room::CreateTree()
 
 void Topology4Room::InsertIntoTree(Topology4Group& aGroup)
 {
-    // if group is the first group found
+
+    // if group is the first group found
     if (iGroups.size() == 0)
     {
         iGroups.push_back(&aGroup);
@@ -927,7 +970,8 @@ void Topology4Room::InsertIntoTree(Topology4Group& aGroup)
 
     iGroups.push_back(&aGroup);
     iRoots.push_back(&aGroup);
-}
+
+}
 
 void Topology4Room::ItemOpen(const Brx& /*aId*/, TBool aValue)
 {

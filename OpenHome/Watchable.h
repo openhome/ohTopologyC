@@ -88,7 +88,7 @@ Watchable<T>::Watchable(IWatchableThread& aWatchableThread, const Brx& aId, T aV
     :WatchableBase(aWatchableThread)
     ,iId(aId)
     ,iValue(aValue)
-    ,iUpdating(true)
+    ,iUpdating(false)
 {
     //ASSERT(aValue != NULL);
 }
@@ -124,7 +124,7 @@ TBool Watchable<T>::Update(T aValue)
 
         if (it==iRecentlyRemoved.end()) // not found
         {
-            watcher->ItemUpdate(iId, iValue, previous);
+			watcher->ItemUpdate(iId, iValue, previous);
         }
     }
 

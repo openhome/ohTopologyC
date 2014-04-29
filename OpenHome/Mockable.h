@@ -275,7 +275,7 @@ void ResultWatcher<T>::ItemOpen(const Brx& /*aId*/, T aValue)
 template <class T>
 void ResultWatcher<T>::ItemOpenCallback(const Brx& aValue)
 {
-    Bws<100> buf;
+    Bws<2000> buf;
     buf.Replace(iId);
     buf.Append(Brn(" open "));
     buf.Append(aValue);
@@ -298,7 +298,7 @@ void ResultWatcher<T>::ItemUpdate(const Brx& /*aId*/, T aValue, T /*aPrevious*/)
 template <class T>
 void ResultWatcher<T>::ItemUpdateCallback(const Brx& aValue)
 {
-    Bws<100> buf;
+    Bws<2000> buf;
     buf.Replace(iId);
     buf.Append(Brn(" update "));
     buf.Append(aValue);
@@ -374,7 +374,7 @@ void ResultUnorderedWatcher<T>::UnorderedAdd(T aItem)
 template <class T>
 void ResultUnorderedWatcher<T>::UnorderedAddCallback(const Brx& aValue)
 {
-    Bws<100> buf;
+    Bws<2000> buf;
     buf.Replace(iId);
     buf.Append(Brn(" add "));
     buf.Append(aValue);
@@ -395,7 +395,7 @@ void ResultUnorderedWatcher<T>::UnorderedRemove(T aItem)
 template <class T>
 void ResultUnorderedWatcher<T>::UnorderedRemoveCallback(const Brx& aValue)
 {
-    Bws<100> buf;
+    Bws<2000> buf;
     buf.Replace(iId);
     buf.Append(Brn(" remove "));
     buf.Append(aValue);
@@ -456,7 +456,7 @@ void ResultOrderedWatcher<T>::OrderedAdd(T aItem, TUint aIndex)
 template <class T>
 void ResultOrderedWatcher<T>::OrderedAddCallback(const Brx& aValue)
 {
-    Bws<100> buf;
+    Bws<2000> buf;
     buf.Replace(iId);
     buf.Append(Brn(" add "));
     buf.Append(aValue);
@@ -506,7 +506,7 @@ void ResultOrderedWatcher<T>::OrderedRemove(T aItem, TUint aIndex)
 template <class T>
 void ResultOrderedWatcher<T>::OrderedRemoveCallback(const Brx& aValue)
 {
-    Bws<100> buf;
+    Bws<2000> buf;
     buf.Replace(iId);
     buf.Append(Brn(" remove "));
     buf.Append(aValue);
