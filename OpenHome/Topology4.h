@@ -31,6 +31,7 @@ public:
     virtual IWatchable<TBool>& Playing() = 0;
     virtual IWatchable<TBool>& Selected() = 0;
     virtual void Play() = 0;
+    virtual ~IMediaPreset() {}
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -41,6 +42,7 @@ public:
     virtual Brn Name() = 0;
     virtual IDevice& Device() = 0;
     virtual IWatchable<ITopologymSender*>& Sender() = 0;
+    virtual ~ITopology4Group() {}
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -58,6 +60,7 @@ public:
     virtual IDevice& Device() = 0;
     virtual TBool HasInfo() = 0;
     virtual TBool HasTime() = 0;
+    virtual ~ITopology4Source() {}
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -149,6 +152,7 @@ public:
     virtual Brn ModelName() = 0;
     virtual Brn ManufacturerName() = 0;
     virtual Brn ProductId() = 0;
+    virtual ~ITopology4Registration() {}
 };
 
 
@@ -160,6 +164,7 @@ public:
     virtual IWatchable<ITopology4Source*>& Source() = 0;
     virtual std::vector<ITopology4Source*>& Sources() = 0;
     virtual IWatchable<std::vector<ITopology4Group*>*>& Senders() = 0;
+    virtual ~ITopology4Root() {}
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -269,6 +274,7 @@ public:
     virtual IWatchable<std::vector<ITopology4Source*>*>& Sources() = 0;
     virtual IWatchable<std::vector<ITopology4Registration*>*>& Registrations() = 0;
     virtual void SetStandby(TBool aValue) = 0;
+    virtual ~ITopology4Room() {}
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -331,6 +337,7 @@ class ITopology4
 public:
     virtual IWatchableUnordered<ITopology4Room*>& Rooms() = 0;
     virtual INetwork& Network() = 0;
+    virtual ~ITopology4() {}
 };
 
 /////////////////////////////////////////////////////////////////////
