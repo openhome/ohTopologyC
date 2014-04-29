@@ -84,73 +84,73 @@ Brn ServiceProduct::Attributes()
 
 Brn ServiceProduct::ManufacturerImageUri()
 {
-    return(iManufacturerImageUri);
+    return(Brn(iManufacturerImageUri));
 }
 
 
 Brn ServiceProduct::ManufacturerInfo()
 {
-    return(iManufacturerInfo);
+    return(Brn(iManufacturerInfo));
 }
 
 
 Brn ServiceProduct::ManufacturerName()
 {
-    return(iManufacturerName);
+    return(Brn(iManufacturerName));
 }
 
 
 Brn ServiceProduct::ManufacturerUrl()
 {
-    return(iManufacturerUrl);
+    return(Brn(iManufacturerUrl));
 }
 
 
 Brn ServiceProduct::ModelImageUri()
 {
-    return(iModelImageUri);
+    return(Brn(iModelImageUri));
 }
 
 
 Brn ServiceProduct::ModelInfo()
 {
-    return(iModelInfo);
+    return(Brn(iModelInfo));
 }
 
 
 Brn ServiceProduct::ModelName()
 {
-    return(iModelName);
+    return(Brn(iModelName));
 }
 
 
 Brn ServiceProduct::ModelUrl()
 {
-    return(iModelUrl);
+    return(Brn(iModelUrl));
 }
 
 
 Brn ServiceProduct::ProductImageUri()
 {
-    return(iProductImageUri);
+    return(Brn(iProductImageUri));
 }
 
 
 Brn ServiceProduct::ProductInfo()
 {
-    return(iProductInfo);
+    return(Brn(iProductInfo));
 }
 
 
 Brn ServiceProduct::ProductUrl()
 {
-    return(iProductUrl);
+    return(Brn(iProductUrl));
 }
 
 
 Brn ServiceProduct::ProductId()
 {
-    return(iProductId);
+    return(Brn(iProductId));
 }
 
 ////////////////////////////////////////////////////////////
@@ -265,18 +265,18 @@ ServiceProductMock::ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDev
 //  ,iCurrentName(aName)
 {
     iAttributes.Replace(aAttributes);
-    iManufacturerImageUri.Set(aManufacturerImageUri);
-    iManufacturerInfo.Set(aManufacturerInfo);
-    iManufacturerName.Set(aManufacturerName);
-    iManufacturerUrl.Set(aManufacturerUrl);
-    iModelImageUri.Set(aModelImageUri);
-    iModelInfo.Set(aModelInfo);
-    iModelName.Set(aModelName);
-    iModelUrl.Set(aModelUrl);
-    iProductImageUri.Set(aProductImageUri);
-    iProductInfo.Set(aProductInfo);
-    iProductUrl.Set(aProductUrl);
-    iProductId.Set(aProductId);
+    iManufacturerImageUri.Replace(aManufacturerImageUri);
+    iManufacturerInfo.Replace(aManufacturerInfo);
+    iManufacturerName.Replace(aManufacturerName);
+    iManufacturerUrl.Replace(aManufacturerUrl);
+    iModelImageUri.Replace(aModelImageUri);
+    iModelInfo.Replace(aModelInfo);
+    iModelName.Replace(aModelName);
+    iModelUrl.Replace(aModelUrl);
+    iProductImageUri.Replace(aProductImageUri);
+    iProductInfo.Replace(aProductInfo);
+    iProductUrl.Replace(aProductUrl);
+    iProductId.Replace(aProductId);
 
     iCurrentRoom = new Bws<20>(aRoom);
     iCurrentName = new Bws<50>(aName);
@@ -296,54 +296,54 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
     if (Ascii::CaseInsensitiveEquals(command, Brn("attributes")))
     {
         iAttributes.Replace(aCommands.RemainingTrimmed());
-	}
+    }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerimageuri")))
     {
-        iManufacturerImageUri.Set(aCommands.RemainingTrimmed());
+        iManufacturerImageUri.Replace(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerinfo")))
     {
-        iManufacturerInfo.Set(aCommands.RemainingTrimmed());
+        iManufacturerInfo.Replace(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturername")))
     {
-        iManufacturerName.Set(aCommands.RemainingTrimmed());
+        iManufacturerName.Replace(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("manufacturerurl")))
     {
-        iManufacturerUrl.Set(aCommands.RemainingTrimmed());
+        iManufacturerUrl.Replace(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("modelimageuri")))
     {
-        iModelImageUri.Set(aCommands.RemainingTrimmed());
+        iModelImageUri.Replace(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("modelinfo")))
     {
-        iModelInfo.Set(aCommands.RemainingTrimmed());
+        iModelInfo.Replace(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("modelname")))
     {
-        iManufacturerName.Set(aCommands.RemainingTrimmed());
+        iManufacturerName.Replace(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("modelurl")))
     {
-        iModelUrl.Set(aCommands.RemainingTrimmed());
+        iModelUrl.Replace(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("productimageuri")))
     {
-        iProductImageUri.Set(aCommands.RemainingTrimmed());
+        iProductImageUri.Replace(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("productinfo")))
     {
-        iProductInfo.Set(aCommands.RemainingTrimmed());
+        iProductInfo.Replace(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("producturl")))
     {
-        iProductUrl.Set(aCommands.RemainingTrimmed());
+        iProductUrl.Replace(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("productid")))
     {
-        iProductId.Set(aCommands.RemainingTrimmed());
+        iProductId.Replace(aCommands.RemainingTrimmed());
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("room")))
     {

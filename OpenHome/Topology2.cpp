@@ -50,7 +50,7 @@ Topology2Group::Topology2Group(IWatchableThread& aThread, const Brx& aId, IProxy
     ,iId(aId)
     ,iProduct(aProduct)
 {
-	iProduct.SourceXml().AddWatcher(*this);
+    iProduct.SourceXml().AddWatcher(*this);
 }
 
 

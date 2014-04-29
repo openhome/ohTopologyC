@@ -321,12 +321,7 @@ void ResultWatcher<T>::ItemClose(const Brx& /*aId*/, T aValue)
 template <class T>
 void ResultWatcher<T>::ItemCloseCallback(const Brx& /*aValue*/)
 {
-    /*Bws<100> buf;
-    buf.Replace(iId);
-    buf.Append(Brn(" close "));
-    buf.Append(aValue);
-    Bwh* result = new Bwh(buf);
-    iRunner.Result(result);*/
+
 }
 
 

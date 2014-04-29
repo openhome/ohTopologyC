@@ -228,7 +228,6 @@ private:
     std::vector<Topology4Source*> iSources;
     std::vector<ITopology4Source*> iVisibleSources;
 
-    //std::vector<ITopology4Group*>* iVectorSenders;  // added in ohTopologyC
     std::vector<ITopology4Group*>* iVectorVolumes;  // added in ohTopologyC
     std::vector<ITopology4Group*>* iVectorSenderDevices; // added in ohTopologyC
 

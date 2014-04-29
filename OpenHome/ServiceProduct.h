@@ -134,18 +134,18 @@ private:
 
 protected:
     Bws<100> iAttributes;
-    Brn iManufacturerImageUri;
-    Brn iManufacturerInfo;
-    Brn iManufacturerName;
-    Brn iManufacturerUrl;
-    Brn iModelImageUri;
-    Brn iModelInfo;
-    Brn iModelName;
-    Brn iModelUrl;
-    Brn iProductImageUri;
-    Brn iProductInfo;
-    Brn iProductUrl;
-    Brn iProductId;
+    Bws<100> iManufacturerImageUri;
+    Bws<100> iManufacturerInfo;
+    Bws<100> iManufacturerName;
+    Bws<100> iManufacturerUrl;
+    Bws<100> iModelImageUri;
+    Bws<100> iModelInfo;
+    Bws<100> iModelName;
+    Bws<100> iModelUrl;
+    Bws<100> iProductImageUri;
+    Bws<100> iProductInfo;
+    Bws<100> iProductUrl;
+    Bws<100> iProductId;
     Watchable<Brn>* iRoom;
     Watchable<Brn>* iName;
     Watchable<TUint>* iSourceIndex;
