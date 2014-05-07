@@ -120,7 +120,7 @@ void InjectorMock::DisposeCallback(void*)
     for(it=iMockDevices.begin();it!=iMockDevices.end();it++)
     {
         it->second->Dispose();
-        //delete it->second;
+        delete it->second;
     }
 }
 

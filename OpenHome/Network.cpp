@@ -179,9 +179,7 @@ void Network::AddCallback(void* aObj)
     if ( iDevices.count(device->Udn()) > 0 )
     {
         device->Dispose();
-
         delete device;
-
         return;
     }
 

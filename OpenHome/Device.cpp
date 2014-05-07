@@ -56,7 +56,7 @@ void Device::Dispose()
     iDevice->Dispose();
 
     delete iDisposeHandler;
-    //delete iDevice;
+    delete iDevice;
 }
 
 
@@ -76,7 +76,7 @@ TBool Device::Wait()
 ////////////////////////////////////////////////////////////////////////////
 
 
-InjectorDeviceAdaptor::InjectorDeviceAdaptor(IInjectorDevice* aDevice)
+InjectorDeviceAdaptor::InjectorDeviceAdaptor(IInjectorDevice& aDevice)
     :iDevice(aDevice)
 {
 }
@@ -84,43 +84,43 @@ InjectorDeviceAdaptor::InjectorDeviceAdaptor(IInjectorDevice* aDevice)
 
 void InjectorDeviceAdaptor::Join(Functor aAction)
 {
-    iDevice->Join(aAction);
+    iDevice.Join(aAction);
 }
 
 
 void InjectorDeviceAdaptor::Unjoin(Functor aAction)
 {
-    iDevice->Unjoin(aAction);
+    iDevice.Unjoin(aAction);
 }
 
 
 Brn InjectorDeviceAdaptor::Udn()
 {
-    return iDevice->Udn();
+    return iDevice.Udn();
 }
 
 
 void InjectorDeviceAdaptor::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType, IDevice& aDevice)
 {
-    iDevice->Create(aCallback, aServiceType, aDevice);
+    iDevice.Create(aCallback, aServiceType, aDevice);
 }
 
 
 TBool InjectorDeviceAdaptor::HasService(EServiceType aServiceType)
 {
-    return iDevice->HasService(aServiceType);
+    return iDevice.HasService(aServiceType);
 }
 
 
 TBool InjectorDeviceAdaptor::Wait()
 {
-    return iDevice->Wait();
+    return iDevice.Wait();
 }
 
 
 void InjectorDeviceAdaptor::Execute(ICommandTokens& aTokens)
 {
-    iDevice->Execute(aTokens);
+    iDevice.Execute(aTokens);
 }
 
 
@@ -133,33 +133,58 @@ void InjectorDeviceAdaptor::Dispose()
 
 InjectorDeviceMock::InjectorDeviceMock(IInjectorDevice* aDevice)
     :iDevice(aDevice)
-    ,iDeviceAdaptor(new InjectorDeviceAdaptor(iDevice))
-    ,iOn(false)
+    //,iDeviceAdaptor(new InjectorDeviceAdaptor(*iDevice))
+    ,iOn(NULL)
 {
-
+    iDeviceAdaptor = new InjectorDeviceAdaptor(*iDevice);
 }
 
 
+InjectorDeviceMock::~InjectorDeviceMock()
+{
+    //delete iDevice;
+}
+
+
+/*
+    public IInjectorDevice On()
+    {
+        Do.Assert(iOn == null);
+        iOn = new InjectorDeviceAdapter(iDevice);
+        return iOn;
+    }
+*/
 IInjectorDevice* InjectorDeviceMock::On()
 {
-    ASSERT(!iOn);
-    iOn = true;
-    return (iDeviceAdaptor);
+    ASSERT(iOn==NULL);
+    iOn = new InjectorDeviceAdaptor(*iDevice);
+    return (iOn);
 }
 
 
 IInjectorDevice* InjectorDeviceMock::Off()
 {
-    ASSERT(iOn);
-    iOn = false;
-    return (iDeviceAdaptor);
+    ASSERT(iOn!=NULL);
+    auto on = iOn;
+    iOn = NULL;
+    return (on);
 }
+/*
+    public IInjectorDevice Off()
+    {
+        Do.Assert(iOn != null);
+
+        var on = iOn;
+        iOn = null;
+
+        return on;
+    }
+*/
 
 
 void InjectorDeviceMock::Dispose()
 {
     iDevice->Dispose();
-    //delete iDevice;
 }
 
 

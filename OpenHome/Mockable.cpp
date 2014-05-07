@@ -270,6 +270,7 @@ void ResultWatcherFactory::Destroy(const Brx& aId)
     for(TUint i=0; i<v.size(); i++)
     {
         v[i]->Dispose();
+        delete v[i];
     }
 
     iWatchers.erase(Brn(aId));
@@ -285,7 +286,6 @@ void ResultWatcherFactory::Dispose()
         for(TUint i=0; i<v.size(); i++)
         {
             v[i]->Dispose();
-            //delete v[i];
         }
 
     }

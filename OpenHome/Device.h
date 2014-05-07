@@ -100,7 +100,7 @@ private:
 class InjectorDeviceAdaptor : public IInjectorDevice, public INonCopyable
 {
 public:
-    InjectorDeviceAdaptor(IInjectorDevice* aDevice);
+    InjectorDeviceAdaptor(IInjectorDevice& aDevice);
     virtual void Join(Functor aAction);
     virtual void Unjoin(Functor aAction);
     virtual Brn Udn();
@@ -111,7 +111,7 @@ public:
     virtual void Dispose();
 
 private :
-    IInjectorDevice* iDevice;
+    IInjectorDevice& iDevice;
 };
 
 ///////////////////////////////////////////////////////////////
@@ -120,6 +120,8 @@ class InjectorDeviceMock : public IMockable, public IDisposable, public INonCopy
 {
 public:
     InjectorDeviceMock(IInjectorDevice* aDevice);
+    ~InjectorDeviceMock();
+
     IInjectorDevice* On();
     IInjectorDevice* Off();
     virtual void Dispose();
@@ -128,7 +130,7 @@ public:
 private:
     IInjectorDevice* iDevice;
     InjectorDeviceAdaptor* iDeviceAdaptor;
-    TBool iOn;
+    IInjectorDevice* iOn;
 };
 
 ///////////////////////////////////////////////////////////////
