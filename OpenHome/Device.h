@@ -129,7 +129,6 @@ public:
 
 private:
     IInjectorDevice* iDevice;
-    InjectorDeviceAdaptor* iDeviceAdaptor;
     IInjectorDevice* iOn;
 };
 

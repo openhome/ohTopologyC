@@ -347,8 +347,10 @@ void Network::DisposeCallback(void*)
     for(it=iDevices.begin(); it!=iDevices.end(); it++)
     {
         it->second->Dispose();
+        delete it->second;
     }
 
+    iDevices.clear();
 }
 
 

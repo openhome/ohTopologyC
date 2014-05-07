@@ -133,27 +133,16 @@ void InjectorDeviceAdaptor::Dispose()
 
 InjectorDeviceMock::InjectorDeviceMock(IInjectorDevice* aDevice)
     :iDevice(aDevice)
-    //,iDeviceAdaptor(new InjectorDeviceAdaptor(*iDevice))
     ,iOn(NULL)
 {
-    iDeviceAdaptor = new InjectorDeviceAdaptor(*iDevice);
 }
 
 
 InjectorDeviceMock::~InjectorDeviceMock()
 {
-    //delete iDevice;
 }
 
 
-/*
-    public IInjectorDevice On()
-    {
-        Do.Assert(iOn == null);
-        iOn = new InjectorDeviceAdapter(iDevice);
-        return iOn;
-    }
-*/
 IInjectorDevice* InjectorDeviceMock::On()
 {
     ASSERT(iOn==NULL);
@@ -169,17 +158,6 @@ IInjectorDevice* InjectorDeviceMock::Off()
     iOn = NULL;
     return (on);
 }
-/*
-    public IInjectorDevice Off()
-    {
-        Do.Assert(iOn != null);
-
-        var on = iOn;
-        iOn = null;
-
-        return on;
-    }
-*/
 
 
 void InjectorDeviceMock::Dispose()

@@ -122,6 +122,8 @@ void InjectorMock::DisposeCallback(void*)
         it->second->Dispose();
         delete it->second;
     }
+
+    iMockDevices.clear();
 }
 
 
