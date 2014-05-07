@@ -5,7 +5,7 @@
 #include <OpenHome/WatchableThread.h>
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/DisposeHandler.h>
-#include <OpenHome/MetaData.h>
+//#include <OpenHome/MetaData.h>
 #include <OpenHome/Tag.h>
 #include <vector>
 #include <map>
@@ -17,6 +17,26 @@ namespace OpenHome
 namespace Av
 {
 
+//class IMediaMetatdata;
+
+class IMediaValue
+{
+public:
+    virtual Brn Value() = 0;
+    virtual const std::vector<Brn> Values() = 0;
+};
+
+/////////////////////////////////////////
+
+class IMediaMetadata //: public IEnumerable<KeyValuePair<ITag, IMediaValue>>
+{
+public:
+    virtual IMediaValue* Value(ITag* aTag) = 0;
+    virtual const std::map<ITag*, IMediaValue*> Values() = 0;
+    virtual ~IMediaMetadata() {}
+};
+
+/////////////////////////////////////////
 
 
 class ITagManager
@@ -36,6 +56,7 @@ public:
     //virtual ITagRealmContainer Container() = 0;
 
     virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata) = 0;
+    virtual ~ITagManager() {}
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -67,23 +88,6 @@ private:
 
 /////////////////////////////////////////////////
 
-class IMediaValue
-{
-public:
-    virtual Brn Value() = 0;
-    virtual const std::vector<Brn> Values() = 0;
-};
-
-/////////////////////////////////////////
-
-class IMediaMetadata //: public IEnumerable<KeyValuePair<ITag, IMediaValue>>
-{
-public:
-    virtual IMediaValue* Value(ITag* aTag) = 0;
-    virtual const std::map<ITag*, IMediaValue*> Values() = 0;
-};
-
-/////////////////////////////////////////
 
 class IMediaDatum : public IMediaMetadata
 {

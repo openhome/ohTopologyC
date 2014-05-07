@@ -392,7 +392,6 @@ public:
         :iMutex("WOMX")
         ,iEvents(100)
     {
-        //iEvents = new Fifo<WatcherOrderedEvent<T>*>();
     }
 
     TBool CheckNotEmpty()
@@ -463,7 +462,6 @@ public:
         :iMutex("WOMX")
         ,iEvents(100)
     {
-        //iEvents = new Fifo<WatcherUnorderedEvent<T>*>();
     }
 
     TBool CheckNotEmpty()
@@ -626,19 +624,20 @@ SuiteWatchable::SuiteWatchable()
 
 void SuiteWatchable::Setup()
 {
+    iSuccess = false;
     iExceptionReporter = new TestExceptionReporter();
 }
 
 
 void SuiteWatchable::TearDown()
 {
+    delete iExceptionReporter;
     TEST(iSuccess);
 }
 
 
 void SuiteWatchable::Test1() // SingleWatchableSingleWatcher
 {
-    iSuccess = false;
     iWatcher1 = new Watcher<Brn>();
     iThread = new WatchableThread(*iExceptionReporter);
     iWatchable = new Watchable<Brn>(*iThread, Brn("test"), Brn("A"));
@@ -652,34 +651,47 @@ void SuiteWatchable::Test1() // SingleWatchableSingleWatcher
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
 
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("open"), Brn("test"), Brn("A")));
+
+    auto event = iWatcher1->Pop();
+    TEST(event->Check(Brn("open"), Brn("test"), Brn("A")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
 
     iThread->Schedule(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::Test1UpdateB) , 0);
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("update"), Brn("test"), Brn("B"), Brn("A")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("B"), Brn("A")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
 
     iThread->Schedule(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::Test1UpdateC) , 0);
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("update"), Brn("test"), Brn("C"), Brn("B")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("C"), Brn("B")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
 
     iThread->Schedule(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::Test1UpdateDE) , 0);
 
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("update"), Brn("test"), Brn("D"), Brn("C")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("D"), Brn("C")));
+    delete event;
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("update"), Brn("test"), Brn("E"), Brn("D")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("E"), Brn("D")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
 
     iThread->Schedule(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::Test1RemoveWatcher) , 0);
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("close"), Brn("test"), Brn("E")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("close"), Brn("test"), Brn("E")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
 
     iThread->Schedule(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::Test1UpdateBA) , 0);
@@ -689,6 +701,9 @@ void SuiteWatchable::Test1() // SingleWatchableSingleWatcher
     TEST(iWatcher1->CheckEmpty());
 
     delete iThread;
+    delete iWatcher1;
+    delete iWatchable;
+
     iSuccess = true;
 }
 
@@ -729,7 +744,6 @@ void SuiteWatchable::Test1AddWatcher(void*)
 
 void SuiteWatchable::Test2() // RemoveWatcherFlushesCallbacks
 {
-    iSuccess = false;
     iWatcher1 = new Watcher<Brn>();
     iThread = new WatchableThread(*iExceptionReporter);
     iWatchable = new Watchable<Brn>(*iThread, Brn("test"), Brn("A"));
@@ -737,6 +751,10 @@ void SuiteWatchable::Test2() // RemoveWatcherFlushesCallbacks
     iThread->Schedule(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::Test2Callback), 0);
     delete iThread;
     TEST(iWatcher1->CheckEmpty());
+
+    delete iWatcher1;
+    delete iWatchable;
+
     iSuccess = true;
 }
 
@@ -748,29 +766,41 @@ void SuiteWatchable::Test2Callback(void*)
 
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("open"), Brn("test"), Brn("A")));
+    auto event = iWatcher1->Pop();
+    TEST(event->Check(Brn("open"), Brn("test"), Brn("A")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
     iWatchable->Update(Brn("B"));
     iWatchable->Update(Brn("C"));
     iWatchable->RemoveWatcher(*iWatcher1);
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("update"), Brn("test"), Brn("B"), Brn("A")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("B"), Brn("A")));
+    delete event;
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("update"), Brn("test"), Brn("C"), Brn("B")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("C"), Brn("B")));
+    delete event;
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("close"), Brn("test"), Brn("C")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("close"), Brn("test"), Brn("C")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
     iWatchable->Update(Brn("D"));
     iWatchable->AddWatcher(*iWatcher1);
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("open"), Brn("test"), Brn("D")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("open"), Brn("test"), Brn("D")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
     iWatchable->RemoveWatcher(*iWatcher1);
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("close"), Brn("test"), Brn("D")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("close"), Brn("test"), Brn("D")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
 }
 
@@ -782,13 +812,8 @@ void SuiteWatchable::DoNothing(void*)
 }
 
 
-
-
-
-
 void SuiteWatchable::Test3() // SingleWatchableTwoWatchers
 {
-    iSuccess = false;
     iWatcher1 = new Watcher<Brn>();
     iWatcher2 = new Watcher<Brn>();
 
@@ -800,6 +825,10 @@ void SuiteWatchable::Test3() // SingleWatchableTwoWatchers
 
     TEST(iWatcher1->CheckEmpty());
     TEST(iWatcher2->CheckEmpty());
+
+    delete iWatcher1;
+    delete iWatcher2;
+
     iSuccess = true;
 }
 
@@ -819,61 +848,81 @@ void SuiteWatchable::Test3Callback(void*)
 
     watchable->AddWatcher(*iWatcher1);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("open"), Brn("test"), Brn("A")));
+    auto event = iWatcher1->Pop();
+    TEST(event->Check(Brn("open"), Brn("test"), Brn("A")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
     TEST(iWatcher2->CheckEmpty());
 
     watchable->Update(Brn("B"));
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("update"), Brn("test"), Brn("B"), Brn("A")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("B"), Brn("A")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
     TEST(iWatcher2->CheckEmpty());
 
     watchable->AddWatcher(*iWatcher2);
     TEST(iWatcher2->CheckNotEmpty());
-    TEST(iWatcher2->Pop()->Check(Brn("open"), Brn("test"), Brn("B")));
+    event = iWatcher2->Pop();
+    TEST(event->Check(Brn("open"), Brn("test"), Brn("B")));
+    delete event;
     TEST(iWatcher2->CheckEmpty());
     TEST(iWatcher1->CheckEmpty());
 
     watchable->Update(Brn("C"));
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("update"), Brn("test"), Brn("C"), Brn("B")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("C"), Brn("B")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
     TEST(iWatcher2->CheckNotEmpty());
-    TEST(iWatcher2->Pop()->Check(Brn("update"), Brn("test"), Brn("C"), Brn("B")));
+    event = iWatcher2->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("C"), Brn("B")));
+    delete event;
     TEST(iWatcher2->CheckEmpty());
 
     watchable->RemoveWatcher(*iWatcher1);
     watchable->Update(Brn("D"));
     watchable->Update(Brn("E"));
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("close"), Brn("test"), Brn("C")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("close"), Brn("test"), Brn("C")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher2->CheckNotEmpty());
-    TEST(iWatcher2->Pop()->Check(Brn("update"), Brn("test"), Brn("D"), Brn("C")));
+    event = iWatcher2->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("D"), Brn("C")));
+    delete event;
     TEST(iWatcher2->CheckNotEmpty());
-    TEST(iWatcher2->Pop()->Check(Brn("update"), Brn("test"), Brn("E"), Brn("D")));
+    event = iWatcher2->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("E"), Brn("D")));
+    delete event;
     TEST(iWatcher2->CheckEmpty());
 
     watchable->RemoveWatcher(*iWatcher2);
     TEST(iWatcher2->CheckNotEmpty());
-    TEST(iWatcher2->Pop()->Check(Brn("close"), Brn("test"), Brn("E")));
+    event = iWatcher2->Pop();
+    TEST(event->Check(Brn("close"), Brn("test"), Brn("E")));
+    delete event;
     TEST(iWatcher2->CheckEmpty());
     TEST(iWatcher1->CheckEmpty());
 
     watchable->Update(Brn("B"));
     watchable->Update(Brn("A"));
+
     TEST(iWatcher1->CheckEmpty());
     TEST(iWatcher2->CheckEmpty());
+
+    delete watchable;
 }
 
 
 void SuiteWatchable::Test4() // TwoWatchablesSingleWatcher
 {
-    iSuccess = false;
     iWatcher1 = new Watcher<Brn>();
 
     iThread = new WatchableThread(*iExceptionReporter);
@@ -882,6 +931,7 @@ void SuiteWatchable::Test4() // TwoWatchablesSingleWatcher
 
     delete iThread;
     TEST(iWatcher1->CheckEmpty());
+    delete iWatcher1;
     iSuccess = true;
 }
 
@@ -901,27 +951,37 @@ void SuiteWatchable::Test4Callback(void*)
 
     watchable1->AddWatcher(*iWatcher1);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("open"), Brn("X"), Brn("A")));
+    auto event = iWatcher1->Pop();
+    TEST(event->Check(Brn("open"), Brn("X"), Brn("A")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
 
     watchable2->AddWatcher(*iWatcher1);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("open"), Brn("Y"), Brn("A")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("open"), Brn("Y"), Brn("A")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
 
     watchable1->Update(Brn("B"));
     watchable2->Update(Brn("C"));
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("update"), Brn("X"), Brn("B"), Brn("A")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("X"), Brn("B"), Brn("A")));
+    delete event;
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("update"), Brn("Y"), Brn("C"), Brn("A")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("Y"), Brn("C"), Brn("A")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
 
     watchable1->Update(Brn("C"));
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("update"), Brn("X"), Brn("C"), Brn("B")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("X"), Brn("C"), Brn("B")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
 
     watchable1->RemoveWatcher(*iWatcher1);
@@ -930,17 +990,25 @@ void SuiteWatchable::Test4Callback(void*)
     watchable2->Update(Brn("D"));
     watchable2->Update(Brn("E"));
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("close"), Brn("X"), Brn("C")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("close"), Brn("X"), Brn("C")));
+    delete event;
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("update"), Brn("Y"), Brn("D"), Brn("C")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("Y"), Brn("D"), Brn("C")));
+    delete event;
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("update"), Brn("Y"), Brn("E"), Brn("D")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("Y"), Brn("E"), Brn("D")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
 
     watchable2->RemoveWatcher(*iWatcher1);
     TEST(iWatcher1->CheckNotEmpty());
-    TEST(iWatcher1->Pop()->Check(Brn("close"), Brn("Y"), Brn("E")));
+    event = iWatcher1->Pop();
+    TEST(event->Check(Brn("close"), Brn("Y"), Brn("E")));
+    delete event;
     TEST(iWatcher1->CheckEmpty());
 
     watchable1->Update(Brn("B"));
@@ -949,13 +1017,15 @@ void SuiteWatchable::Test4Callback(void*)
     watchable2->Update(Brn("A"));
     TEST(iWatcher1->CheckEmpty());
 
+    delete watchable1;
+    delete watchable2;
+
 }
 
 
 
 void SuiteWatchable::Test5() // SingleWatchableWatchableSingleWatcher
 {
-    iSuccess = false;
     iWWatcher1 = new WWatcher<Brn>();
 
     iThread = new WatchableThread(*iExceptionReporter);
@@ -963,6 +1033,8 @@ void SuiteWatchable::Test5() // SingleWatchableWatchableSingleWatcher
 
     delete iThread;
     TEST(iWWatcher1->CheckEmpty());
+
+    delete iWWatcher1;
     iSuccess = true;
 }
 
@@ -976,45 +1048,58 @@ void SuiteWatchable::Test5Callback(void*)
 
     ww->AddWatcher(*iWWatcher1);
     TEST(iWWatcher1->CheckNotEmpty());
-    TEST(iWWatcher1->Pop()->Check(Brn("open"), Brn("test"), Brn("A")));
+    auto event = iWWatcher1->Pop();
+    TEST(event->Check(Brn("open"), Brn("test"), Brn("A")));
+    delete event;
     TEST(iWWatcher1->CheckEmpty());
 
     w->Update(Brn("B"));
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWWatcher1->CheckNotEmpty());
-    TEST(iWWatcher1->Pop()->Check(Brn("update"), Brn("test"), Brn("B"), Brn("A")));
+    event = iWWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("B"), Brn("A")));
+    delete event;
     TEST(iWWatcher1->CheckEmpty());
 
     w->Update(Brn("C"));
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWWatcher1->CheckNotEmpty());
-    TEST(iWWatcher1->Pop()->Check(Brn("update"), Brn("test"), Brn("C"), Brn("B")));
+    event = iWWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("C"), Brn("B")));
+    delete event;
     TEST(iWWatcher1->CheckEmpty());
 
     w->Update(Brn("D"));
     w->Update(Brn("E"));
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWWatcher1->CheckNotEmpty());
-    TEST(iWWatcher1->Pop()->Check(Brn("update"), Brn("test"), Brn("D"), Brn("C")));
+    event = iWWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("D"), Brn("C")));
+    delete event;
     TEST(iWWatcher1->CheckNotEmpty());
-    TEST(iWWatcher1->Pop()->Check(Brn("update"), Brn("test"), Brn("E"), Brn("D")));
+    event = iWWatcher1->Pop();
+    TEST(event->Check(Brn("update"), Brn("test"), Brn("E"), Brn("D")));
+    delete event;
     TEST(iWWatcher1->CheckEmpty());
 
     ww->RemoveWatcher(*iWWatcher1);
     TEST(iWWatcher1->CheckNotEmpty());
-    TEST(iWWatcher1->Pop()->Check(Brn("close"), Brn("test"), Brn("E")));
+    event = iWWatcher1->Pop();
+    TEST(event->Check(Brn("close"), Brn("test"), Brn("E")));
+    delete event;
     TEST(iWWatcher1->CheckEmpty());
 
     w->Update(Brn("B"));
     w->Update(Brn("A"));
     TEST(iWWatcher1->CheckEmpty());
 
+    delete w;
+    delete ww;
 }
 
 
 void SuiteWatchable::Test6() // SingleWatchableOrderedSingleOrderedWatcher
 {
-    iSuccess = false;
     iWatcherOrdered1 = new WatcherOrdered<Brn>();
 
     iThread = new WatchableThread(*iExceptionReporter);
@@ -1022,6 +1107,7 @@ void SuiteWatchable::Test6() // SingleWatchableOrderedSingleOrderedWatcher
 
     delete iThread;
     TEST(iWatcherOrdered1->CheckEmpty());
+    delete iWatcherOrdered1;
     iSuccess = true;
 }
 
@@ -1039,13 +1125,21 @@ void SuiteWatchable::Test6Callback(void*)
     watchable->AddWatcher(*iWatcherOrdered1);
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("open")));
+    auto event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("open")));
+    delete event;
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("add"), Brn("A"), 0));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("add"), Brn("A"), 0));
+    delete event;
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("add"), Brn("B"), 1));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("add"), Brn("B"), 1));
+    delete event;
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("initialised")));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("initialised")));
+    delete event;
     TEST(iWatcherOrdered1->CheckEmpty());
 
     watchable->Add(Brn("C"), 0);
@@ -1054,46 +1148,69 @@ void SuiteWatchable::Test6Callback(void*)
     watchable->Remove(Brn("B"));
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("add"), Brn("C"), 0));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("add"), Brn("C"), 0));
+    delete event;
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("add"), Brn("D"), 1));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("add"), Brn("D"), 1));
+    delete event;
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("move"), Brn("C"), 0, 2));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("move"), Brn("C"), 0, 2));
+    delete event;
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("remove"), Brn("B"), 3));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("remove"), Brn("B"), 3));
+    delete event;
     TEST(iWatcherOrdered1->CheckEmpty());
 
     watchable->RemoveWatcher(*iWatcherOrdered1);
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("close")));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("close")));
+    delete event;
 
     watchable->AddWatcher(*iWatcherOrdered1);
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("open")));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("open")));
+    delete event;
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("add"), Brn("D"), 0));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("add"), Brn("D"), 0));
+    delete event;
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("add"), Brn("A"), 1));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("add"), Brn("A"), 1));
+    delete event;
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("add"), Brn("C"), 2));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("add"), Brn("C"), 2));
+    delete event;
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("initialised")));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("initialised")));
+    delete event;
     TEST(iWatcherOrdered1->CheckEmpty());
 
     watchable->RemoveWatcher(*iWatcherOrdered1);
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcherOrdered1->CheckNotEmpty());
-    TEST(iWatcherOrdered1->Pop()->Check(Brn("close")));
+    event = iWatcherOrdered1->Pop();
+    TEST(event->Check(Brn("close")));
+    delete event;
 
     watchable->Dispose();
+
+    delete watchable;
 }
 
 
 void SuiteWatchable::Test7() // SingleWatchableUnorderedSingleWatcherUnordered
 {
-    iSuccess = false;
     iWatcherUnordered1 = new WatcherUnordered<Brn>();
 
     iThread = new WatchableThread(*iExceptionReporter);
@@ -1101,6 +1218,7 @@ void SuiteWatchable::Test7() // SingleWatchableUnorderedSingleWatcherUnordered
 
     delete iThread;
     TEST(iWatcherUnordered1->CheckEmpty());
+    delete iWatcherUnordered1;
     iSuccess = true;
 }
 
@@ -1119,13 +1237,21 @@ void SuiteWatchable::Test7Callback(void*)
 
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("open")));
+    auto event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("open")));
+    delete event;
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("add"), Brn("A")));
+    event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("add"), Brn("A")));
+    delete event;
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("add"), Brn("B")));
+    event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("add"), Brn("B")));
+    delete event;
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("initialised")));
+    event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("initialised")));
+    delete event;
     TEST(iWatcherUnordered1->CheckEmpty());
 
     watchable->Add(Brn("C"));
@@ -1135,120 +1261,164 @@ void SuiteWatchable::Test7Callback(void*)
 
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("add"), Brn("C")));
+    event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("add"), Brn("C")));
+    delete event;
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("add"), Brn("D")));
+    event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("add"), Brn("D")));
+    delete event;
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("remove"), Brn("A")));
+    event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("remove"), Brn("A")));
+    delete event;
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("remove"), Brn("C")));
+    event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("remove"), Brn("C")));
+    delete event;
 
     watchable->RemoveWatcher(*iWatcherUnordered1);
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("close")));
+    event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("close")));
+    delete event;
 
     watchable->AddWatcher(*iWatcherUnordered1);
 
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("open")));
+    event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("open")));
+    delete event;
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("add"), Brn("B")));
+    event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("add"), Brn("B")));
+    delete event;
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("add"), Brn("D")));
+    event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("add"), Brn("D")));
+    delete event;
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("initialised")));
+    event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("initialised")));
+    delete event;
     TEST(iWatcherUnordered1->CheckEmpty());
 
     watchable->RemoveWatcher(*iWatcherUnordered1);
     iThread->Execute(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::DoNothing), 0);
     TEST(iWatcherUnordered1->CheckNotEmpty());
-    TEST(iWatcherUnordered1->Pop()->Check(Brn("close")));
+    event = iWatcherUnordered1->Pop();
+    TEST(event->Check(Brn("close")));
+    delete event;
 
     watchable->Dispose();
+    delete watchable;
 }
 
 
 void SuiteWatchable::Test8() // WatchableOrderedThrowsIfDisposedWithWatchersStillActive
 {
-    iSuccess = false;
-
     iWatcherOrdered1 = new WatcherOrdered<Brn>();
-
     iThread = new WatchableThread(*iExceptionReporter);
     iThread->Schedule(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::Test8Callback), 0);
     delete iThread;
+    delete iWatcherOrdered1;
     iSuccess = true;
 }
 
 void SuiteWatchable::Test8Callback(void*)
 {
     WatchableOrdered<Brn>* watchable = new WatchableOrdered<Brn>(*iThread);
-
     watchable->AddWatcher(*iWatcherOrdered1);
 
     TEST_THROWS(watchable->Dispose(), AssertionFailed);
 
     watchable->RemoveWatcher(*iWatcherOrdered1);
+
+    // clean up
+    auto event = iWatcherOrdered1->Pop();
+    delete event;
+    event = iWatcherOrdered1->Pop();
+    delete event;
+    event = iWatcherOrdered1->Pop();
+    delete event;
+
     watchable->Dispose();
+    delete watchable;
 }
+
 
 
 void SuiteWatchable::Test9() // WatchableUnorderedThrowsIfDisposedWithWatchersStillActive
 {
-    iSuccess = false;
     iWatcherUnordered1 = new WatcherUnordered<Brn>();
 
     iThread = new WatchableThread(*iExceptionReporter);
     iThread->Schedule(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::Test9Callback), 0);
     delete iThread;
+    delete iWatcherUnordered1;
     iSuccess = true;
 }
 
 void SuiteWatchable::Test9Callback(void*)
 {
+
     WatchableUnordered<Brn>* watchable = new WatchableUnordered<Brn>(*iThread);
     watchable->AddWatcher(*iWatcherUnordered1);
 
     TEST_THROWS(watchable->Dispose(), AssertionFailed);
 
     watchable->RemoveWatcher(*iWatcherUnordered1);
+
+    // clean up
+    auto event = iWatcherUnordered1->Pop();
+    delete event;
+    event = iWatcherUnordered1->Pop();
+    delete event;
+    event = iWatcherUnordered1->Pop();
+    delete event;
+
     watchable->Dispose();
+
+    delete watchable;
+
 }
 
 
 
 void SuiteWatchable::Test10() // WatchableThrowsIfDisposedWithWatchersStillActive
 {
-    iSuccess = false;
     iWatcher1 = new Watcher<Brn>();
 
     iThread = new WatchableThread(*iExceptionReporter);
     iThread->Schedule(MakeFunctorGeneric<void*>(*this, &SuiteWatchable::Test10Callback), 0);
     delete iThread;
+    delete iWatcher1;
     iSuccess = true;
+
 }
 
 void SuiteWatchable::Test10Callback(void*)
 {
+
     Watchable<Brn>* watchable = new Watchable<Brn>(*iThread, Brn("TestId"), Brn("TestValue"));
     watchable->AddWatcher(*iWatcher1);
 
     TEST_THROWS(watchable->Dispose(), AssertionFailed);
 
     watchable->RemoveWatcher(*iWatcher1);
+
+    // clean up
+    auto event = iWatcher1->Pop();
+    delete event;
+    event = iWatcher1->Pop();
+    delete event;
+
     watchable->Dispose();
+    delete watchable;
+
 }
-
-
-
-/*
-void SuiteWatchable::ReportException(Exception& aException)
-{
-    ASSERTS();
-};
-*/
 
 
 ///////////////////////////////////////////////////////////////////////////

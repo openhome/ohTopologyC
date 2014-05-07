@@ -12,8 +12,7 @@ ServiceReceiver::ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, I
     :Service(aNetwork, &aDevice, aLog)
     ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), InfoMetadata::Empty()))
     ,iTransportState(new Watchable<Brn>(aNetwork, Brn("TransportState"), Brx::Empty()))
-	,iCurrentMetadata(NULL)
-	//,iCurrentTransportState(NULL)
+    ,iCurrentMetadata(NULL)
 {
 }
 
@@ -21,8 +20,16 @@ void ServiceReceiver::Dispose()
 {
     Service::Dispose();
     iMetadata->Dispose();
-    iMetadata = NULL;
     iTransportState->Dispose();
+    delete iMetadata;
+    delete iTransportState;
+
+    if (iCurrentMetadata!=NULL)
+    {
+        delete iCurrentMetadata;
+    }
+
+    iMetadata = NULL;
     iTransportState = NULL;
 }
 
@@ -221,8 +228,9 @@ ServiceReceiverMock::ServiceReceiverMock(INetwork& aNetwork, IInjectorDevice& aD
     :ServiceReceiver(aNetwork, aDevice, aLog)
 {
     iProtocolInfo.Replace(aProtocolInfo);
-	
-	iMetadata->Update(new InfoMetadata(*aNetwork.TagManager().FromDidlLite(aMetadata), aUri));
+
+    iCurrentMetadata = new InfoMetadata(aNetwork.TagManager().FromDidlLite(aMetadata), aUri);
+    iMetadata->Update(iCurrentMetadata);
     iTransportState->Update(Brn(aTransportState));
 }
 
@@ -289,33 +297,33 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
         TUint allButLastTokenBytes = remaining.Bytes()-lastToken.Bytes();
         Brn allButLastToken(remaining.Split(0, allButLastTokenBytes));
 
-		// FIXME : use a static function to do the new here (allowing implementation of a fixed size pool of objects in future)
-        IInfoMetadata* metadata = new InfoMetadata(*iNetwork.TagManager().FromDidlLite(allButLastToken), lastToken); 
+        // FIXME : use a static function to do the new here (allowing implementation of a fixed size pool of objects in future)
+        IInfoMetadata* metadata = new InfoMetadata(iNetwork.TagManager().FromDidlLite(allButLastToken), lastToken);
         iMetadata->Update(metadata);
 
-		if (iCurrentMetadata!=NULL)
-		{
-			delete iCurrentMetadata;
-		}
+        if (iCurrentMetadata!=NULL)
+        {
+            delete iCurrentMetadata;
+        }
 
-		iCurrentMetadata = metadata;
+        iCurrentMetadata = metadata;
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("transportstate")))
     {
-		Brn state(aValue.Next());
+        Brn state(aValue.Next());
 
-		if (state.Equals(kTransportStatePlaying))
-		{
-			iTransportState->Update(kTransportStatePlaying);
-		}
-		else if (state.Equals(kTransportStateStopped))
-		{
-			iTransportState->Update(kTransportStateStopped);
-		}
-		else if (state.Equals(kTransportStatePaused))
-		{
-			iTransportState->Update(kTransportStatePaused);
-		}
+        if (state.Equals(kTransportStatePlaying))
+        {
+            iTransportState->Update(kTransportStatePlaying);
+        }
+        else if (state.Equals(kTransportStateStopped))
+        {
+            iTransportState->Update(kTransportStateStopped);
+        }
+        else if (state.Equals(kTransportStatePaused))
+        {
+            iTransportState->Update(kTransportStatePaused);
+        }
     }
     else
     {

@@ -14,7 +14,7 @@ SenderMetadata* SenderMetadata::iEmpty = new SenderMetadata();
 
 SenderMetadata* SenderMetadata::Empty()
 {
-	return(iEmpty);
+    return(iEmpty);
 }
 
 
@@ -30,22 +30,22 @@ SenderMetadata::SenderMetadata(const Brx& aMetadata)
     try
     {
         iName.Replace(XmlParserBasic::Find(Brn("title"), aMetadata));
-		iUri.Replace(XmlParserBasic::Find(Brn("res"), aMetadata));
-		iArtworkUri.Replace(XmlParserBasic::Find(Brn("albumArtURI"), aMetadata));
+        iUri.Replace(XmlParserBasic::Find(Brn("res"), aMetadata));
+        iArtworkUri.Replace(XmlParserBasic::Find(Brn("albumArtURI"), aMetadata));
 
-		if (iName.Equals(Brx::Empty()))
-		{
-				iName.Replace("No name element provided");
-		}
+        if (iName.Equals(Brx::Empty()))
+        {
+                iName.Replace("No name element provided");
+        }
     }
     catch(XmlError)
     {
-	    iName.Replace("Invalid metadata XML");
+        iName.Replace("Invalid metadata XML");
     }
 
-	
-	
-	
+
+
+
 /*
     try
     {
@@ -113,14 +113,19 @@ ServiceSender::ServiceSender(INetwork& aNetwork, IInjectorDevice& aDevice, ILog&
 {
 }
 
+
 void ServiceSender::Dispose()
 {
     Service::Dispose();
     iAudio->Dispose();
-    iAudio = NULL;
     iMetadata->Dispose();
-    iMetadata = NULL;
     iStatus->Dispose();
+    delete iAudio;
+    delete iMetadata;
+    delete iStatus;
+
+    iAudio = NULL;
+    iMetadata = NULL;
     iStatus = NULL;
 }
 
@@ -276,7 +281,8 @@ ServiceSenderMock::ServiceSenderMock(INetwork& aNetwork, IInjectorDevice& aDevic
     iAttributes.Replace(aAttributes);
     iPresentationUrl.Replace(aPresentationUrl);
     iAudio->Update(aAudio);
-    iMetadata->Update(aMetadata);
+    iCurrentMetadata = aMetadata;
+    iMetadata->Update(iCurrentMetadata);
     iStatus->Update(Brn(aStatus));
 }
 
@@ -298,7 +304,16 @@ void ServiceSenderMock::Execute(ICommandTokens& aValue)
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("metadata")))
     {
-        iMetadata->Update(new SenderMetadata(aValue.Next()));
+        ISenderMetadata* metadata = new SenderMetadata(aValue.Next());
+
+        iMetadata->Update(metadata);
+
+        if (iCurrentMetadata!=NULL)
+        {
+            delete iCurrentMetadata;
+        }
+
+        iCurrentMetadata = metadata;
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("status")))
     {

@@ -3,6 +3,8 @@
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Buffer.h>
+#include <OpenHome/TagManager.h>
+
 #include <stddef.h>
 
 
@@ -11,7 +13,7 @@ namespace OpenHome
 namespace Av
 {
 
-class IMediaMetadata;
+//class IMediaMetadata;
 
 //////////////////////////////////////////////////////////////////////
 
@@ -23,6 +25,7 @@ class IInfoDetails
     virtual TUint Duration() = 0;
     virtual TBool Lossless() = 0;
     virtual TUint SampleRate() = 0;
+    virtual ~IInfoDetails() {}
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -41,6 +44,7 @@ class IInfoMetatext
 {
 public:
     virtual IMediaMetadata& Metatext() = 0;
+    virtual ~IInfoMetatext() {}
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -50,9 +54,11 @@ class InfoMetadata : public IInfoMetadata
 {
 public:
     static IInfoMetadata* Empty();
-    InfoMetadata(IMediaMetadata& aMetadata, const Brx& aUri);
+    InfoMetadata(IMediaMetadata* aMetadata, const Brx& aUri);
     virtual IMediaMetadata& Metadata();
     virtual const Brx& Uri();
+
+    virtual ~InfoMetadata();
 
 private:
     InfoMetadata();

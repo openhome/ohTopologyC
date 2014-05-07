@@ -40,6 +40,13 @@ Network::Network(IWatchableThread& aWatchableThread, TUint /*aMaxCacheEntries*/,
 }
 
 
+Network::~Network()
+{
+    delete iWatchableThread;
+    delete iTagManager;
+}
+
+
 ITagManager& Network::TagManager()
 {
     DisposeLock lock(*iDisposeHandler);
@@ -166,24 +173,27 @@ void Network::AddCallback(void* aObj)
 {
     Assert(); /// must be on watchable thread
 
-    IInjectorDevice* device = (IInjectorDevice*)aObj;
-    Device* handler = new Device(device);
+    IInjectorDevice* injDevice = (IInjectorDevice*)aObj;
+    Device* device = new Device(injDevice);
 
-    if ( iDevices.count(handler->Udn()) > 0 )
+    if ( iDevices.count(device->Udn()) > 0 )
     {
-        handler->Dispose();
+        device->Dispose();
+
+        delete device;
+
         return;
     }
 
-    iDevices[handler->Udn()] = handler;
+    iDevices[device->Udn()] = device;
 
     std::map<EServiceType, WatchableUnordered<IDevice*>*>::iterator it;
 
     for(it = iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
     {
-        if (device->HasService(it->first))
+        if (injDevice->HasService(it->first))
         {
-            it->second->Add(handler);
+            it->second->Add(device);
         }
     }
 
@@ -206,25 +216,26 @@ void Network::Remove(IInjectorDevice* aDevice)
  */
 void Network::RemoveCallback(void* aObj)
 {
-    IInjectorDevice* device = (IInjectorDevice*)aObj;
+    IInjectorDevice* injDevice = (IInjectorDevice*)aObj;
 
-    if (iDevices.count(device->Udn())>0)
+    if (iDevices.count(injDevice->Udn())>0)
     {
-        Device* handler = iDevices[device->Udn()];
+        Device* device = iDevices[injDevice->Udn()];
 
         map<EServiceType, WatchableUnordered<IDevice*>*>::iterator it;
 
         for(it = iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
         {
-            if (device->HasService(it->first))
+            if (injDevice->HasService(it->first))
             {
-                it->second->Remove(handler);
+                it->second->Remove(device);
             }
         }
 
-        iDevices.erase(handler->Udn());
+        iDevices.erase(device->Udn());
         //iCache.Remove(handler->Udn());
-        handler->Dispose();
+        device->Dispose();
+        delete device;
     }
 
 }
@@ -311,6 +322,7 @@ void Network::Dispose()
     for(it=iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
     {
         it->second->Dispose();
+        delete it->second;
     }
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::DisposeCallback);
@@ -318,6 +330,7 @@ void Network::Dispose()
 
     //iEventSupervisor.Dispose();
     iDisposeHandler->Dispose();
+    delete iDisposeHandler;
 
     if (iExceptions.size() > 0)
     {

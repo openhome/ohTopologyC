@@ -50,7 +50,8 @@ void Topology1::Dispose()
     //iProductLookup = null;
 
     iProducts->Dispose();
-    //iProducts = null;
+    delete iProducts;
+    iProducts = NULL;
 
     iDisposed = true;
 
@@ -134,6 +135,7 @@ void Topology1::UnorderedAddCallback(void* aObj)
     IDevice* device = args->Arg1();
     IProxyProduct* product = args->Arg2();
 
+    delete args;
 
     vector<IDevice*>::iterator it = find(iPendingSubscriptions.begin(), iPendingSubscriptions.end(), device);
 
@@ -147,6 +149,7 @@ void Topology1::UnorderedAddCallback(void* aObj)
         {
             // NOTE: we need to log the fact that product is not added due to a service not being found
             product->Dispose();
+            delete product;
             return;
         }
         iProductLookup[device] = product;
@@ -155,6 +158,7 @@ void Topology1::UnorderedAddCallback(void* aObj)
     else
     {
         product->Dispose();
+        delete product;
     }
 }
 
@@ -174,6 +178,7 @@ void Topology1::UnorderedRemove(IDevice* aDevice)
         iProducts->Remove(product);
         iProductLookup.erase(aDevice);
         product->Dispose();
+        delete product;
     }
 
 /*

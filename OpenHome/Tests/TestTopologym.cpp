@@ -86,6 +86,7 @@ private:
     {
         ITopologymSender* sender = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        delete aArgs;
 
         Bws<100> buf;
 
@@ -101,8 +102,6 @@ private:
         {
             f(Brn("Sender False"));
         }
-
-        delete aArgs;
     }
 
 private:
@@ -134,7 +133,6 @@ void SuiteTopologym::Setup()
 
 void SuiteTopologym::TearDown()
 {
-    delete iTopologym;
 }
 
 
@@ -160,6 +158,7 @@ void SuiteTopologym::Test1()
     Functor f = MakeFunctor(*network, &Network::Wait);
 
     TEST(runner->Run(f, iReader, *mocker));
+
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopologym::ExecuteCallback);
     network->Execute(fe, watcher);
 
@@ -168,12 +167,13 @@ void SuiteTopologym::Test1()
     topology1->Dispose();
     mockInjector->Dispose();
     network->Dispose();
+
+    delete iTopologym;
 }
 
 
 void SuiteTopologym::ExecuteCallback(void* aObj)
 {
-    LOG(kTrace, "SuiteTopologym::ExecuteCallback() \n");
     RoomWatcher* watcher = (RoomWatcher*)aObj;
     iTopologym->Groups().RemoveWatcher(*watcher);
     watcher->Dispose();
@@ -182,7 +182,6 @@ void SuiteTopologym::ExecuteCallback(void* aObj)
 
 void SuiteTopologym::ScheduleCallback(void* aObj)
 {
-    LOG(kTrace, "SuiteTopologym::ScheduleCallback() \n");
     RoomWatcher* watcher = (RoomWatcher*)aObj;
     iTopologym->Groups().AddWatcher(*watcher);
 }

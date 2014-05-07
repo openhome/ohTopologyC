@@ -19,6 +19,7 @@ class ISenderMetadata
 public:
     virtual const Brx& Uri() = 0;
     virtual const Brx& ArtworkUri() = 0;
+    virtual ~ISenderMetadata() {};
 };
 
 /////////////////////////////////
@@ -32,6 +33,7 @@ public:
 
     virtual const Brx& Attributes() = 0;
     virtual const Brx& PresentationUrl() = 0;
+    virtual ~IProxySender() {};
 };
 
 /////////////////////////////////
@@ -56,7 +58,7 @@ private:
     Bws<100> iUri;
     Bws<100> iArtworkUri;
     Bws<1000> iMetadata;
-	static SenderMetadata* iEmpty;
+    static SenderMetadata* iEmpty;
 };
 
 ////////////////////////////////////////////////////////////////////
@@ -81,6 +83,7 @@ protected:
     Watchable<TBool>* iAudio;
     Watchable<ISenderMetadata*>* iMetadata;
     Watchable<Brn>* iStatus;
+    ISenderMetadata* iCurrentMetadata;
 };
 
 /////////////////////////////////////////////////////////

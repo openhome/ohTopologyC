@@ -195,7 +195,7 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
             }
             else if (Ascii::CaseInsensitiveEquals(command, Brn("break")))
             {
-				 LOG(kTrace, "\n");
+                 LOG(kTrace, "\n");
                 //Debugger.Break();
             }
             else
@@ -222,7 +222,7 @@ void MockableScriptRunner::Result(Bwh* aValue)
 {
     LOG(kTrace, "\nMockableScriptRunner::Result: \n");
     LOG(kTrace, *aValue);
-	Brn actual(*aValue);
+    Brn actual(*aValue);
     iResultQueue.Write(aValue);
 }
 
@@ -234,7 +234,7 @@ TBool MockableScriptRunner::Test(const Brx& aActual, const Brx& aExpected)
 {
     Brn actual(aActual);
     Brn exp(aExpected);
-	return(aActual.Equals(aExpected));
+    return(aActual.Equals(aExpected));
 }
 
 
@@ -285,6 +285,7 @@ void ResultWatcherFactory::Dispose()
         for(TUint i=0; i<v.size(); i++)
         {
             v[i]->Dispose();
+            //delete v[i];
         }
 
     }

@@ -54,6 +54,7 @@ public:
     virtual ITagManager& TagManager() = 0;
     virtual IEventSupervisor& EventSupervisor() = 0;
     virtual IWatchableUnordered<IDevice*>* Create(EServiceType aServiceType) = 0;
+    virtual ~INetwork() {}
 };
 
 //////////////////////////////////////////////////////////////////
@@ -63,6 +64,7 @@ class Network : public INetwork, public IExceptionReporter
 public:
     Network(TUint aMaxCacheEntries, ILog& aLog);
     Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILog& aLog);
+    ~Network();
 
     void Wait();
     void Add(IInjectorDevice* aDevice);

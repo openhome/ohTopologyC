@@ -23,6 +23,7 @@ void Service::Dispose()
     Assert();
 
     iDisposeHandler->Dispose();
+    delete iDisposeHandler;
     //iCancelSubscribe.Cancel();
     OnCancelSubscribe();
 

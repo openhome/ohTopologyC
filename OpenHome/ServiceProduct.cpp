@@ -30,6 +30,13 @@ void ServiceProduct::Dispose()
     iSourceIndex->Dispose();
     iSourceXml->Dispose();
     iStandby->Dispose();
+
+
+    delete iRoom;
+    delete iName;
+    delete iSourceIndex;
+    delete iSourceXml;
+    delete iStandby;
 }
 
 

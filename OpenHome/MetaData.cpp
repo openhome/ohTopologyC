@@ -22,10 +22,19 @@ InfoMetadata::InfoMetadata()
 }
 
 
-InfoMetadata::InfoMetadata(IMediaMetadata& aMetadata, const Brx& aUri)
-    :iMetadata(&aMetadata)
+InfoMetadata::InfoMetadata(IMediaMetadata* aMetadata, const Brx& aUri)
+    :iMetadata(aMetadata)
     ,iUri(aUri)
 {
+}
+
+
+InfoMetadata::~InfoMetadata()
+{
+    if (iMetadata!=NULL)
+    {
+        delete iMetadata;
+    }
 }
 
 

@@ -90,6 +90,7 @@ private:
     {
         ITopologymGroup* group = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        delete aArgs;
         f(group->Id());
     }
 

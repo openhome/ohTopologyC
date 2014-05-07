@@ -52,6 +52,7 @@ template<class T>
 void Watcher<T>::DisposeCallback(void* aObj)
 {
     iWatchable.RemoveWatcher(*((Watcher<T>*)aObj));
+    delete aObj;
 }
 
 

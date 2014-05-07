@@ -168,6 +168,7 @@ void ReceiverWatcher::Dispose()
         iReceiver->Metadata().RemoveWatcher(*this);
 
         iReceiver->Dispose();
+        //delete iReceiver;
         iReceiver = NULL;
     }
 
@@ -263,6 +264,7 @@ void ReceiverWatcher::CreateCallback(void* aArgs)
 {
     ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
     IProxyReceiver* receiver = (IProxyReceiver*)(args->Arg2());
+    delete args;
 
     if (!iDisposed)
     {
@@ -274,6 +276,7 @@ void ReceiverWatcher::CreateCallback(void* aArgs)
     else
     {
         receiver->Dispose();
+        delete receiver;
     }
 }
 
@@ -320,6 +323,7 @@ void SenderWatcher::CreateCallback(void* aArgs)
 {
     ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
     IProxySender* sender = (IProxySender*)(args->Arg2());
+    delete args;
 
     if (!iDisposed)
     {

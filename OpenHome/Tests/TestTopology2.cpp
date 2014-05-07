@@ -120,6 +120,8 @@ private:
         // w("Source " + v.Index + " " + v.Name + " " + v.Type + " " + v.Visible));
         ITopology2Source* src = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        delete aArgs;
+
         Bws<100> buf;
         buf.Replace(Brn("Source "));
         Ascii::AppendDec(buf, src->Index());
@@ -140,18 +142,17 @@ private:
             buf.Append(Brn("False"));
         }
         f(buf);
-        delete aArgs;
     }
 
     void RoomCallback(ArgsTwo<Brn, FunctorGeneric<const Brx&>>* aArgs)
     {
         Brn str = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        delete aArgs;
         Bws<100> buf;
         buf.Replace(Brn("Room "));
         buf.Append(str);
         f(buf);
-        delete aArgs;
     }
 
 
@@ -159,24 +160,22 @@ private:
     {
         Brn str = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        delete aArgs;
         Bws<100> buf;
         buf.Replace(Brn("Name "));
         buf.Append(str);
         f(buf);
-        delete aArgs;
-
     }
 
     void SourceIndexCallback(ArgsTwo<TUint, FunctorGeneric<const Brx&>>* aArgs)
     {
         TUint i = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        delete aArgs;
         Bws<100> buf;
         buf.Replace(Brn("SourceIndex "));
         Ascii::AppendDec(buf, i);
         f(buf);
-        delete aArgs;
-
     }
 
 
@@ -184,6 +183,7 @@ private:
     {
         TBool i = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        delete aArgs;
         Bws<100> buf;
         buf.Replace(Brn("Standby "));
         if (i)
@@ -195,8 +195,6 @@ private:
             buf.Append(Brn("False"));
         }
         f(buf);
-        delete aArgs;
-
     }
 
 

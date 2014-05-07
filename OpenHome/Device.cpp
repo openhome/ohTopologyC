@@ -54,6 +54,9 @@ void Device::Dispose()
 {
     iDisposeHandler->Dispose();
     iDevice->Dispose();
+
+    delete iDisposeHandler;
+    //delete iDevice;
 }
 
 
@@ -156,6 +159,7 @@ IInjectorDevice* InjectorDeviceMock::Off()
 void InjectorDeviceMock::Dispose()
 {
     iDevice->Dispose();
+    //delete iDevice;
 }
 
 
@@ -313,7 +317,10 @@ void InjectorDevice::Dispose()
     for (it=iServices.begin(); it!=iServices.end(); it++)
     {
         it->second->Dispose();
+        //delete it->second;
     }
+
+    delete iDisposeHandler;
 }
 
 

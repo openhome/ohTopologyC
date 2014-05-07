@@ -261,10 +261,10 @@ Topology4Group::Topology4Group(INetwork& aNetwork, const Brx& aRoom, const Brx& 
     ,iLog(aLog)
     ,iDisposed(false)
     ,iParent(NULL)
-	,iSender(NULL)
+    ,iSender(NULL)
 {
     iWatchableSource = new Watchable<ITopology4Source*>(iNetwork, Brn("source"), new Topology4SourceNull());
-	
+
     iSenders = new Watchable<vector<ITopology4Group*>*>(iNetwork, Brn("senders"), iCurrentVectorSenders);
 
     //foreach (ITopology2Source s in aSources)
@@ -305,6 +305,7 @@ void Topology4Group::CreateCallback(void* aArgs)
 {
     ArgsTwo<IDevice*, IProxySender*>* args = (ArgsTwo<IDevice*, IProxySender*>*)aArgs;
     IProxySender* sender = args->Arg2();
+    delete args;
 
     if (!iDisposed)
     {
