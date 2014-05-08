@@ -102,7 +102,7 @@ void SuiteTopology1::Setup()
 
 void SuiteTopology1::TearDown()
 {
-    delete iTopology1;
+
 }
 
 
@@ -133,13 +133,16 @@ void SuiteTopology1::Test1()
     network->Execute(fe, watcher);
 
     iTopology1->Dispose();
-    mockInjector->Dispose();
     network->Dispose();
+    mockInjector->Dispose();
 
+    delete watcher;
     delete mocker;
     delete runner;
+    delete log;
+
+    delete iTopology1;
     delete network;
-    delete watcher;
     delete mockInjector;
 }
 

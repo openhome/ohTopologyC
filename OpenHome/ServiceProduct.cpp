@@ -31,7 +31,8 @@ void ServiceProduct::Dispose()
     iSourceXml->Dispose();
     iStandby->Dispose();
 
-
+    delete iCurrentRoom;
+    delete iCurrentName;
     delete iRoom;
     delete iName;
     delete iSourceIndex;
@@ -202,15 +203,19 @@ void Source::SetVisible(TBool aValue)
 
 ////////////////////////////////////////////////////////////////////////////
 
-SrcXml::SrcXml(vector<Source*> aSources)
+SrcXml::SrcXml()
 {
-    iSources = aSources;
-    CreateSourceXml();
+    iSourceXml.SetBytes(0);
 }
 
 
 const Brx& SrcXml::ToString()
 {
+    ASSERT(iSources.size()>0);
+    if (iSourceXml.Bytes()==0)
+    {
+        CreateSourceXml();
+    }
     return(iSourceXml);
 }
 
@@ -226,6 +231,12 @@ void SrcXml::UpdateVisible(TUint aIndex, TBool aVisible)
 {
     iSources[aIndex]->SetVisible(aVisible);
     CreateSourceXml();
+}
+
+
+void SrcXml::Add(unique_ptr<Source> aSource)
+{
+    iSources.push_back(move(aSource));
 }
 
 
@@ -263,14 +274,14 @@ void SrcXml::CreateSourceXml()
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-ServiceProductMock::ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aRoom, const Brx& aName, TUint aSourceIndex, SrcXml* aSourceXmlFactory, TBool aStandby,
+ServiceProductMock::ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aRoom, const Brx& aName, TUint aSourceIndex, unique_ptr<SrcXml> aSourceXmlFactory, TBool aStandby,
     const Brx& aAttributes, const Brx& aManufacturerImageUri, const Brx& aManufacturerInfo, const Brx& aManufacturerName, const Brx& aManufacturerUrl, const Brx& aModelImageUri, const Brx& aModelInfo, const Brx& aModelName,
     const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog& aLog)
     : ServiceProduct(aNetwork, aDevice, aLog)
-    ,iSourceXmlFactory(aSourceXmlFactory)
-//  ,iCurrentRoom(aRoom)
-//  ,iCurrentName(aName)
+    ,iSourceXmlFactory(move(aSourceXmlFactory))
 {
+//    Brn x(aSourceXmlFactory->ToString());
+
     iAttributes.Replace(aAttributes);
     iManufacturerImageUri.Replace(aManufacturerImageUri);
     iManufacturerInfo.Replace(aManufacturerInfo);

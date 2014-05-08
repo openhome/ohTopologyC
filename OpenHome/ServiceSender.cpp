@@ -123,6 +123,7 @@ void ServiceSender::Dispose()
     delete iAudio;
     delete iMetadata;
     delete iStatus;
+    delete iCurrentMetadata;
 
     iAudio = NULL;
     iMetadata = NULL;

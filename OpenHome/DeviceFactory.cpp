@@ -7,6 +7,7 @@
 #include <OpenHome/ServiceSender.h>
 #include <OpenHome/ServiceReceiver.h>
 #include <vector>
+#include <memory>
 
 
 using namespace OpenHome ;
@@ -28,23 +29,19 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
     // add a factory for each type of watchable service
 
     // product service
-    vector<Source*> sources;
+    std::unique_ptr<SrcXml> xml(new SrcXml());
 
-    sources.push_back(new Source(Brn("Playlist"), Brn("Playlist"), true));
-    sources.push_back(new Source(Brn("Radio"), Brn("Radio"), true));
-    sources.push_back(new Source(Brn("UPnP AV"), Brn("UpnpAv"), false));
-    sources.push_back(new Source(Brn("Songcast"), Brn("Receiver"), true));
-    sources.push_back(new Source(Brn("Net Aux"), Brn("NetAux"), false));
-
-    SrcXml* xml = new SrcXml(sources);
+    xml->Add(unique_ptr<Source>(new Source(Brn("Playlist"), Brn("Playlist"), true)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("Radio"), Brn("Radio"), true)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("UPnP AV"), Brn("UpnpAv"), false)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("Songcast"), Brn("Receiver"), true)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("Net Aux"), Brn("NetAux"), false)));
 
 
-
-
-    device->Add(eProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes, Brx::Empty(),
+    device->Add(eProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, move(xml), true, aAttributes, Brx::Empty(),
                                     Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brx::Empty(),
-                                    Brn("Linn High Fidelity System Component"), Brn("Mock DS"), Brx::Empty(), Brx::Empty(), 
-									Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn, aLog) );
+                                    Brn("Linn High Fidelity System Component"), Brn("Mock DS"), Brx::Empty(), Brx::Empty(),
+                                    Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn, aLog) );
 
 
 /*
@@ -66,14 +63,21 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
     senderMeta.Append(aUdn);
     senderMeta.Append(Brn("</res><upnp:albumArtURI>http://10.2.10.27/images/Icon.png</upnp:albumArtURI><upnp:class>object.item.audioItem</upnp:class></item></DIDL-Lite>"));
 
-    device->Add(eProxySender, new ServiceSenderMock(aNetwork, *device, aAttributes, Brx::Empty(), false, new SenderMetadata(senderMeta), Brn("Enabled"), aLog));
+
+
+
+    SenderMetadata* smd = new SenderMetadata(senderMeta);
+    ServiceSenderMock* ssm = new ServiceSenderMock(aNetwork, *device, aAttributes, Brx::Empty(), false, smd, Brn("Enabled"), aLog);
+    device->Add(eProxySender, ssm);
 
     // receiver service
-    device->Add(eProxyReceiver, new ServiceReceiverMock(aNetwork, *device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty(), aLog));
 
-	
-	
-	/*
+    ServiceReceiverMock* srm =  new ServiceReceiverMock(aNetwork, *device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty(), aLog);
+    device->Add(eProxyReceiver, srm);
+
+
+
+    /*
     // radio service
     List<IMediaMetadata> presets = new List<IMediaMetadata>();
     presets.Add(aNetwork.TagManager.FromDidlLite("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>Linn Radio (Variety)</dc:title><res protocolInfo=\"*:*:*:*\" bitrate=\"40000\">http://opml.radiotime.com/Tune.ashx?id=s122119&amp;formats=mp3,wma,aac,wmvideo,ogg&amp;partnerId=ah2rjr68&amp;username=linnproducts&amp;c=ebrowse</res><upnp:albumArtURI>http://d1i6vahw24eb07.cloudfront.net/s122119q.png</upnp:albumArtURI><upnp:class>object.item.audioItem</upnp:class></item></DIDL-Lite>"));
@@ -107,27 +111,26 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
     // add a factory for each type of watchable service
 
     // product service
-    vector<Source*> sources;
-    sources.push_back(new Source(Brn("Playlist"), Brn("Playlist"), true));
-    sources.push_back(new Source(Brn("Radio"), Brn("Radio"), true));
-    sources.push_back(new Source(Brn("UPnP AV"), Brn("UpnpAv"), false));
-    sources.push_back(new Source(Brn("Songcast"), Brn("Receiver"), true));
-    sources.push_back(new Source(Brn("Net Aux"), Brn("NetAux"), false));
-    sources.push_back(new Source(Brn("Analog1"), Brn("Analog"), true));
-    sources.push_back(new Source(Brn("Analog2"), Brn("Analog"), true));
-    sources.push_back(new Source(Brn("Phono"), Brn("Analog"), true));
-    sources.push_back(new Source(Brn("SPDIF1"), Brn("Digital"), true));
-    sources.push_back(new Source(Brn("SPDIF2"), Brn("Digital"), true));
-    sources.push_back(new Source(Brn("TOSLINK1"), Brn("Digital"), true));
-    sources.push_back(new Source(Brn("TOSLINK2"), Brn("Digital"), true));
+    std::unique_ptr<SrcXml> xml(new SrcXml());
+    xml->Add(unique_ptr<Source>(new Source(Brn("Playlist"), Brn("Playlist"), true)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("Radio"), Brn("Radio"), true)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("UPnP AV"), Brn("UpnpAv"), false)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("Songcast"), Brn("Receiver"), true)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("Net Aux"), Brn("NetAux"), false)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("Analog1"), Brn("Analog"), true)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("Analog2"), Brn("Analog"), true)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("Phono"), Brn("Analog"), true)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("SPDIF1"), Brn("Digital"), true)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("SPDIF2"), Brn("Digital"), true)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("TOSLINK1"), Brn("Digital"), true)));
+    xml->Add(unique_ptr<Source>(new Source(Brn("TOSLINK2"), Brn("Digital"), true)));
 
-//  SourceXml xml = new SourceXml(sources.ToArray());
-    SrcXml* xml = new SrcXml(sources);
 
-    device->Add(eProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, xml, true, aAttributes, Brx::Empty(), 
-				Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brx::Empty(), 
-				Brn("Linn High Fidelity System Component"), Brn("Mock DSM"), Brx::Empty(), Brx::Empty(), 
-				Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn, aLog));
+
+    device->Add(eProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, std::move(xml), true, aAttributes, Brx::Empty(),
+                Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brx::Empty(),
+                Brn("Linn High Fidelity System Component"), Brn("Mock DSM"), Brx::Empty(), Brx::Empty(),
+                Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn, aLog));
 
 /*
     // volume service
@@ -140,17 +143,17 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
     device->Add<IProxyTime>(new ServiceTimeMock(aNetwork, device, 0, 0, aLog));
 */
     // sender service
-	Bwh senderMeta(Brn("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>Main Room:Mock DSM</dc:title><res protocolInfo=\"ohz:*:*:u\">ohz://239.255.255.250:51972/"));
+    Bwh senderMeta(Brn("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>Main Room:Mock DSM</dc:title><res protocolInfo=\"ohz:*:*:u\">ohz://239.255.255.250:51972/"));
     senderMeta.Grow(2000);
     senderMeta.Append(aUdn);
     senderMeta.Append(Brn("</res><upnp:albumArtURI>http://10.2.10.27/images/Icon.png</upnp:albumArtURI><upnp:class>object.item.audioItem</upnp:class></item></DIDL-Lite>"));
-	
-	device->Add(eProxySender, new ServiceSenderMock(aNetwork, *device, aAttributes, Brx::Empty(), false, new SenderMetadata(senderMeta), Brn("Enabled"), aLog));
+
+    device->Add(eProxySender, new ServiceSenderMock(aNetwork, *device, aAttributes, Brx::Empty(), false, new SenderMetadata(senderMeta), Brn("Enabled"), aLog));
 
     // receiver service
     device->Add(eProxyReceiver, new ServiceReceiverMock(aNetwork, *device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty(), aLog));
 
-	/*
+    /*
     // radio service
     List<IMediaMetadata> presets = new List<IMediaMetadata>();
     presets.Add(aNetwork.TagManager.FromDidlLite("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>Linn Radio (Variety)</dc:title><res protocolInfo=\"*:*:*:*\" bitrate=\"40000\">http://opml.radiotime.com/Tune.ashx?id=s122119&amp;formats=mp3,wma,aac,wmvideo,ogg&amp;partnerId=ah2rjr68&amp;username=linnproducts&amp;c=ebrowse</res><upnp:albumArtURI>http://d1i6vahw24eb07.cloudfront.net/s122119q.png</upnp:albumArtURI><upnp:class>object.item.audioItem</upnp:class></item></DIDL-Lite>"));

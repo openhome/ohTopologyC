@@ -6,6 +6,8 @@
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/Watchable.h>
 #include <OpenHome/Service.h>
+#include <vector>
+#include <memory>
 
 
 
@@ -42,8 +44,9 @@ class SrcXml
 public:
     static const TUint kMaxXmlBytes = 5000;
 public:
-    SrcXml(std::vector<Source*> aSources);
+    SrcXml();
 
+    virtual void Add(std::unique_ptr<Source>);
     virtual const Brx& ToString();
     virtual void UpdateName(TUint aIndex, const Brx& aName);
     virtual void UpdateVisible(TUint aIndex, TBool aVisible);
@@ -52,7 +55,8 @@ private:
     void CreateSourceXml();
 
 private:
-    std::vector<Source*> iSources;
+    //std::vector<Source*>* iSources;
+    std::vector<std::unique_ptr<Source>> iSources;
     Bws<kMaxXmlBytes> iSourceXml;
 };
 
@@ -161,9 +165,9 @@ protected:
 class ServiceProductMock : public ServiceProduct
 {
 public:
-    ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aRoom, const Brx& aName, TUint aSourceIndex, SrcXml* aSourceXmlFactory, TBool aStandby,
-        const Brx& aAttributes, const Brx& aManufacturerImageUri, const Brx& aManufacturerInfo, const Brx& aManufacturerName, const Brx& aManufacturerUrl, const Brx& aModelImageUri, const Brx& aModelInfo, const Brx& aModelName,
-        const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog& aLog);
+    ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aRoom, const Brx& aName, TUint aSourceIndex, std::unique_ptr<SrcXml> aSourceXmlFactory, TBool aStandby,
+        const Brx& aAttributes, const Brx& aManufacturerImageUri, const Brx& aManufacturerInfo, const Brx& aManufacturerName, const Brx& aManufacturerUrl, const Brx& aModelImageUri,
+        const Brx& aModelInfo, const Brx& aModelName, const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog& aLog);
 
     virtual void Execute(ICommandTokens& aValue);
     //virtual Task SetSourceIndex(TUint aValue);
@@ -175,7 +179,7 @@ public:
 
 
 private:
-    SrcXml* iSourceXmlFactory;
+    std::unique_ptr<SrcXml> iSourceXmlFactory;
 };
 
 

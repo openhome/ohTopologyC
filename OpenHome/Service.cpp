@@ -46,14 +46,14 @@ void Service::Dispose()
 
     //iCancelSubscribe.Dispose();
 
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::DisposeCallback);
-    iNetwork.Schedule(f, NULL);
+    //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::DisposeCallback);
+    //iNetwork.Schedule(f, NULL);
 }
 
 
 void Service::DisposeCallback(void*)
 {
-    ASSERT(iRefCount == 0);
+    //ASSERT(iRefCount == 0);
 }
 
 /*
