@@ -46,18 +46,19 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 
-class GroupWatcher : public IWatcherUnordered<ITopology2Group*>, public IDisposable
+class GroupWatcher : public IWatcherUnordered<ITopology2Group*>, public IDisposable, public INonCopyable
 {
 public:
-    GroupWatcher(MockableScriptRunner* aRunner)
+    GroupWatcher(MockableScriptRunner& aRunner)
         :iRunner(aRunner)
-        ,iFactory(new ResultWatcherFactory(*aRunner))
+        ,iFactory(new ResultWatcherFactory(aRunner))
     {
     }
 
     void Dispose()
     {
         iFactory->Dispose();
+        delete iFactory;
     }
 
     void UnorderedOpen()
@@ -80,7 +81,7 @@ public:
         Bwh* result = new Bwh(buf);
 
         iFactory->Destroy(aItem->Device().Udn());
-        iRunner->Result(result);
+        iRunner.Result(result);
     }
 
 
@@ -92,7 +93,7 @@ public:
         buf.Append(Brn(" Group Added"));
 
         Bwh* result = new Bwh(buf);
-        iRunner->Result(result);
+        iRunner.Result(result);
 
 
         FunctorGeneric<ArgsTwo<Brn, FunctorGeneric<const Brx&>>*> fRoom = MakeFunctorGeneric(*this, &GroupWatcher::RoomCallback);
@@ -105,12 +106,12 @@ public:
         iFactory->Create<TUint>(aItem->Device().Udn(), aItem->SourceIndex(), fSourceIndex);
         iFactory->Create<TBool>(aItem->Device().Udn(), aItem->Standby(), fStandby);
 
-
-        std::vector<Watchable<ITopology2Source*>*> sources(aItem->Sources());
+        std::vector<Watchable<ITopology2Source*>*> sources = aItem->Sources();
         for(TUint i=0; i<sources.size(); i++)
         {
-            iFactory->Create<ITopology2Source*>(aItem->Device().Udn(), *sources[i], MakeFunctorGeneric(*this, &GroupWatcher::SourcesCallback));
+            iFactory->Create<ITopology2Source*>(aItem->Device().Udn(), *(sources[i]), MakeFunctorGeneric(*this, &GroupWatcher::SourcesCallback));
         }
+
     }
 
 
@@ -199,7 +200,7 @@ private:
 
 
 private:
-    MockableScriptRunner* iRunner;
+    MockableScriptRunner& iRunner;
     ResultWatcherFactory* iFactory;
 };
 
@@ -230,7 +231,6 @@ void SuiteTopology2::Setup()
 
 void SuiteTopology2::TearDown()
 {
-    delete iTopology2;
 }
 
 
@@ -247,7 +247,7 @@ void SuiteTopology2::Test1()
     iTopology2 = new Topology2(topology1, *log);
 
     MockableScriptRunner* runner = new MockableScriptRunner();
-    GroupWatcher* watcher = new GroupWatcher(runner);
+    GroupWatcher* watcher = new GroupWatcher(*runner);
 
     FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopology2::ScheduleCallback);
     network->Schedule(fs, watcher);
@@ -264,6 +264,15 @@ void SuiteTopology2::Test1()
     topology1->Dispose();
     network->Dispose();
     mockInjector->Dispose();
+
+    delete watcher;
+    delete mocker;
+    delete runner;
+    delete log;
+
+    delete iTopology2;
+    delete network;
+    delete mockInjector;
 }
 
 

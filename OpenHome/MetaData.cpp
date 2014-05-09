@@ -35,8 +35,6 @@ InfoMetadata::InfoMetadata(IMediaMetadata* aMetadata, const Brx& aUri)
 InfoMetadata::~InfoMetadata()
 {
     delete iMetadata;
-
-    //delete iEmpty;
 }
 
 

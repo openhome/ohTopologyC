@@ -45,10 +45,10 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 
-class ProductWatcher : public IWatcherUnordered<IProxyProduct*>
+class ProductWatcher : public IWatcherUnordered<IProxyProduct*> , public INonCopyable
 {
 public:
-    ProductWatcher(MockableScriptRunner* aRunner) : iRunner(aRunner) {}
+    ProductWatcher(MockableScriptRunner& aRunner) : iRunner(aRunner) {}
 
     virtual void UnorderedOpen() {}
     virtual void UnorderedClose() {}
@@ -61,7 +61,7 @@ public:
         buf.Append(aWatcher->Device().Udn());
 
         Bwh* result = new Bwh(buf);
-        iRunner->Result(result);
+        iRunner.Result(result);
     }
 
     virtual void UnorderedRemove(IProxyProduct* aWatcher)
@@ -71,11 +71,11 @@ public:
         buf.Append(aWatcher->Device().Udn());
 
         Bwh* result = new Bwh(buf);
-        iRunner->Result(result);
+        iRunner.Result(result);
     }
 
 private:
-    MockableScriptRunner* iRunner;
+    MockableScriptRunner& iRunner;
 };
 
 
@@ -120,7 +120,7 @@ void SuiteTopology1::Test1()
 
     MockableScriptRunner* runner = new MockableScriptRunner();
 
-    ProductWatcher* watcher = new ProductWatcher(runner);
+    ProductWatcher* watcher = new ProductWatcher(*runner);
 
     FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopology1::ScheduleCallback);
     network->Schedule(fs, watcher);

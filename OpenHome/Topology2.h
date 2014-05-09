@@ -26,6 +26,7 @@ public:
     virtual Brn Name() = 0;
     virtual Brn Type() = 0;
     virtual TBool Visible() = 0;
+    virtual ~ITopology2Source() {};
 };
 
 ////////////////////////////////////////
@@ -64,7 +65,7 @@ public:
     virtual IWatchable<TBool>& Standby() = 0;
     virtual IWatchable<TUint>& SourceIndex() = 0;
     //virtual IEnumerable<IWatchable<ITopology2Source>>& Sources() = 0;
-    virtual const std::vector<Watchable<ITopology2Source*>*> Sources() = 0;
+    virtual const std::vector<Watchable<ITopology2Source*>*>& Sources() = 0;
 
     virtual void SetStandby(TBool aValue) = 0;
     virtual void SetSourceIndex(TUint aValue) = 0;
@@ -93,7 +94,7 @@ public:
     virtual void SetStandby(TBool aValue);
     virtual void SetSourceIndex(TUint aValue);
     //virtual IEnumerable<IWatchable<ITopology2Source>>& Sources();
-    virtual const std::vector<Watchable<ITopology2Source*>*> Sources();
+    virtual const std::vector<Watchable<ITopology2Source*>*>& Sources();
 
     // IWatcher
     virtual void ItemOpen(const Brx& aId, Brn aValue);
@@ -129,6 +130,8 @@ class Topology2 : public ITopology2, public IWatcherUnordered<IProxyProduct*>, p
 {
 public:
     Topology2(ITopology1* aTopology1, ILog& aLog);
+    ~Topology2();
+
     void Dispose();
 
     // ITopology2

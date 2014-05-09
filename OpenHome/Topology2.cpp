@@ -66,8 +66,17 @@ void Topology2Group::Dispose()
 
     for(TUint i=0; i<iWatchableSources.size(); i++)
     {
-        ((Watchable<ITopology2Source*>*)iWatchableSources[i])->Dispose();
+        Watchable<ITopology2Source*>* x = (Watchable<ITopology2Source*>*) iWatchableSources[i];
+        x->Dispose();
+        delete x;
+
     }
+
+    for(TUint i=0; i<iSources.size(); i++)
+    {
+        delete iSources[i];
+    }
+
     iDisposed = true;
 }
 
@@ -159,7 +168,7 @@ IWatchable<TUint>& Topology2Group::SourceIndex()
 
 
 //IEnumerable<IWatchable<ITopology2Source>>& Topology2Group::Sources()
-const std::vector<Watchable<ITopology2Source*>*> Topology2Group::Sources()
+const std::vector<Watchable<ITopology2Source*>*>& Topology2Group::Sources()
 {
     return(iWatchableSources);
 }
@@ -241,6 +250,11 @@ void Topology2Group::ProcessSourceXml(const Brx& aSourceXml, TBool aInitial)
             {
                 iSources[index] = source;
                 iWatchableSources[index]->Update(source);
+                delete oldSource;
+            }
+            else
+            {
+                delete source;
             }
         }
 
@@ -265,6 +279,11 @@ Topology2::Topology2(ITopology1* aTopology1, ILog& /*aLog*/)
 }
 
 
+Topology2::~Topology2()
+{
+    delete iTopology1;
+}
+
 void Topology2::ScheduleCallback(void*)
 {
     iTopology1->Products().AddWatcher(*this);
@@ -282,10 +301,11 @@ void Topology2::Dispose()
     iNetwork.Execute(f, NULL);
 
     //iTopology1 = null;
-    //iGroupLookup = null;
+    //iGroupLookup = NULL;
 
     iGroups->Dispose();
-    //iGroups = null;
+    delete iGroups;
+    iGroups = NULL;
 
     iDisposed = true;
 }
@@ -299,6 +319,7 @@ void Topology2::ExecuteCallback(void*)
     for(it=iGroupLookup.begin(); it!=iGroupLookup.end(); it++)
     {
         it->second->Dispose();
+        delete it->second;
     }
 }
 
@@ -350,6 +371,7 @@ void Topology2::UnorderedRemove(IProxyProduct* aProduct)
         iGroups->Remove(group);
         iGroupLookup.erase(aProduct);
         group->Dispose();
+        delete group;
     }
 }
 

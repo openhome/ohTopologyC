@@ -285,7 +285,9 @@ void ResultWatcherFactory::Dispose()
         std::vector<IDisposable*> v = it->second;
         for(TUint i=0; i<v.size(); i++)
         {
-            v[i]->Dispose();
+            auto x = v[i];
+            x->Dispose();
+            delete x;
         }
 
     }
