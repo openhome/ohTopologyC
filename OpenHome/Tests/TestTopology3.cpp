@@ -158,8 +158,8 @@ void SuiteTopology3::Test1()
     topologym->Dispose();
     topology2->Dispose();
     topology1->Dispose();
-    mockInjector->Dispose();
     network->Dispose();
+    mockInjector->Dispose();
 }
 
 

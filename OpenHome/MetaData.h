@@ -50,7 +50,7 @@ public:
 //////////////////////////////////////////////////////////////////////
 
 
-class InfoMetadata : public IInfoMetadata
+class InfoMetadata : public IInfoMetadata, public INonCopyable
 {
 public:
     static IInfoMetadata* Empty();
@@ -75,7 +75,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////
 
-class InfoMetatext : public IInfoMetatext
+class InfoMetatext : public IInfoMetatext, public INonCopyable
 {
 public:
     InfoMetatext(IMediaMetadata& aMetatext);
