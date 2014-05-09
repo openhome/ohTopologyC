@@ -54,6 +54,8 @@ class InfoMetadata : public IInfoMetadata
 {
 public:
     static IInfoMetadata* Empty();
+    static void DestroyStatics();
+
     InfoMetadata(IMediaMetadata* aMetadata, const Brx& aUri);
     virtual IMediaMetadata& Metadata();
     virtual const Brx& Uri();
@@ -79,11 +81,44 @@ public:
     InfoMetatext(IMediaMetadata& aMetatext);
     IMediaMetadata& Metatext();
 
-private:
-    InfoMetatext();
 
 private:
-    IMediaMetadata* iMetatext;
+    IMediaMetadata& iMetatext;
+};
+
+
+class ISenderMetadata
+{
+public:
+    virtual const Brx& Uri() = 0;
+    virtual const Brx& ArtworkUri() = 0;
+    virtual ~ISenderMetadata() {};
+};
+
+/////////////////////////////////
+
+class SenderMetadata : public ISenderMetadata
+{
+public:
+    SenderMetadata(const Brx& aMetadata);
+
+    static SenderMetadata* Empty();
+    static void DestroyStatics();
+
+    virtual const Brx& Name();
+    virtual const Brx& Uri();
+    virtual const Brx& ArtworkUri();
+    virtual const Brx& ToString();
+
+private:
+    SenderMetadata();
+
+private:
+    Bws<100> iName;
+    Bws<100> iUri;
+    Bws<100> iArtworkUri;
+    Bws<1000> iMetadata;
+    static SenderMetadata* iEmpty;
 };
 
 

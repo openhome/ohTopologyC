@@ -13,16 +13,7 @@ namespace OpenHome
 namespace Av
 {
 
-
-class ISenderMetadata
-{
-public:
-    virtual const Brx& Uri() = 0;
-    virtual const Brx& ArtworkUri() = 0;
-    virtual ~ISenderMetadata() {};
-};
-
-/////////////////////////////////
+////////////////////////////////////////////////////////////////////
 
 class IProxySender : public IProxy
 {
@@ -37,31 +28,6 @@ public:
 };
 
 /////////////////////////////////
-
-class SenderMetadata : public ISenderMetadata
-{
-public:
-    SenderMetadata(const Brx& aMetadata);
-
-    static SenderMetadata* Empty();
-
-    virtual const Brx& Name();
-    virtual const Brx& Uri();
-    virtual const Brx& ArtworkUri();
-    virtual const Brx& ToString();
-
-private:
-    SenderMetadata();
-
-private:
-    Bws<100> iName;
-    Bws<100> iUri;
-    Bws<100> iArtworkUri;
-    Bws<1000> iMetadata;
-    static SenderMetadata* iEmpty;
-};
-
-////////////////////////////////////////////////////////////////////
 
 class ServiceSender : public Service
 {

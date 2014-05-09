@@ -38,6 +38,7 @@ class Topology1 : public ITopology1, public IWatcherUnordered<IDevice*>, public 
 {
 public:
     Topology1(INetwork* aNetwork, ILog& aLog);
+    ~Topology1();
 
     // IDisposable
     virtual void Dispose();

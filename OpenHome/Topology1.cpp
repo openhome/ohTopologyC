@@ -1,6 +1,9 @@
 #include <OpenHome/Topology1.h>
 #include <OpenHome/OhNetTypes.h>
 #include <algorithm>
+#include <OpenHome/MetaData.h>
+//#include <OpenHome/ServiceSender.h>
+
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
@@ -15,6 +18,13 @@ Topology1::Topology1(INetwork* aNetwork, ILog& /*aLog*/)
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::ExecuteCallback);
     iNetwork->Execute(f, 0);
+}
+
+
+Topology1::~Topology1()
+{
+    InfoMetadata::DestroyStatics();  // FIXME: should probably live elsewhere
+    SenderMetadata::DestroyStatics(); // FIXME: should probably live elsewhere
 }
 
 
@@ -45,6 +55,7 @@ void Topology1::Dispose()
     for(it=iProductLookup.begin(); it!=iProductLookup.end(); it++)
     {
         it->second->Dispose();
+        delete it->second;
     }
 
     //iProductLookup = null;
