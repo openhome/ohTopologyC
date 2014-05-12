@@ -317,22 +317,6 @@ SenderWatcher::SenderWatcher(Topologym& aTopology, ITopology2Group& aGroup)
     ,iDisposed(false)
 {
     aGroup.Device().Create(MakeFunctorGeneric(*this, &SenderWatcher::CreateCallback), eProxySender);
-
-/*
-    aGroup.Device.Create<IProxySender*>((sender) =>
-    {
-        if (!iDisposed)
-        {
-            iSender = sender;
-            iSender.Metadata.AddWatcher(this);
-            iTopology.SenderChanged(iDevice, iMetadata.Uri, Brx::Empty());
-        }
-        else
-        {
-            sender.Dispose();
-        }
-    });
-*/
 }
 
 
@@ -419,8 +403,6 @@ Topologym::Topologym(ITopology2* aTopology2, ILog& /*aLog*/)
 
 Topologym::~Topologym()
 {
-    delete iTopology2;
-    iTopology2 = NULL;
     TopologymSender::DestroyStatics();
 }
 
@@ -439,6 +421,11 @@ void Topologym::Dispose()
     }
 
     iNetwork.Execute(MakeFunctorGeneric(*this, &Topologym::DisposeCallback), 0);
+
+    iTopology2->Dispose();
+    delete iTopology2;
+    iTopology2 = NULL;
+
 
     iGroups->Dispose();
     delete iGroups;

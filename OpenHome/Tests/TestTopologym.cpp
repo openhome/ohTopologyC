@@ -164,8 +164,6 @@ void SuiteTopologym::Test1()
     network->Execute(fe, watcher);
 
     iTopologym->Dispose();
-    topology2->Dispose();
-    topology1->Dispose();
     network->Dispose();
     mockInjector->Dispose();
 

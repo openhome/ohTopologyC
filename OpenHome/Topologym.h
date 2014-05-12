@@ -190,17 +190,18 @@ private:
 
 /////////////////////////////////////////////////////////
 
-class ITopologym
+class ITopologym : public IDisposable
 {
 public:
     virtual IWatchableUnordered<ITopologymGroup*>& Groups() = 0;
     virtual INetwork& Network() = 0;
+    virtual void Dispose() = 0;
     virtual ~ITopologym() {}
 };
 
 /////////////////////////////////////////////////////////
 
-class Topologym : public ITopologym, public IWatcherUnordered<ITopology2Group*>, public IDisposable, public INonCopyable
+class Topologym : public ITopologym, public IWatcherUnordered<ITopology2Group*>, public INonCopyable
 {
 public:
     Topologym(ITopology2* aTopology2, ILog& aLog);

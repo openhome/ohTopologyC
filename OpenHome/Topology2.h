@@ -116,17 +116,18 @@ private:
 
 ///////////////////////////
 
-class ITopology2
+class ITopology2 : public IDisposable
 {
 public:
     virtual IWatchableUnordered<ITopology2Group*>& Groups() = 0;
     virtual INetwork& Network() = 0;
+    virtual void Dispose() = 0;
     virtual ~ITopology2() {}
 };
 
 //////////////////////////////////////////////////////////////////////////////////
 
-class Topology2 : public ITopology2, public IWatcherUnordered<IProxyProduct*>, public IDisposable, public INonCopyable
+class Topology2 : public ITopology2, public IWatcherUnordered<IProxyProduct*>, public INonCopyable
 {
 public:
     Topology2(ITopology1* aTopology1, ILog& aLog);

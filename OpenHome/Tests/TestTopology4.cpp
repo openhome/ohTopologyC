@@ -115,14 +115,13 @@ public:
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
 
         f(info);
-        //delete aArgs;
+        delete aArgs;
     }
 
     void CreateCallback2(ArgsTwo<vector<ITopology4Group*>*, FunctorGeneric<const Brx&>>* aArgs)
     {
         vector<ITopology4Group*>* v = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
-        delete aArgs;
 
         Bws<1000> buf;
         buf.Replace(Brn("\nSenders begin\n"));
@@ -137,6 +136,7 @@ public:
 
         buf.Append(Brn("Senders end"));
         f(buf);
+        delete aArgs;
     }
 
 
@@ -169,7 +169,6 @@ public:
     void Dispose()
     {
         iRoom.Roots().RemoveWatcher(*this);
-        //iWatchers.ForEach(w => w.Dispose());
         for(TUint i=0; i<iWatchers.size(); i++)
         {
             iWatchers[i]->Dispose();
@@ -186,7 +185,6 @@ public:
 
     void ItemUpdate(const Brx& /*aId*/, vector<ITopology4Root*>* aValue, vector<ITopology4Root*>* /*aPrevious*/)
     {
-        //iWatchers.ForEach(w => w.Dispose());
         for(TUint i=0; i<iWatchers.size(); i++)
         {
             iWatchers[i]->Dispose();
@@ -194,7 +192,6 @@ public:
 
         iWatchers.clear();
 
-        //foreach (var r in aValue)
         for(TUint i=0; i<aValue->size(); i++)
         {
             iWatchers.push_back(new RootWatcher(iRunner, *(*aValue)[i]));
@@ -273,7 +270,6 @@ public:
         // (v, w) => w("Standby " + v)
         EStandby arg1 = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
-        delete aArgs;
 
         Bws<100> buf;
         buf.Replace(Brn("Standby "));
@@ -296,13 +292,13 @@ public:
         }
 
         f(buf);
+        delete aArgs;
     }
 
     void CreateCallback2(ArgsTwo<vector<ITopology4Source*>*, FunctorGeneric<const Brx&>>* aArgs)
     {
         vector<ITopology4Source*>* v = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
-        //delete aArgs;
 
         Bws<2000> info;
         info.Replace(Brn("\nSources begin\n"));
@@ -372,6 +368,7 @@ public:
         info.Append(Brn("Sources end"));
 
         f(info);
+        delete aArgs;
     }
 
 private:
@@ -403,7 +400,6 @@ void SuiteTopology4::Setup()
 
 void SuiteTopology4::TearDown()
 {
-    //delete iTopology4;
 }
 
 
@@ -436,12 +432,17 @@ void SuiteTopology4::Test1()
     network->Execute(fe, watcher);
 
     iTopology4->Dispose();
-    topology3->Dispose();
-    topologym->Dispose();
-    topology2->Dispose();
-    topology1->Dispose();
     network->Dispose();
     mockInjector->Dispose();
+
+    delete mocker;
+    delete runner;
+    delete log;
+
+    delete iTopology4;
+    delete network;
+    delete mockInjector;
+
 }
 
 

@@ -55,10 +55,10 @@ Topology3Room::Topology3Room(IWatchableThread& aThread, const Brx& aName, ITopol
 void Topology3Room::Dispose()
 {
     iWatchableGroups->Dispose();
+    delete iWatchableGroups;
     iWatchableGroups = NULL;
 
     iGroups.clear();
-    //iGroups = null;
 }
 
 // ITopology3Room
@@ -103,7 +103,7 @@ TBool Topology3Room::Remove(ITopologymGroup& aGroup)
 
 ///////////////////////////////////////////////////////
 
-Topology3::Topology3(ITopologym* aTopologym, ILog& /*aLog*/)
+Topology3::Topology3(Topologym* aTopologym, ILog& /*aLog*/)
     :iDisposed(false)
     ,iNetwork(aTopologym->Network())
     ,iTopologym(aTopologym)
@@ -115,7 +115,7 @@ Topology3::Topology3(ITopologym* aTopologym, ILog& /*aLog*/)
 
 Topology3::~Topology3()
 {
-    delete iTopologym;
+
 }
 
 
@@ -134,12 +134,16 @@ void Topology3::Dispose()
 
 
     iNetwork.Execute(MakeFunctorGeneric(*this, &Topology3::DisposeCallback), NULL);
+
+    iTopologym->Dispose();
+    delete iTopologym;
     iTopologym = NULL;
 
     //iRoomLookup = NULL;
     //iGroupWatcherLookup = NULL;
 
     iRooms->Dispose();
+    delete iRooms;
     iRooms = NULL;
 
     iDisposed = true;
@@ -156,6 +160,7 @@ void Topology3::DisposeCallback(void*)
     for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
     {
         it->second->Dispose();
+        delete it->second;
     }
 
 /*
@@ -199,8 +204,10 @@ void Topology3::UnorderedAdd(ITopologymGroup* aItem)
 
 void Topology3::UnorderedRemove(ITopologymGroup* aItem)
 {
-    iGroupWatcherLookup[aItem]->Dispose();
     ASSERT(iGroupWatcherLookup.count(aItem)>0);
+    auto watcher = iGroupWatcherLookup[aItem];
+    watcher->Dispose();
+    delete watcher;
     iGroupWatcherLookup.erase(aItem);
 }
 
@@ -236,6 +243,7 @@ void Topology3::RemoveGroupFromRoom(ITopologymGroup& aGroup, const Brx& aRoom)
             iRooms->Remove(room);
             iRoomLookup.erase(Brn(aRoom));
             room->Dispose();
+            delete room;
         }
     }
 }

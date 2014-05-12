@@ -281,7 +281,6 @@ Topology2::Topology2(ITopology1* aTopology1, ILog& /*aLog*/)
 
 Topology2::~Topology2()
 {
-    delete iTopology1;
 }
 
 void Topology2::ScheduleCallback(void*)
@@ -299,6 +298,10 @@ void Topology2::Dispose()
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology2::ExecuteCallback);
     iNetwork.Execute(f, NULL);
+
+    iTopology1->Dispose();
+    delete iTopology1;
+    iTopology1 = NULL;
 
     //iTopology1 = null;
     //iGroupLookup = NULL;

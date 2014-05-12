@@ -23,18 +23,19 @@ namespace Av
 {
 
 
-class ITopology1
+class ITopology1 : public IDisposable
 {
 public:
     virtual IWatchableUnordered<IProxyProduct*>& Products() = 0;
     virtual INetwork& Network() = 0;
+    virtual void Dispose() = 0;
     virtual ~ITopology1() {}
 };
 
 
 ///////////////////////////////////////////////////////
 
-class Topology1 : public ITopology1, public IWatcherUnordered<IDevice*>, public IDisposable
+class Topology1 : public ITopology1, public IWatcherUnordered<IDevice*>
 {
 public:
     Topology1(INetwork* aNetwork, ILog& aLog);

@@ -29,6 +29,7 @@ public:
     virtual const Brx& Name() = 0;
     virtual IWatchableUnordered<ITopologymGroup*>& Groups() = 0;
     virtual void SetStandby(TBool aValue) = 0;
+    virtual ~ITopology3Room() {}
 };
 
 ////////////////////////////////////////////////////////
@@ -78,19 +79,21 @@ private:
 
 /////////////////////////////////////////////////////////
 
-class ITopology3
+class ITopology3 : public IDisposable
 {
 public:
     virtual IWatchableUnordered<ITopology3Room*>& Rooms() = 0;
     virtual INetwork& Network() = 0;
+    virtual void Dispose() = 0;
+    virtual ~ITopology3() {}
 };
 
 /////////////////////////////////////////////////////////
 
-class Topology3 : public ITopology3, public IWatcherUnordered<ITopologymGroup*>, public IDisposable, public INonCopyable
+class Topology3 : public ITopology3, public IWatcherUnordered<ITopologymGroup*>, public INonCopyable
 {
 public:
-    Topology3(ITopologym* aTopologym, ILog& aLog);
+    Topology3(Topologym* aTopologym, ILog& aLog);
     ~Topology3();
 
     // IDisposable
@@ -116,7 +119,7 @@ private:
 private:
     TBool iDisposed;
     INetwork& iNetwork;
-    ITopologym* iTopologym;
+    Topologym* iTopologym;
     WatchableUnordered<ITopology3Room*>* iRooms;
     std::map<ITopologymGroup*, Topology3GroupWatcher*> iGroupWatcherLookup;
     std::map<Brn, Topology3Room*, BufferCmp> iRoomLookup;

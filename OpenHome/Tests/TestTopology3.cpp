@@ -81,6 +81,7 @@ public:
     void Dispose()
     {
         iFactory->Dispose();
+        delete iFactory;
     }
 
 private:
@@ -124,7 +125,6 @@ void SuiteTopology3::Setup()
 
 void SuiteTopology3::TearDown()
 {
-    delete iTopology3;
 }
 
 
@@ -155,9 +155,6 @@ void SuiteTopology3::Test1()
     network->Execute(fe, watcher);
 
     iTopology3->Dispose();
-    topologym->Dispose();
-    topology2->Dispose();
-    topology1->Dispose();
     network->Dispose();
     mockInjector->Dispose();
 
