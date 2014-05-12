@@ -43,9 +43,9 @@ private:
 class RoomWatcher : public IWatcherUnordered<ITopologymGroup*>, public IDisposable
 {
 public:
-    RoomWatcher(MockableScriptRunner* aRunner)
+    RoomWatcher(MockableScriptRunner& aRunner)
         :iRunner(aRunner)
-        ,iFactory(new ResultWatcherFactory(*iRunner))
+        ,iFactory(new ResultWatcherFactory(iRunner))
     {
     }
 
@@ -60,7 +60,7 @@ public:
         buf.Replace(aItem->Device().Udn());
         buf.Append(" Group Added");
         Bwh* result = new Bwh(buf);
-        iRunner->Result(result);
+        iRunner.Result(result);
         iFactory->Create<ITopologymSender*>(aItem->Device().Udn(), aItem->Sender(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
     }
 
@@ -72,13 +72,14 @@ public:
         Bwh* result = new Bwh(buf);
 
         iFactory->Destroy(aItem->Device().Udn());
-        iRunner->Result(result);
+        iRunner.Result(result);
     }
 
     // IDisposable
     void Dispose()
     {
         iFactory->Dispose();
+        delete iFactory;
     }
 
 private:
@@ -86,7 +87,6 @@ private:
     {
         ITopologymSender* sender = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
-        delete aArgs;
 
         Bws<100> buf;
 
@@ -102,10 +102,11 @@ private:
         {
             f(Brn("Sender False"));
         }
+        delete aArgs;
     }
 
 private:
-    MockableScriptRunner* iRunner;
+    MockableScriptRunner& iRunner;
     ResultWatcherFactory* iFactory;
 };
 
@@ -150,7 +151,7 @@ void SuiteTopologym::Test1()
     iTopologym = new Topologym(topology2, *log);
 
     MockableScriptRunner* runner = new MockableScriptRunner();
-    RoomWatcher* watcher = new RoomWatcher(runner);
+    RoomWatcher* watcher = new RoomWatcher(*runner);
 
     FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopologym::ScheduleCallback);
     network->Schedule(fs, watcher);
@@ -168,7 +169,15 @@ void SuiteTopologym::Test1()
     network->Dispose();
     mockInjector->Dispose();
 
+    delete watcher;
+    delete mocker;
+    delete runner;
+    delete log;
+
     delete iTopologym;
+    delete network;
+    delete mockInjector;
+
 }
 
 

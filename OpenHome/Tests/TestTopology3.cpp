@@ -160,6 +160,19 @@ void SuiteTopology3::Test1()
     topology1->Dispose();
     network->Dispose();
     mockInjector->Dispose();
+
+    delete watcher;
+    delete mocker;
+    delete runner;
+    delete log;
+
+    delete iTopology3;
+    delete network;
+    delete mockInjector;
+
+
+
+
 }
 
 

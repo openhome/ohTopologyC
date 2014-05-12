@@ -168,7 +168,7 @@ IWatchable<TUint>& Topology2Group::SourceIndex()
 
 
 //IEnumerable<IWatchable<ITopology2Source>>& Topology2Group::Sources()
-const std::vector<Watchable<ITopology2Source*>*>& Topology2Group::Sources()
+std::vector<Watchable<ITopology2Source*>*>& Topology2Group::Sources()
 {
     return(iWatchableSources);
 }

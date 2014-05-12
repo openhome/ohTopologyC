@@ -91,6 +91,7 @@ class Topology3 : public ITopology3, public IWatcherUnordered<ITopologymGroup*>,
 {
 public:
     Topology3(ITopologym* aTopologym, ILog& aLog);
+    ~Topology3();
 
     // IDisposable
     virtual void Dispose();

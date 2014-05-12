@@ -12,6 +12,10 @@ TopologymSender* TopologymSender::Empty()
     return(iEmpty);
 }
 
+void TopologymSender::DestroyStatics()
+{
+    delete iEmpty;
+}
 
 TopologymSender::TopologymSender()
     :iEnabled(false)
@@ -45,6 +49,7 @@ TopologymGroup::TopologymGroup(INetwork& aNetwork, ITopology2Group& aGroup)
     :iGroup(aGroup)
     ,iSender(new Watchable<ITopologymSender*>(aNetwork, Brn("Sender"), TopologymSender::Empty()))
     ,iDisposed(false)
+    ,iCurrentSender(NULL)
 {
 }
 
@@ -53,6 +58,13 @@ void TopologymGroup::Dispose()
     if (iDisposed)
     {
         //throw new ObjectDisposedException("TopologymGroup.Dispose");
+    }
+
+    delete iSender;
+
+    if (iCurrentSender!=TopologymSender::Empty())
+    {
+        delete iCurrentSender;
     }
 
     iDisposed = true;
@@ -108,8 +120,7 @@ IWatchable<TUint>& TopologymGroup::SourceIndex()
     return iGroup.SourceIndex();
 }
 
-//IEnumerable<IWatchable<ITopology2Source*>*>& TopologymGroup::Sources()
-vector<Watchable<ITopology2Source*>*> TopologymGroup::Sources()
+vector<Watchable<ITopology2Source*>*>& TopologymGroup::Sources()
 {
     return iGroup.Sources();
 }
@@ -134,6 +145,13 @@ void TopologymGroup::SetSourceIndex(TUint aValue)
 void TopologymGroup::SetSender(ITopologymSender* aSender)
 {
     iSender->Update(aSender);
+
+    if ((iCurrentSender!=NULL)&&(iCurrentSender!=TopologymSender::Empty()))
+    {
+        delete iCurrentSender;
+    }
+
+    iCurrentSender = aSender;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -166,9 +184,8 @@ void ReceiverWatcher::Dispose()
     {
         iReceiver->TransportState().RemoveWatcher(*this);
         iReceiver->Metadata().RemoveWatcher(*this);
-
         iReceiver->Dispose();
-        //delete iReceiver;
+        delete iReceiver;
         iReceiver = NULL;
     }
 
@@ -264,7 +281,6 @@ void ReceiverWatcher::CreateCallback(void* aArgs)
 {
     ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
     IProxyReceiver* receiver = (IProxyReceiver*)(args->Arg2());
-    delete args;
 
     if (!iDisposed)
     {
@@ -278,6 +294,7 @@ void ReceiverWatcher::CreateCallback(void* aArgs)
         receiver->Dispose();
         delete receiver;
     }
+    delete args;
 }
 
 
@@ -323,7 +340,6 @@ void SenderWatcher::CreateCallback(void* aArgs)
 {
     ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
     IProxySender* sender = (IProxySender*)(args->Arg2());
-    delete args;
 
     if (!iDisposed)
     {
@@ -335,20 +351,22 @@ void SenderWatcher::CreateCallback(void* aArgs)
     {
         sender->Dispose();
     }
+    delete args;
 }
 
 
 void SenderWatcher::Dispose()
 {
     iDisposeHandler->Dispose();
+    delete iDisposeHandler;
 
     ISenderMetadata* previous = iMetadata;
 
     if (iSender != NULL)
     {
         iSender->Metadata().RemoveWatcher(*this);
-
         iSender->Dispose();
+        delete iSender;
         iSender = NULL;
     }
 
@@ -399,6 +417,14 @@ Topologym::Topologym(ITopology2* aTopology2, ILog& /*aLog*/)
 }
 
 
+Topologym::~Topologym()
+{
+    delete iTopology2;
+    iTopology2 = NULL;
+    TopologymSender::DestroyStatics();
+}
+
+
 void Topologym::ScheduleCallback(void*)
 {
     iTopology2->Groups().AddWatcher(*this);
@@ -414,12 +440,8 @@ void Topologym::Dispose()
 
     iNetwork.Execute(MakeFunctorGeneric(*this, &Topologym::DisposeCallback), 0);
 
-    iTopology2 = NULL;
-    //iGroupLookup = null;
-    //iReceiverLookup = null;
-    //iSenderLookup = null;
-
     iGroups->Dispose();
+    delete iGroups;
     iGroups = NULL;
 
     iDisposed = true;
@@ -429,12 +451,6 @@ void Topologym::Dispose()
 void Topologym::DisposeCallback(void*)
 {
     iTopology2->Groups().RemoveWatcher(*this);
-
-    map<ITopology2Group*, TopologymGroup*>::iterator it1;
-    for(it1 = iGroupLookup.begin(); it1!=iGroupLookup.end(); it1++)
-    {
-        it1->second->Dispose();
-    }
 
     map<ITopology2Group*, ReceiverWatcher*>::iterator it2;
     for(it2 = iReceiverLookup.begin(); it2!=iReceiverLookup.end(); it2++)
@@ -447,6 +463,29 @@ void Topologym::DisposeCallback(void*)
     {
         it3->second->Dispose();
     }
+
+    map<ITopology2Group*, TopologymGroup*>::iterator it1;
+    for(it1 = iGroupLookup.begin(); it1!=iGroupLookup.end(); it1++)
+    {
+        it1->second->Dispose();
+    }
+
+    for(it2 = iReceiverLookup.begin(); it2!=iReceiverLookup.end(); it2++)
+    {
+        delete it2->second;
+    }
+
+    for(it3 = iSenderLookup.begin(); it3!=iSenderLookup.end(); it3++)
+    {
+        delete it3->second;
+    }
+
+    for(it1 = iGroupLookup.begin(); it1!=iGroupLookup.end(); it1++)
+    {
+        delete it1->second;
+    }
+
+
 }
 
 
@@ -488,7 +527,9 @@ void Topologym::UnorderedRemove(ITopology2Group* aItem)
     {
         if (Ascii::Contains(aItem->Attributes(), Brn("Sender")))
         {
-            iSenderLookup[aItem]->Dispose();
+            auto sender = iSenderLookup[aItem];
+            sender->Dispose();
+            delete sender;
             iSenderLookup.erase(aItem);
         }
 
@@ -498,32 +539,14 @@ void Topologym::UnorderedRemove(ITopology2Group* aItem)
         iGroups->Remove(group);
         iGroupLookup.erase(aItem);
 
-        iReceiverLookup[aItem]->Dispose();
+        auto receiver = iReceiverLookup[aItem];
+        receiver->Dispose();
+        delete receiver;
         iReceiverLookup.erase(aItem);
 
         group->Dispose();
+        delete group;
     }
-
-/*
-    TopologymGroup group;
-    if (iGroupLookup.TryGetValue(aItem, out group))
-    {
-        if (aItem.Attributes.Contains("Sender"))
-        {
-            iSenderLookup[aItem].Dispose();
-            iSenderLookup.Remove(aItem);
-        }
-
-        // schedule higher layer notification
-        iGroups.Remove(group);
-        iGroupLookup.Remove(aItem);
-
-        iReceiverLookup[aItem].Dispose();
-        iReceiverLookup.Remove(aItem);
-
-        group.Dispose();
-    }
-*/
 }
 
 void Topologym::UnorderedClose()

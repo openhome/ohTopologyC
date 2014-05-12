@@ -51,6 +51,7 @@ Topology3Room::Topology3Room(IWatchableThread& aThread, const Brx& aName, ITopol
     Add(aGroup);
 }
 
+
 void Topology3Room::Dispose()
 {
     iWatchableGroups->Dispose();
@@ -109,6 +110,12 @@ Topology3::Topology3(ITopologym* aTopologym, ILog& /*aLog*/)
     ,iRooms(new WatchableUnordered<ITopology3Room*>(iNetwork))
 {
     iNetwork.Schedule(MakeFunctorGeneric(*this, &Topology3::ScheduleCallback), NULL);
+}
+
+
+Topology3::~Topology3()
+{
+    delete iTopologym;
 }
 
 

@@ -34,6 +34,7 @@ class ITopologymSender
 public:
     virtual TBool Enabled() = 0;
     virtual IDevice& Device() = 0;
+    virtual ~ITopologymSender() {}
 };
 
 /////////////////////////////////////////////////////////
@@ -42,6 +43,7 @@ class TopologymSender : public ITopologymSender
 {
 public:
     static TopologymSender* Empty();
+    static void DestroyStatics();
 
     TopologymSender(IDevice& aDevice);
 
@@ -63,6 +65,8 @@ private:
 class ITopologymGroup
 {
 public:
+    virtual ~ITopologymGroup() {}
+
     virtual Brn Id() = 0;
     virtual Brn Attributes() = 0;
     virtual Brn ModelName() = 0;
@@ -75,7 +79,7 @@ public:
     virtual IWatchable<TBool>& Standby() = 0;
     virtual IWatchable<TUint>& SourceIndex() = 0;
     //virtual IEnumerable<IWatchable<ITopology2Source*>*>& Sources() = 0;
-    virtual std::vector<Watchable<ITopology2Source*>*> Sources() = 0;
+    virtual std::vector<Watchable<ITopology2Source*>*>& Sources() = 0;
     virtual IWatchable<ITopologymSender*>& Sender() = 0;
 
     virtual void SetStandby(TBool aValue) = 0;
@@ -106,7 +110,7 @@ public:
     virtual IWatchable<TBool>& Standby();
     virtual IWatchable<TUint>& SourceIndex();
     //virtual IEnumerable<IWatchable<ITopology2Source*>*> Sources();
-    virtual std::vector<Watchable<ITopology2Source*>*> Sources();
+    virtual std::vector<Watchable<ITopology2Source*>*>& Sources();
 
     virtual IWatchable<ITopologymSender*>& Sender();
     virtual void SetStandby(TBool aValue);
@@ -117,6 +121,7 @@ private:
     ITopology2Group& iGroup;
     Watchable<ITopologymSender*>* iSender;
     TBool iDisposed;
+    ITopologymSender* iCurrentSender;
 };
 
 /////////////////////////////////////////////////////////
@@ -190,6 +195,7 @@ class ITopologym
 public:
     virtual IWatchableUnordered<ITopologymGroup*>& Groups() = 0;
     virtual INetwork& Network() = 0;
+    virtual ~ITopologym() {}
 };
 
 /////////////////////////////////////////////////////////
@@ -198,6 +204,8 @@ class Topologym : public ITopologym, public IWatcherUnordered<ITopology2Group*>,
 {
 public:
     Topologym(ITopology2* aTopology2, ILog& aLog);
+    ~Topologym();
+
     virtual void Dispose();
     virtual IWatchableUnordered<ITopologymGroup*>& Groups();
     virtual INetwork& Network();
