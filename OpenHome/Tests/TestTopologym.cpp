@@ -40,7 +40,7 @@ private:
 };
 
 /////////////////////////////////////////////////////////////////////
-class RoomWatcher : public IWatcherUnordered<ITopologymGroup*>, public IDisposable
+class RoomWatcher : public IWatcherUnordered<ITopologymGroup*>, public IDisposable, public INonCopyable
 {
 public:
     RoomWatcher(MockableScriptRunner& aRunner)

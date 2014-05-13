@@ -44,7 +44,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-class RootWatcher : public IDisposable
+class RootWatcher : public IDisposable, public INonCopyable
 {
 public:
     RootWatcher(MockableScriptRunner& aRunner, ITopology4Root& aRoot)
@@ -206,7 +206,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////
 
-class HouseWatcher : public IWatcherUnordered<ITopology4Room*>, public IDisposable
+class HouseWatcher : public IWatcherUnordered<ITopology4Room*>, public IDisposable, public INonCopyable
 {
 public:
     HouseWatcher(MockableScriptRunner& aRunner)
@@ -438,6 +438,7 @@ void SuiteTopology4::Test1()
     network->Dispose();
     mockInjector->Dispose();
 
+/*
     delete watcher;
     delete mocker;
     delete runner;
@@ -446,7 +447,7 @@ void SuiteTopology4::Test1()
     delete iTopology4;
     delete network;
     delete mockInjector;
-
+*/
 }
 
 

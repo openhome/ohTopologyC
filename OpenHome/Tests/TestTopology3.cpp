@@ -40,12 +40,12 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-class RoomWatcher : public IWatcherUnordered<ITopology3Room*>, public IDisposable
+class RoomWatcher : public IWatcherUnordered<ITopology3Room*>, public IDisposable, public INonCopyable
 {
 public:
-    RoomWatcher(MockableScriptRunner* aRunner)
+    RoomWatcher(MockableScriptRunner& aRunner)
         :iRunner(aRunner)
-        ,iFactory(new ResultWatcherFactory(*iRunner))
+        ,iFactory(new ResultWatcherFactory(iRunner))
     {
     }
 
@@ -62,7 +62,7 @@ public:
         buf.Append(aItem->Name());
         Bwh* result = new Bwh(buf);
 
-        iRunner->Result(result);
+        iRunner.Result(result);
         iFactory->Create<ITopologymGroup*>(aItem->Name(), aItem->Groups(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
     }
 
@@ -74,7 +74,7 @@ public:
         Bwh* result = new Bwh(buf);
 
         iFactory->Destroy(aItem->Name());
-        iRunner->Result(result);
+        iRunner.Result(result);
     }
 
     // IDisposable
@@ -97,7 +97,7 @@ private:
 
 
 private:
-    MockableScriptRunner* iRunner;
+    MockableScriptRunner& iRunner;
     ResultWatcherFactory* iFactory;
 };
 
@@ -143,7 +143,7 @@ void SuiteTopology3::Test1()
     iTopology3 = new Topology3(topologym, *log);
 
     MockableScriptRunner* runner = new MockableScriptRunner();
-    RoomWatcher* watcher = new RoomWatcher(runner);
+    RoomWatcher* watcher = new RoomWatcher(*runner);
 
     FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopology3::ScheduleCallback);
     network->Schedule(fs, watcher);

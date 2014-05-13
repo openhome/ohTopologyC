@@ -1112,6 +1112,10 @@ void Topology4::Dispose()
     iNetwork.Execute(MakeFunctorGeneric(*this, &Topology4::DisposeCallback), NULL);
     iRoomLookup.clear();
     iRooms->Dispose();
+
+    iTopology3->Dispose();
+    delete iTopology3;
+    iTopology3 = NULL;
 }
 
 
