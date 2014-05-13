@@ -438,7 +438,7 @@ void SuiteTopology4::Test1()
     network->Dispose();
     mockInjector->Dispose();
 
-/*
+
     delete watcher;
     delete mocker;
     delete runner;
@@ -447,7 +447,6 @@ void SuiteTopology4::Test1()
     delete iTopology4;
     delete network;
     delete mockInjector;
-*/
 }
 
 
