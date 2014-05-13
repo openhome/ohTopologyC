@@ -166,10 +166,6 @@ void SuiteTopology3::Test1()
     delete iTopology3;
     delete network;
     delete mockInjector;
-
-
-
-
 }
 
 

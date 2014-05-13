@@ -36,6 +36,7 @@ void ServiceSender::Dispose()
     iAudio = NULL;
     iMetadata = NULL;
     iStatus = NULL;
+    iCurrentMetadata = NULL;
 }
 
 IProxy* ServiceSender::OnCreate(IDevice* aDevice)
@@ -217,10 +218,10 @@ void ServiceSenderMock::Execute(ICommandTokens& aValue)
 
         iMetadata->Update(metadata);
 
-        if (iCurrentMetadata!=NULL)
-        {
+        //if (iCurrentMetadata!=NULL)
+        //{
             delete iCurrentMetadata;
-        }
+        //}
 
         iCurrentMetadata = metadata;
     }

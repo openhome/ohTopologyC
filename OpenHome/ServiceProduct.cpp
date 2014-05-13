@@ -486,7 +486,6 @@ void ServiceProductMock::SetStandbyCallback(void* aObj)
 ProxyProduct::ProxyProduct(ServiceProduct& aService, IDevice& aDevice)
     :iService(aService)
     ,iDevice(aDevice)
-    //: Proxy<ServiceProduct>(aService, aDevice)
 {
 }
 

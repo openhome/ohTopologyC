@@ -108,7 +108,6 @@ private:
     INetwork& iNetwork;
     Topology4Group& iGroup;
     ITopology2Source* iSource;
-
     std::vector<ITopology4Group*>* iVolumes;
     IDevice* iDevice;
     TBool iHasInfo;
@@ -324,7 +323,7 @@ private:
     Watchable<std::vector<ITopology4Source*>*>* iWatchableSources;
     Watchable<std::vector<ITopology4Registration*>*>* iWatchableRegistrations;
 
-    std::map<ITopologymGroup*, Topology4GroupWatcher*> iGroupLookup;
+    std::map<ITopologymGroup*, Topology4GroupWatcher*> iGroupWatcherLookup;
     std::vector<Topology4Group*> iGroups;
     std::vector<Topology4Group*> iRoots;
 };

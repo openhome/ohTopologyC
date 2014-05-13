@@ -23,6 +23,7 @@ MediaPresetExternal::MediaPresetExternal(IWatchableThread& aThread, Topology4Gro
     iGroup.Source().AddWatcher(*this);
 }
 
+
 void MediaPresetExternal::Dispose()
 {
     iGroup.Source().RemoveWatcher(*this);
@@ -32,30 +33,36 @@ void MediaPresetExternal::Dispose()
 
 }
 
+
 TUint MediaPresetExternal::Index()
 {
     return iIndex;
 }
+
 
 IMediaMetadata& MediaPresetExternal::Metadata()
 {
     return *iMetadata;
 }
 
+
 IWatchable<TBool>& MediaPresetExternal::Buffering()
 {
     return *iBuffering;
 }
+
 
 IWatchable<TBool>& MediaPresetExternal::Playing()
 {
     return *iPlaying;
 }
 
+
 IWatchable<TBool>& MediaPresetExternal::Selected()
 {
     return *iSelected;
 }
+
 
 void MediaPresetExternal::Play()
 {
@@ -66,6 +73,7 @@ void MediaPresetExternal::Play()
     iSource.Select();
 }
 
+
 void MediaPresetExternal::ItemOpen(const Brx& /*aId*/, ITopology4Source* aValue)
 {
     iBuffering->Update(false);
@@ -73,12 +81,14 @@ void MediaPresetExternal::ItemOpen(const Brx& /*aId*/, ITopology4Source* aValue)
     iSelected->Update(aValue == &iSource);
 }
 
+
 void MediaPresetExternal::ItemUpdate(const Brx& /*aId*/, ITopology4Source* aValue, ITopology4Source* /*aPrevious*/)
 {
     iBuffering->Update(false);
     iPlaying->Update(aValue == &iSource);
     iSelected->Update(aValue == &iSource);
 }
+
 
 void MediaPresetExternal::ItemClose(const Brx& /*aId*/, ITopology4Source* /*aValue*/)
 {
@@ -95,11 +105,13 @@ ITopology4Group& Topology4SourceNull::Group()
     //throw new NotImplementedException();
 }
 
+
 TUint Topology4SourceNull::Index()
 {
     THROW(NotImplementedException);
    // throw new NotImplementedException();
 }
+
 
 Brn Topology4SourceNull::Name()
 {
@@ -107,11 +119,13 @@ Brn Topology4SourceNull::Name()
     //throw new NotImplementedException();
 }
 
+
 Brn Topology4SourceNull::Type()
 {
     THROW(NotImplementedException);
     //throw new NotImplementedException();
 }
+
 
 TBool Topology4SourceNull::Visible()
 {
@@ -119,11 +133,13 @@ TBool Topology4SourceNull::Visible()
    // throw new NotImplementedException();
 }
 
+
 IMediaPreset& Topology4SourceNull::CreatePreset()
 {
     THROW(NotImplementedException);
     //throw new NotImplementedException();
 }
+
 
 std::vector<ITopology4Group*>& Topology4SourceNull::Volumes()
 {
@@ -131,17 +147,20 @@ std::vector<ITopology4Group*>& Topology4SourceNull::Volumes()
     //throw new NotImplementedException();
 }
 
+
 IDevice& Topology4SourceNull::Device()
 {
     THROW(NotImplementedException);
    // throw new NotImplementedException();
 }
 
+
 TBool Topology4SourceNull::HasInfo()
 {
     THROW(NotImplementedException);
     //throw new NotImplementedException();
 }
+
 
 TBool Topology4SourceNull::HasTime()
 {
@@ -156,10 +175,12 @@ Topology4Source::Topology4Source(INetwork& aNetwork, Topology4Group& aGroup, ITo
     :iNetwork(aNetwork)
     ,iGroup(aGroup)
     ,iSource(aSource)
+    ,iVolumes(NULL)
     ,iDevice(NULL)
 {
 
 }
+
 
 TUint Topology4Source::Index()
 {
@@ -171,20 +192,24 @@ Brn Topology4Source::Name()
     return iSource->Name();
 }
 
+
 ITopology4Group& Topology4Source::Group()
 {
     return iGroup;
 }
+
 
 Brn Topology4Source::Type()
 {
     return iSource->Type();
 }
 
+
 TBool Topology4Source::Visible()
 {
     return iSource->Visible();
 }
+
 
 IMediaPreset& Topology4Source::CreatePreset()
 {
@@ -203,15 +228,18 @@ IMediaPreset& Topology4Source::CreatePreset()
     return (*(new MediaPresetExternal(iNetwork, *group, iSource->Index(), metadata, *this)));
 }
 
+
 std::vector<ITopology4Group*>& Topology4Source::Volumes()
 {
     return *iVolumes;
 }
 
+
 void Topology4Source::SetVolumes(std::vector<ITopology4Group*>* aVolumes)
 {
     iVolumes = aVolumes;
 }
+
 
 IDevice& Topology4Source::Device()
 {
@@ -219,15 +247,18 @@ IDevice& Topology4Source::Device()
     return(*iDevice);
 }
 
+
 void Topology4Source::SetDevice(IDevice& aDevice)
 {
     iDevice = &aDevice;
 }
 
+
 TBool Topology4Source::HasInfo()
 {
     return iHasInfo;
 }
+
 
 void Topology4Source::SetHasInfo(TBool aHasInfo)
 {
@@ -239,10 +270,13 @@ TBool Topology4Source::HasTime()
 {
     return iHasTime;
 }
+
+
 void Topology4Source::SetHasTime(TBool aHasTime)
 {
     iHasTime = aHasTime;
 }
+
 
 void Topology4Source::Select()
 {
@@ -256,18 +290,18 @@ Topology4Group::Topology4Group(INetwork& aNetwork, const Brx& aRoom, const Brx& 
     ,iRoom(aRoom)
     ,iName(aName)
     ,iGroup(&aGroup)
-    ,iCurrentSource(NULL)
-    ,iCurrentVectorSenders(NULL)
+    ,iCurrentSource(new Topology4SourceNull())
+    ,iCurrentVectorSenders(new vector<ITopology4Group*>())
     ,iLog(aLog)
     ,iDisposed(false)
     ,iParent(NULL)
     ,iSender(NULL)
+    ,iVectorVolumes(NULL)
 {
-    iWatchableSource = new Watchable<ITopology4Source*>(iNetwork, Brn("source"), new Topology4SourceNull());
+    iWatchableSource = new Watchable<ITopology4Source*>(iNetwork, Brn("source"), iCurrentSource);
 
     iSenders = new Watchable<vector<ITopology4Group*>*>(iNetwork, Brn("senders"), iCurrentVectorSenders);
 
-    //foreach (ITopology2Source s in aSources)
     for(TUint i=0; i<aSources.size(); i++)
     {
         Topology4Source* source = new Topology4Source(aNetwork, *this, aSources[i]);
@@ -276,26 +310,9 @@ Topology4Group::Topology4Group(INetwork& aNetwork, const Brx& aRoom, const Brx& 
 
     iGroup->SourceIndex().AddWatcher(*this);
 
-    // if (iGroup.Attributes().Contains(Brn("Sender")))
     if (Ascii::Contains(iGroup->Attributes(), Brn("Sender")))
     {
-
         iGroup->Device().Create(MakeFunctorGeneric(*this, &Topology4Group::CreateCallback), eProxySender);
-/*
-        iGroup.Device.Create<IProxySender>((sender) =>
-        {
-            if (!iDisposed)
-            {
-                iSender = sender;
-
-                iSender.Status.AddWatcher(this);
-            }
-            else
-            {
-                sender.Dispose();
-            }
-        });
-*/
     }
 
 }
@@ -305,7 +322,6 @@ void Topology4Group::CreateCallback(void* aArgs)
 {
     ArgsTwo<IDevice*, IProxySender*>* args = (ArgsTwo<IDevice*, IProxySender*>*)aArgs;
     IProxySender* sender = args->Arg2();
-    delete args;
 
     if (!iDisposed)
     {
@@ -317,6 +333,7 @@ void Topology4Group::CreateCallback(void* aArgs)
     {
         sender->Dispose();
     }
+    delete args;
 }
 
 
@@ -326,6 +343,7 @@ void Topology4Group::Dispose()
     iGroup = NULL;
 
     iWatchableSource->Dispose();
+    delete iWatchableSource;
     iWatchableSource = NULL;
 
     if (iSender != NULL)
@@ -337,33 +355,49 @@ void Topology4Group::Dispose()
     }
 
     iSenders->Dispose();
+    delete iSenders;
 
-    iDisposed = true;}
+    for(TUint i=0; i<iSources.size(); i++)
+    {
+        delete iSources[i];
+    }
+
+    delete iVectorVolumes;
+    delete iCurrentVectorSenders;
+
+    iDisposed = true;
+}
+
 
 Brn Topology4Group::Name()
 {
     return iName;
 }
 
+
 IDevice& Topology4Group::Device()
 {
     return iGroup->Device();
 }
+
 
 Brn Topology4Group::Room()
 {
     return iRoom;
 }
 
+
 Brn Topology4Group::ModelName()
 {
     return iGroup->ModelName();
 }
 
+
 Brn Topology4Group::ManufacturerName()
 {
     return iGroup->ManufacturerName();
 }
+
 
 Brn Topology4Group::ProductId()
 {
@@ -396,6 +430,9 @@ void Topology4Group::EvaluateSources()
 
     // get list of all volume groups
     vector<ITopology4Group*>* volumes = new vector<ITopology4Group*>();
+
+    delete iVectorVolumes;
+    iVectorVolumes = volumes;
 
     Topology4Group* group = this;
 
@@ -457,26 +494,20 @@ void Topology4Group::EvaluateSources()
 
     ITopology4Source* source = EvaluateSource();
 
-    ITopology4Source* oldSource = iCurrentSource;
-    iCurrentSource = source;
+    delete iCurrentSource;
 
-    iWatchableSource->Update(iCurrentSource);
-
-    if (oldSource!=NULL)
-    {
-        delete oldSource;
-    }
+    iWatchableSource->Update(source);
 }
+
 
 std::vector<ITopology4Source*>& Topology4Group::Sources()
 {
     return iVisibleSources;
 }
 
+
 void Topology4Group::EvaluateSenders()
 {
-
-    //foreach (Topology4Group g in iChildren)
     for(TUint i=0; i<iChildren.size(); i++)
     {
         Topology4Group* g = iChildren[i];
@@ -485,11 +516,9 @@ void Topology4Group::EvaluateSenders()
 
     vector<ITopology4Group*>* vectorSenders = new vector<ITopology4Group*>();
 
-    //foreach (Topology4Group g in iChildren)
     for(TUint i=0; i<iChildren.size(); i++)
     {
         Topology4Group* g = iChildren[i];
-        //senderDevices.AddRange(g->Senders().Value());
 
         vector<ITopology4Group*> v(*(g->Senders().Value()));
         vectorSenders->insert(vectorSenders->begin(), v.begin(), v.end());
@@ -500,29 +529,27 @@ void Topology4Group::EvaluateSenders()
         vectorSenders->insert(vectorSenders->begin(), this);
     }
 
-    vector<ITopology4Group*>* oldVectorSender = iCurrentVectorSenders;
+    delete iCurrentVectorSenders;
     iCurrentVectorSenders = vectorSenders;
     iSenders->Update(iCurrentVectorSenders);
-    if (oldVectorSender!=NULL)
-    {
-        delete oldVectorSender;
-    }
 }
+
 
 IWatchable<std::vector<ITopology4Group*>*>& Topology4Group::Senders()
 {
     return(*iSenders);
 }
 
+
 Topology4Group* Topology4Group::Parent()
 {
     return iParent;
 }
 
+
 TBool Topology4Group::AddIfIsChild(Topology4Group& aGroup)
 {
     for(TUint i=0; i<iSources.size(); i++)
-    //foreach (Topology4Source s in iSources)
     {
         Topology4Source* s = iSources[i];
         if (aGroup.Name() == s->Name())
@@ -536,10 +563,12 @@ TBool Topology4Group::AddIfIsChild(Topology4Group& aGroup)
     return false;
 }
 
+
 void Topology4Group::SetParent(Topology4Group& aGroup)
 {
     iParent = &aGroup;
 }
+
 
 void Topology4Group::SetParent(Topology4Group& aGroup, TUint aIndex)
 {
@@ -547,10 +576,12 @@ void Topology4Group::SetParent(Topology4Group& aGroup, TUint aIndex)
     iParentSourceIndex = aIndex;
 }
 
+
 void Topology4Group::ItemOpen(const Brx& /*aId*/, TUint aValue)
 {
     iSourceIndex = aValue;
 }
+
 
 void Topology4Group::ItemUpdate(const Brx& /*aId*/, TUint aValue, TUint /*aPrevious*/)
 {
@@ -558,9 +589,11 @@ void Topology4Group::ItemUpdate(const Brx& /*aId*/, TUint aValue, TUint /*aPrevi
    EvaluateSourceFromChild();
 }
 
+
 void Topology4Group::ItemClose(const Brx& /*aId*/, TUint /*aValue*/)
 {
 }
+
 
 ITopology4Source* Topology4Group::EvaluateSource()
 {
@@ -588,6 +621,7 @@ ITopology4Source* Topology4Group::EvaluateSource()
     return(source);
 }
 
+
 void Topology4Group::EvaluateSourceFromChild()
 {
     if (iParent != NULL)
@@ -607,11 +641,13 @@ void Topology4Group::EvaluateSourceFromChild()
     }
 }
 
+
 void Topology4Group::ItemOpen(const Brx& /*aId*/, Brn aValue)
 {
     iHasSender = (aValue == Brn("Enabled"));
     EvaluateSendersFromChild();
 }
+
 
 void Topology4Group::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn /*aPrevious*/)
 {
@@ -619,9 +655,11 @@ void Topology4Group::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn /*aPrevious*
     EvaluateSendersFromChild();
 }
 
+
 void Topology4Group::ItemClose(const Brx& /*aId*/, Brn /*aValue*/)
 {
 }
+
 
 void Topology4Group::EvaluateSendersFromChild()
 {
@@ -634,6 +672,7 @@ void Topology4Group::EvaluateSendersFromChild()
         EvaluateSenders();
     }
 }
+
 
 void Topology4Group::SetSourceIndex(TUint aValue)
 {
@@ -684,25 +723,30 @@ void Topology4GroupWatcher::Dispose()
     //iRoom = null;
 }
 
+
 Brn Topology4GroupWatcher::Room()
 {
     return iRoomName;
 }
+
 
 Brn Topology4GroupWatcher::Name()
 {
     return iName;
 }
 
+
 std::vector<ITopology2Source*> Topology4GroupWatcher::Sources()
 {
     return iSources;
 }
 
+
 void Topology4GroupWatcher::ItemOpen(const Brx& /*aId*/, Brn aValue)
 {
    iName.Set(aValue);
 }
+
 
 void Topology4GroupWatcher::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn /*aPrevious*/)
 {
@@ -714,10 +758,12 @@ void Topology4GroupWatcher::ItemClose(const Brx& /*aId*/, Brn /*aValue*/)
 {
 }
 
+
 void Topology4GroupWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aValue)
 {
     iSources.push_back(aValue);
 }
+
 
 void Topology4GroupWatcher::ItemUpdate(const Brx& /*aId*/, ITopology2Source* aValue, ITopology2Source* aPrevious)
 {
@@ -762,101 +808,119 @@ void Topology4Room::Dispose()
     iRoom.Groups().RemoveWatcher(*this);
     //iRoom = null;
 
-    //foreach (var kvp in iGroupLookup)
+    //foreach (var kvp in iGroupWatcherLookup)
     map<ITopologymGroup*, Topology4GroupWatcher*>::iterator it;
 
-    for(it=iGroupLookup.begin(); it!=iGroupLookup.end(); it++)
+    for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
     {
         it->first->Standby().RemoveWatcher(*this);
         it->second->Dispose();
     }
-    //iGroupLookup = null;
+    //iGroupWatcherLookup = null;
 
-    //foreach (Topology4Group g in iGroups)
     for(TUint i=0; i<iGroups.size() ;i++)
     {
         iGroups[i]->Dispose();
+        delete iGroups[i];
     }
     iGroups.clear();
     //iGroups = null;
 
     iWatchableStandby->Dispose();
-    iWatchableStandby = NULL;
-
     iWatchableRoots->Dispose();
-    iWatchableRoots = NULL;
-
     iWatchableSources->Dispose();
-    iWatchableSources = NULL;
-
     iWatchableRegistrations->Dispose();
+
+    delete iWatchableStandby;
+    delete iWatchableRoots;
+    delete iWatchableSources;
+    delete iWatchableRegistrations;
+
+    iWatchableStandby = NULL;
+    iWatchableRoots = NULL;
+    iWatchableSources = NULL;
     iWatchableRegistrations = NULL;
 
-  //  iRoots = null;
+    delete iCurrentRoots;
+    delete iCurrentSources;
+    delete iCurrentRegistrations;
 
+  //  iRoots = null;
 }
+
 
 Brn Topology4Room::Name()
 {
     return iName;
 }
 
+
 IWatchable<EStandby>& Topology4Room::Standby()
 {
     return *iWatchableStandby;
 }
+
 
 IWatchable<std::vector<ITopology4Root*>*>& Topology4Room::Roots()
 {
     return *iWatchableRoots;
 }
 
+
 IWatchable<std::vector<ITopology4Source*>*>& Topology4Room::Sources()
 {
     return *iWatchableSources;
 }
+
 
 IWatchable<std::vector<ITopology4Registration*>*>& Topology4Room::Registrations()
 {
     return *iWatchableRegistrations;
 }
 
+
 void Topology4Room::SetStandby(TBool aValue)
 {
     iRoom.SetStandby(aValue);
 }
 
+
 void Topology4Room::UnorderedOpen()
 {
 }
+
 
 void Topology4Room::UnorderedInitialised()
 {
 }
 
+
 void Topology4Room::UnorderedClose()
 {
 }
 
+
 void Topology4Room::UnorderedAdd(ITopologymGroup* aItem)
 {
-    iGroupLookup[aItem] = new Topology4GroupWatcher(*this, *aItem);
+    iGroupWatcherLookup[aItem] = new Topology4GroupWatcher(*this, *aItem);
     aItem->Standby().AddWatcher(*this);
     CreateTree();
-
 }
+
 
 void Topology4Room::UnorderedRemove(ITopologymGroup* aItem)
 {
-    iGroupLookup[aItem]->Dispose();
-    iGroupLookup.erase(aItem);
+    iGroupWatcherLookup[aItem]->Dispose();
+    delete iGroupWatcherLookup[aItem];
+    iGroupWatcherLookup.erase(aItem);
     aItem->Standby().RemoveWatcher(*this);
 
-    if (iGroupLookup.size() > 0)
+    if (iGroupWatcherLookup.size() > 0)
     {
         CreateTree();
     }
 }
+
 
 void Topology4Room::CreateTree()
 {
@@ -869,10 +933,8 @@ void Topology4Room::CreateTree()
     iGroups.clear();
     iRoots.clear();
 
-    //foreach (var kvp in iGroupLookup)
-
     map<ITopologymGroup*, Topology4GroupWatcher*>::iterator it;
-    for(it=iGroupLookup.begin(); it!=iGroupLookup.end(); it++)
+    for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
     {
         Topology4Group* group = new Topology4Group(iNetwork, it->second->Room(), it->second->Name(), *it->first, it->second->Sources(), iLog);
         InsertIntoTree(*group);
@@ -885,7 +947,6 @@ void Topology4Room::CreateTree()
 
     vector<ITopology4Root*>* roots = new vector<ITopology4Root*>();
     vector<ITopology4Source*>* sources = new vector<ITopology4Source*>();
-    //foreach (Topology4Group g in iRoots)
     for(TUint i=0; i<iRoots.size(); i++)
     {
         Topology4Group* group = iRoots[i];
@@ -900,11 +961,9 @@ void Topology4Room::CreateTree()
         roots->push_back(group);
     }
 
-
-
-    vector<ITopology4Root*>* oldRoots = iCurrentRoots;
-    vector<ITopology4Source*>* oldSources = iCurrentSources;
-    vector<ITopology4Registration*>* oldRegistrations = iCurrentRegistrations;
+    delete iCurrentRoots;
+    delete iCurrentSources;
+    delete iCurrentRegistrations;
 
     iCurrentRoots = roots;
     iCurrentSources = sources;
@@ -914,30 +973,18 @@ void Topology4Room::CreateTree()
     iWatchableSources->Update(sources);
     iWatchableRegistrations->Update(registrations);
 
-    if (oldRoots!=NULL)
-    {
-        delete oldRoots;
-    }
-    if (oldSources!=NULL)
-    {
-        delete oldSources;
-    }
-    if (oldRegistrations!=NULL)
-    {
-        delete oldRegistrations;
-    }
 
-    //foreach (Topology4Group g in oldGroups)
     for(TUint i=0; i<oldGroups.size(); i++)
     {
         oldGroups[i]->Dispose();
+        delete oldGroups[i];
     }
 
 }
 
+
 void Topology4Room::InsertIntoTree(Topology4Group& aGroup)
 {
-
     // if group is the first group found
     if (iGroups.size() == 0)
     {
@@ -947,7 +994,6 @@ void Topology4Room::InsertIntoTree(Topology4Group& aGroup)
     }
 
     // check for an existing parent
-    //foreach (Topology4Group g in iGroups)
     for(TUint i=0; i<iGroups.size(); i++)
     {
         if (iGroups[i]->AddIfIsChild(aGroup))
@@ -958,12 +1004,10 @@ void Topology4Room::InsertIntoTree(Topology4Group& aGroup)
     }
 
     // check for parent of an existing root
-    //foreach (Topology4Group g in iRoots)
     for(TUint i=0; i<iRoots.size(); i++)
     {
         if (aGroup.AddIfIsChild(*iRoots[i]))
         {
-            //iRoots.Remove(g);
             iRoots.erase(iRoots.begin()+i);
             break;
         }
@@ -973,6 +1017,7 @@ void Topology4Room::InsertIntoTree(Topology4Group& aGroup)
     iRoots.push_back(&aGroup);
 
 }
+
 
 void Topology4Room::ItemOpen(const Brx& /*aId*/, TBool aValue)
 {
@@ -984,19 +1029,21 @@ void Topology4Room::ItemOpen(const Brx& /*aId*/, TBool aValue)
     EvaluateStandby();
 }
 
+
 void Topology4Room::ItemUpdate(const Brx& /*aId*/, TBool aValue, TBool /*aPrevious*/)
 {
     if (aValue)
     {
-        ++iStandbyCount;
+        iStandbyCount++;
     }
     else
     {
-        --iStandbyCount;
+        iStandbyCount--;
     }
 
     EvaluateStandby();
 }
+
 
 void Topology4Room::ItemClose(const Brx& /*aId*/, TBool aValue)
 {
@@ -1005,13 +1052,15 @@ void Topology4Room::ItemClose(const Brx& /*aId*/, TBool aValue)
         iStandbyCount--;
     }
 
-    EvaluateStandby(iGroupLookup.size() == 0);
+    EvaluateStandby(iGroupWatcherLookup.size() == 0);
 }
+
 
 void Topology4Room::EvaluateStandby()
 {
     EvaluateStandby(false);
 }
+
 
 void Topology4Room::EvaluateStandby(TBool aLastGroup)
 {
@@ -1023,7 +1072,7 @@ void Topology4Room::EvaluateStandby(TBool aLastGroup)
         {
             standby = eMixed;
 
-            if (iStandbyCount == iGroupLookup.size())
+            if (iStandbyCount == iGroupWatcherLookup.size())
             {
                 standby = eOn;
             }
@@ -1047,14 +1096,7 @@ Topology4::Topology4(ITopology3* aTopology3, ILog& aLog)
     ,iDisposeHandler(new DisposeHandler())
     ,iRooms(new WatchableUnordered<ITopology4Room*>(iNetwork))
 {
-    //iRoomLookup = new map<ITopology3Room*, Topology4Room*>();
     iNetwork.Schedule(MakeFunctorGeneric(*this, &Topology4::ScheduleCallback), NULL);
-/*
-    iNetwork.Schedule(() =>
-    {
-        iTopology3.Rooms.AddWatcher(this);
-    });
-*/
 }
 
 
@@ -1067,23 +1109,9 @@ void Topology4::ScheduleCallback(void*)
 void Topology4::Dispose()
 {
     iDisposeHandler->Dispose();
-
     iNetwork.Execute(MakeFunctorGeneric(*this, &Topology4::DisposeCallback), NULL);
-/*
-    iNetwork.Execute(() =>
-    {
-        iTopology3.Rooms.RemoveWatcher(this);
-
-        foreach (Topology4Room r in iRoomLookup.Values)
-        {
-            r.Dispose();
-        }
-    });
-*/
     iRoomLookup.clear();
-
     iRooms->Dispose();
-
 }
 
 
@@ -1106,11 +1134,13 @@ IWatchableUnordered<ITopology4Room*>& Topology4::Rooms()
     return(*iRooms);
 }
 
+
 INetwork& Topology4::Network()
 {
     DisposeLock lock(*iDisposeHandler);
     return iNetwork;
 }
+
 
 void Topology4::UnorderedOpen()
 {
@@ -1120,21 +1150,15 @@ void Topology4::UnorderedInitialised()
 {
 }
 
+
 void Topology4::UnorderedClose()
 {
 }
 
+
 void Topology4::UnorderedAdd(ITopology3Room* aItem)
 {
     iDisposeHandler->WhenNotDisposed(MakeFunctorGeneric(*this, &Topology4::UnorderedAddCallback), aItem);
-/*
-    iDisposeHandler.WhenNotDisposed(() =>
-    {
-        Topology4Room room = new Topology4Room(iNetwork, aItem, iLog);
-        iRooms.Add(room);
-        iRoomLookup.Add(aItem, room);
-    });
-*/
 }
 
 
@@ -1150,17 +1174,6 @@ void Topology4::UnorderedAddCallback(void* aT3Room)
 void Topology4::UnorderedRemove(ITopology3Room* aItem)
 {
     iDisposeHandler->WhenNotDisposed(MakeFunctorGeneric(*this, &Topology4::UnorderedRemoveCallback), aItem);
-/*
-    iDisposeHandler.WhenNotDisposed(() =>
-    {
-        // schedule notification of L4 room removal
-        Topology4Room room = iRoomLookup[aItem];
-        iRooms.Remove(room);
-        iRoomLookup.Remove(aItem);
-
-        room.Dispose();
-    });
-*/
 }
 
 
@@ -1172,6 +1185,7 @@ void Topology4::UnorderedRemoveCallback(void* aT3Room)
     iRooms->Remove(room);
     iRoomLookup.erase(t3Room);
     room->Dispose();
+    delete room;
 }
 
 

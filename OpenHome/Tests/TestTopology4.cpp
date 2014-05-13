@@ -47,10 +47,9 @@ private:
 class RootWatcher : public IDisposable
 {
 public:
-    RootWatcher(MockableScriptRunner* aRunner, ITopology4Root& aRoot)
+    RootWatcher(MockableScriptRunner& aRunner, ITopology4Root& aRoot)
+        :iFactory(new ResultWatcherFactory(aRunner))
     {
-        iFactory = new ResultWatcherFactory(*aRunner);
-
         iFactory->Create<ITopology4Source*>(aRoot.Name(), aRoot.Source(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback1));
         iFactory->Create<vector<ITopology4Group*>*>(aRoot.Name(), aRoot.Senders(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback2));
     }
@@ -126,7 +125,6 @@ public:
         Bws<1000> buf;
         buf.Replace(Brn("\nSenders begin\n"));
 
-
         for(TUint i=0; i<v->size(); i++)
         {
             buf.Append(Brn("Sender "));
@@ -143,6 +141,7 @@ public:
     void Dispose()
     {
         iFactory->Dispose();
+        delete iFactory;
     }
 
 private:
@@ -154,12 +153,12 @@ private:
 class RoomWatcher : public IWatcher<vector<ITopology4Root*>*>, public IDisposable, public INonCopyable
 {
 private:
-    MockableScriptRunner* iRunner;
+    MockableScriptRunner& iRunner;
     ITopology4Room& iRoom;
     vector<RootWatcher*> iWatchers;
 
 public:
-    RoomWatcher(MockableScriptRunner* aRunner, ITopology4Room& aRoom)
+    RoomWatcher(MockableScriptRunner& aRunner, ITopology4Room& aRoom)
         :iRunner(aRunner)
         ,iRoom(aRoom)
     {
@@ -172,6 +171,7 @@ public:
         for(TUint i=0; i<iWatchers.size(); i++)
         {
             iWatchers[i]->Dispose();
+            delete iWatchers[i];
         }
     }
 
@@ -188,6 +188,7 @@ public:
         for(TUint i=0; i<iWatchers.size(); i++)
         {
             iWatchers[i]->Dispose();
+            delete iWatchers[i];
         }
 
         iWatchers.clear();
@@ -208,20 +209,22 @@ public:
 class HouseWatcher : public IWatcherUnordered<ITopology4Room*>, public IDisposable
 {
 public:
-    HouseWatcher(MockableScriptRunner* aRunner)
+    HouseWatcher(MockableScriptRunner& aRunner)
         :iRunner(aRunner)
-        ,iFactory(new ResultWatcherFactory(*aRunner))
+        ,iFactory(new ResultWatcherFactory(aRunner))
     {
     }
 
     void Dispose()
     {
         iFactory->Dispose();
+        delete iFactory;
 
         map<ITopology4Room*, RoomWatcher*>::iterator it;
         for(it=iWatcherLookup.begin(); it!=iWatcherLookup.end(); it++)
         {
             it->second->Dispose();
+            delete it->second;
         }
     }
 
@@ -243,10 +246,9 @@ public:
         buf.Replace(Brn("Room Added "));
         buf.Append(aItem->Name());
         Bwh* result = new Bwh(buf);
-        iRunner->Result(result);
+        iRunner.Result(result);
 
         iFactory->Create<EStandby>(aItem->Name(), aItem->Standby(), MakeFunctorGeneric(*this, &HouseWatcher::CreateCallback1));
-
         iFactory->Create<vector<ITopology4Source*>*>(aItem->Name(), aItem->Sources(), MakeFunctorGeneric(*this, &HouseWatcher::CreateCallback2));
         iWatcherLookup[aItem] = new RoomWatcher(iRunner, *aItem);
     }
@@ -258,10 +260,11 @@ public:
         buf.Append(aItem->Name());
         Bwh* result = new Bwh(buf);
 
-        iRunner->Result(result);
+        iRunner.Result(result);
 
         iFactory->Destroy(aItem->Name());
         iWatcherLookup[aItem]->Dispose();
+        delete iWatcherLookup[aItem];
         iWatcherLookup.erase(aItem);
     }
 
@@ -372,7 +375,7 @@ public:
     }
 
 private:
-    MockableScriptRunner* iRunner;
+    MockableScriptRunner& iRunner;
     ResultWatcherFactory* iFactory;
     map<ITopology4Room*, RoomWatcher*> iWatcherLookup;
 };
@@ -420,7 +423,7 @@ void SuiteTopology4::Test1()
 
 
     MockableScriptRunner* runner = new MockableScriptRunner();
-    HouseWatcher* watcher = new HouseWatcher(runner);
+    HouseWatcher* watcher = new HouseWatcher(*runner);
 
     FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopology4::ScheduleCallback);
     network->Schedule(fs, watcher);
@@ -435,6 +438,7 @@ void SuiteTopology4::Test1()
     network->Dispose();
     mockInjector->Dispose();
 
+    delete watcher;
     delete mocker;
     delete runner;
     delete log;
