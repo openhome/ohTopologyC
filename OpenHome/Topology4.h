@@ -213,7 +213,6 @@ private:
     Brn iName;
     ITopologymGroup* iGroup;
     ITopology4Source* iCurrentSource;
-    std::vector<ITopology4Group*>* iCurrentVectorSenders;
     ILog& iLog;
     TBool iDisposed;
 
@@ -226,9 +225,7 @@ private:
     std::vector<Topology4Group*> iChildren;
     std::vector<Topology4Source*> iSources;
     std::vector<ITopology4Source*> iVisibleSources;
-
-    std::vector<ITopology4Group*>* iVectorVolumes;  // added in ohTopologyC
-    std::vector<ITopology4Group*>* iVectorSenderDevices; // added in ohTopologyC
+    std::vector<ITopology4Group*>* iVectorSenders; // added in ohTopologyC
 
     Watchable<std::vector<ITopology4Group*>*>* iSenders;
     Watchable<ITopology4Source*>* iWatchableSource;
@@ -243,7 +240,7 @@ public:
     virtual void Dispose();
     virtual Brn Room();
     virtual Brn Name();
-    virtual std::vector<ITopology2Source*> Sources();
+    virtual std::vector<ITopology2Source*>& Sources();
 
     virtual void ItemOpen(const Brx& aId, Brn aValue);
     virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious);
@@ -281,6 +278,7 @@ class Topology4Room : public ITopology4Room, public IWatcherUnordered<ITopologym
 {
 public:
     Topology4Room(INetwork& aNetwork, ITopology3Room& aRoom, ILog& aLog);
+
     virtual void Dispose();
     virtual Brn Name();
     virtual IWatchable<EStandby>& Standby();
@@ -314,9 +312,9 @@ private:
     TUint iStandbyCount;
     EStandby iStandby;
 
-    std::vector<ITopology4Root*>* iCurrentRoots; // added in ohTopologyC
-    std::vector<ITopology4Source*>* iCurrentSources; // added in ohTopologyC
-    std::vector<ITopology4Registration*>* iCurrentRegistrations; // added in ohTopologyC
+    std::unique_ptr<std::vector<ITopology4Root*>> iCurrentRoots; // added in ohTopologyC
+    std::unique_ptr<std::vector<ITopology4Source*>> iCurrentSources; // added in ohTopologyC
+    std::unique_ptr<std::vector<ITopology4Registration*>> iCurrentRegistrations; // added in ohTopologyC
 
     Watchable<EStandby>* iWatchableStandby;
     Watchable<std::vector<ITopology4Root*>*>* iWatchableRoots;

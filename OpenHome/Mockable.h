@@ -427,7 +427,7 @@ void ResultOrderedWatcher<T>::OrderedInitialised()
 
 
 template <class T>
-void ResultOrderedWatcher<T>::OrderedAdd(T aItem, TUint aIndex)
+void ResultOrderedWatcher<T>::OrderedAdd(T aItem, TUint /*aIndex*/)
 {
     // Ignoring aIndex - not used
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultOrderedWatcher::OrderedAddCallback);
@@ -475,7 +475,7 @@ void ResultOrderedWatcher<T>::OrderedMoveCallback(const Brx& aValue)
 
 
 template <class T>
-void ResultOrderedWatcher<T>::OrderedRemove(T aItem, TUint aIndex)
+void ResultOrderedWatcher<T>::OrderedRemove(T aItem, TUint /*aIndex*/)
 {
     // Ignoring aIndex - not used
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultOrderedWatcher::OrderedRemoveCallback);
