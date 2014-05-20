@@ -490,8 +490,8 @@ void Topology4Group::EvaluateSources()
 
     ITopology4Source* source = EvaluateSource();
 
-    delete iCurrentSource;
-	iCurrentSource = source;
+    //delete iCurrentSource;
+    iCurrentSource = source;
 
     iWatchableSource->Update(source);
 }
@@ -625,7 +625,7 @@ void Topology4Group::EvaluateSourceFromChild()
     }
 
     //delete iCurrentSource;
-	iCurrentSource = EvaluateSource();
+    iCurrentSource = EvaluateSource();
     iWatchableSource->Update(iCurrentSource);
 }
 
@@ -816,10 +816,10 @@ void Topology4Room::Dispose()
     iWatchableSources->Dispose();
     iWatchableRegistrations->Dispose();
 
-    delete iWatchableStandby;
     delete iWatchableRoots;
     delete iWatchableSources;
     delete iWatchableRegistrations;
+    delete iWatchableStandby;
 
     iWatchableStandby = NULL;
     iWatchableRoots = NULL;
@@ -945,9 +945,10 @@ void Topology4Room::CreateTree()
         roots->push_back(group);
     }
 
-    //delete iCurrentRoots;
-    //delete iCurrentSources;
-    //delete iCurrentRegistrations;
+    delete iCurrentRoots;
+    delete iCurrentRegistrations;
+
+    delete iCurrentSources;
 
     iCurrentRoots = roots;
     iCurrentSources = sources;
@@ -1116,7 +1117,7 @@ void Topology4::DisposeCallback(void*)
         delete it->second;
     }
 
-	iRoomLookup.clear();
+    iRoomLookup.clear();
 }
 
 
