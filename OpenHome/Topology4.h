@@ -226,6 +226,7 @@ private:
     std::vector<Topology4Source*> iSources;
     std::vector<ITopology4Source*> iVisibleSources;
     std::vector<ITopology4Group*>* iVectorSenders; // added in ohTopologyC
+    std::unique_ptr<std::vector<ITopology4Group*>> iCurrentVolumes;
 
     Watchable<std::vector<ITopology4Group*>*>* iSenders;
     Watchable<ITopology4Source*>* iWatchableSource;
