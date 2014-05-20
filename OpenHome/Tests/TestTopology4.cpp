@@ -58,62 +58,63 @@ public:
     {
         ITopology4Source* s = aArgs->Arg1();
 
-        Bws<2000> info;
-        info.SetBytes(0);
+		Bws<100> udn;
+		udn.Replace(s->Device().Udn());
 
-        info.Append(Brn("Source "));
+        iBuf.SetBytes(0);
 
-        Ascii::AppendDec(info, s->Index());
+        iBuf.Append(Brn("Source "));
 
-        info.Append(Brn(" "));
-        info.Append(s->Group().Name());
-        info.Append(Brn(" "));
-        info.Append(s->Name());
-        info.Append(Brn(" "));
-        info.Append(s->Type());
-        info.Append(Brn(" "));
+        Ascii::AppendDec(iBuf, s->Index());
+
+        iBuf.Append(Brn(" "));
+        iBuf.Append(s->Group().Name());
+        iBuf.Append(Brn(" "));
+        iBuf.Append(s->Name());
+        iBuf.Append(Brn(" "));
+        iBuf.Append(s->Type());
+        iBuf.Append(Brn(" "));
 
         if (s->Visible())
         {
-            info.Append(Brn("True "));
+            iBuf.Append(Brn("True "));
         }
         else
         {
-            info.Append(Brn("False "));
+            iBuf.Append(Brn("False "));
         }
 
-        Brn udn(s->Device().Udn());
 
         if (s->HasInfo())
         {
-            info.Append(Brn("True "));
+            iBuf.Append(Brn("True "));
         }
         else
         {
-            info.Append(Brn("False "));
+            iBuf.Append(Brn("False "));
         }
 
         if (s->HasTime())
         {
-            info.Append(Brn("True "));
+            iBuf.Append(Brn("True "));
         }
         else
         {
-            info.Append(Brn("False "));
+            iBuf.Append(Brn("False "));
         }
-        info.Append(udn);
+        iBuf.Append(udn);
 
-        info.Append(Brn(" Volume"));
+        iBuf.Append(Brn(" Volume"));
 
         for(TUint i=0; i<s->Volumes().size(); i++)
         {
-            info.Append(Brn(" "));
-            info.Append(s->Volumes()[i]->Device().Udn());
+            iBuf.Append(Brn(" "));
+            iBuf.Append(s->Volumes()[i]->Device().Udn());
         }
 
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
 
-        f(info);
+        f(iBuf);
         delete aArgs;
     }
 
@@ -122,18 +123,17 @@ public:
         vector<ITopology4Group*>* v = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
 
-        Bws<1000> buf;
-        buf.Replace(Brn("\nSenders begin\n"));
+        iBuf.Replace(Brn("\nSenders begin\n"));
 
         for(TUint i=0; i<v->size(); i++)
         {
-            buf.Append(Brn("Sender "));
-            buf.Append((*v)[i]->Name());
-            buf.Append(Brn("\n"));
+            iBuf.Append(Brn("Sender "));
+            iBuf.Append((*v)[i]->Name());
+            iBuf.Append(Brn("\n"));
         }
 
-        buf.Append(Brn("Senders end"));
-        f(buf);
+        iBuf.Append(Brn("Senders end"));
+        f(iBuf);
         delete aArgs;
     }
 
@@ -146,6 +146,7 @@ public:
 
 private:
     ResultWatcherFactory* iFactory;
+    Bws<5000> iBuf;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -242,10 +243,10 @@ public:
 
     void UnorderedAdd(ITopology4Room* aItem)
     {
-        Bws<100> buf;
-        buf.Replace(Brn("Room Added "));
-        buf.Append(aItem->Name());
-        Bwh* result = new Bwh(buf);
+
+        iBuf.Replace(Brn("Room Added "));
+        iBuf.Append(aItem->Name());
+        Bwh* result = new Bwh(iBuf);
         iRunner.Result(result);
 
         iFactory->Create<EStandby>(aItem->Name(), aItem->Standby(), MakeFunctorGeneric(*this, &HouseWatcher::CreateCallback1));
@@ -255,10 +256,9 @@ public:
 
     void UnorderedRemove(ITopology4Room* aItem)
     {
-        Bws<100> buf;
-        buf.Replace(Brn("Room Removed "));
-        buf.Append(aItem->Name());
-        Bwh* result = new Bwh(buf);
+        iBuf.Replace(Brn("Room Removed "));
+        iBuf.Append(aItem->Name());
+        Bwh* result = new Bwh(iBuf);
 
         iRunner.Result(result);
 
@@ -274,27 +274,26 @@ public:
         EStandby arg1 = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
 
-        Bws<100> buf;
-        buf.Replace(Brn("Standby "));
+        iBuf.Replace(Brn("Standby "));
 
         if (arg1==eOff)
         {
-            buf.Append(Brn("eOff"));
+            iBuf.Append(Brn("eOff"));
         }
         else if (arg1==eOn)
         {
-            buf.Append(Brn("eOn"));
+            iBuf.Append(Brn("eOn"));
         }
         else if (arg1==eMixed)
         {
-            buf.Append(Brn("eMixed"));
+            iBuf.Append(Brn("eMixed"));
         }
         else
         {
             ASSERTS();
         }
 
-        f(buf);
+        f(iBuf);
         delete aArgs;
     }
 
@@ -303,74 +302,70 @@ public:
         vector<ITopology4Source*>* v = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
 
-        Bws<2000> info;
-        info.Replace(Brn("\nSources begin\n"));
+        iBuf.Replace(Brn("\nSources begin\n"));
 
         for(TUint i=0; i<v->size(); i++)
         {
             ITopology4Source* s = (*v)[i];
 
-            info.Append(Brn("Source "));
+            iBuf.Append(Brn("Source "));
 
+            Ascii::AppendDec(iBuf, s->Index());
 
-            //info.Append(s->Index());
-
-            Ascii::AppendDec(info, s->Index());
-
-            info.Append(Brn(" "));
-            info.Append(s->Group().Name());
-            info.Append(Brn(" "));
-            info.Append(s->Name());
-            info.Append(Brn(" "));
-            info.Append(s->Type());
-            info.Append(Brn(" "));
+            iBuf.Append(Brn(" "));
+            iBuf.Append(s->Group().Name());
+            iBuf.Append(Brn(" "));
+            iBuf.Append(s->Name());
+            iBuf.Append(Brn(" "));
+            iBuf.Append(s->Type());
+            iBuf.Append(Brn(" "));
 
             if (s->Visible())
             {
-                info.Append(Brn("True "));
+                iBuf.Append(Brn("True "));
             }
             else
             {
-                info.Append(Brn("False "));
+                iBuf.Append(Brn("False "));
             }
 
             Brn udn(s->Device().Udn());
 
             if (s->HasInfo())
             {
-                info.Append(Brn("True "));
+                iBuf.Append(Brn("True "));
             }
             else
             {
-                info.Append(Brn("False "));
+                iBuf.Append(Brn("False "));
             }
 
             if (s->HasTime())
             {
-                info.Append(Brn("True "));
+                iBuf.Append(Brn("True "));
             }
             else
             {
-                info.Append(Brn("False "));
+                iBuf.Append(Brn("False "));
             }
 
 
-            info.Append(udn);
-            info.Append(Brn(" Volume"));
+            iBuf.Append(udn);
+            iBuf.Append(Brn(" Volume"));
 
 
             for(TUint i=0; i<s->Volumes().size(); i++)
             {
-                info.Append(Brn(" "));
-                info.Append(s->Volumes()[i]->Device().Udn());
+                iBuf.Append(Brn(" "));
+                iBuf.Append(s->Volumes()[i]->Device().Udn());
             }
 
-            info.Append(Brn("\n"));
+            iBuf.Append(Brn("\n"));
 
         }
-        info.Append(Brn("Sources end"));
+        iBuf.Append(Brn("Sources end"));
 
-        f(info);
+        f(iBuf);
         delete aArgs;
     }
 
@@ -378,6 +373,7 @@ private:
     MockableScriptRunner& iRunner;
     ResultWatcherFactory* iFactory;
     map<ITopology4Room*, RoomWatcher*> iWatcherLookup;
+    Bws<5000> iBuf;
 };
 
 
@@ -437,7 +433,6 @@ void SuiteTopology4::Test1()
     iTopology4->Dispose();
     network->Dispose();
     mockInjector->Dispose();
-
 
     delete watcher;
     delete mocker;

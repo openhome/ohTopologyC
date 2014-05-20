@@ -2,7 +2,6 @@
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/Private/Debug.h>
 
-
 using namespace OpenHome;
 using namespace OpenHome::Av;
 using namespace std;
@@ -53,6 +52,7 @@ MockableScriptRunner::MockableScriptRunner()
  */
 TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMockable)
 {
+    LOG(kTrace, " MockableScriptRunner::Run \n");
 
     TBool wait = true;
     TBool eof = false;
@@ -113,6 +113,15 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
 
         if (iLine.BeginsWith(Brn("//")))
         {
+/*
+            if (iLine.Equals(Brn("// test changing standby state for a two products in a room")))
+            {
+                OpenHome::Log::Print("\n");
+                //continue;
+            }
+            OpenHome::Log::Print("\n\n");
+            OpenHome::Log::Print(iLine);
+*/
             LOG(kTrace, "skipping line : ");
             LOG(kTrace, iLine);
             LOG(kTrace, "\n");
@@ -169,6 +178,12 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
 
                     if (!Test(*result, expected))
                     {
+                        OpenHome::Log::Print("\n########################################################\n");
+                        OpenHome::Log::Print("########################################################\n");
+                        OpenHome::Log::Print("########################################################\n");
+                        OpenHome::Log::Print("########################################################\n");
+                        OpenHome::Log::Print("########################################################\n");
+                        OpenHome::Log::Print("########################################################\n");
                         delete result;
                         return(false);
                     }
@@ -232,8 +247,12 @@ void MockableScriptRunner::Result(Bwh* aValue)
  */
 TBool MockableScriptRunner::Test(const Brx& aActual, const Brx& aExpected)
 {
-    Brn actual(aActual);
-    Brn exp(aExpected);
+/*
+    OpenHome::Log::Print("\n\nActual/Expected:\n");
+    OpenHome::Log::Print(aActual);
+    OpenHome::Log::Print("\n");
+    OpenHome::Log::Print(aExpected);
+*/
     return(aActual.Equals(aExpected));
 }
 

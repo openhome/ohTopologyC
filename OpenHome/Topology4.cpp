@@ -441,14 +441,12 @@ void Topology4Group::EvaluateSources()
     {
         if(Ascii::Contains(group->Group().Attributes(), Brn("Volume")))
         {
-            //volumes.Insert(0, group);
             volumes->insert(volumes->begin(), group);
         }
 
         group = group->Parent();
     }
 
-    //foreach (Topology4Source s in iSources)
     for(TUint i=0; i<iSources.size(); i++)
     {
         iSources[i]->SetVolumes(volumes);
@@ -457,7 +455,6 @@ void Topology4Group::EvaluateSources()
         iSources[i]->SetHasTime(hasTime);
     }
 
-    //foreach (Topology4Group g in iChildren)
     for(TUint i=0; i<iChildren.size(); i++)
     {
         iChildren[i]->EvaluateSources();
@@ -469,7 +466,6 @@ void Topology4Group::EvaluateSources()
 
         TBool expanded = false;
 
-        //foreach (Topology4Group g in iChildren)
         for(TUint i=0; i<iChildren.size(); i++)
         {
             Topology4Group* g = iChildren[i];
@@ -477,7 +473,6 @@ void Topology4Group::EvaluateSources()
             // if group is connected to source expand source to group sources
             if (s->Name() == g->Name())
             {
-                //iVisibleSources.AddRange(g->Sources);
                 iVisibleSources.insert(iVisibleSources.end(), g->Sources().begin(), g->Sources().end());
                 expanded = true;
             }
@@ -496,6 +491,7 @@ void Topology4Group::EvaluateSources()
     ITopology4Source* source = EvaluateSource();
 
     delete iCurrentSource;
+	iCurrentSource = source;
 
     iWatchableSource->Update(source);
 }
@@ -608,8 +604,6 @@ ITopology4Source* Topology4Group::EvaluateSource()
     Topology4Source* source = iSources[iSourceIndex];
 
     // check if the group's source is expanded by a child's group's sources
-
-    //foreach (Topology4Group g in iChildren)
     for(TUint i=0; i<iChildren.size(); i++)
     {
         Topology4Group* g = iChildren[i];
@@ -630,16 +624,9 @@ void Topology4Group::EvaluateSourceFromChild()
         iParent->EvaluateSourceFromChild();
     }
 
-    ITopology4Source* source = EvaluateSource();
-
-    ITopology4Source* oldSource = iCurrentSource;
-    iCurrentSource = source;
-
+    //delete iCurrentSource;
+	iCurrentSource = EvaluateSource();
     iWatchableSource->Update(iCurrentSource);
-    if(oldSource!=NULL)
-    {
-//        delete oldSource;
-    }
 }
 
 
@@ -699,7 +686,6 @@ Topology4GroupWatcher::Topology4GroupWatcher(Topology4Room& aRoom, ITopologymGro
     //iSources = new vector<ITopology2Source>();
 
     iGroup.Name().AddWatcher(*this);
-    //foreach (IWatchable<ITopology2Source> s in iGroup.Sources)
 
     vector<Watchable<ITopology2Source*>*> s = iGroup.Sources();
 
@@ -712,7 +698,6 @@ Topology4GroupWatcher::Topology4GroupWatcher(Topology4Room& aRoom, ITopologymGro
 void Topology4GroupWatcher::Dispose()
 {
     iGroup.Name().RemoveWatcher(*this);
-    //foreach (IWatchable<ITopology2Source> s in iGroup.Sources)
     vector<Watchable<ITopology2Source*>*> s = iGroup.Sources();
 
     for(TUint i=0; i<s.size(); i++)
@@ -772,7 +757,6 @@ void Topology4GroupWatcher::ItemUpdate(const Brx& /*aId*/, ITopology2Source* aVa
     if (it!=iSources.end())
     {
         iSources[it-iSources.begin()] = aValue;
-        //it->first = aValue;
     }
 
     iRoom.CreateTree();
@@ -809,7 +793,6 @@ void Topology4Room::Dispose()
     iRoom.Groups().RemoveWatcher(*this);
     //iRoom = null;
 
-    //foreach (var kvp in iGroupWatcherLookup)
     map<ITopologymGroup*, Topology4GroupWatcher*>::iterator it;
 
     for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
@@ -956,16 +939,15 @@ void Topology4Room::CreateTree()
         group->EvaluateSources();
         group->EvaluateSenders();
 
-        //sources.AddRange(group->Sources());
         auto s = &(group->Sources());
         sources->insert(sources->end(), s->begin(), s->end());
 
         roots->push_back(group);
     }
 
-    delete iCurrentRoots;
-    delete iCurrentSources;
-    delete iCurrentRegistrations;
+    //delete iCurrentRoots;
+    //delete iCurrentSources;
+    //delete iCurrentRegistrations;
 
     iCurrentRoots = roots;
     iCurrentSources = sources;
@@ -975,13 +957,11 @@ void Topology4Room::CreateTree()
     iWatchableSources->Update(sources);
     iWatchableRegistrations->Update(registrations);
 
-
     for(TUint i=0; i<oldGroups.size(); i++)
     {
         oldGroups[i]->Dispose();
         delete oldGroups[i];
     }
-
 }
 
 
@@ -1133,12 +1113,10 @@ void Topology4::DisposeCallback(void*)
     for(it=iRoomLookup.begin(); it!=iRoomLookup.end(); it++)
     {
         it->second->Dispose();
-        //delete it->second;
-    }
-    for(it=iRoomLookup.begin(); it!=iRoomLookup.end(); it++)
-    {
         delete it->second;
     }
+
+	iRoomLookup.clear();
 }
 
 
