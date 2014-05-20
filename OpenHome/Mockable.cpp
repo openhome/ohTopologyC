@@ -184,6 +184,9 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
                         OpenHome::Log::Print("########################################################\n");
                         OpenHome::Log::Print("########################################################\n");
                         OpenHome::Log::Print("########################################################\n");
+
+
+
                         delete result;
                         return(false);
                     }
@@ -253,7 +256,17 @@ TBool MockableScriptRunner::Test(const Brx& aActual, const Brx& aExpected)
     OpenHome::Log::Print("\n");
     OpenHome::Log::Print(aExpected);
 */
-    return(aActual.Equals(aExpected));
+    TBool success = aActual.Equals(aExpected);
+
+    if (!success)
+    {
+        OpenHome::Log::Print("\n\nActual/Expected:\n");
+        OpenHome::Log::Print(aActual);
+        OpenHome::Log::Print("\n");
+        OpenHome::Log::Print(aExpected);
+    }
+
+    return(success);
 }
 
 

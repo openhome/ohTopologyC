@@ -153,7 +153,7 @@ private:
     IWatchableUnordered<T>& iWatchable;
     FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>*> iAction;
 
-	Bws<kMaxResultBytes> iBuf;
+    Bws<kMaxResultBytes> iBuf;
 };
 
 /////////////////////////////////////////////////
@@ -187,7 +187,7 @@ private:
     IWatchableOrdered<T>& iWatchable;
     FunctorGeneric<ArgsTwo<T, FunctorGeneric<const Brx&>>*> iAction;
 
-	Bws<kMaxResultBytes> iBuf;
+    Bws<kMaxResultBytes> iBuf;
 };
 
 //////////////////////////////////////////////
@@ -451,12 +451,12 @@ void ResultOrderedWatcher<T>::OrderedAddCallback(const Brx& aValue)
 template <class T>
 void ResultOrderedWatcher<T>::OrderedMove(T aItem, TUint aFrom, TUint aTo)
 {
-    iResultMoveBuf.Replace(iId);
-    iResultMoveBuf.Append(Brn(" moved from "));
-    Ascii::AppendDec(iResultMoveBuf, aFrom);
-    iResultMoveBuf.Append(Brn(" to "));
-    Ascii::AppendDec(iResultMoveBuf, aTo);
-    iResultMoveBuf.Append(Brn(" "));
+    iBuf.Replace(iId);
+    iBuf.Append(Brn(" moved from "));
+    Ascii::AppendDec(iBuf, aFrom);
+    iBuf.Append(Brn(" to "));
+    Ascii::AppendDec(iBuf, aTo);
+    iBuf.Append(Brn(" "));
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ResultOrderedWatcher::OrderedMoveCallback);
     iAction(aItem, f);
 
@@ -467,8 +467,8 @@ void ResultOrderedWatcher<T>::OrderedMove(T aItem, TUint aFrom, TUint aTo)
 template <class T>
 void ResultOrderedWatcher<T>::OrderedMoveCallback(const Brx& aValue)
 {
-    iResultMoveBuf.Append(aValue);
-    Bwh* result = new Bwh(iResultMoveBuf);
+    iBuf.Append(aValue);
+    Bwh* result = new Bwh(iBuf);
     iRunner.Result(result);
 }
 
