@@ -212,7 +212,7 @@ private:
     Brn iRoom;
     Brn iName;
     ITopologymGroup* iGroup;
-    ITopology4Source* iCurrentSource;
+    std::unique_ptr<ITopology4Source> iCurrentSource;
     ILog& iLog;
     TBool iDisposed;
 

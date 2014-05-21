@@ -290,14 +290,14 @@ Topology4Group::Topology4Group(INetwork& aNetwork, const Brx& aRoom, const Brx& 
     ,iRoom(aRoom)
     ,iName(aName)
     ,iGroup(&aGroup)
-    ,iCurrentSource(new Topology4SourceNull())
+    ,iCurrentSource(unique_ptr<ITopology4Source>(new Topology4SourceNull()))
     ,iLog(aLog)
     ,iDisposed(false)
     ,iParent(NULL)
     ,iSender(NULL)
     ,iVectorSenders(new vector<ITopology4Group*>())
 {
-    iWatchableSource = new Watchable<ITopology4Source*>(iNetwork, Brn("source"), iCurrentSource);
+    iWatchableSource = new Watchable<ITopology4Source*>(iNetwork, Brn("source"), iCurrentSource.get());
 
     iSenders = new Watchable<vector<ITopology4Group*>*>(iNetwork, Brn("senders"), iVectorSenders);
 
@@ -484,8 +484,6 @@ void Topology4Group::EvaluateSources()
         }
     }
 
-    delete iCurrentSource; // only the first time (to delete the Topology4SourceNull)
-    iCurrentSource = NULL;
 
     ITopology4Source* source = EvaluateSource();
     iWatchableSource->Update(source);
@@ -676,8 +674,6 @@ Topology4GroupWatcher::Topology4GroupWatcher(Topology4Room& aRoom, ITopologymGro
     ,iGroup(aGroup)
     ,iRoomName(iRoom.Name())
 {
-    //iSources = new vector<ITopology2Source>();
-
     iGroup.Name().AddWatcher(*this);
 
     vector<Watchable<ITopology2Source*>*> s = iGroup.Sources();
@@ -697,9 +693,6 @@ void Topology4GroupWatcher::Dispose()
     {
         s[i]->RemoveWatcher(*this);
     }
-
-    //iGroup = null;
-    //iRoom = null;
 }
 
 
@@ -773,7 +766,6 @@ Topology4Room::Topology4Room(INetwork& aNetwork, ITopology3Room& aRoom, ILog& aL
     ,iCurrentRoots(unique_ptr<vector<ITopology4Root*>>(new vector<ITopology4Root*>()))
     ,iCurrentSources(unique_ptr<vector<ITopology4Source*>>(new vector<ITopology4Source*>()))
     ,iCurrentRegistrations(unique_ptr<vector<ITopology4Registration*>>(new vector<ITopology4Registration*>()))
-
     ,iWatchableStandby(new Watchable<EStandby>(iNetwork, Brn("standby"), eOff))
     ,iWatchableRoots(new Watchable<vector<ITopology4Root*>*>(iNetwork, Brn("roots"), iCurrentRoots.get()))
     ,iWatchableSources(new Watchable<vector<ITopology4Source*>*>(iNetwork, Brn("sources"), iCurrentSources.get()))
@@ -796,7 +788,6 @@ void Topology4Room::Dispose()
         it->second->Dispose();
         delete it->second;
     }
-    //iGroupWatcherLookup = null;
 
     for(TUint i=0; i<iGroups.size() ;i++)
     {
@@ -804,7 +795,6 @@ void Topology4Room::Dispose()
         delete iGroups[i];
     }
     iGroups.clear();
-    //iGroups = null;
 
     iWatchableStandby->Dispose();
     iWatchableRoots->Dispose();
@@ -820,15 +810,7 @@ void Topology4Room::Dispose()
     iWatchableRoots = NULL;
     iWatchableSources = NULL;
     iWatchableRegistrations = NULL;
-/*
-    delete iCurrentRoots;
-    delete iCurrentSources;
-    delete iCurrentRegistrations;
 
-    iCurrentRoots = NULL;
-    iCurrentSources = NULL;
-    iCurrentRegistrations = NULL;
-*/
   //  iRoots = null;
 }
 
@@ -941,12 +923,6 @@ void Topology4Room::CreateTree()
 
         roots->push_back(group);
     }
-
-/*
-    delete iCurrentRoots;
-    delete iCurrentRegistrations;
-    delete iCurrentSources;
-*/
 
     iCurrentRoots = unique_ptr<std::vector<ITopology4Root*>>(roots);
     iCurrentRegistrations = unique_ptr<std::vector<ITopology4Registration*>>(registrations);
