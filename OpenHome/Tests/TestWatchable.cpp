@@ -8,14 +8,12 @@
 #include <OpenHome/Private/Arch.h>
 #include <OpenHome/Private/Converter.h>
 #include <OpenHome/Private/Thread.h>
+#include <OpenHome/Tests/TestExceptionReporter.h>
 #include <exception>
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
 using namespace OpenHome::TestFramework;
-
-
-//EXCEPTION(TestException);
 
 
 namespace OpenHome {
@@ -510,23 +508,6 @@ public:
         AutoMutex mutex(iMutex);
         iEvents.Write(new WatcherUnorderedEvent<T>(Brn("close")));
     }
-};
-
-///////////////////////////////////////////////////////////////////////////////////
-
-class TestExceptionReporter : public IExceptionReporter
-{
-public:
-    TestExceptionReporter();
-    virtual void Report(Exception& aException);
-    virtual void Report(std::exception& aException);
-
-    TUint Count() const;
-    TUint CountStd() const;
-
-private:
-    TUint iCount;
-    TUint iCountStd;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -1420,41 +1401,7 @@ void SuiteWatchable::Test10Callback(void*)
 
 }
 
-
 ///////////////////////////////////////////////////////////////////////////
-
-TestExceptionReporter::TestExceptionReporter()
-    :iCount(0)
-    ,iCountStd(0)
-{
-}
-
-
-void TestExceptionReporter::Report(Exception& /*aException*/)
-{
-    iCount++;
-}
-
-
-void TestExceptionReporter::Report(std::exception& /*aException*/)
-{
-    iCountStd++;
-}
-
-
-TUint TestExceptionReporter::Count() const
-{
-    return(iCount);
-}
-
-
-TUint TestExceptionReporter::CountStd() const
-{
-    return(iCountStd);
-}
-
-///////////////////////////////////////////////////////////////////////////
-
 
 void TestWatchable()
 {

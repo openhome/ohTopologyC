@@ -5,6 +5,7 @@
 #include <OpenHome/Private/Converter.h>
 #include <OpenHome/Private/Thread.h>
 #include <OpenHome/Private/Http.h>
+#include <OpenHome/Tests/TestExceptionReporter.h>
 #include <exception>
 
 using namespace OpenHome;
@@ -19,8 +20,6 @@ namespace OpenHome {
 
 namespace Av {
 
-
-class TestExceptionReporter;
 
 /////////////////////////////////////////////////////////////////////
 
@@ -51,63 +50,12 @@ private:
     IWatchableThread* iWatchableThread;
 };
 
-/////////////////////////////////////////////////////////////////////
 
-class TestExceptionReporter : public IExceptionReporter
-{
-public:
-    TestExceptionReporter();
-    virtual void Report(Exception& aException);
-    virtual void Report(std::exception& aException);
+} // Av
 
-    TUint Count() const;
-    TUint CountStd() const;
-
-private:
-    TUint iCount;
-    TUint iCountStd;
-};
-
-} // namespace Av
-
-} // namespace OpenHome
-
+} // OpenHome
 
 /////////////////////////////////////////////////////////////////////
-
-TestExceptionReporter::TestExceptionReporter()
-    :iCount(0)
-    ,iCountStd(0)
-{
-}
-
-
-void TestExceptionReporter::Report(Exception& /*aException*/)
-{
-    //Log::Print("TestExceptionReporter::Report(Exception) \n");
-    iCount++;
-}
-
-
-void TestExceptionReporter::Report(std::exception& /*aException*/)
-{
-    //Log::Print("TestExceptionReporter::Report(std::Exception) \n");
-    iCountStd++;
-}
-
-
-TUint TestExceptionReporter::Count() const
-{
-    return(iCount);
-}
-
-
-TUint TestExceptionReporter::CountStd() const
-{
-    return(iCountStd);
-}
-
-////////////////////////////////////////////////////////////////////
 
 
 SuiteWatchableThread::SuiteWatchableThread()
@@ -346,3 +294,5 @@ void TestWatchableThread()
     runner.Add(new SuiteWatchableThread());
     runner.Run();
 }
+
+
