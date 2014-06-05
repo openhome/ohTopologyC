@@ -19,7 +19,7 @@ void OpenHome::ExecuteTestShell(Net::InitialisationParams* aInitParams, std::vec
     Endpoint endpt(0, addr);
     Endpoint::AddressBuf buf;
     endpt.AppendAddress(buf);
-    Log::Print("Connect to %s.%u then 'help' for options\n\n", buf.Ptr(), Shell::kServerPort);
+    Log::Print("Connect to %s.%u then 'help' for options\n\n", buf.Ptr(), Shell::kServerPortDefault);
     Library::DestroySubnetList(subnetList);
     CpStack* cpStack = NULL;
     DvStack* dvStack = NULL;

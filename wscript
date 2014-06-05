@@ -130,9 +130,14 @@ def build(bld):
                 'OpenHome/TagManager.cpp',
                 'OpenHome/Topology1.cpp',
                 'OpenHome/Topology2.cpp',
-                'OpenHome/Topologym.cpp',
                 'OpenHome/Topology3.cpp',
                 'OpenHome/Topology4.cpp',
+                'OpenHome/Topology5.cpp',
+
+                'OpenHome/Ui/Display.cpp',
+                'OpenHome/Ui/Otb.cpp',
+                'OpenHome/Ui/Glyph.cpp',
+                'OpenHome/Ui/Unicode.cpp',
             ],
             use=['OHNET'],
             target='ohTopologyC')
@@ -146,9 +151,10 @@ def build(bld):
                 'OpenHome/Tests/TestShell.cpp',
                 'OpenHome/Tests/TestTopology1.cpp',
                 'OpenHome/Tests/TestTopology2.cpp',
-                'OpenHome/Tests/TestTopologym.cpp',
                 'OpenHome/Tests/TestTopology3.cpp',
                 'OpenHome/Tests/TestTopology4.cpp',
+                'OpenHome/Tests/TestTopology5.cpp',
+                'OpenHome/Ui/Tests/TestDisplay.cpp',
             ],
             use=['ohTopologyC'],
             target='ohTopologyCTestUtils')
@@ -179,11 +185,6 @@ def build(bld):
            target='TestTopology2')
 
     bld.program(
-           source='OpenHome/Tests/TestTopologymMain.cpp',
-           use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
-           target='TestTopologym')
-
-    bld.program(
            source='OpenHome/Tests/TestTopology3Main.cpp',
            use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
            target='TestTopology3')
@@ -192,6 +193,16 @@ def build(bld):
            source='OpenHome/Tests/TestTopology4Main.cpp',
            use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
            target='TestTopology4')
+
+    bld.program(
+           source='OpenHome/Tests/TestTopology5Main.cpp',
+           use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
+           target='TestTopology5')
+
+    bld.program(
+           source='OpenHome/Ui/Tests/TestDisplayMain.cpp',
+           use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
+           target='TestDisplay')
 
 
 # Bundles

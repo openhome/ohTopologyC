@@ -1,127 +1,415 @@
 #include <OpenHome/Topology3.h>
 
-#include <map>
-#include <algorithm>
-
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
 using namespace std;
 
+Topology3Sender* Topology3Sender::iEmpty = new Topology3Sender();
 
-
-Topology3GroupWatcher::Topology3GroupWatcher(Topology3& aTopology3, ITopologymGroup& aGroup)
-    :iTopology3(aTopology3)
-    ,iGroup(aGroup)
+Topology3Sender* Topology3Sender::Empty()
 {
-    iGroup.Room().AddWatcher(*this);
+    return(iEmpty);
 }
 
-// IWatcher<string>
-
-void Topology3GroupWatcher::ItemOpen(const Brx& /*aId*/, Brn aValue)
+void Topology3Sender::DestroyStatics()
 {
-    iTopology3.AddGroupToRoom(iGroup, aValue);
+    delete iEmpty;
 }
 
-void Topology3GroupWatcher::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn aPrevious)
+Topology3Sender::Topology3Sender()
+    :iEnabled(false)
+    ,iDevice(0)
 {
-    iTopology3.RemoveGroupFromRoom(iGroup, aPrevious);
-    iTopology3.AddGroupToRoom(iGroup, aValue);
-}
-
-void Topology3GroupWatcher::ItemClose(const Brx& /*aId*/, Brn aValue)
-{
-    iTopology3.RemoveGroupFromRoom(iGroup, aValue);
-}
-
-// IDisposable
-
-void Topology3GroupWatcher::Dispose()
-{
-    iGroup.Room().RemoveWatcher(*this);
-}
-
-///////////////////////////////////////////////////////////////
-
-Topology3Room::Topology3Room(IWatchableThread& aThread, const Brx& aName, ITopologymGroup& aGroup)
-    :iName(aName)
-    ,iWatchableGroups(new WatchableUnordered<ITopologymGroup*>(aThread))
-{
-    Add(aGroup);
 }
 
 
-void Topology3Room::Dispose()
+Topology3Sender::Topology3Sender(IDevice& aDevice)
+    :iEnabled(true)
+    ,iDevice(&aDevice)
 {
-    iWatchableGroups->Dispose();
-    delete iWatchableGroups;
-    iWatchableGroups = NULL;
-
-    iGroups.clear();
 }
 
-// ITopology3Room
 
-const Brx& Topology3Room::Name()
+TBool Topology3Sender::Enabled()
 {
-    return(iName);
+    return iEnabled;
 }
 
-IWatchableUnordered<ITopologymGroup*>& Topology3Room::Groups()
+
+IDevice& Topology3Sender::Device()
 {
-    return(*iWatchableGroups);
+    return *iDevice;
 }
 
-void Topology3Room::SetStandby(TBool aValue)
+////////////////////////////////////////////
+
+
+Topology3Group::Topology3Group(INetwork& aNetwork, ITopology2Group& aGroup)
+    :iGroup(aGroup)
+    ,iSender(new Watchable<ITopology3Sender*>(aNetwork, Brn("Sender"), Topology3Sender::Empty()))
+    ,iDisposed(false)
+    ,iCurrentSender(NULL)
 {
-    for(TUint i=0; i<iGroups.size(); i++)
+}
+
+void Topology3Group::Dispose()
+{
+    if (iDisposed)
     {
-        iGroups[i]->SetStandby(aValue);
+        //throw new ObjectDisposedException("Topology3Group.Dispose");
+    }
+
+    delete iSender;
+
+    if (iCurrentSender!=Topology3Sender::Empty())
+    {
+        delete iCurrentSender;
+    }
+
+    iDisposed = true;
+}
+
+Brn Topology3Group::Id()
+{
+    return iGroup.Id();
+}
+
+Brn Topology3Group::Attributes()
+{
+    return iGroup.Attributes();
+}
+
+Brn Topology3Group::ModelName()
+{
+    return iGroup.ModelName();
+}
+
+Brn Topology3Group::ManufacturerName()
+{
+    return iGroup.ManufacturerName();
+}
+
+Brn Topology3Group::ProductId()
+{
+    return iGroup.ProductId();
+}
+
+IDevice& Topology3Group::Device()
+{
+    return iGroup.Device();
+}
+
+IWatchable<Brn>& Topology3Group::Room()
+{
+    return iGroup.Room();
+}
+
+IWatchable<Brn>& Topology3Group::Name()
+{
+    return iGroup.Name();
+}
+
+IWatchable<TBool>& Topology3Group::Standby()
+{
+    return iGroup.Standby();
+}
+
+IWatchable<TUint>& Topology3Group::SourceIndex()
+{
+    return iGroup.SourceIndex();
+}
+
+vector<Watchable<ITopology2Source*>*>& Topology3Group::Sources()
+{
+    return iGroup.Sources();
+}
+
+
+IWatchable<ITopology3Sender*>& Topology3Group::Sender()
+{
+    return *iSender;
+}
+
+void Topology3Group::SetStandby(TBool aValue)
+{
+    iGroup.SetStandby(aValue);
+}
+
+void Topology3Group::SetSourceIndex(TUint aValue)
+{
+    iGroup.SetSourceIndex(aValue);
+}
+
+
+void Topology3Group::SetSender(ITopology3Sender* aSender)
+{
+    iSender->Update(aSender);
+
+    if ((iCurrentSender!=NULL)&&(iCurrentSender!=Topology3Sender::Empty()))
+    {
+        delete iCurrentSender;
+    }
+
+    iCurrentSender = aSender;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+
+ReceiverWatcher::ReceiverWatcher(Topology3& aTopology, Topology3Group& aGroup)
+    :iDisposed(false)
+    ,iTopology(aTopology)
+    ,iGroup(aGroup)
+    ,iReceiver(NULL)
+    ,iTransportState(Brx::Empty())
+    ,iMetadata(NULL)
+{
+    for(TUint i=0; i<iGroup.Sources().size(); i++)
+    {
+        iGroup.Sources()[i]->AddWatcher(*this);
+
     }
 }
 
-// Topology3Room
-
-void Topology3Room::Add(ITopologymGroup& aGroup)
+void ReceiverWatcher::Dispose()
 {
-    iWatchableGroups->Add(&aGroup);
-    iGroups.push_back(&aGroup);
+    for(TUint i=0; i<iGroup.Sources().size(); i++)
+    {
+        iGroup.Sources()[i]->RemoveWatcher(*this);
+
+    }
+
+    if (iReceiver != NULL)
+    {
+        iReceiver->TransportState().RemoveWatcher(*this);
+        iReceiver->Metadata().RemoveWatcher(*this);
+        iReceiver->Dispose();
+        delete iReceiver;
+        iReceiver = NULL;
+    }
+
+    SetSender(Topology3Sender::Empty());
+
+    //iGroup = null;
+    //iTopology = null;
+
+    iDisposed = true;
 }
 
-TBool Topology3Room::Remove(ITopologymGroup& aGroup)
+const Brx& ReceiverWatcher::ListeningToUri()
 {
-    iWatchableGroups->Remove(&aGroup);
+    //ASSERT(iMetadata!=NULL);
 
-    vector<ITopologymGroup*>::iterator it =  find(iGroups.begin(), iGroups.end(), &aGroup);;
-    ASSERT(it!=iGroups.end());
-
-    iGroups.erase(it);
-
-    return (iGroups.size() == 0);
+    if (iTransportState.Equals(Brx::Empty()) || iTransportState.Equals(Brn("Stopped")))
+    {
+        return(Brx::Empty());
+    }
+/*
+    if (string.IsNullOrEmpty(iTransportState) || iTransportState == "Stopped")
+    {
+        return null;
+    }
+*/
+    return iMetadata->Uri();
 }
 
-///////////////////////////////////////////////////////
-
-Topology3::Topology3(Topologym* aTopologym, ILog& /*aLog*/)
-    :iDisposed(false)
-    ,iNetwork(aTopologym->Network())
-    ,iTopologym(aTopologym)
-    ,iRooms(new WatchableUnordered<ITopology3Room*>(iNetwork))
+void ReceiverWatcher::SetSender(ITopology3Sender* aSender)
 {
-    iNetwork.Schedule(MakeFunctorGeneric(*this, &Topology3::ScheduleCallback), NULL);
+    iGroup.SetSender(aSender);
+}
+
+void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, Brn aValue)
+{
+//    iTransportState = Brn(aValue);
+    iTransportState.Replace(aValue);
+}
+
+void ReceiverWatcher::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn /*aPrevious*/)
+{
+    iTransportState.Replace(aValue);
+    iTopology.ReceiverChanged(*this);
+}
+
+void ReceiverWatcher::ItemClose(const Brx& /*aId*/, Brn /*aValue*/)
+{
+    iTransportState.Replace(Brx::Empty());
+}
+
+void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, IInfoMetadata* aValue)
+{
+    iMetadata = aValue;
+}
+
+void ReceiverWatcher::ItemUpdate(const Brx& /*aId*/, IInfoMetadata* aValue, IInfoMetadata* /*aPrevious*/)
+{
+    iMetadata = aValue;
+    iTopology.ReceiverChanged(*this);
+}
+
+void ReceiverWatcher::ItemClose(const Brx& /*aId*/, IInfoMetadata* /*aValue*/)
+{
+    iMetadata = NULL;
+}
+
+void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aValue)
+{
+    if (aValue->Type().Equals(Brn("Receiver")))
+    {
+        iGroup.Device().Create(MakeFunctorGeneric(*this, &ReceiverWatcher::CreateCallback), eProxyReceiver);
+/*
+        iGroup.Device.Create<IProxyReceiver*>((receiver) =>
+        {
+            if (!iDisposed)
+            {
+                iReceiver = receiver;
+                iReceiver.TransportState.AddWatcher(this);
+                iReceiver.Metadata.AddWatcher(this);
+                iTopology.ReceiverChanged(this);
+            }
+            else
+            {
+                receiver.Dispose();
+            }
+        });
+*/
+    }
+}
+
+
+void ReceiverWatcher::CreateCallback(void* aArgs)
+{
+    ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
+    IProxyReceiver* receiver = (IProxyReceiver*)(args->Arg2());
+
+    if (!iDisposed)
+    {
+        iReceiver = receiver;
+        iReceiver->TransportState().AddWatcher(*this);
+        iReceiver->Metadata().AddWatcher(*this);
+        iTopology.ReceiverChanged(*this);
+    }
+    else
+    {
+        receiver->Dispose();
+        delete receiver;
+    }
+    delete args;
+}
+
+
+void ReceiverWatcher::ItemUpdate(const Brx& /*aId*/, ITopology2Source* /*aPrevious*/, ITopology2Source* /*aPrevious*/)
+{
+}
+
+void ReceiverWatcher::ItemClose(const Brx& /*aId*/, ITopology2Source* /*aValue*/)
+{
+}
+
+
+///////////////////////////////////////////////////////////////////
+
+SenderWatcher::SenderWatcher(Topology3& aTopology, ITopology2Group& aGroup)
+    :iTopology(aTopology)
+    ,iDisposeHandler(new DisposeHandler())
+    ,iDevice(aGroup.Device())
+    ,iMetadata(SenderMetadata::Empty())
+    ,iDisposed(false)
+{
+    aGroup.Device().Create(MakeFunctorGeneric(*this, &SenderWatcher::CreateCallback), eProxySender);
+}
+
+
+void SenderWatcher::CreateCallback(void* aArgs)
+{
+    ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
+    IProxySender* sender = (IProxySender*)(args->Arg2());
+
+    if (!iDisposed)
+    {
+        iSender = sender;
+        iSender->Metadata().AddWatcher(*this);
+        iTopology.SenderChanged(iDevice, iMetadata->Uri(), Brx::Empty());
+    }
+    else
+    {
+        sender->Dispose();
+    }
+    delete args;
+}
+
+
+void SenderWatcher::Dispose()
+{
+    iDisposeHandler->Dispose();
+    delete iDisposeHandler;
+
+    ISenderMetadata* previous = iMetadata;
+
+    if (iSender != NULL)
+    {
+        iSender->Metadata().RemoveWatcher(*this);
+        iSender->Dispose();
+        delete iSender;
+        iSender = NULL;
+    }
+
+    iTopology.SenderChanged(iDevice, iMetadata->Uri(), previous->Uri());
+
+    iDisposed = true;
+}
+
+const Brx& SenderWatcher::Uri()
+{
+    DisposeLock lock(*iDisposeHandler);
+    return iMetadata->Uri();
+}
+
+IDevice& SenderWatcher::Device()
+{
+    DisposeLock lock(*iDisposeHandler);
+    return iDevice;
+}
+
+void SenderWatcher::ItemOpen(const Brx& /*aId*/, ISenderMetadata* aValue)
+{
+    iMetadata = aValue;
+}
+
+void SenderWatcher::ItemUpdate(const Brx& /*aId*/, ISenderMetadata* aValue, ISenderMetadata* aPrevious)
+{
+    iMetadata = aValue;
+    iTopology.SenderChanged(iDevice, iMetadata->Uri(), aPrevious->Uri());
+}
+
+void SenderWatcher::ItemClose(const Brx& /*aId*/, ISenderMetadata* /*aValue*/)
+{
+    iMetadata = SenderMetadata::Empty();
+}
+
+
+/////////////////////////////////////////////////////////////
+
+
+Topology3::Topology3(ITopology2* aTopology2, ILog& /*aLog*/)
+    :iTopology2(aTopology2)
+    ,iNetwork(aTopology2->Network())
+    ,iGroups(new WatchableUnordered<ITopology3Group*>(iNetwork))
+    ,iDisposed(false)
+{
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &Topology3::ScheduleCallback), 0);
 }
 
 
 Topology3::~Topology3()
 {
-
+    Topology3Sender::DestroyStatics();
 }
 
 
 void Topology3::ScheduleCallback(void*)
 {
-    iTopologym->Groups().AddWatcher(*this);
+    iTopology2->Groups().AddWatcher(*this);
 }
 
 
@@ -132,19 +420,16 @@ void Topology3::Dispose()
         //throw new ObjectDisposedException("Topology3.Dispose");
     }
 
+    iNetwork.Execute(MakeFunctorGeneric(*this, &Topology3::DisposeCallback), 0);
 
-    iNetwork.Execute(MakeFunctorGeneric(*this, &Topology3::DisposeCallback), NULL);
+    iTopology2->Dispose();
+    delete iTopology2;
+    iTopology2 = NULL;
 
-    iTopologym->Dispose();
-    delete iTopologym;
-    iTopologym = NULL;
 
-    //iRoomLookup = NULL;
-    //iGroupWatcherLookup = NULL;
-
-    iRooms->Dispose();
-    delete iRooms;
-    iRooms = NULL;
+    iGroups->Dispose();
+    delete iGroups;
+    iGroups = NULL;
 
     iDisposed = true;
 }
@@ -152,38 +437,54 @@ void Topology3::Dispose()
 
 void Topology3::DisposeCallback(void*)
 {
-    iTopologym->Groups().RemoveWatcher(*this);
+    iTopology2->Groups().RemoveWatcher(*this);
 
-    map<ITopologymGroup*, Topology3GroupWatcher*>::iterator it;
-
-    // removing these watchers should cause all rooms to be detached and disposed
-    for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
+    map<ITopology2Group*, ReceiverWatcher*>::iterator it2;
+    for(it2 = iReceiverLookup.begin(); it2!=iReceiverLookup.end(); it2++)
     {
-        it->second->Dispose();
-        delete it->second;
+        it2->second->Dispose();
     }
 
-/*
-    // removing these watchers should cause all rooms to be detached and disposed
-    foreach (var group in iGroupWatcherLookup.Values)
+    map<ITopology2Group*, SenderWatcher*>::iterator it3;
+    for(it3 = iSenderLookup.begin(); it3!=iSenderLookup.end(); it3++)
     {
-        group.Dispose();
+        it3->second->Dispose();
     }
-*/
+
+    map<ITopology2Group*, Topology3Group*>::iterator it1;
+    for(it1 = iGroupLookup.begin(); it1!=iGroupLookup.end(); it1++)
+    {
+        it1->second->Dispose();
+    }
+
+    for(it2 = iReceiverLookup.begin(); it2!=iReceiverLookup.end(); it2++)
+    {
+        delete it2->second;
+    }
+
+    for(it3 = iSenderLookup.begin(); it3!=iSenderLookup.end(); it3++)
+    {
+        delete it3->second;
+    }
+
+    for(it1 = iGroupLookup.begin(); it1!=iGroupLookup.end(); it1++)
+    {
+        delete it1->second;
+    }
+
+
 }
 
 
-IWatchableUnordered<ITopology3Room*>& Topology3::Rooms()
+IWatchableUnordered<ITopology3Group*>& Topology3::Groups()
 {
-    return(*iRooms);
+    return *iGroups;
 }
 
 INetwork& Topology3::Network()
 {
-    return(iNetwork);
+    return iNetwork;
 }
-
-// IWatcherUnordered<ITopologymGroup>
 
 void Topology3::UnorderedOpen()
 {
@@ -193,59 +494,92 @@ void Topology3::UnorderedInitialised()
 {
 }
 
+void Topology3::UnorderedAdd(ITopology2Group* aItem)
+{
+    Topology3Group* group = new Topology3Group(iNetwork, *aItem);
+    iReceiverLookup[aItem] = new ReceiverWatcher(*this, *group);
+
+    if (Ascii::Contains(aItem->Attributes(), Brn("Sender")))
+    {
+        iSenderLookup[aItem] = new SenderWatcher(*this, *aItem);
+    }
+
+    iGroupLookup[aItem] = group;
+    iGroups->Add(group);
+}
+
+void Topology3::UnorderedRemove(ITopology2Group* aItem)
+{
+    if (iGroupLookup.count(aItem)>0)
+    {
+        if (Ascii::Contains(aItem->Attributes(), Brn("Sender")))
+        {
+            auto sender = iSenderLookup[aItem];
+            sender->Dispose();
+            delete sender;
+            iSenderLookup.erase(aItem);
+        }
+
+        // schedule higher layer notification
+        Topology3Group* group = iGroupLookup[aItem];
+
+        iGroups->Remove(group);
+        iGroupLookup.erase(aItem);
+
+        auto receiver = iReceiverLookup[aItem];
+        receiver->Dispose();
+        delete receiver;
+        iReceiverLookup.erase(aItem);
+
+        group->Dispose();
+        delete group;
+    }
+}
+
 void Topology3::UnorderedClose()
 {
 }
 
-void Topology3::UnorderedAdd(ITopologymGroup* aItem)
+void Topology3::ReceiverChanged(ReceiverWatcher& aReceiver)
 {
-    iGroupWatcherLookup[aItem] = new Topology3GroupWatcher(*this, *aItem);
-}
+    Brn receiverUri(aReceiver.ListeningToUri());
 
-void Topology3::UnorderedRemove(ITopologymGroup* aItem)
-{
-    ASSERT(iGroupWatcherLookup.count(aItem)>0);
-    auto watcher = iGroupWatcherLookup[aItem];
-    watcher->Dispose();
-    delete watcher;
-    iGroupWatcherLookup.erase(aItem);
-}
-
-
-void Topology3::AddGroupToRoom(ITopologymGroup& aGroup, const Brx& aRoom)
-{
-    if(iRoomLookup.count(Brn(aRoom))>0)
+    map<ITopology2Group*, SenderWatcher*>::iterator it;
+    for(it = iSenderLookup.begin(); it!=iSenderLookup.end(); it++)
     {
-        // room already exists
-        iRoomLookup[Brn(aRoom)]->Add(aGroup);
-    }
-    else
-    {
-        // need to create a new room
-        Topology3Room* room = new Topology3Room(iNetwork, aRoom, aGroup);
-        iRoomLookup[Brn(aRoom)] = room;
-        iRooms->Add(room);
-    }
-}
+        SenderWatcher* watcher = it->second;
+        Brn watcherUri(watcher->Uri());
 
-
-void Topology3::RemoveGroupFromRoom(ITopologymGroup& aGroup, const Brx& aRoom)
-{
-    Brn roomName(aRoom);
-
-    if (iRoomLookup.count(Brn(aRoom)) > 0)
-    {
-        Topology3Room* room = iRoomLookup[Brn(aRoom)];
-
-        if (room->Remove(aGroup))
+        if (receiverUri.Equals(Brx::Empty()))
         {
-            // no more groups in room - remove it
-            iRooms->Remove(room);
-            iRoomLookup.erase(Brn(aRoom));
-            room->Dispose();
-            delete room;
+            aReceiver.SetSender(Topology3Sender::Empty());
+        }
+        else if(receiverUri.Equals(watcher->Uri()))
+        {
+            // set Topology3Group sender
+            aReceiver.SetSender(new Topology3Sender(watcher->Device()));
         }
     }
 }
+
+void Topology3::SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri)
+{
+    map<ITopology2Group*, ReceiverWatcher*>::iterator it;
+    for(it = iReceiverLookup.begin(); it!=iReceiverLookup.end(); it++)
+    {
+        ReceiverWatcher* watcher = it->second;
+
+        if (aPreviousUri.Equals(watcher->ListeningToUri()))
+        {
+            watcher->SetSender(Topology3Sender::Empty());
+        }
+        else if (aUri.Equals(watcher->ListeningToUri()) && (!aUri.Equals(Brx::Empty())))
+        {
+            // set Topology3Group sender
+            watcher->SetSender(new Topology3Sender(aDevice));
+        }
+    }
+}
+
 
 

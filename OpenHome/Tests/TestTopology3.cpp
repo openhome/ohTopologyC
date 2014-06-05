@@ -16,6 +16,9 @@ namespace OpenHome {
 namespace Av {
 
 
+
+/////////////////////////////////////////////////////////////////////
+
 class SuiteTopology3: public SuiteUnitTest, public INonCopyable
 {
 public:
@@ -36,11 +39,8 @@ private:
     IReader& iReader;
 };
 
-
-
-////////////////////////////////////////////////////////////////////////////////////
-
-class RoomWatcher : public IWatcherUnordered<ITopology3Room*>, public IDisposable, public INonCopyable
+/////////////////////////////////////////////////////////////////////
+class RoomWatcher : public IWatcherUnordered<ITopology3Group*>, public IDisposable, public INonCopyable
 {
 public:
     RoomWatcher(MockableScriptRunner& aRunner)
@@ -49,31 +49,29 @@ public:
     {
     }
 
-    // IUnorderedWatcher<ITopology3Room*>
+
     void UnorderedOpen() {}
     void UnorderedInitialised() {}
     void UnorderedClose() {}
 
-
-    void UnorderedAdd(ITopology3Room* aItem)
+    void UnorderedAdd(ITopology3Group* aItem)
     {
         Bws<100> buf;
-        buf.Replace("Room Added ");
-        buf.Append(aItem->Name());
+        buf.Replace(aItem->Device().Udn());
+        buf.Append(" Group Added");
         Bwh* result = new Bwh(buf);
-
         iRunner.Result(result);
-        iFactory->Create<ITopologymGroup*>(aItem->Name(), aItem->Groups(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
+        iFactory->Create<ITopology3Sender*>(aItem->Device().Udn(), aItem->Sender(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
     }
 
-    void UnorderedRemove(ITopology3Room* aItem)
+    void UnorderedRemove(ITopology3Group* aItem)
     {
         Bws<100> buf;
-        buf.Replace("Room Removed ");
-        buf.Append(aItem->Name());
+        buf.Replace(aItem->Device().Udn());
+        buf.Append(" Group Removed");
         Bwh* result = new Bwh(buf);
 
-        iFactory->Destroy(aItem->Name());
+        iFactory->Destroy(aItem->Device().Udn());
         iRunner.Result(result);
     }
 
@@ -85,29 +83,40 @@ public:
     }
 
 private:
-
-
-    void CreateCallback(ArgsTwo<ITopologymGroup*, FunctorGeneric<const Brx&>>* aArgs)
+    void CreateCallback(ArgsTwo<ITopology3Sender*, FunctorGeneric<const Brx&>>* aArgs)
     {
-        ITopologymGroup* group = aArgs->Arg1();
+        ITopology3Sender* sender = aArgs->Arg1();
         FunctorGeneric<const Brx&> f = aArgs->Arg2();
-        delete aArgs;
-        f(group->Id());
-    }
 
+        Bws<100> buf;
+
+        if (sender->Enabled())
+        {
+            buf.Replace(Brn("Sender True "));
+
+            IDevice* device = &sender->Device();
+            buf.Append(device->Udn());
+            f(buf);
+        }
+        else
+        {
+            f(Brn("Sender False"));
+        }
+        delete aArgs;
+    }
 
 private:
     MockableScriptRunner& iRunner;
     ResultWatcherFactory* iFactory;
 };
 
-} // Av
 
-} // OpenHome
+} // namespace Av
+
+} // namespace OpenHome
 
 
-//////////////////////////////////////////////////////////////////////////
-
+/////////////////////////////////////////////////////////////////////
 
 
 SuiteTopology3::SuiteTopology3(IReader& aReader)
@@ -139,8 +148,7 @@ void SuiteTopology3::Test1()
 
     Topology1* topology1 = new Topology1(network, *log);
     Topology2* topology2 = new Topology2(topology1, *log);
-    Topologym* topologym = new Topologym(topology2, *log);
-    iTopology3 = new Topology3(topologym, *log);
+    iTopology3 = new Topology3(topology2, *log);
 
     MockableScriptRunner* runner = new MockableScriptRunner();
     RoomWatcher* watcher = new RoomWatcher(*runner);
@@ -151,6 +159,7 @@ void SuiteTopology3::Test1()
     Functor f = MakeFunctor(*network, &Network::Wait);
 
     TEST(runner->Run(f, iReader, *mocker));
+
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology3::ExecuteCallback);
     network->Execute(fe, watcher);
 
@@ -166,25 +175,26 @@ void SuiteTopology3::Test1()
     delete iTopology3;
     delete network;
     delete mockInjector;
+
 }
 
 
 void SuiteTopology3::ExecuteCallback(void* aObj)
 {
-    LOG(kTrace, "SuiteTopology3::ExecuteCallback() \n");
     RoomWatcher* watcher = (RoomWatcher*)aObj;
-    iTopology3->Rooms().RemoveWatcher(*watcher);
+    iTopology3->Groups().RemoveWatcher(*watcher);
     watcher->Dispose();
 }
 
 
 void SuiteTopology3::ScheduleCallback(void* aObj)
 {
-    LOG(kTrace, "SuiteTopology3::ScheduleCallback() \n");
     RoomWatcher* watcher = (RoomWatcher*)aObj;
-    iTopology3->Rooms().AddWatcher(*watcher);
+    iTopology3->Groups().AddWatcher(*watcher);
 }
 
+
+////////////////////////////////////////////
 
 void TestTopology3(Environment& aEnv, std::vector<Brn>& aArgs)
 {
@@ -193,16 +203,10 @@ void TestTopology3(Environment& aEnv, std::vector<Brn>& aArgs)
         aArgs.push_back(Brn("--path"));
         aArgs.push_back(Brn("~eamonnb/Topology3TestScript.txt"));
     }
-
     TestScriptHttpReader reader(aEnv, aArgs);
-
     Runner runner("Topology3 tests\n");
     runner.Add(new SuiteTopology3(reader));
     runner.Run();
 }
-
-
-
-
 
 

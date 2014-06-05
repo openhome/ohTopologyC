@@ -2,47 +2,56 @@
 mock network medium
 
 // test network is populated with 4 devices
-expect Room Added Kitchen
-expect Kitchen add 4c494e4e-0026-0f99-1111-ef000004013f
-expect Room Added Sitting Room
-expect Sitting Room add 4c494e4e-0026-0f99-1112-ef000004013f
-expect Room Added Bedroom
-expect Bedroom add 4c494e4e-0026-0f99-1113-ef000004013f
-expect Room Added Dining Room
-expect Dining Room add 4c494e4e-0026-0f99-1114-ef000004013f
+expect 4c494e4e-0026-0f99-1111-ef000004013f Group Added
+expect 4c494e4e-0026-0f99-1111-ef000004013f open Sender False
+expect 4c494e4e-0026-0f99-1112-ef000004013f Group Added
+expect 4c494e4e-0026-0f99-1112-ef000004013f open Sender False
+expect 4c494e4e-0026-0f99-1113-ef000004013f Group Added
+expect 4c494e4e-0026-0f99-1113-ef000004013f open Sender False
+expect 4c494e4e-0026-0f99-1114-ef000004013f Group Added
+expect 4c494e4e-0026-0f99-1114-ef000004013f open Sender False
 empty
 
-// test room and group is added when ds appears on network
+mock network update 4c494e4e-0026-0f99-1111-ef000004013f receiver metadata Bedroom ohz://239.255.255.250:51972/4c494e4e-0026-0f99-1113-ef000004013f
+empty
+
+mock network update 4c494e4e-0026-0f99-1111-ef000004013f receiver transportstate Playing
+expect 4c494e4e-0026-0f99-1111-ef000004013f update Sender True 4c494e4e-0026-0f99-1113-ef000004013f
+empty
+
+mock network update 4c494e4e-0026-0f99-1111-ef000004013f receiver metadata Sitting Room ohz://239.255.255.250:51972/4c494e4e-0026-0f99-1112-ef000004013f
+expect 4c494e4e-0026-0f99-1111-ef000004013f update Sender True 4c494e4e-0026-0f99-1112-ef000004013f
+empty
+
+mock network update 4c494e4e-0026-0f99-1111-ef000004013f receiver transportstate Stopped
+expect 4c494e4e-0026-0f99-1111-ef000004013f update Sender False
+empty
+
+mock network update 4c494e4e-0026-0f99-1111-ef000004013f receiver transportstate Playing
+expect 4c494e4e-0026-0f99-1111-ef000004013f update Sender True 4c494e4e-0026-0f99-1112-ef000004013f
+empty
+
+// test removing Sitting Room sets Kitchen sender to false
+mock network remove 4c494e4e-0026-0f99-1112-ef000004013f
+expect 4c494e4e-0026-0f99-1111-ef000004013f update Sender False
+expect 4c494e4e-0026-0f99-1112-ef000004013f Group Removed
+empty
+
+// test adding Sitting Room sets Kitchen sender to true
+mock network add 4c494e4e-0026-0f99-1112-ef000004013f
+expect 4c494e4e-0026-0f99-1111-ef000004013f update Sender True 4c494e4e-0026-0f99-1112-ef000004013f
+expect 4c494e4e-0026-0f99-1112-ef000004013f Group Added
+expect 4c494e4e-0026-0f99-1112-ef000004013f open Sender False
+empty
+
+
 mock network create ds 67
+mock network update 67 product attributes Info Time Volume
 mock network add 67
-expect Room Added Main Room
-expect Main Room add 67
+expect 67 Group Added
+expect 67 open Sender False
 empty
-
-// test group moves room when room name changes
-mock network update 67 product room Bathroom
-expect Main Room remove 67
-expect Room Removed Main Room
-expect Room Added Bathroom
-expect Bathroom add 67
-empty
-
-// test group is added to existing room and no new room is created
-mock network create ds 68
-mock network add 68
-expect Room Added Main Room
-expect Main Room add 68
-empty
-mock network update 68 product room Bathroom
-expect Main Room remove 68
-expect Room Removed Main Room
-expect Bathroom add 68
-empty
-
-// test room is remove when last group is removed
 mock network remove 67
-expect Bathroom remove 67
-mock network remove 68
-expect Bathroom remove 68
-expect Room Removed Bathroom
+expect 67 Group Removed
 empty
+

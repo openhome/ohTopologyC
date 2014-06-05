@@ -9,8 +9,10 @@ tests = '''
     TestWatchable
     TestTopology1 -s {ws_hostname} -p {ws_port} --path Topology1TestScript.txt
     TestTopology2 -s {ws_hostname} -p {ws_port} --path Topology2TestScript.txt
-    TestTopologym -s {ws_hostname} -p {ws_port} --path TopologymTestScript.txt
     TestTopology3 -s {ws_hostname} -p {ws_port} --path Topology3TestScript.txt
+    TestTopology4 -s {ws_hostname} -p {ws_port} --path Topology4TestScript.txt
+    TestTopology5 -s {ws_hostname} -p {ws_port} --path Topology5TestScript.txt
+    TestDisplay -s {ws_hostname} -p {ws_port}
     '''
 
 

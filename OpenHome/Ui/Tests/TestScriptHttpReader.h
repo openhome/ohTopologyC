@@ -4,6 +4,7 @@
 #include <OpenHome/Private/OptionParser.h>
 #include <OpenHome/OsWrapper.h>
 #include <OpenHome/Private/Http.h>
+#include <OpenHome/Private/Debug.h>
 
 
 using namespace OpenHome;
@@ -25,6 +26,8 @@ public:
         parser.AddOption(&optionPort);
         OptionString optionPath("", "--path", Brn(""), "path to use on server");
         parser.AddOption(&optionPath);
+        OptionString optionFile("", "--file", Brn(""), "file to retrieve");
+        parser.AddOption(&optionFile);
 
         if (!parser.Parse(aArgs) || parser.HelpDisplayed()) {
             return;
@@ -51,24 +54,43 @@ public:
         endptClient.AppendAddress(buf);
         //Log::Print("Using network interface %s\n", buf.Ptr());
 
+/*
+        Log::Print("optionPath :\n");
+        Log::Print(optionPath.Value());
+        Log::Print("\n");
+        Log::Print("optionFile: \n");
+        Log::Print(optionFile.Value());
+        Log::Print("\n");
+
+
+        for(TUint i=0; i<aArgs.size(); i++)
+        {
+            Log::Print("aArgs[%d]=  \n", i);
+            Log::Print(aArgs[i]);
+            Log::Print("\n");
+        }
+*/
+
         // set up server uri
         Endpoint endptServer = Endpoint(optionPort.Value(), optionServer.Value());
         iUriBuf.Replace(Brn("http://"));
         endptServer.AppendEndpoint(iUriBuf);
         iUriBuf.Append(Brn("/"));
         iUriBuf.Append(optionPath.Value());
+        iUriBuf.Append(Brn("/"));
+        iUriBuf.Append(optionFile.Value());
 
         Uri uri(iUriBuf);
-
-        //Log::Print("HttpReader setup \n");
-        //Log::Print("Uri:");
-        //Log::Print(iUriBuf);
-        //Log::Print("\n");
-
+/*
+        Log::Print("HttpReader setup \n");
+        Log::Print("Uri:");
+        Log::Print(iUriBuf);
+        Log::Print("\n");
+*/
 
         if (!Connect(uri))
         {
-            //Log::Print("Failed to connect \n");
+            Log::Print("Failed to connect \n");
 
             ASSERTS();
         }
