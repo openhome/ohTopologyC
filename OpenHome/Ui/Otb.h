@@ -18,7 +18,7 @@ typedef TUint32 TUnicode; // Big endian
 
 
 class Glyph;
-class GlyphMetrics;
+struct GlyphMetrics;
 
 
 enum EEncodingId
