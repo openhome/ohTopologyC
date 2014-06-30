@@ -365,8 +365,7 @@ public:
     ///\param - aBitsPerPixel number of bits used per pixel (defaults to 1)
     FrameBuffer(TUint aWidth, TUint aHeight/*, TUint aBitsPerPixel = 1*/);
 
-
-    FrameReader* CreateReader(Functor aCallback);
+    void AddReaderCallback(Functor aCallback);
     FrameWriter* CreateWriter();
 
     // public data (read only)
@@ -381,7 +380,7 @@ public:
     Rectangle Bounds(TUint aX = 0, TUint aY = 0) const;
     ///The number of bits to represent a pixel
     ///\retval TUint
-    TUint BitsPerPixel() const; //{ return iBitsPerPixel; }
+    //TUint BitsPerPixel() const; //{ return iBitsPerPixel; }
     ///Return the pixel data of the frame buffer
     ///\retval const Brx& - a buffer containing the pixel data
     void Pixels(Bwx& aBuf) const; // { return iPixels; }
@@ -390,6 +389,10 @@ public:
     /// @retval Producer& event producer reference
     //Producer& PixelsChanged() {return iPixelsChanged;}
 
+    void Read(Bwx& aBuf);
+    ///Returns the required number of bytes of pixel data
+    ///\retval TUint - the number of bytes of pixel data required
+    TUint PixelBytes() const;
 
 private:
     void WriterLock();
@@ -397,7 +400,6 @@ private:
 
 
     void Write(const Brx& aBuf); // for unit test
-    void Read(Bwx& aBuf);
 
 
     // Write Functions
@@ -466,9 +468,6 @@ private:
     ///Clear entire frame buffer contents
     void Clear();
 
-    ///Returns the required number of bytes of pixel data
-    ///\retval TUint - the number of bytes of pixel data required
-    TUint PixelBytes() const;
 
     /// write a single glyph to the frame buffer (blitting) - write(strike,string) will write glyph by gyph
     void Write(const Glyph& aGlyph, TUint aX, TUint aY);

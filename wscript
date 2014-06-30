@@ -135,6 +135,7 @@ def build(bld):
                 'OpenHome/Topology5.cpp',
 
                 'OpenHome/Ui/Display.cpp',
+                'OpenHome/Ui/DisplayDriver.cpp',
                 'OpenHome/Ui/Otb.cpp',
                 'OpenHome/Ui/Glyph.cpp',
                 'OpenHome/Ui/Unicode.cpp',

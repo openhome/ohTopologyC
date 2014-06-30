@@ -16,7 +16,7 @@ using namespace std;
 
 
 
-
+/*
 FrameReader::FrameReader(FrameBuffer& aFrameBuffer)
     :iFrameBuffer(aFrameBuffer)
 {
@@ -27,7 +27,7 @@ void FrameReader::Read(Bwx& aBuf)
 {
     iFrameBuffer.Pixels(aBuf);
 }
-
+*/
 //////////////////////////////////////////////////////////////////////////
 
 
@@ -820,10 +820,10 @@ FrameWriter* FrameBuffer::CreateWriter()
 }
 
 
-FrameReader* FrameBuffer::CreateReader(Functor aCallback)
+void FrameBuffer::AddReaderCallback(Functor aCallback)
 {
     iReaderCallbacks.push_back(aCallback);
-    return(new FrameReader(*this));
+    //return(new FrameReader(*this));
 }
 
 
@@ -835,6 +835,7 @@ void FrameBuffer::WriterLock()
 
 void FrameBuffer::WriterUnlock()
 {
+    OpenHome::Log::Print("FrameBuffer::WriterUnlock() iReaderCallbacks.size() = %d\n", iReaderCallbacks.size());
     ASSERT(iWriterLockCount>0);
     iWriterLockCount--;
     if(iWriterLockCount == 0)
@@ -857,6 +858,7 @@ void FrameBuffer::Write(const Brx& aBuf)
 {
     AutoMutex mutex(iMutexWrite);
     ASSERT(iWriterLockCount>0);
+    ASSERT(aBuf.Bytes()<=iPixelBytes);
     iWritePixels.Replace(aBuf);
 }
 
@@ -864,7 +866,7 @@ void FrameBuffer::Write(const Brx& aBuf)
 void FrameBuffer::Read(Bwx& aBuf)
 {
     AutoMutex mutex(iMutexRead);
-    aBuf.Replace(iReadPixels);
+    aBuf.Append(iReadPixels);
 }
 
 
@@ -878,9 +880,10 @@ Rectangle FrameBuffer::Bounds(TUint aX, TUint aY) const
 
 TUint FrameBuffer::PixelBytes() const
 {
-    TUint bytes = (iWidth + 7) >> 3; // round up
-    bytes *= iHeight;
-    return (bytes);
+//    TUint bytes = (iWidth + 7) >> 3; // round up
+//    bytes *= iHeight;
+
+    return (((iWidth + 7) * iHeight)/8);
 }
 
 
