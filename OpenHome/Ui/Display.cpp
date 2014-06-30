@@ -338,7 +338,7 @@ TBool Rectangle::IsInside(const Rectangle& aRectangle) const
 
 // Vector
 
-Vector::Vector(TInt aX, TInt aY) : iX(aY),iY(aY)
+Vector::Vector(TInt aX, TInt aY) : iX(aX),iY(aY)
 {
 }
 
@@ -1184,7 +1184,7 @@ const Brn FrameBuffer::kTestPatterns[7] = {
     Brn("TestBmpLetterE7x7.bmp"),
     Brn("TestBmpVerticalStripes128x32.bmp") };
 
-void FrameBuffer::TestPattern(TUint aTestPattern)
+void FrameBuffer::TestPattern(TUint /*aTestPattern*/)
 {
 /*
     ASSERT(aTestPattern <= 6);

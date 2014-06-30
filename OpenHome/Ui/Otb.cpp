@@ -125,12 +125,12 @@ TUint16 Otb::OtbCmapGlyphIndex(const Brn& aCmapSubTable, TUnicode aUnicode)
                     if( Converter::BeUint16At(idRangeOffset ,i) == 0)
                     {
                         glyphIndexFound = true;
-                        glyphIndex = aUnicode +  Converter::BeUint16At(idDelta ,i);
+                        glyphIndex = (TUint16)aUnicode +  Converter::BeUint16At(idDelta ,i);
                     }
                     else
                     {
                         Brn glyphIdArray(idRangeOffset.Ptr() + segmentSize, (aCmapSubTable.Bytes() - (16 + (4*segmentSize))));
-                        TUint16 offset = (( Converter::BeUint16At(idRangeOffset ,i)>>1) + (aUnicode -  Converter::BeUint16At(startCount ,i))) * sizeof(TUint16);
+                        TUint16 offset = (( Converter::BeUint16At(idRangeOffset ,i)>>1) + ((TUint16)aUnicode -  Converter::BeUint16At(startCount ,i))) * sizeof(TUint16);
                         glyphIndex = Converter::BeUint16At(glyphIdArray, (i+offset) - segmentSize);
                         if (glyphIndex != 0) // 0 implies missing glyph
                         {

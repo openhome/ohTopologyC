@@ -47,8 +47,11 @@ GlyphRange::GlyphRange(TUnicode aUnicodeFirst, TUnicode aUnicodeLast, TUint aPoi
 GlyphRange::~GlyphRange()
 {
     // delete glyph collection (vector)
-    // iterate over the vector iGlyph. Each i is a Glyph* - stepping in forward order
-    for(Vector::const_iterator i = iGlyph.begin(); i != iGlyph.end(); i++) { delete *i; }
+    // iterate over the vector iGlyph. 
+    for(TUint i = 0; i < iGlyph.size(); i++)
+	{
+		delete (iGlyph[i]);
+	}
 }
 
 
@@ -83,7 +86,10 @@ GlyphTable::~GlyphTable()
 {
     // delete glyph range collection (vector)
     // iterate over the vector iGlyphRange. Each i is a GlyphRange* - stepping in forward order
-    for(Vector::const_iterator i = iGlyphRange.begin(); i != iGlyphRange.end(); i++) { delete *i; }
+    for(TUint i = 0; i < iGlyphRange.size(); i++) 
+	{ 
+		delete iGlyphRange[i]; 
+	}
 }
 
 
@@ -95,10 +101,10 @@ void GlyphTable::AddRange(const GlyphRange* aGlyphRange)
 
 TBool GlyphTable::IsInTable(TUnicode aUnicode) const
 {
-    // iterate over the vector iGlyphRange. Each i is a GlyphRange* - stepping in forward order
-    for(Vector::const_iterator i = iGlyphRange.begin(); i != iGlyphRange.end(); i++)
+    // iterate over the vector iGlyphRange. 
+    for(TUint i=0; i < iGlyphRange.size(); i++)
     {
-        if((*i)->IsInRange(aUnicode)) { return(true); }
+        if(iGlyphRange[i]->IsInRange(aUnicode)) { return(true); }
     }
     return(false);
 }
@@ -107,11 +113,11 @@ TBool GlyphTable::IsInTable(TUnicode aUnicode) const
 const Glyph& GlyphTable::GlyphInTable(TUnicode aUnicode) const
 {
     // iterate over the vector iGlyphRange. Each i is a GlyphRange* - stepping in forward order
-    for(Vector::const_iterator i = iGlyphRange.begin(); i != iGlyphRange.end(); i++)
+    for(TUint i=0; i < iGlyphRange.size(); i++)
     {
-        if((*i)->IsInRange(aUnicode))
+        if(iGlyphRange[i]->IsInRange(aUnicode))
         {
-            return((*i)->GlyphInRange(aUnicode));
+            return(iGlyphRange[i]->GlyphInRange(aUnicode));
         }
     }
     // If you reach here --> unicode value not in glyph table

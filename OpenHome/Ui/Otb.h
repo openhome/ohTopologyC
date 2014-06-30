@@ -2,7 +2,7 @@
 #define HEADER_OTB
 
 //#include <Linn/Standard.h>
-//#include <Linn/Unicode.h>
+#include <OpenHome/Ui/Unicode.h>
 //#include <OpenHome/Ui/Drawing.h>
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Buffer.h>
@@ -14,7 +14,7 @@ namespace OpenHome {
 namespace Ui {
 
 
-typedef TUint32 TUnicode; // Big endian
+//typedef TUint32 TUnicode; // Big endian
 
 
 class Glyph;

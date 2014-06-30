@@ -331,10 +331,10 @@ public:
     TUint BitsPerPixel() { return iBitsPerPixel; }
     ///Returns a buffer containing the pixel data
     ///\retval const Brx& - a buffer containing the pixel data
-    const Brx& Pixels(TUint aFrame) { return iPixels; }
+    const Brx& Pixels(TUint /*aFrame*/) { return iPixels; }
     ///Return the time interval between frames
     ///\retval TUint - the time between frames in microseconds
-    TUint FrameInterval(TUint aFrame) { return iFrameInterval; }
+    TUint FrameInterval(TUint /*aFrame*/) { return iFrameInterval; }
     ///The number of frames in the animation
     ///\retval TUint - number of frames
     TUint FrameCount() { return iFrameCount; }
@@ -549,8 +549,8 @@ private:
 */
 
 //////////////////////////////////////////
-
-class FrameReader
+/*
+class FrameReader 
 {
 public:
     FrameReader(FrameBuffer& aFrameBuffer);
@@ -560,10 +560,10 @@ public:
 private:
     FrameBuffer& iFrameBuffer;
 };
-
+*/
 ///////////////////////////////////////////
 
-class FrameWriter
+class FrameWriter : public INonCopyable
 {
 public:
     FrameWriter(FrameBuffer& aFrameBuffer);
