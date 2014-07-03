@@ -196,14 +196,16 @@ void SuiteTopology3::ScheduleCallback(void* aObj)
 
 ////////////////////////////////////////////
 
-void TestTopology3(Environment& aEnv, std::vector<Brn>& aArgs)
+void TestTopology3(Environment& aEnv, const std::vector<Brn>& aArgs)
 {
-    if(aArgs.size()<2)
+    std::vector<Brn> args(aArgs);
+
+    if(args.size()<2)
     {
-        aArgs.push_back(Brn("--path"));
-        aArgs.push_back(Brn("~eamonnb/Topology3TestScript.txt"));
+        args.push_back(Brn("--path"));
+        args.push_back(Brn("~eamonnb/Topology3TestScript.txt"));
     }
-    TestScriptHttpReader reader(aEnv, aArgs);
+    TestScriptHttpReader reader(aEnv, args);
     Runner runner("Topology3 tests\n");
     runner.Add(new SuiteTopology3(reader));
     runner.Run();

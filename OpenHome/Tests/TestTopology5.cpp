@@ -461,15 +461,17 @@ void SuiteTopology5::ScheduleCallback(void* aObj)
 
 //////////////////////////////////////////////////////////////
 
-void TestTopology5(Environment& aEnv, std::vector<Brn>& aArgs)
+void TestTopology5(Environment& aEnv, const std::vector<Brn>& aArgs)
 {
-    if(aArgs.size()<2)
+    std::vector<Brn> args(aArgs);
+
+    if(args.size()<2)
     {
-        aArgs.push_back(Brn("--path"));
-        aArgs.push_back(Brn("~eamonnb/Topology5TestScript.txt"));
+        args.push_back(Brn("--path"));
+        args.push_back(Brn("~eamonnb/Topology5TestScript.txt"));
     }
 
-    TestScriptHttpReader reader(aEnv, aArgs);
+    TestScriptHttpReader reader(aEnv, args);
 
     Runner runner("Topology5 tests\n");
     runner.Add(new SuiteTopology5(reader));

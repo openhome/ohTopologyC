@@ -149,13 +149,12 @@ def build(bld):
            source=[
                 'OpenHome/Tests/TestWatchableThread.cpp',
                 'OpenHome/Tests/TestWatchable.cpp',
-                'OpenHome/Tests/TestShell.cpp',
                 'OpenHome/Tests/TestTopology1.cpp',
                 'OpenHome/Tests/TestTopology2.cpp',
                 'OpenHome/Tests/TestTopology3.cpp',
                 'OpenHome/Tests/TestTopology4.cpp',
                 'OpenHome/Tests/TestTopology5.cpp',
-                'OpenHome/Ui/Tests/TestDisplay.cpp',
+                'OpenHome/Tests/TestShell.cpp',
             ],
             use=['ohTopologyC'],
             target='ohTopologyCTestUtils')
@@ -169,11 +168,6 @@ def build(bld):
            source='OpenHome/Tests/TestWatchableMain.cpp',
            use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
            target='TestWatchable')
-
-    bld.program(
-           source='OpenHome/Tests/TestShellMain.cpp',
-           use=['OHNET', 'SHELL', 'ohTopologyC', 'ohTopologyCTestUtils'],
-           target='TestShell')
 
     bld.program(
            source='OpenHome/Tests/TestTopology1Main.cpp',
@@ -201,10 +195,9 @@ def build(bld):
            target='TestTopology5')
 
     bld.program(
-           source='OpenHome/Ui/Tests/TestDisplayMain.cpp',
-           use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
-           target='TestDisplay')
-
+           source='OpenHome/Tests/TestShellMain.cpp',
+           use=['OHNET', 'SHELL', 'ohTopologyC', 'ohTopologyCTestUtils'],
+           target='TestShell')
 
 # Bundles
 def bundle(ctx):

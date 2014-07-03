@@ -4,7 +4,7 @@
 
 using namespace OpenHome;
 
-extern void TestTopology4(OpenHome::Environment& aEnv, std::vector<Brn>& aArgs);
+extern void TestTopology4(OpenHome::Environment& aEnv, const std::vector<Brn>& aArgs);
 
 void OpenHome::TestFramework::Runner::Main(TInt aArgc, TChar* aArgv[], Net::InitialisationParams* aInitParams)
 {

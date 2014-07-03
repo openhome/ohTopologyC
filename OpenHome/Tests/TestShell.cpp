@@ -8,7 +8,6 @@
 
 using namespace OpenHome;
 using namespace OpenHome::Net;
-//using namespace OpenHome::Media;
 
 void OpenHome::ExecuteTestShell(Net::InitialisationParams* aInitParams, std::vector<ShellTest>& aTests)
 {

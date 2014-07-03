@@ -186,15 +186,17 @@ void SuiteTopology4::ScheduleCallback(void* aObj)
 }
 
 
-void TestTopology4(Environment& aEnv, std::vector<Brn>& aArgs)
+void TestTopology4(Environment& aEnv, const std::vector<Brn>& aArgs)
 {
-    if(aArgs.size()<2)
+    std::vector<Brn> args(aArgs);
+
+    if(args.size()<2)
     {
-        aArgs.push_back(Brn("--path"));
-        aArgs.push_back(Brn("~eamonnb/Topology4TestScript.txt"));
+        args.push_back(Brn("--path"));
+        args.push_back(Brn("~eamonnb/Topology4TestScript.txt"));
     }
 
-    TestScriptHttpReader reader(aEnv, aArgs);
+    TestScriptHttpReader reader(aEnv, args);
 
     Runner runner("Topology4 tests\n");
     runner.Add(new SuiteTopology4(reader));
