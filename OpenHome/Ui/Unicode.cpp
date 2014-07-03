@@ -51,7 +51,7 @@ TUnicode Utf8::Next()
         ucs4 |= (NextByte() & ~kFollowingBytesMask) << 6;  //mask out first two bits of byte, it is not part of the dat
         ucs4 |= (NextByte() & ~kFollowingBytesMask);       //mask out first two bits of byte, it is not part of the data
     }
-    else { ASSERT(0); } // programmer error - invalid first byte should be caught and thrown
+    else { ASSERTS(); } // programmer error - invalid first byte should be caught and thrown
 
     return(ucs4);
 }
@@ -283,7 +283,7 @@ void String::ToUtf8(Bwx& aBuffer)
     {
         unicode = At(i); // four byte unicode value for each character
         //byte1 = (unicode & 0xff000000) >> 24;
-        byte2 = (unicode & 0x00ff0000) >> 16;
+        byte2 = (TByte)((unicode & 0x00ff0000) >> 16);
         byte3 = (unicode & 0x0000ff00) >> 8;
         byte4 = (unicode & 0x000000ff);
 
@@ -362,7 +362,7 @@ void String::ToUtf8(Bwx& aBuffer)
                 aBuffer.Replace(Brx::Empty());
             }
         }
-        else { ASSERT(0); } // programmer error - construction of string should eliminate this possibility
+        else { ASSERTS(); } // programmer error - construction of string should eliminate this possibility
     }
 }
 
@@ -416,7 +416,7 @@ void String::ReorderRightToLeft() {
     for (TUint i = 0; i < typeBuffer.Bytes(); i++) {
         if(typeBuffer[i] == eNSM) {
             ////LOG(Debug::kSysLib|Debug::kVerbose, "W1: NSM found (char index = %d), changed to type: %x\n", i, prevType);
-            typeBuffer[i] = prevType;
+            typeBuffer[i] = (TByte)prevType;
         }
         prevType = (EBidiCharType)typeBuffer[i];
     }

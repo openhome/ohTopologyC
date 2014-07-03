@@ -489,7 +489,7 @@ void SuiteDisplay::Test3() // OtbInternalTest
 
 void SuiteDisplay::Test4() // Network display driver
 {
-/*
+
     FrameBuffer* frameBuffer = new FrameBuffer(128, 32);
     new NetworkDisplayDriver(iEnv, Brn("Test"), *frameBuffer);
     FrameWriter* writer1 = frameBuffer->CreateWriter();
@@ -515,7 +515,7 @@ void SuiteDisplay::Test4() // Network display driver
 
         Thread::Sleep(5000);
     }
-*/
+
 }
 
 

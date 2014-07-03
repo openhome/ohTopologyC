@@ -115,7 +115,7 @@ private:
 ///\class GlyphRange
 ///\brief A class which represents a range of glyphs of a particular point size
 ///\note check for class invariant - non of the ranges should overlap.
-class GlyphRange
+class GlyphRange : public INonCopyable
 {
     friend class GlyphTable;
 public:
@@ -142,8 +142,7 @@ private:
     TUnicode iUnicodeLast;
     TUint iPointSize;
     const Otb& iOtb;
-    typedef std::vector<Glyph*> Vector;
-    Vector iGlyph; // collection of glyphs (unicode first to unicode last) - each glyph has alignment/metrics/pixels)
+    std::vector<Glyph*> iGlyph; // collection of glyphs (unicode first to unicode last) - each glyph has alignment/metrics/pixels)
 };
 
 ////////////////////////////////////////////
@@ -170,8 +169,7 @@ public:
     const Glyph& GlyphInTable(TUnicode aUnicode) const;
 
 private:
-    typedef std::vector<const GlyphRange*> Vector;
-    Vector iGlyphRange; // collection of glyph ranges
+    std::vector<const GlyphRange*> iGlyphRange; // collection of glyph ranges
 };
 
 ////////////////////////////////////////////////////////
