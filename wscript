@@ -133,12 +133,6 @@ def build(bld):
                 'OpenHome/Topology3.cpp',
                 'OpenHome/Topology4.cpp',
                 'OpenHome/Topology5.cpp',
-
-                'OpenHome/Ui/Display.cpp',
-                'OpenHome/Ui/DisplayDriver.cpp',
-                'OpenHome/Ui/Otb.cpp',
-                'OpenHome/Ui/Glyph.cpp',
-                'OpenHome/Ui/Unicode.cpp',
             ],
             use=['OHNET'],
             target='ohTopologyC')
