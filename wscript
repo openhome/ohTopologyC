@@ -12,7 +12,7 @@ import os.path, sys
 sys.path[0:0] = [os.path.join('dependencies', 'AnyPlatform', 'ohWafHelpers')]
 
 from filetasks import gather_files, build_tree, copy_task
-from utilfuncs import invoke_test, guess_dest_platform, configure_toolchain, guess_ohnet_location
+from utilfuncs import invoke_test, guess_dest_platform, configure_toolchain, guess_ohnet_location, guess_libplatform_location
 
 def options(opt):
     opt.load('msvc')
@@ -22,6 +22,7 @@ def options(opt):
     opt.add_option('--ohnet-lib-dir', action='store', default=None)
     opt.add_option('--testharness-dir', action='store', default=os.path.join('dependencies', 'AnyPlatform', 'testharness'))
     opt.add_option('--ohnet', action='store', default=None)
+    opt.add_option('--libplatform', action='store', default=None)
     opt.add_option('--debug', action='store_const', dest="debugmode", const="Debug", default="Release")
     opt.add_option('--release', action='store_const', dest="debugmode",  const="Release", default="Release")
     opt.add_option('--dest-platform', action='store', default=None)
@@ -45,8 +46,9 @@ def configure(conf):
         except KeyError:
             conf.fatal('Specify --dest-platform')
 
-    configure_toolchain(conf)
+    guess_libplatform_location(conf)
     guess_ohnet_location(conf)
+    configure_toolchain(conf)
 
     conf.env.dest_platform = conf.options.dest_platform
     conf.env.testharness_dir = os.path.abspath(conf.options.testharness_dir)
@@ -72,7 +74,6 @@ def configure(conf):
 
 
     conf.env.STLIB_SHELL = ['Shell']
-    
 
 def get_node(bld, node_or_filename):
     if isinstance(node_or_filename, Node):
