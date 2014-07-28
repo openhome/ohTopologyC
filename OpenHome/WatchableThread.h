@@ -48,11 +48,11 @@ private:
 
 /////////////////////////////////////////////
 
-class AutoSem
+class AutoSig
 {
 public:
-    AutoSem(Semaphore* aSem);
-    ~AutoSem();
+    AutoSig(Semaphore* aSem);
+    ~AutoSig();
 private:
     Semaphore* iSem;
 };

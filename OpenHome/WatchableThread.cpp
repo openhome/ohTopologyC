@@ -126,14 +126,14 @@ TBool WatchableThread::IsWatchableThread()
 
 /////////////////////////////////////////////////////////
 
-AutoSem::AutoSem(Semaphore* aSem)
+AutoSig::AutoSig(Semaphore* aSem)
     :iSem(aSem)
 {
 
 }
 
 
-AutoSem::~AutoSem()
+AutoSig::~AutoSig()
 {
     if (iSem != NULL)
     {
@@ -167,7 +167,7 @@ void SignalledCallback::Set(FunctorGeneric<void*> aFunctor, void* aObj)
 
 void SignalledCallback::Callback()
 {
-    AutoSem as(iSem);
+    AutoSig as(iSem);
     iFunctor(iObj);
 }
 
