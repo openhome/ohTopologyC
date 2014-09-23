@@ -10,52 +10,61 @@
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
+using namespace OpenHome::Net;
 using namespace std;
 
-/*
-Injector::Injector(Network& aNetwork, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog aLog)
+
+Injector::Injector(Network& aNetwork, CpStack& aCpStack, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& aLog)
+    :iDisposeHandler(new DisposeHandler())
+    ,iNetwork(aNetwork)
+    ,iLog(aLog)
 {
-    iDisposeHandler = new DisposeHandler();
-    iNetwork = aNetwork;
-    iLog = aLog;
-    iDeviceList = new CpDeviceListUpnpServiceType(aDomain, aType, aVersion, Added, Removed);
-    iDeviceLookup = new Dictionary<const Brx&,IInjectorDevice>();
+    FunctorCpDevice fAdded = Net::MakeFunctorCpDevice(*this, &Injector::Added);
+    FunctorCpDevice fRemoved = Net::MakeFunctorCpDevice(*this, &Injector::Removed);
+
+    iDeviceList = new CpDeviceListUpnpServiceType(aCpStack, aDomain, aType, aVersion, fAdded, fRemoved);
 }
 
 
-void Injector::Added(CpDeviceList aList, CpDevice& aDevice)
+void Injector::Added(/*CpDeviceList& aList, */CpDevice& aDevice)
 {
+    Brn udn(aDevice.Udn());
+
     if (!FilterOut(aDevice))
     {
-        IInjectorDevice device = Create(iNetwork, aDevice);
-        iDeviceLookup.Add(aDevice.Udn(), device);
+        IInjectorDevice* device = Create(iNetwork, aDevice);
+
+
+        iDeviceLookup[Brn("udn")] = device;
+
+
         iNetwork.Add(device);
     }
 }
 
 
-void Injector::Removed(CpDeviceList aList, CpDevice& aDevice)
+void Injector::Removed(/*CpDeviceList& aList, */CpDevice& aDevice)
 {
-    IInjectorDevice device;
+    Brn udn(aDevice.Udn());
 
-    Brn udn = aDevice.Udn();
-
-    if (iDeviceLookup.TryGetValue(udn, out device))
+    if (iDeviceLookup.count(udn)>0)
     {
+        IInjectorDevice* device = iDeviceLookup[udn];
         iNetwork.Remove(device);
-        iDeviceLookup.Remove(udn);
+        iDeviceLookup.erase(udn);
     }
+
 }
 
 
-IInjectorDevice Injector::Create(INetwork& aNetwork, CpDevice& aDevice)
+IInjectorDevice* Injector::Create(INetwork& aNetwork, CpDevice& aDevice)
 {
     DisposeLock lock(*iDisposeHandler);
-        return (DeviceFactory.Create(aNetwork, aDevice, iLog));
+    return (DeviceFactory::Create(aNetwork, aDevice, iLog));
 }
 
 
-TBool Injector::FilterOut(CpDevice aCpDevice)
+TBool Injector::FilterOut(CpDevice& aCpDevice)
 {
     return false;
 }
@@ -64,37 +73,37 @@ TBool Injector::FilterOut(CpDevice aCpDevice)
 void Injector::Refresh()
 {
     DisposeLock lock(*iDisposeHandler);
-        iDeviceList.Refresh();
+    iDeviceList->Refresh();
 }
 
 
 void Injector::Dispose()
 {
-    iDeviceList.Dispose();
-    iDisposeHandler.Dispose();
+    //iDeviceList->Dispose();
+    iDisposeHandler->Dispose();
 }
 
 /////////////////////////////////////////////////////////////////
 
-InjectorProduct::InjectorProduct(INetwork& aNetwork, ILog aLog)
-    : base(aNetwork, "av.openhome.org", "Product", 1, aLog)
+InjectorProduct::InjectorProduct(Network& aNetwork, CpStack& aCpStack, ILog& aLog)
+    : Injector(aNetwork, aCpStack, Brn("av.openhome.org"), Brn("Product"), 1, aLog)
 {
 }
 
 /////////////////////////////////////////////////////////////////
 
-InjectorSender::InjectorSender(INetwork& aNetwork, ILog aLog)
-    : base(aNetwork, "av.openhome.org", "Sender", 1, aLog)
+InjectorSender::InjectorSender(Network& aNetwork, CpStack& aCpStack, ILog& aLog)
+    : Injector(aNetwork, aCpStack, Brn("av.openhome.org"), Brn("Sender"), 1, aLog)
 {
 }
 
 
 TBool InjectorSender::FilterOut(CpDevice& aCpDevice)
 {
-    string value;
-    return aCpDevice.GetAttribute("Upnp.Service.av-openhome-org.Product", out value);
+    Brh value;
+    return aCpDevice.GetAttribute("Upnp.Service.av-openhome-org.Product", value);
 }
-*/
+
 
 /////////////////////////////////////////////////////////////////
 

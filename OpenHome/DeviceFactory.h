@@ -14,7 +14,7 @@ namespace Av
 class DeviceFactory
 {
 public:
-    //static IInjectorDevice* Create(INetwork& aNetwork, Net::CpDevice& aDevice, ILog aLog);
+    static IInjectorDevice* Create(INetwork& aNetwork, Net::CpDevice& aDevice, ILog& aLog);
     static IInjectorDevice* CreateDs(INetwork& aNetwork, const Brx& aUdn, ILog& aLog);
     static IInjectorDevice* CreateDs(INetwork& aNetwork, const Brx& aUdn, const Brx& aRoom, const Brx& aName, const Brx& aAttributes, ILog& aLog);
     static IInjectorDevice* CreateDsm(INetwork& aNetwork, const Brx& aUdn, ILog& aLog);

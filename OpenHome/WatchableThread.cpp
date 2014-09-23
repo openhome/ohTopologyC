@@ -83,6 +83,8 @@ void WatchableThread::Assert()
 
 void WatchableThread::Schedule(FunctorGeneric<void*> aCallback, void* aObj)
 {
+    // Add the callback to queue of callbacks to be run on the WT.
+    // Don't wait on the callback being run
     SignalledCallback* callback = iFree.Read();
     callback->Set(aCallback, aObj);
     iScheduled.Write(callback);
@@ -91,6 +93,9 @@ void WatchableThread::Schedule(FunctorGeneric<void*> aCallback, void* aObj)
 
 void WatchableThread::Execute(FunctorGeneric<void*> aCallback, void* aObj)
 {
+    // If calling function is on the WT - run the callback immediately.
+    // If calling function is not on the WT - schedule the callback to be run on the WT
+    // In either case - don't return until callback has been run
     if (IsWatchableThread())
     {
         try

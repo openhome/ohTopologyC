@@ -5,6 +5,7 @@
 #include <OpenHome/WatchableThread.h>
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/DisposeHandler.h>
+#include <OpenHome/Job.h>
 #include <vector>
 
 EXCEPTION(ServiceNotFoundException)
@@ -110,8 +111,9 @@ protected:
     Service(INetwork& aNetwork, IInjectorDevice* aDevice, ILog& aLog);
 
 
-    //virtual Task OnSubscribe();
-    //Task Start(FunctorGeneric<void*> aAction);
+    virtual Job* OnSubscribe();
+    Job* Start(FunctorGeneric<void*> aAction, void* aObj);
+    JobDone* Start();
     //Task<T> Start<T>(Func<T> aFunction);
     virtual void OnCancelSubscribe();
     virtual void OnUnsubscribe();
@@ -127,12 +129,12 @@ protected:
     INetwork& iNetwork;
     ILog& iLog;
     DisposeHandler* iDisposeHandler;
-    //Task iSubscribeTask;
+    Job* iSubscribeTask;
 
 private:
     IInjectorDevice* iDevice;
     //CancellationTokenSource iCancelSubscribe;
-    //std::vector<Task> iTasks;
+    std::vector<Job*> iJobs;
     TUint iRefCount;
 };
 

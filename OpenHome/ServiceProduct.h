@@ -6,6 +6,12 @@
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/Watchable.h>
 #include <OpenHome/Service.h>
+#include <OpenHome/Net/Core/CpDevice.h>
+#include <OpenHome/Net/Core/FunctorAsync.h>
+#include <Generated/CpAvOpenhomeOrgProduct1.h>
+#include <OpenHome/Job.h>
+
+
 #include <vector>
 #include <memory>
 
@@ -71,9 +77,9 @@ public:
     virtual IWatchable<Brn>& SourceXml() = 0;
     virtual IWatchable<TBool>& Standby() = 0;
 
-    //virtual Task SetSourceIndex(TUint aValue) = 0;
-    //virtual Task SetSourceIndexByName(const Brx& aValue) = 0;
-    //virtual Task SetStandby(TBool aValue) = 0;
+    virtual Job* SetSourceIndex(TUint aValue) = 0;
+    virtual Job* SetSourceIndexByName(const Brx& aValue) = 0;
+    virtual Job* SetStandby(TBool aValue) = 0;
 
     virtual Brn Attributes() = 0;
     virtual Brn ManufacturerImageUri() = 0;
@@ -110,9 +116,9 @@ public:
     virtual IWatchable<TBool>& Standby();
 
     // abstract
-    //virtual Task SetSourceIndex(TUint aValue);
-    //virtual Task SetSourceIndexByName(const Brx& aValue);
-    //virtual Task SetStandby(TBool aValue);
+    virtual Job* SetSourceIndex(TUint aValue) = 0;
+    virtual Job* SetSourceIndexByName(const Brx& aValue) = 0;
+    virtual Job* SetStandby(TBool aValue) = 0;
 
 
     // IProduct methods
@@ -129,11 +135,6 @@ public:
     virtual Brn ProductInfo();
     virtual Brn ProductUrl();
     virtual Brn ProductId();
-
-private:
-    //virtual void SetSourceIndexCallback(void* aValue);
-    //virtual void SetSourceIndexByNameCallback(void* aValue);
-    //virtual void SetStandbyCallback(void* aValue);
 
 
 protected:
@@ -170,11 +171,12 @@ public:
         const Brx& aModelInfo, const Brx& aModelName, const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog& aLog);
 
     virtual void Execute(ICommandTokens& aValue);
-    //virtual Task SetSourceIndex(TUint aValue);
-    //virtual Task SetSourceIndexByName(const Brx& aValue);
-    //virtual Task SetStandby(TBool aValue);
-    //virtual void SetSourceIndexCallback(void* aValue);
-    //virtual void SetSourceIndexByNameCallback(void* aValue);
+    virtual Job* SetSourceIndex(TUint aValue);
+    virtual Job* SetSourceIndexByName(const Brx& aValue);
+    virtual Job* SetStandby(TBool aValue);
+
+private:
+    virtual void SetSourceIndexCallback(void* aValue);
     //virtual void SetStandbyCallback(void* aValue);
 
 
@@ -197,9 +199,9 @@ public:
     virtual IWatchable<Brn>& SourceXml();
     virtual IWatchable<TBool>& Standby();
 
-    //virtual Task SetSourceIndex(TUint aValue);
-    //virtual Task SetSourceIndexByName(const Brx& aValue);
-    //virtual Task SetStandby(TBool aValue);
+    virtual Job* SetSourceIndex(TUint aValue);
+    virtual Job* SetSourceIndexByName(const Brx& aValue);
+    virtual Job* SetStandby(TBool aValue);
 
     virtual Brn Attributes();
     virtual Brn ManufacturerImageUri();
@@ -234,43 +236,40 @@ private:
 
 ////////////////////////////////////////////////////////////
 
-/*
-class ServiceProductNetwork : ServiceProduct
+class ServiceProductNetwork : public ServiceProduct
 {
 public:
-    public ServiceProductNetwork(INetwork aNetwork, IInjectorDevice aDevice, CpDevice aCpDevice, ILog aLog  )
+    ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
 
     virtual void Dispose();
-    virtual Task SetSourceIndex(TUint aValue);
-    virtual Task SetSourceIndexByName(const Brx& aValue);
-    virtual Task SetStandby(TBool aValue);
+    virtual Job* SetSourceIndex(TUint aValue);
+    virtual Job* SetSourceIndexByName(const Brx& aValue);
+    virtual Job* SetStandby(TBool aValue);
 
 protected:
-    virtual Task OnSubscribe();
+    virtual Job* OnSubscribe();
     virtual void OnCancelSubscribe();
     virtual void OnUnsubscribe();
 
 private:
     void HandleInitialEvent();
-    void HandleInitialEventConfiguration();
     void HandleRoomChanged();
     void HandleNameChanged();
     void HandleSourceIndexChanged();
     void HandleSourceXmlChanged();
     void HandleStandbyChanged();
-    void HandleParameterXmlChanged();
-    void ParseParameterXml(const Brx& aParameterXml);
+
+    void BeginSetSourceIndexCallback(Net::IAsync& aValue);
+    void BeginSetStandbyCallback(Net::IAsync& aAsync);
+    void BeginSetSourceIndexByNameCallback(Net::IAsync& aAsync);
+    void DoNothing(void* aObj);
 
 private:
-    private readonly CpDevice iCpDevice;
-    private TaskCompletionSource<TBool> iSubscribedSource;
-    private TaskCompletionSource<TBool> iSubscribedConfigurationSource;
-    private TaskCompletionSource<TBool> iSubscribedVolkanoSource;
-    private CpProxyAvOpenhomeOrgProduct1 iService;
-    private CpProxyLinnCoUkConfiguration1 iServiceConfiguration;
-    private CpProxyLinnCoUkVolkano1 iServiceVolkano;
+    Net::CpDevice& iCpDevice;
+    JobDone* iSubscribedSource;
+    Net::CpProxyAvOpenhomeOrgProduct1* iService;
 };
-*/
+
 
 
 

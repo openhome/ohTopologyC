@@ -6,6 +6,7 @@
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
+using namespace OpenHome::Net;
 
 
 ServiceReceiver::ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
@@ -23,12 +24,7 @@ void ServiceReceiver::Dispose()
     iTransportState->Dispose();
     delete iMetadata;
     delete iTransportState;
-
-    if (iCurrentMetadata!=NULL)
-    {
-        delete iCurrentMetadata;
-    }
-
+    delete iCurrentMetadata;
     iMetadata = NULL;
     iTransportState = NULL;
 }
@@ -54,83 +50,104 @@ const Brx& ServiceReceiver::ProtocolInfo()
 }
 
 
-
 ////////////////////////////////////////////////////////////////
-/*
 
-class ServiceReceiverNetwork : ServiceReceiver
+
+ServiceReceiverNetwork::ServiceReceiverNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
+    :ServiceReceiver(aNetwork, aDevice, aLog)
+    ,iCpDevice(aCpDevice)
 {
-ServiceReceiverNetwork(INetwork aNetwork, IInjectorDevice aDevice, CpDevice aCpDevice, ILog aLog)
-    : base(aNetwork, aDevice, aLog)
-{
-    iCpDevice = aCpDevice;
     iCpDevice.AddRef();
 
     iService = new CpProxyAvOpenhomeOrgReceiver1(aCpDevice);
 
-    iService.SetPropertyMetadataChanged(HandleMetadataChanged);
-    iService.SetPropertyTransportStateChanged(HandleTransportStateChanged);
+    Functor fHmc = MakeFunctor(*this, &ServiceReceiverNetwork::HandleMetadataChanged);
+    iService->SetPropertyMetadataChanged(fHmc);
 
-    iService.SetPropertyInitialEvent(HandleInitialEvent);
+    Functor fHtsc = MakeFunctor(*this, &ServiceReceiverNetwork::HandleTransportStateChanged);
+    iService->SetPropertyTransportStateChanged(fHtsc);
+
+    Functor fHie = MakeFunctor(*this, &ServiceReceiverNetwork::HandleInitialEvent);
+    iService->SetPropertyInitialEvent(fHie);
 }
 
-void Dispose()
-{
-    base.Dispose();
 
-    iService.Dispose();
-    iService = null;
+void ServiceReceiverNetwork::Dispose()
+{
+    ServiceReceiver::Dispose();
+
+    delete iService;
+    iService = NULL;
 
     iCpDevice.RemoveRef();
 }
 
-Task OnSubscribe()
+
+Job* ServiceReceiverNetwork::OnSubscribe()
 {
-    Do.Assert(iSubscribedSource == null);
+    ASSERT(iSubscribedSource == NULL);
 
-    iSubscribedSource = new TaskCompletionSource<bool>();
+    iSubscribedSource = new JobDone();
 
-    iService.Subscribe();
+    iService->Subscribe();
 
-    return iSubscribedSource.Task.ContinueWith((t) => { });
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::OnSubscribeCallback);
+
+    Job* job = iSubscribedSource->GetJob()->ContinueWith(f, NULL);
+    return(job);
+    //return iSubscribedSource->GetJob()->ContinueWith((t) => { });
 }
 
-void OnCancelSubscribe()
+
+void ServiceReceiverNetwork::OnSubscribeCallback(void* aObj)
 {
-    if (iSubscribedSource != null)
+
+}
+
+void ServiceReceiverNetwork::OnCancelSubscribe()
+{
+    if (iSubscribedSource != NULL)
     {
-        iSubscribedSource.TrySetCanceled();
+        //iSubscribedSource->TrySetCancelled();
+        iSubscribedSource->Cancel();
     }
 }
 
-void HandleInitialEvent()
+void ServiceReceiverNetwork::HandleInitialEvent()
 {
-    iProtocolInfo = iService.PropertyProtocolInfo();
+    Brhz protocolInfo;
+    iService->PropertyProtocolInfo(protocolInfo);
+    iProtocolInfo.Replace(protocolInfo);
 
-    if (!iSubscribedSource.Task.IsCanceled)
+    if (!iSubscribedSource->GetJob()->IsCancelled())
     {
-        iSubscribedSource.SetResult(true);
+        iSubscribedSource->SetResult(true);
     }
 }
 
-void OnUnsubscribe()
+void ServiceReceiverNetwork::OnUnsubscribe()
 {
-    if (iService != null)
+    if (iService != NULL)
     {
-        iService.Unsubscribe();
+        iService->Unsubscribe();
     }
 
-    iSubscribedSource = null;
+    iSubscribedSource = NULL;
 }
 
-Task Play()
+Job* ServiceReceiverNetwork::Play()
 {
-    TaskCompletionSource<bool> taskSource = new TaskCompletionSource<bool>();
-    iService.BeginPlay((ptr) =>
+    JobDone* jobDone = new JobDone();
+
+    FunctorAsync f = MakeFunctorAsync(*this, &ServiceReceiverNetwork::BeginPlayCallback);
+    iService->BeginPlay(f);
+
+/*
+    iService->BeginPlay((ptr) =>
     {
         try
         {
-            iService.EndPlay(ptr);
+            iService->EndPlay(ptr);
             taskSource.SetResult(true);
         }
         catch (Exception e)
@@ -138,23 +155,49 @@ Task Play()
             taskSource.SetException(e);
         }
     });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
+*/
+
+    //jobDone->GetJob().ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
+
+
+    return (jobDone->GetJob());
 }
 
-Task Play(ISenderMetadata aMetadata)
+
+void ServiceReceiverNetwork::BeginPlayCallback(IAsync& aAsync)
 {
-    TaskCompletionSource<bool> taskSource = new TaskCompletionSource<bool>();
-    iService.BeginSetSender(aMetadata.Uri, aMetadata.ToString(), (ptr1) =>
+    JobDone* jobDone = new JobDone(); // FIXME: this should be the object created in the original method
+
+    try
+    {
+        iService->EndPlay(aAsync);
+        jobDone->SetResult(true);
+    }
+    catch (Exception e)
+    {
+        jobDone->SetException(e);
+    }
+}
+
+
+Job* ServiceReceiverNetwork::Play(ISenderMetadata& aMetadata)
+{
+    JobDone* jobDone = new JobDone();
+
+    FunctorAsync f = MakeFunctorAsync(*this, &ServiceReceiverNetwork::BeginSetSenderCallback);
+    iService->BeginSetSender(aMetadata.Uri(), aMetadata.ToString(), f);
+
+/*
+    iService->BeginSetSender(aMetadata.Uri, aMetadata.ToString(), (ptr1) =>
     {
         try
         {
-            iService.EndSetSender(ptr1);
-            iService.BeginPlay((ptr2) =>
+            iService->EndSetSender(ptr1);
+            iService->BeginPlay((ptr2) =>
             {
                 try
                 {
-                    iService.EndPlay(ptr2);
+                    iService->EndPlay(ptr2);
                     taskSource.SetResult(true);
                 }
                 catch (Exception e)
@@ -168,18 +211,41 @@ Task Play(ISenderMetadata aMetadata)
             taskSource.SetException(e);
         }
     });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
+*/
+    //jobDone->GetJob()->ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
+    return (jobDone->GetJob());
 }
 
-Task Stop()
+
+void ServiceReceiverNetwork::BeginSetSenderCallback(IAsync& aAsync)
 {
-    TaskCompletionSource<bool> taskSource = new TaskCompletionSource<bool>();
-    iService.BeginStop((ptr) =>
+    JobDone* jobDone = new JobDone(); // FIXME: this should be the object created in the original method
+    try
+    {
+        iService->EndSetSender(aAsync);
+        FunctorAsync f = MakeFunctorAsync(*this, &ServiceReceiverNetwork::BeginPlayCallback);
+        iService->BeginPlay(f);
+    }
+    catch (Exception e)
+    {
+        jobDone->SetException(e);
+    }
+}
+
+
+
+Job* ServiceReceiverNetwork::Stop()
+{
+    JobDone* jobDone = new JobDone();
+    FunctorAsync f = MakeFunctorAsync(*this, &ServiceReceiverNetwork::BeginStopCallback);
+    iService->BeginStop(f);
+
+/*
+    iService->BeginStop((ptr) =>
     {
         try
         {
-            iService.EndStop(ptr);
+            iService->EndStop(ptr);
             taskSource.SetResult(true);
         }
         catch (Exception e)
@@ -187,26 +253,82 @@ Task Stop()
             taskSource.SetException(e);
         }
     });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
+*/
+    //jobDone->GetJob().ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
+    return (jobDone->GetJob());
 }
 
-void HandleMetadataChanged()
+
+void ServiceReceiverNetwork::BeginStopCallback(IAsync& aAsync)
 {
-    IMediaMetadata metadata = iNetwork.TagManager.FromDidlLite(iService.PropertyMetadata());
-    string uri = iService.PropertyUri();
+    JobDone* jobDone = new JobDone(); // FIXME: this should be the object created in the original method
+
+    try
+    {
+        iService->EndStop(aAsync);
+        jobDone->SetResult(true);
+    }
+    catch (Exception e)
+    {
+        jobDone->SetException(e);
+    }
+}
+
+
+
+void ServiceReceiverNetwork::HandleMetadataChanged()
+{
+    Brhz metadata;
+    iService->PropertyMetadata(metadata);
+
+    IMediaMetadata* mediaMetadata = iNetwork.TagManager().FromDidlLite(metadata);
+
+    Brhz uri;
+    iService->PropertyUri(uri);
+
+    IInfoMetadata* infoMetadata = new InfoMetadata(mediaMetadata, Brn(uri)); // FIXME: is it ok to new this here rather than in the functor below ???
+
+
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::MetadataChangedCallback);
+    iNetwork.Schedule(f, infoMetadata);
+/*
     iNetwork.Schedule(() =>
     {
         iDisposeHandler.WhenNotDisposed(() =>
         {
-            iMetadata.Update(new InfoMetadata(metadata, uri));
+            iMetadata->Update(new InfoMetadata(metadata, uri));
         });
     });
+*/
 }
 
-void HandleTransportStateChanged()
+
+void ServiceReceiverNetwork::MetadataChangedCallback(void* aInfoMetadata)
 {
-    string transportState = iService.PropertyTransportState();
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::MetadataChangedCallbackCallback);
+    iDisposeHandler->WhenNotDisposed(f, aInfoMetadata);
+}
+
+
+void ServiceReceiverNetwork::MetadataChangedCallbackCallback(void* aInfoMetadata)
+{
+    IInfoMetadata* infoMetadata = (IInfoMetadata*)aInfoMetadata;
+    iMetadata->Update(infoMetadata);
+    delete iCurrentMetadata;
+    iCurrentMetadata = infoMetadata;
+}
+
+
+
+void ServiceReceiverNetwork::HandleTransportStateChanged()
+{
+    Brhz transportState;
+    iService->PropertyTransportState(transportState);
+    Bws<100>* newTransportState = new Bws<100>(transportState);
+
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::TransportChangedCallback);
+    iNetwork.Schedule(f, newTransportState);
+/*
     iNetwork.Schedule(() =>
     {
         iDisposeHandler.WhenNotDisposed(() =>
@@ -214,14 +336,26 @@ void HandleTransportStateChanged()
             iTransportState.Update(transportState);
         });
     });
-}
-
-readonly CpDevice iCpDevice;
-TaskCompletionSource<bool> iSubscribedSource;
-CpProxyAvOpenhomeOrgReceiver1 iService;
-}
-
 */
+}
+
+
+void ServiceReceiverNetwork::TransportChangedCallback(void* aTransportState)
+{
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::TransportChangedCallbackCallback);
+    iDisposeHandler->WhenNotDisposed(f, aTransportState);
+}
+
+void ServiceReceiverNetwork::TransportChangedCallbackCallback(void* aTransportState)
+{
+    Bws<100>* transportState = (Bws<100>*)aTransportState;
+    iTransportState->Update(Brn(*transportState));
+    delete iCurrentTransportState;
+    iCurrentTransportState = transportState;
+}
+
+
+////////////////////////////////////////////////////////////////
 
 ServiceReceiverMock::ServiceReceiverMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aMetadata, const Brx& aProtocolInfo,
                                          const Brx& aTransportState, const Brx& aUri, ILog& aLog)
@@ -234,32 +368,43 @@ ServiceReceiverMock::ServiceReceiverMock(INetwork& aNetwork, IInjectorDevice& aD
     iTransportState->Update(Brn(aTransportState));
 }
 
-/*
-Task ServiceReceiverMock::Play()
+
+Job* ServiceReceiverMock::Play()
 {
+    return(0);
+
+/*
     return Start(() =>
     {
         iTransportState.Update(Brn("Playing"));
     });
+*/
 }
 
-Task ServiceReceiverMock::Play(ISenderMetadata aMetadata)
+
+Job* ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
 {
+    return(0); // FIXME
+/*
     return Start(() =>
     {
         iMetadata.Update(new InfoMetadata(iNetwork.TagManager.FromDidlLite(aMetadata.ToString()), aMetadata.Uri));
         iTransportState.Update(Brn("Playing"));
     });
+*/
 }
 
-Task ServiceReceiverMock::Stop()
+Job* ServiceReceiverMock::Stop()
 {
+    return(0); // FIXME
+/*
     return Start(() =>
     {
         iTransportState.Update(Brn("Stopped"));
     });
-}
 */
+}
+
 
 void ServiceReceiverMock::Execute(ICommandTokens& aValue)
 {
@@ -268,10 +413,6 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
     if (Ascii::CaseInsensitiveEquals(command, Brn("protocolinfo")))
     {
         iProtocolInfo.Replace(aValue.RemainingTrimmed());
-/*
-        IEnumerable<string> value = aValue.Skip(1);
-        iProtocolInfo = string.Join(" ", value);
-*/
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("metadata")))
     {
@@ -301,10 +442,7 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
         IInfoMetadata* metadata = new InfoMetadata(iNetwork.TagManager().FromDidlLite(allButLastToken), lastToken);
         iMetadata->Update(metadata);
 
-        if (iCurrentMetadata!=NULL)
-        {
-            delete iCurrentMetadata;
-        }
+        delete iCurrentMetadata;
 
         iCurrentMetadata = metadata;
     }
@@ -356,22 +494,22 @@ IWatchable<Brn>& ProxyReceiver::TransportState()
     return iService.TransportState();
 }
 
-/*
-Task Play()
+
+Job* ProxyReceiver::Play()
 {
-    return iService.Play();
+    return (iService.Play());
 }
 
-Task Play(ISenderMetadata aMetadata)
+Job* ProxyReceiver::Play(ISenderMetadata& aMetadata)
 {
-    return iService.Play(aMetadata);
+    return (iService.Play(aMetadata));
 }
 
-Task Stop()
+Job* ProxyReceiver::Stop()
 {
-    return iService.Stop();
+    return (iService.Stop());
 }
-*/
+
 
 
 void ProxyReceiver::Dispose()

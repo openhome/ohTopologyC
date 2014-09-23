@@ -176,7 +176,7 @@ void Network::AddCallback(void* aObj)
     IInjectorDevice* injDevice = (IInjectorDevice*)aObj;
     Device* device = new Device(injDevice);
 
-    if ( iDevices.count(device->Udn()) > 0 )
+    if ( iDevices.count(device->Udn()) > 0 ) // device (with same UDN) already exists in list
     {
         device->Dispose();
         delete device;

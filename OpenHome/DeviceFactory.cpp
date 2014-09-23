@@ -178,12 +178,14 @@ IInjectorDevice* DeviceFactory::CreateMediaServer(INetwork aNetwork, const Brx& 
 {
     return (new DeviceMediaEndpointMock(aNetwork, aUdn, aResourceRoot, aLog));
 }
+*/
 
 
-
-IInjectorDevice* DeviceFactory::Create(INetwork& aNetwork, CpDevice& aDevice, ILog aLog)
+IInjectorDevice* DeviceFactory::Create(INetwork& aNetwork, CpDevice& aDevice, ILog& aLog)
 {
     InjectorDevice* device = new InjectorDevice(aDevice.Udn());
+
+
     Brh value;
 
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Product", value))
@@ -191,16 +193,17 @@ IInjectorDevice* DeviceFactory::Create(INetwork& aNetwork, CpDevice& aDevice, IL
         //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
-            device->Add<IProxyProduct>(new ServiceProductNetwork(aNetwork, device, aDevice, aLog));
+            device->Add(eProxyProduct, new ServiceProductNetwork(aNetwork, *device, aDevice, aLog));
         }
     }
 
+/*
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Info", value))
     {
         //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
-            device->Add<IProxyInfo>(new ServiceInfoNetwork(aNetwork, device, aDevice, aLog));
+            device->Add(eProxyInfo, new ServiceInfoNetwork(aNetwork, device, aDevice, aLog));
         }
     }
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Time", value))
@@ -208,31 +211,34 @@ IInjectorDevice* DeviceFactory::Create(INetwork& aNetwork, CpDevice& aDevice, IL
         //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
-            device->Add<IProxyTime>(new ServiceTimeNetwork(aNetwork, device, aDevice, aLog));
+            device->Add(eProxyTime, new ServiceTimeNetwork(aNetwork, device, aDevice, aLog));
         }
     }
+*/
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Sender", value))
     {
         //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
-            device->Add<IProxySender>(new ServiceSenderNetwork(aNetwork, device, aDevice, aLog));
+            device->Add(eProxySender, new ServiceSenderNetwork(aNetwork, *device, aDevice, aLog));
         }
     }
+/*
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Volume", value))
     {
         //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
-            device->Add<IProxyVolume>(new ServiceVolumeNetwork(aNetwork, device, aDevice, aLog));
+            device->Add(eProxyVolume, new ServiceVolumeNetwork(aNetwork, device, aDevice, aLog));
         }
     }
+
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Playlist", value))
     {
         //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
-            device->Add<IProxyPlaylist>(new ServicePlaylistNetwork(aNetwork, device, aDevice, aLog));
+            device->Add(eProxyPlaylist, new ServicePlaylistNetwork(aNetwork, device, aDevice, aLog));
         }
     }
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Radio", value))
@@ -240,29 +246,31 @@ IInjectorDevice* DeviceFactory::Create(INetwork& aNetwork, CpDevice& aDevice, IL
         //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
-            device->Add<IProxyRadio>(new ServiceRadioNetwork(aNetwork, device, aDevice, aLog));
+            device->Add(eProxyRadio, new ServiceRadioNetwork(aNetwork, device, aDevice, aLog));
         }
     }
+*/
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Receiver", value))
     {
         //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
-            device->Add<IProxyReceiver>(new ServiceReceiverNetwork(aNetwork, device, aDevice, aLog));
+            device->Add(eProxyReceiver, new ServiceReceiverNetwork(aNetwork, *device, aDevice, aLog));
         }
     }
+/*
     if (aDevice.GetAttribute("Upnp.Service.linn-co-uk.Sdp", value))
     {
         //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
-            device->Add<IProxySdp>(new ServiceSdpNetwork(aNetwork, device, aDevice, aLog));
+            device->Add(eProxySdp, new ServiceSdpNetwork(aNetwork, device, aDevice, aLog));
         }
     }
-
+*/
     return device;
 }
-*/
+
 
 
 

@@ -6,6 +6,10 @@
 #include <OpenHome/Watchable.h>
 #include <OpenHome/Buffer.h>
 #include <OpenHome/MetaData.h>
+#include <OpenHome/Net/Core/CpDevice.h>
+#include <OpenHome/Net/Core/FunctorAsync.h>
+#include <Generated/CpAvOpenhomeOrgReceiver1.h>
+#include <OpenHome/Job.h>
 
 
 
@@ -24,11 +28,11 @@ public:
     virtual const Brx& ProtocolInfo() = 0;
     virtual IWatchable<IInfoMetadata*>& Metadata() = 0;
     virtual IWatchable<Brn>& TransportState() = 0;
-/*
-    virtual Task Play() = 0;
-    virtual Task Play(ISenderMetadata& aMetadata) = 0;
-    virtual Task Stop() = 0;
-*/
+
+    virtual Job* Play() = 0;
+    virtual Job* Play(ISenderMetadata& aMetadata) = 0;
+    virtual Job* Stop() = 0;
+
 };
 
 //////////////////////////////////////////////////////
@@ -43,11 +47,11 @@ public:
     virtual IWatchable<Brn>& TransportState();
 
     virtual const Brx& ProtocolInfo();
-/*
-    virtual Task Play() = 0;
-    virtual Task Play(ISenderMetadata& aMetadata) = 0;
-    virtual Task Stop() = 0;
-*/
+
+    virtual Job* Play() = 0;
+    virtual Job* Play(ISenderMetadata& aMetadata) = 0;
+    virtual Job* Stop() = 0;
+
 protected:
     ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
 
@@ -56,21 +60,22 @@ protected:
     Watchable<IInfoMetadata*>* iMetadata;
     Watchable<Brn>* iTransportState;
     IInfoMetadata* iCurrentMetadata;
+    Bws<100>* iCurrentTransportState; // FIXME: random capacity value
 };
 
 ////////////////////////////////////////////////////////
-/*
-class ServiceReceiverNetwork : ServiceReceiver
+
+class ServiceReceiverNetwork : public ServiceReceiver
 {
 public:
-    ServiceReceiverNetwork(INetwork aNetwork, IInjectorDevice aDevice, CpDevice aCpDevice, ILog aLog)
+    ServiceReceiverNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
     virtual void Dispose();
-    virtual Task Play();
-    virtual Task Play(ISenderMetadata aMetadata);
-    virtual Task Stop();
+    virtual Job* Play();
+    virtual Job* Play(ISenderMetadata& aMetadata);
+    virtual Job* Stop();
 
 protected:
-    virtual Task OnSubscribe();
+    virtual Job* OnSubscribe();
     virtual void OnCancelSubscribe();
     virtual void OnUnsubscribe();
 
@@ -78,13 +83,24 @@ private:
     void HandleMetadataChanged();
     void HandleTransportStateChanged();
     void HandleInitialEvent();
+    void MetadataChangedCallback(void* aMetadata);
+    void MetadataChangedCallbackCallback(void* aMetadata);
+    void TransportChangedCallback(void* aTransportState);
+    void TransportChangedCallbackCallback(void* aTransportState);
+    void OnSubscribeCallback(void* aObj);
+
+    void BeginPlayCallback(Net::IAsync& aAsync);
+    void BeginStopCallback(Net::IAsync& aAsync);
+    void BeginSetSenderCallback(Net::IAsync& aAsync);
+
+
 
 private:
-    CpDevice iCpDevice;
-    TaskCompletionSource<TBool> iSubscribedSource;
-    CpProxyAvOpenhomeOrgReceiver1 iService;
-}
-*/
+    Net::CpDevice& iCpDevice;
+    JobDone* iSubscribedSource;
+    Net::CpProxyAvOpenhomeOrgReceiver1* iService;
+};
+
 //////////////////////////////////////////////////////////////
 
 class ServiceReceiverMock : public ServiceReceiver
@@ -94,11 +110,10 @@ public:
                         const Brx& aProtocolInfo, const Brx& aTransportState, const Brx& aUri, ILog& aLog);
 
     virtual void Execute(ICommandTokens& aValue);
-/*
-    virtual Task Play();
-    virtual Task Play(ISenderMetadata& aMetadata);
-    virtual Task Stop();
-*/
+
+    virtual Job* Play();
+    virtual Job* Play(ISenderMetadata& aMetadata);
+    virtual Job* Stop();
 };
 
 //////////////////////////////////////////////////////////////
@@ -111,11 +126,11 @@ public:
     virtual const Brx& ProtocolInfo();
     virtual IWatchable<IInfoMetadata*>& Metadata();
     virtual IWatchable<Brn>& TransportState();
-/*
-    virtual Task Play();
-    virtual Task Play(ISenderMetadata aMetadata);
-    virtual Task Stop();
-*/
+
+    virtual Job* Play();
+    virtual Job* Play(ISenderMetadata& aMetadata);
+    virtual Job* Stop();
+
     // IProxyReceiver
     virtual IDevice& Device();
     virtual void Dispose();

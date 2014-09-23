@@ -6,6 +6,9 @@
 #include <OpenHome/Service.h>
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/Watchable.h>
+#include <OpenHome/Net/Core/CpDevice.h>
+#include <Generated/CpAvOpenhomeOrgSender1.h>
+#include <OpenHome/Job.h>
 
 
 namespace OpenHome
@@ -50,119 +53,48 @@ protected:
     Watchable<ISenderMetadata*>* iMetadata;
     Watchable<Brn>* iStatus;
     ISenderMetadata* iCurrentMetadata;
+    TBool iCurrentAudio;
+    Bws<100>* iCurrentStatus; //FIXME:random capacity
 };
 
 /////////////////////////////////////////////////////////
 
-/*
-    class ServiceSenderNetwork : ServiceSender
-    {
-        public ServiceSenderNetwork(INetwork aNetwork, IInjectorDevice aDevice, CpDevice aCpDevice, ILog aLog)
-            : base(aNetwork, aDevice, aLog)
-        {
-            iCpDevice = aCpDevice;
-            iCpDevice.AddRef();
+class ServiceSenderNetwork : public ServiceSender
+{
+public:
+    ServiceSenderNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
 
-            iService = new CpProxyAvOpenhomeOrgSender1(aCpDevice);
+    virtual void Dispose();
 
-            iService.SetPropertyAudioChanged(HandleAudioChanged);
-            iService.SetPropertyMetadataChanged(HandleMetadataChanged);
-            iService.SetPropertyStatusChanged(HandleStatusChanged);
+protected:
+    virtual Job* OnSubscribe();
+    virtual void OnCancelSubscribe();
+    virtual void OnUnsubscribe();
 
-            iService.SetPropertyInitialEvent(HandleInitialEvent);
-        }
+private:
+    void HandleInitialEvent();
+    void HandleAudioChanged();
+    void HandleMetadataChanged();
+    void HandleStatusChanged();
 
-        public override void Dispose()
-        {
-            base.Dispose();
+    void AudioChangedCallback(void* aAudio);
+    void AudioChangedCallbackCallback(void* aAudio);
+    void MetadataChangedCallback(void* aMetadata);
+    void MetadataChangedCallbackCallback(void* aMetadata);
+    void StatusChangedCallback(void* aStatus);
+    void StatusChangedCallbackCallback(void* aStatus);
 
-            iService.Dispose();
-            iService = null;
+    void OnSubscribeCallback(void* aObj);
 
-            iCpDevice.RemoveRef();
-        }
 
-        protected override Task OnSubscribe()
-        {
-            Do.Assert(iSubscribedSource == null);
+private:
+    Net::CpDevice& iCpDevice;
+    JobDone* iSubscribedSource;
+    Net::CpProxyAvOpenhomeOrgSender1* iService;
 
-            iSubscribedSource = new TaskCompletionSource<TBool>();
+    TBool iAudioValue;
+};
 
-            iService.Subscribe();
-
-            return iSubscribedSource.Task.ContinueWith((t) => { });
-        }
-
-        protected override void OnCancelSubscribe()
-        {
-            if (iSubscribedSource != null)
-            {
-                iSubscribedSource.TrySetCanceled();
-            }
-        }
-
-        private void HandleInitialEvent()
-        {
-            iAttributes = iService.PropertyAttributes();
-            iPresentationUrl = iService.PropertyPresentationUrl();
-
-            if (!iSubscribedSource.Task.IsCanceled)
-            {
-                iSubscribedSource.SetResult(true);
-            }
-        }
-
-        protected override void OnUnsubscribe()
-        {
-            if (iService != null)
-            {
-                iService.Unsubscribe();
-            }
-
-            iSubscribedSource = null;
-        }
-
-        private void HandleAudioChanged()
-        {
-            TBool audio = iService.PropertyAudio();
-            Network.Schedule(() =>
-            {
-                iDisposeHandler.WhenNotDisposed(() =>
-                {
-                    iAudio.Update(audio);
-                });
-            });
-        }
-
-        private void HandleMetadataChanged()
-        {
-            string metadata = iService.PropertyMetadata();
-            Network.Schedule(() =>
-            {
-                iDisposeHandler.WhenNotDisposed(() =>
-                {
-                    iMetadata.Update(new SenderMetadata(metadata));
-                });
-            });
-        }
-
-        private void HandleStatusChanged()
-        {
-            string status = iService.PropertyStatus();
-            Network.Schedule(() =>
-            {
-                iDisposeHandler.WhenNotDisposed(() =>
-                {
-                    iStatus.Update(status);
-                });
-            });
-        }
-
-        private readonly CpDevice iCpDevice;
-        private TaskCompletionSource<TBool> iSubscribedSource;
-        private CpProxyAvOpenhomeOrgSender1 iService;
-    }
-*/
 
 ////////////////////////////////////////////////////////////////
 

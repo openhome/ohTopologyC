@@ -49,7 +49,6 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 
-
 class InfoMetadata : public IInfoMetadata, public INonCopyable
 {
 public:
@@ -71,8 +70,6 @@ private:
     static IInfoMetadata* iEmpty;
 };
 
-
-
 //////////////////////////////////////////////////////////////////////
 
 class InfoMetatext : public IInfoMetatext, public INonCopyable
@@ -86,16 +83,18 @@ private:
     IMediaMetadata& iMetatext;
 };
 
+//////////////////////////////////////////////////////////////////////
 
 class ISenderMetadata
 {
 public:
     virtual const Brx& Uri() = 0;
     virtual const Brx& ArtworkUri() = 0;
+    virtual const Brx& ToString() = 0;  // added in ohTopologyC
     virtual ~ISenderMetadata() {};
 };
 
-/////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 class SenderMetadata : public ISenderMetadata
 {

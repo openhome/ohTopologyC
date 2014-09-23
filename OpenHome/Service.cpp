@@ -13,7 +13,7 @@ Service::Service(INetwork& aNetwork, IInjectorDevice* aDevice, ILog& aLog)
     ,iDevice(aDevice)
     //,iCancelSubscribe(new CancellationTokenSource())
     ,iRefCount(0)
-//    ,iSubscribeTask(null);
+//    ,iSubscribeTask(NULL);
 {
 }
 
@@ -28,32 +28,33 @@ void Service::Dispose()
     OnCancelSubscribe();
 
     // wait for any inflight subscriptions to complete
+    if (iSubscribeTask != NULL)
+    {
 
 /*
-    if (iSubscribeTask != null)
-    {
         try
         {
-            iSubscribeTask.Wait();
+            iSubscribeTask->Wait();
         }
         catch (AggregateException e)
         {
             HandleAggregate(e);
         }
-    }
 */
+    }
+
     OnUnsubscribe();
 
     //iCancelSubscribe.Dispose();
 
-    //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::DisposeCallback);
-    //iNetwork.Schedule(f, NULL);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::DisposeCallback);
+    iNetwork.Schedule(f, NULL);
 }
 
 
 void Service::DisposeCallback(void*)
 {
-    //ASSERT(iRefCount == 0);
+    ASSERT(iRefCount == 0);
 }
 
 /*
@@ -96,21 +97,22 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceTyp
 
     if (iRefCount == 0)
     {
-        //ASSERT(iSubscribeTask == null);
-        //iSubscribeTask = OnSubscribe();
+        ASSERT(iSubscribeTask == NULL);
+        iSubscribeTask = OnSubscribe();
     }
 
     iRefCount++;
 
-/*
-    if (iSubscribeTask != null)
+
+    if (iSubscribeTask != NULL)
     {
+/*
         iSubscribeTask = iSubscribeTask.ContinueWith((t) =>
         {
             iNetwork.Schedule(() =>
             {
                 // we must access t.Exception property to supress finalized task exceptions
-                if (t.Exception == null && !iCancelSubscribe.IsCancellationRequested)
+                if (t.Exception == NULL && !iCancelSubscribe.IsCancellationRequested)
                 {
                     aCallback(OnCreate(aDevice));
                 }
@@ -119,14 +121,15 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceTyp
                     --iRefCount;
                     if (iRefCount == 0)
                     {
-                        iSubscribeTask = null;
+                        iSubscribeTask = NULL;
                     }
                 }
             });
         });
+*/
     }
     else
-*/
+
     {
         IProxy* product = OnCreate(aDevice);
         ArgsTwo<IDevice*, IProxy*>* args = new ArgsTwo<IDevice*, IProxy*>(aDevice, product);
@@ -137,18 +140,11 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceTyp
 }
 
 
-void Service::CreateCallback(void*)
+Job* Service::OnSubscribe()
 {
-
+    return NULL;
 }
 
-
-/*
-Task Service::OnSubscribe()
-{
-    return null;
-}
-*/
 
 void Service::OnCancelSubscribe()
 {
@@ -165,21 +161,24 @@ void Service::Unsubscribe()
     iRefCount--;
     if (iRefCount == 0)
     {
-/*
+
         OnUnsubscribe();
-        if (iSubscribeTask != null)
+        if (iSubscribeTask != NULL)
         {
+/*
             try
             {
-                iSubscribeTask.Wait();
+                iSubscribeTask->Wait();
             }
             catch (AggregateException ex)
             {
                 HandleAggregate(ex);
             }
-            iSubscribeTask = null;
-        }
 */
+            iSubscribeTask = NULL;
+
+        }
+
     }
 }
 

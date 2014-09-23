@@ -8,6 +8,7 @@
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
+using namespace OpenHome::Net;
 using namespace std;
 
 
@@ -78,9 +79,9 @@ IWatchable<TBool>& ServiceProduct::Standby()
 
 
 
-//abstract Task SetSourceIndex(TUint aValue);
-//abstract Task SetSourceIndexByName(string aValue);
-//abstract Task SetStandby(TBool aValue);
+//abstract Job SetSourceIndex(TUint aValue);
+//abstract Job SetSourceIndexByName(string aValue);
+//abstract Job SetStandby(TBool aValue);
 
 // IProduct methods
 
@@ -368,20 +369,14 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
         Bws<20>* oldRoom = iCurrentRoom;
         iCurrentRoom = new Bws<20>(aCommands.RemainingTrimmed());
         iRoom->Update(Brn(*iCurrentRoom));
-        if (oldRoom != NULL)
-        {
-            delete oldRoom;
-        }
+        delete oldRoom;
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("name")))
     {
         Bws<50>* oldName = iCurrentName;
         iCurrentName = new Bws<50>(aCommands.RemainingTrimmed());
         iName->Update(Brn(*iCurrentName));
-        if (oldName != NULL)
-        {
-            delete oldName;
-        }
+        delete oldName;
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("sourceindex")))
     {
@@ -427,10 +422,13 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
 }
 
 
-/*
-Task ServiceProductMock::SetSourceIndex(TUint aValue)
+
+Job* ServiceProductMock::SetSourceIndex(TUint aValue)
 {
-    Task task = Task.Factory.StartNew(() =>
+    return(0);
+
+/*
+    Job task = Job.Factory.StartNew(() =>
     {
         iNetwork.Schedule(() =>
         {
@@ -438,29 +436,30 @@ Task ServiceProductMock::SetSourceIndex(TUint aValue)
         });
     });
     return task;
-}
 */
+}
 
-/*
+
 void ServiceProductMock::SetSourceIndexCallback(void* aObj)
 {
     iSourceIndex->Update(*((TUint*)aObj));
 
 }
-*/
 
-/*
-Task ServiceProductMock::SetSourceIndexByName(const Brx& aValue)
+
+
+Job* ServiceProductMock::SetSourceIndexByName(const Brx& aValue)
 {
     THROW(NotSupportedException);
 }
-*/
 
+
+Job* ServiceProductMock::SetStandby(TBool aValue)
+{
+    return(0);
 
 /*
-Task ServiceProductMock::SetStandby(TBool aValue)
-{
-    Task task = Task.Factory.StartNew(() =>
+    Job task = Job.Factory.StartNew(() =>
     {
         iNetwork.Schedule(() =>
         {
@@ -468,15 +467,8 @@ Task ServiceProductMock::SetStandby(TBool aValue)
         });
     });
     return task;
-}
 */
-
-/*
-void ServiceProductMock::SetStandbyCallback(void* aObj)
-{
-    iStandby->Update(*((TBool*)aObj));
 }
-*/
 
 
 
@@ -516,30 +508,28 @@ IWatchable<Brn>& ProxyProduct::SourceXml()
 
 IWatchable<TBool>& ProxyProduct::Standby()
 {
-    return iService.Standby();
+    return (iService.Standby());
 }
 
 
-/*
-Task ProxyProduct::SetSourceIndex(TUint aValue)
+
+Job* ProxyProduct::SetSourceIndex(TUint aValue)
 {
-    return iService.SetSourceIndex(aValue);
+    return (iService.SetSourceIndex(aValue));
 }
 
 
-Task ProxyProduct::SetSourceIndexByName(const Brx& aValue)
+Job* ProxyProduct::SetSourceIndexByName(const Brx& aValue)
 {
-    return iService.SetSourceIndexByName(aValue);
+    return (iService.SetSourceIndexByName(aValue));
 }
 
 
-Task ProxyProduct::SetStandby(TBool aValue)
+Job* ProxyProduct::SetStandby(TBool aValue)
 {
-    return iService.SetStandby(aValue);
+    return (iService.SetStandby(aValue));
 }
 
-
-*/
 
 Brn ProxyProduct::Attributes()
 {
@@ -632,256 +622,398 @@ IDevice& ProxyProduct::Device()
 
 
 
+
+ServiceProductNetwork::ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
+    :ServiceProduct(aNetwork, aDevice, aLog)
+    ,iCpDevice(aCpDevice)
+{
+    iCpDevice.AddRef();
+
+    iService = new CpProxyAvOpenhomeOrgProduct1(aCpDevice);
+    //iServiceConfiguration = new CpProxyLinnCoUkConfiguration1(aCpDevice);
+
 /*
-    class ServiceProductNetwork : ServiceProduct
+    Brh value;
+    if (aCpDevice.GetAttribute(Brn("Upnp.Service.linn-co-uk.Volkano"), value))
     {
-        ServiceProductNetwork(INetwork aNetwork, IInjectorDevice aDevice, CpDevice aCpDevice, ILog aLog  )
-            : base(aNetwork, aDevice, aLog)
+        if (uint.Parse(value) == 1)
         {
-            iCpDevice = aCpDevice;
-            iCpDevice.AddRef();
-
-            iService = new CpProxyAvOpenhomeOrgProduct1(aCpDevice);
-            iServiceConfiguration = new CpProxyLinnCoUkConfiguration1(aCpDevice);
-
-            string value;
-            if (aCpDevice.GetAttribute("Upnp.Service.linn-co-uk.Volkano", out value))
-            {
-                if (uint.Parse(value) == 1)
-                {
-                    iServiceVolkano = new CpProxyLinnCoUkVolkano1(aCpDevice);
-                }
-            }
-
-            iService.SetPropertyProductRoomChanged(HandleRoomChanged);
-            iService.SetPropertyProductNameChanged(HandleNameChanged);
-            iService.SetPropertySourceIndexChanged(HandleSourceIndexChanged);
-            iService.SetPropertySourceXmlChanged(HandleSourceXmlChanged);
-            iService.SetPropertyStandbyChanged(HandleStandbyChanged);
-
-            iServiceConfiguration.SetPropertyParameterXmlChanged(HandleParameterXmlChanged);
-
-            iService.SetPropertyInitialEvent(HandleInitialEvent);
-            iServiceConfiguration.SetPropertyInitialEvent(HandleInitialEventConfiguration);
+            iServiceVolkano = new CpProxyLinnCoUkVolkano1(aCpDevice);
         }
+    }
+*/
+    Functor f1 = MakeFunctor(*this, &ServiceProductNetwork::HandleRoomChanged);
+    iService->SetPropertyProductRoomChanged(f1);
 
-        void Dispose()
+    Functor f2 = MakeFunctor(*this, &ServiceProductNetwork::HandleNameChanged);
+    iService->SetPropertyProductNameChanged(f2);
+
+    Functor f3 = MakeFunctor(*this, &ServiceProductNetwork::HandleSourceIndexChanged);
+    iService->SetPropertySourceIndexChanged(f3);
+
+    Functor f4 = MakeFunctor(*this, &ServiceProductNetwork::HandleSourceXmlChanged);
+    iService->SetPropertySourceXmlChanged(f4);
+
+    Functor f5 = MakeFunctor(*this, &ServiceProductNetwork::HandleStandbyChanged);
+    iService->SetPropertyStandbyChanged(f5);
+
+    Functor f6 = MakeFunctor(*this, &ServiceProductNetwork::HandleInitialEvent);
+    iService->SetPropertyInitialEvent(f6);
+
+    //iServiceConfiguration.SetPropertyParameterXmlChanged(HandleParameterXmlChanged);
+    //iServiceConfiguration.SetPropertyInitialEvent(HandleInitialEventConfiguration);
+}
+
+void ServiceProductNetwork::Dispose()
+{
+    ServiceProduct::Dispose();
+
+    delete iService;
+    iService = NULL;
+/*
+    iServiceConfiguration.Dispose();
+    iServiceConfiguration = NULL;
+
+    if (iServiceVolkano != NULL)
+    {
+        iServiceVolkano.Dispose();
+        iServiceVolkano = NULL;
+    }
+*/
+    iCpDevice.RemoveRef();
+}
+
+Job* ServiceProductNetwork::OnSubscribe()
+{
+    ASSERT(iSubscribedSource == NULL);
+    //ASSERT(iSubscribedConfigurationSource == NULL);
+    //ASSERT(iSubscribedVolkanoSource == NULL);
+
+    //JobDone volkano = new JobDone();
+    iSubscribedSource = new JobDone();
+    //iSubscribedConfigurationSource = new JobDone();
+    //iSubscribedVolkanoSource = volkano;
+
+    iService->Subscribe();
+    //iServiceConfiguration.Subscribe();
+
+/*
+    if (iServiceVolkano != NULL)
+    {
+        iServiceVolkano.BeginProductId((ptr) =>
         {
-            base.Dispose();
-
-            iService.Dispose();
-            iService = null;
-
-            iServiceConfiguration.Dispose();
-            iServiceConfiguration = null;
-
-            if (iServiceVolkano != null)
+            try
             {
-                iServiceVolkano.Dispose();
-                iServiceVolkano = null;
-            }
-
-            iCpDevice.RemoveRef();
-        }
-
-        protected Task OnSubscribe()
-        {
-            Do.Assert(iSubscribedSource == null);
-            Do.Assert(iSubscribedConfigurationSource == null);
-            Do.Assert(iSubscribedVolkanoSource == null);
-
-            TaskCompletionSource<TBool> volkano = new TaskCompletionSource<TBool>();
-            iSubscribedSource = new TaskCompletionSource<TBool>();
-            iSubscribedConfigurationSource = new TaskCompletionSource<TBool>();
-            iSubscribedVolkanoSource = volkano;
-
-            iService.Subscribe();
-            iServiceConfiguration.Subscribe();
-
-            if (iServiceVolkano != null)
-            {
-                iServiceVolkano.BeginProductId((ptr) =>
-                {
-                    try
-                    {
-                        iServiceVolkano.EndProductId(ptr, out iProductId);
-                        if (!volkano.Task.IsCanceled)
-                        {
-                            volkano.SetResult(true);
-                        }
-                    }
-                    catch (ProxyError e)
-                    {
-                        if (!volkano.Task.IsCanceled)
-                        {
-                            volkano.SetException(e);
-                        }
-                    }
-                });
-            }
-            else
-            {
-                if (!volkano.Task.IsCanceled)
+                iServiceVolkano.EndProductId(ptr, out iProductId);
+                if (!volkano.Job.IsCancelled)
                 {
                     volkano.SetResult(true);
                 }
             }
-
-            return Task.Factory.ContinueWhenAll(
-                new Task[] { iSubscribedSource.Task, iSubscribedConfigurationSource.Task, iSubscribedVolkanoSource.Task },
-                (tasks) => { Task.WaitAll(tasks); });
-        }
-
-        protected void OnCancelSubscribe()
-        {
-            if (iSubscribedSource != null)
+            catch (ProxyError e)
             {
-                iSubscribedSource.TrySetCanceled();
-            }
-            if (iSubscribedConfigurationSource != null)
-            {
-                iSubscribedConfigurationSource.TrySetCanceled();
-            }
-            if (iSubscribedVolkanoSource != null)
-            {
-                iSubscribedVolkanoSource.TrySetCanceled();
-            }
-        }
-
-        void HandleInitialEvent()
-        {
-            iAttributes = iService.PropertyAttributes();
-            iManufacturerImageUri = iService.PropertyManufacturerImageUri();
-            iManufacturerInfo = iService.PropertyManufacturerInfo();
-            iManufacturerName = iService.PropertyManufacturerName();
-            iManufacturerUrl = iService.PropertyManufacturerUrl();
-            iModelImageUri = iService.PropertyModelImageUri();
-            iModelInfo = iService.PropertyModelInfo();
-            iModelName = iService.PropertyModelName();
-            iModelUrl = iService.PropertyModelUrl();
-            iProductImageUri = iService.PropertyProductImageUri();
-            iProductInfo = iService.PropertyProductInfo();
-            iProductUrl = iService.PropertyProductUrl();
-
-            if (!iSubscribedSource.Task.IsCanceled)
-            {
-                iSubscribedSource.SetResult(true);
-            }
-        }
-
-        void HandleInitialEventConfiguration()
-        {
-            string propertyXml = iServiceConfiguration.PropertyParameterXml();
-            iNetwork.Schedule(() =>
-            {
-                iDisposeHandler.WhenNotDisposed(() =>
+                if (!volkano.Job.IsCancelled)
                 {
-                    ParseParameterXml(propertyXml);
-                });
-            });
-
-            if (!iSubscribedConfigurationSource.Task.IsCanceled)
-            {
-                iSubscribedConfigurationSource.SetResult(true);
+                    volkano.SetException(e);
+                }
             }
-        }
-
-        protected void OnUnsubscribe()
+        });
+    }
+    else
+    {
+        if (!volkano.Job.IsCancelled)
         {
-            if (iService != null)
-            {
-                iService.Unsubscribe();
-            }
-            if (iServiceConfiguration != null)
-            {
-                iServiceConfiguration.Unsubscribe();
-            }
-
-            iSubscribedSource = null;
-            iSubscribedConfigurationSource = null;
-            iSubscribedVolkanoSource = null;
+            volkano.SetResult(true);
         }
+    }
+*/
 
-        Task SetSourceIndex(TUint aValue)
+
+/*
+    return Job.Factory.ContinueWhenAll(
+        new Job[] { iSubscribedSource.Job , iSubscribedConfigurationSource.Job, iSubscribedVolkanoSource.Job },
+        (tasks) => { Job.WaitAll(tasks); });
+
+    since we're not using ConfigurationSource and or VolkanoSource, theres only 1 task now so that would probably become...
+    return(iSubscribedSource.Job);
+
+*/
+    return(iSubscribedSource->GetJob());
+}
+
+void ServiceProductNetwork::OnCancelSubscribe()
+{
+    if (iSubscribedSource != NULL)
+    {
+        //iSubscribedSource->TrySetCancelled();
+        iSubscribedSource->Cancel();
+    }
+/*
+    if (iSubscribedConfigurationSource != NULL)
+    {
+        iSubscribedConfigurationSource.TrySetCanceled();
+    }
+    if (iSubscribedVolkanoSource != NULL)
+    {
+        iSubscribedVolkanoSource.TrySetCanceled();
+    }
+*/
+}
+
+void ServiceProductNetwork::HandleInitialEvent()
+{
+    Brhz attributes;
+    iService->PropertyAttributes(attributes);
+    iAttributes.Replace(attributes);
+
+    Brhz manufacturerImageUri;
+    iService->PropertyManufacturerImageUri(manufacturerImageUri);
+    iManufacturerImageUri.Replace(iManufacturerImageUri);
+
+    Brhz manufacturerInfo;
+    iService->PropertyManufacturerInfo(manufacturerInfo);
+    iManufacturerInfo.Replace(manufacturerInfo);
+
+    Brhz manufacturerName;
+    iService->PropertyManufacturerName(manufacturerName);
+    iManufacturerName.Replace(manufacturerName);
+
+    Brhz manufacturerUrl;
+    iService->PropertyManufacturerUrl(manufacturerUrl);
+    iManufacturerUrl.Replace(manufacturerUrl);
+
+    Brhz modelImageUri;
+    iService->PropertyModelImageUri(modelImageUri);
+    iModelImageUri.Replace(modelImageUri);
+
+    Brhz modelInfo;
+    iService->PropertyModelInfo(modelInfo);
+    iModelInfo.Replace(modelInfo);
+
+    Brhz modelName;
+    iService->PropertyModelName(modelName);
+    iModelName.Replace(modelName);
+
+    Brhz modelUrl;
+    iService->PropertyModelUrl(modelUrl);
+    iModelUrl.Replace(modelUrl);
+
+    Brhz productImageUri;
+    iService->PropertyProductImageUri(productImageUri);
+    iProductImageUri.Replace(productImageUri);
+
+    Brhz productInfo;
+    iService->PropertyProductInfo(productInfo);
+    iProductInfo.Replace(productInfo);
+
+    Brhz productUrl;
+    iService->PropertyProductUrl(productUrl);
+    iProductUrl.Replace(productUrl);
+
+    if (!iSubscribedSource->GetJob()->IsCancelled())
+    {
+        iSubscribedSource->SetResult(true);
+    }
+}
+
+/*
+void ServiceProductNetwork::HandleInitialEventConfiguration()
+{
+
+    string propertyXml = iServiceConfiguration.PropertyParameterXml();
+
+    iNetwork.Schedule(() =>
+    {
+        iDisposeHandler.WhenNotDisposed(() =>
         {
-            TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-            iService.BeginSetSourceIndex(aValue, (ptr) =>
+            ParseParameterXml(propertyXml);
+        });
+    });
+
+    if (!iSubscribedConfigurationSource.Job.IsCancelled)
+    {
+        iSubscribedConfigurationSource.SetResult(true);
+    }
+
+}
+*/
+
+void ServiceProductNetwork::OnUnsubscribe()
+{
+    if (iService != NULL)
+    {
+        iService->Unsubscribe();
+    }
+/*
+    if (iServiceConfiguration != NULL)
+    {
+        iServiceConfiguration.Unsubscribe();
+    }
+*/
+    iSubscribedSource = NULL;
+    //iSubscribedConfigurationSource = NULL;
+    //iSubscribedVolkanoSource = NULL;
+}
+
+Job* ServiceProductNetwork::SetSourceIndex(TUint aValue)
+{
+    JobDone* jobDone = new JobDone();
+
+    FunctorAsync f = MakeFunctorAsync(*this, &ServiceProductNetwork::BeginSetSourceIndexCallback);
+    iService->BeginSetSourceIndex(aValue, f);
+
+/*
+    iService->BeginSetSourceIndex(aValue, (ptr) =>
+    {
+        try
+        {
+            iService->EndSetSourceIndex(ptr);
+            taskSource.SetResult(true);
+        }
+        catch (Exception e)
+        {
+            taskSource.SetException(e);
+        }
+    });
+*/
+
+    //jobDone->Job().ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
+    return (jobDone->GetJob());
+}
+
+void ServiceProductNetwork::BeginSetSourceIndexCallback(IAsync& aValue)
+{
+    JobDone* jobDone = new JobDone(); // FIXME: this should be the object created in the original method
+
+    try
+    {
+        iService->EndSetSourceIndex(aValue);
+        jobDone->SetResult(true);
+    }
+    catch (Exception e)
+    {
+        jobDone->SetException(e);
+    }
+}
+
+
+Job* ServiceProductNetwork::SetSourceIndexByName(const Brx& aValue)
+{
+    JobDone* jobDone = new JobDone();
+
+    //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::BeginSetSourceIndexByNameCallback);
+    FunctorAsync f = MakeFunctorAsync(*this, &ServiceProductNetwork::BeginSetSourceIndexByNameCallback);
+    iService->BeginSetSourceIndexByName(aValue, f);
+
+/*
+    iService->BeginSetSourceIndexByName(aValue, (ptr) =>
+    {
+        try
+        {
+            iService->EndSetSourceIndexByName(ptr);
+            taskSource.SetResult(true);
+        }
+        catch (Exception e)
+        {
+            taskSource.SetException(e);
+        }
+    });
+*/
+    FunctorGeneric<void*> f2 = MakeFunctorGeneric(*this, &ServiceProductNetwork::DoNothing);
+    Job* job = jobDone->GetJob()->ContinueWith(f2, NULL);
+    return (job);
+}
+
+
+void ServiceProductNetwork::BeginSetSourceIndexByNameCallback(IAsync& aAsync)
+{
+    JobDone* jobDone = new JobDone(); // FIXME: this should be the object created in the original method
+
+    try
+    {
+        iService->EndSetSourceIndexByName(aAsync);
+        jobDone->SetResult(true);
+    }
+    catch (Exception e)
+    {
+        jobDone->SetException(e);
+    }
+}
+
+
+void ServiceProductNetwork::DoNothing(void* /*aObj*/)
+{
+
+}
+
+
+Job* ServiceProductNetwork::SetStandby(TBool aValue)
+{
+    JobDone* jobDone = new JobDone();
+
+    //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::BeginSetStandbyCallback);
+    FunctorAsync f = MakeFunctorAsync(*this, &ServiceProductNetwork::BeginSetStandbyCallback);
+    iService->BeginSetStandby(aValue, f);
+/*
+    iService->BeginSetStandby(aValue, (ptr) =>
+    {
+        try
+        {
+            iService->EndSetStandby(ptr);
+            taskSource.SetResult(true);
+        }
+        catch (Exception e)
+        {
+            taskSource.SetException(e);
+        }
+    });
+*/
+
+    //return taskSource.Job.ContinueWith((t) => { });
+    FunctorGeneric<void*> f2 = MakeFunctorGeneric(*this, &ServiceProductNetwork::DoNothing);
+    Job* job = jobDone->GetJob()->ContinueWith(f2, NULL);
+    return (job);
+}
+
+
+void ServiceProductNetwork::BeginSetStandbyCallback(IAsync& aAsync)
+{
+    JobDone* jobDone = new JobDone(); // FIXME: this should be the object created in the original method
+
+    try
+    {
+        iService->EndSetStandby(aAsync);
+        jobDone->SetResult(true);
+    }
+    catch (Exception e)
+    {
+        jobDone->SetException(e);
+    }
+}
+
+
+
+/*
+Job ServiceProductNetwork::SetRegistration(string aValue)
+{
+
+    JobDone taskSource = new JobDone();
+    iServiceConfiguration.BeginSetParameter("TuneIn Radio", "Test Mode", "true", (ptr) =>
+    {
+        try
+        {
+            iServiceConfiguration.EndSetParameter(ptr);
+            iServiceConfiguration.BeginSetParameter("TuneIn Radio", "Password", aValue, (ptr2) =>
             {
                 try
                 {
-                    iService.EndSetSourceIndex(ptr);
-                    taskSource.SetResult(true);
-                }
-                catch (Exception e)
-                {
-                    taskSource.SetException(e);
-                }
-            });
-            taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-            return taskSource.Task;
-        }
-
-        Task SetSourceIndexByName(string aValue)
-        {
-            TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-            iService.BeginSetSourceIndexByName(aValue, (ptr) =>
-            {
-                try
-                {
-                    iService.EndSetSourceIndexByName(ptr);
-                    taskSource.SetResult(true);
-                }
-                catch (Exception e)
-                {
-                    taskSource.SetException(e);
-                }
-            });
-            return taskSource.Task.ContinueWith((t) => { });
-        }
-
-        Task SetStandby(TBool aValue)
-        {
-            TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-            iService.BeginSetStandby(aValue, (ptr) =>
-            {
-                try
-                {
-                    iService.EndSetStandby(ptr);
-                    taskSource.SetResult(true);
-                }
-                catch (Exception e)
-                {
-                    taskSource.SetException(e);
-                }
-            });
-            return taskSource.Task.ContinueWith((t) => { });
-        }
-
-        Task SetRegistration(string aValue)
-        {
-            TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-            iServiceConfiguration.BeginSetParameter("TuneIn Radio", "Test Mode", "true", (ptr) =>
-            {
-                try
-                {
-                    iServiceConfiguration.EndSetParameter(ptr);
-                    iServiceConfiguration.BeginSetParameter("TuneIn Radio", "Password", aValue, (ptr2) =>
+                    iServiceConfiguration.EndSetParameter(ptr2);
+                    iServiceConfiguration.BeginSetParameter("TuneIn Radio", "Test Mode", "false", (ptr3) =>
                     {
                         try
                         {
-                            iServiceConfiguration.EndSetParameter(ptr2);
-                            iServiceConfiguration.BeginSetParameter("TuneIn Radio", "Test Mode", "false", (ptr3) =>
-                            {
-                                try
-                                {
-                                    iServiceConfiguration.EndSetParameter(ptr3);
-                                    taskSource.SetResult(true);
-                                }
-                                catch (Exception e)
-                                {
-                                    taskSource.SetException(e);
-                                }
-                            });
+                            iServiceConfiguration.EndSetParameter(ptr3);
+                            taskSource.SetResult(true);
                         }
                         catch (Exception e)
                         {
@@ -894,114 +1026,129 @@ IDevice& ProxyProduct::Device()
                     taskSource.SetException(e);
                 }
             });
-            return taskSource.Task.ContinueWith((t) => { });
         }
-
-        void HandleRoomChanged()
+        catch (Exception e)
         {
-            string room = iService.PropertyProductRoom();
-            iNetwork.Schedule(() =>
-            {
-                iDisposeHandler.WhenNotDisposed(() =>
-                {
-                    iRoom.Update(room);
-                });
-            });
+            taskSource.SetException(e);
         }
-
-        void HandleNameChanged()
-        {
-            string name = iService.PropertyProductName();
-            iNetwork.Schedule(() =>
-            {
-                iDisposeHandler.WhenNotDisposed(() =>
-                {
-                    iName.Update(name);
-                });
-            });
-        }
-
-        void HandleSourceIndexChanged()
-        {
-            TUint sourceIndex = iService.PropertySourceIndex();
-            iNetwork.Schedule(() =>
-            {
-                iDisposeHandler.WhenNotDisposed(() =>
-                {
-                    iSourceIndex.Update(sourceIndex);
-                });
-            });
-        }
-
-        void HandleSourceXmlChanged()
-        {
-            string sourceXml = iService.PropertySourceXml();
-            iNetwork.Schedule(() =>
-            {
-                iDisposeHandler.WhenNotDisposed(() =>
-                {
-                    iSourceXml.Update(sourceXml);
-                });
-            });
-        }
-
-        void HandleStandbyChanged()
-        {
-            TBool standby = iService.PropertyStandby();
-            iNetwork.Schedule(() =>
-            {
-                iDisposeHandler.WhenNotDisposed(() =>
-                {
-                    iStandby.Update(standby);
-                });
-            });
-        }
-
-        void HandleParameterXmlChanged()
-        {
-            string paramXml = iServiceConfiguration.PropertyParameterXml();
-            iNetwork.Schedule(() =>
-            {
-                iDisposeHandler.WhenNotDisposed(() =>
-                {
-                    ParseParameterXml(paramXml);
-                });
-            });
-        }
-
-        void ParseParameterXml(string aParameterXml)
-        {
-            XmlDocument document = new XmlDocument();
-            document.LoadXml(aParameterXml);
-
-            //<ParameterList>
-            // ...
-            //  <Parameter>
-            //    <Target>TuneIn Radio</Target>
-            //    <Name>Password</Name>
-            //    <Type>string</Type>
-            //    <Value></Value>
-            //  </Parameter>
-            // ...
-            //</ParameterList>
-
-            System.Xml.XmlNode registration = document.SelectSingleNode("/ParameterList/Parameter[Target=\"TuneIn Radio\" and Name=\"Password\"]/Value");
-            if (registration != null && registration.FirstChild != null)
-            {
-                iRegistration.Update(registration.FirstChild.Value);
-            }
-            else
-            {
-                iRegistration.Update(Brx::Empty());
-            }
-        }
-
-        readonly CpDevice iCpDevice;
-        TaskCompletionSource<TBool> iSubscribedSource;
-        TaskCompletionSource<TBool> iSubscribedConfigurationSource;
-        TaskCompletionSource<TBool> iSubscribedVolkanoSource;
-        CpProxyAvOpenhomeOrgProduct1 iService;
-        CpProxyLinnCoUkConfiguration1 iServiceConfiguration;
-        CpProxyLinnCoUkVolkano1 iServiceVolkano;
-    }
+    });
+    return taskSource.Job.ContinueWith((t) => { });
+}
 */
+
+void ServiceProductNetwork::HandleRoomChanged()
+{
+    Brhz room;
+    iService->PropertyProductRoom(room);
+/*
+    iNetwork.Schedule(() =>
+    {
+        iDisposeHandler.WhenNotDisposed(() =>
+        {
+            iRoom.Update(room);
+        });
+    });
+*/
+}
+
+void ServiceProductNetwork::HandleNameChanged()
+{
+    Brhz name;
+    iService->PropertyProductName(name);
+/*
+    iNetwork.Schedule(() =>
+    {
+        iDisposeHandler.WhenNotDisposed(() =>
+        {
+            iName.Update(name);
+        });
+    });
+*/
+}
+
+void ServiceProductNetwork::HandleSourceIndexChanged()
+{
+    TUint sourceIndex;
+    iService->PropertySourceIndex(sourceIndex);
+/*
+    iNetwork.Schedule(() =>
+    {
+        iDisposeHandler.WhenNotDisposed(() =>
+        {
+            iSourceIndex.Update(sourceIndex);
+        });
+    });
+*/
+}
+
+void ServiceProductNetwork::HandleSourceXmlChanged()
+{
+    Brhz sourceXml;
+    iService->PropertySourceXml(sourceXml);
+/*
+    iNetwork.Schedule(() =>
+    {
+        iDisposeHandler.WhenNotDisposed(() =>
+        {
+            iSourceXml.Update(sourceXml);
+        });
+    });
+*/
+}
+
+void ServiceProductNetwork::HandleStandbyChanged()
+{
+    TBool standby;
+    iService->PropertyStandby(standby);
+/*
+    iNetwork.Schedule(() =>
+    {
+        iDisposeHandler.WhenNotDisposed(() =>
+        {
+            iStandby.Update(standby);
+        });
+    });
+*/
+}
+
+/*
+void ServiceProductNetwork::HandleParameterXmlChanged()
+{
+    string paramXml = iServiceConfiguration.PropertyParameterXml();
+    iNetwork.Schedule(() =>
+    {
+        iDisposeHandler.WhenNotDisposed(() =>
+        {
+            ParseParameterXml(paramXml);
+        });
+    });
+}
+
+void ServiceProductNetwork::ParseParameterXml(string aParameterXml)
+{
+    XmlDocument document = new XmlDocument();
+    document.LoadXml(aParameterXml);
+
+    //<ParameterList>
+    // ...
+    //  <Parameter>
+    //    <Target>TuneIn Radio</Target>
+    //    <Name>Password</Name>
+    //    <Type>string</Type>
+    //    <Value></Value>
+    //  </Parameter>
+    // ...
+    //</ParameterList>
+
+    System.Xml.XmlNode registration = document.SelectSingleNode("/ParameterList/Parameter[Target=\"TuneIn Radio\" and Name=\"Password\"]/Value");
+    if (registration != NULL && registration.FirstChild != NULL)
+    {
+        iRegistration.Update(registration.FirstChild.Value);
+    }
+    else
+    {
+        iRegistration.Update(Brx::Empty());
+    }
+}
+*/
+

@@ -106,8 +106,33 @@ class GeneratedFile(object):
         self.version = version
         self.target = target
 
+upnp_services = [
+        GeneratedFile('OpenHome/Av/ServiceXml/OpenHome/Product1.xml', 'av.openhome.org', 'Product', '1', 'AvOpenhomeOrgProduct1'),
+        GeneratedFile('OpenHome/Av/ServiceXml/OpenHome/Sender1.xml', 'av.openhome.org', 'Sender', '1', 'AvOpenhomeOrgSender1'),
+        GeneratedFile('OpenHome/Av/ServiceXml/OpenHome/Receiver1.xml', 'av.openhome.org', 'Receiver', '1', 'AvOpenhomeOrgReceiver1'),
+    ]
+
 
 def build(bld):
+
+    # Generated provider base classes
+    t4templatedir = bld.env['T4_TEMPLATE_PATH']
+    text_transform_exe_node = find_resource_or_fail(bld, bld.root, os.path.join(bld.env['TEXT_TRANSFORM_PATH'], 'TextTransform.exe'))
+    for service in upnp_services:
+        for t4Template, prefix, ext, args in [
+                ('DvUpnpCppCoreHeader.tt', 'Dv', '.h', '-a buffer:1'),
+                ('DvUpnpCppCoreSource.tt', 'Dv', '.cpp', ''),
+                ('CpUpnpCppHeader.tt', 'Cp', '.h', '-a buffer:1'),
+                ('CpUpnpCppBufferSource.tt', 'Cp', '.cpp', '')
+                ]:
+            t4_template_node = find_resource_or_fail(bld, bld.root, os.path.join(t4templatedir, t4Template))
+            tgt = bld.path.find_or_declare(os.path.join('Generated', prefix + service.target + ext))
+            bld(
+                rule="${MONO} " + text_transform_exe_node.abspath() + " -o " + tgt.abspath() + " " + t4_template_node.abspath() + " -a xml:../" + service.xml + " -a domain:" + service.domain + " -a type:" + service.type + " -a version:" + service.version + " " + args,
+                source=[text_transform_exe_node, t4_template_node, service.xml],
+                target=tgt
+                )
+    bld.add_group()
 
 
     # Library
@@ -120,6 +145,7 @@ def build(bld):
                 'OpenHome/Device.cpp',
                 'OpenHome/DeviceFactory.cpp',
                 'OpenHome/Injector.cpp',
+                'OpenHome/Job.cpp',
                 'OpenHome/MetaData.cpp',
                 'OpenHome/Mockable.cpp',
                 'OpenHome/Network.cpp',
@@ -134,6 +160,9 @@ def build(bld):
                 'OpenHome/Topology3.cpp',
                 'OpenHome/Topology4.cpp',
                 'OpenHome/Topology5.cpp',
+                'Generated/CpAvOpenhomeOrgSender1.cpp',
+                'Generated/CpAvOpenhomeOrgReceiver1.cpp',
+                'Generated/CpAvOpenhomeOrgProduct1.cpp',
             ],
             use=['OHNET'],
             target='ohTopologyC')

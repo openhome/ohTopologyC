@@ -235,6 +235,7 @@ TBool InjectorDevice::HasService(EServiceType aServiceType)
 }
 
 
+
 void InjectorDevice::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType, IDevice& aDevice)
 {
     DisposeLock lock(*iDisposeHandler);
@@ -247,6 +248,7 @@ void InjectorDevice::Create(FunctorGeneric<void*> aCallback, EServiceType aServi
 
     iServices[aServiceType]->Create(aCallback, aServiceType, &aDevice);
 }
+
 
 
 IService& InjectorDevice::GetService(const Brx& aType)

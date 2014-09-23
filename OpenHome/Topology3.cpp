@@ -146,7 +146,7 @@ void Topology3Group::SetSender(ITopology3Sender* aSender)
 {
     iSender->Update(aSender);
 
-    if ((iCurrentSender!=NULL)&&(iCurrentSender!=Topology3Sender::Empty()))
+    if (/*(iCurrentSender!=NULL)&&*/(iCurrentSender!=Topology3Sender::Empty()))
     {
         delete iCurrentSender;
     }

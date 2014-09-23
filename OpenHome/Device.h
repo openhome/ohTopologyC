@@ -96,7 +96,7 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////
-
+// only used for mocking
 class InjectorDeviceAdaptor : public IInjectorDevice, public INonCopyable
 {
 public:

@@ -8,7 +8,7 @@
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
-//using namespace OpenHome::Net;
+using namespace OpenHome::Net;
 
 
 /////////////////////////////////////////////////////////
@@ -72,115 +72,201 @@ const Brx& ServiceSender::PresentationUrl()
 ///////////////////////////////////////////////////////////////
 
 
-/*
-    class ServiceSenderNetwork : ServiceSender
+
+ServiceSenderNetwork::ServiceSenderNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
+    :ServiceSender(aNetwork, aDevice, aLog)
+    ,iCpDevice(aCpDevice)
+{
+    iCpDevice.AddRef();
+
+    iService = new CpProxyAvOpenhomeOrgSender1(aCpDevice);
+
+
+    Functor f1 = MakeFunctor(*this, &ServiceSenderNetwork::HandleAudioChanged);
+    iService->SetPropertyAudioChanged(f1);
+
+    Functor f2 = MakeFunctor(*this, &ServiceSenderNetwork::HandleMetadataChanged);
+    iService->SetPropertyMetadataChanged(f2);
+
+    Functor f3 = MakeFunctor(*this, &ServiceSenderNetwork::HandleStatusChanged);
+    iService->SetPropertyStatusChanged(f3);
+
+    Functor f4 = MakeFunctor(*this, &ServiceSenderNetwork::HandleInitialEvent);
+    iService->SetPropertyInitialEvent(f4);
+}
+
+
+void ServiceSenderNetwork::Dispose()
+{
+    ServiceSender::Dispose();
+
+    delete iService;
+    iService = NULL;
+
+    iCpDevice.RemoveRef();
+}
+
+
+Job* ServiceSenderNetwork::OnSubscribe()
+{
+    ASSERT(iSubscribedSource == NULL);
+
+    iSubscribedSource = new JobDone();
+
+    iService->Subscribe();
+
+
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::OnSubscribeCallback);
+    Job* job = iSubscribedSource->GetJob()->ContinueWith(f, NULL);
+    //return iSubscribedSource->GetJob()->ContinueWith((t) => { });
+    return(job);
+}
+
+
+void ServiceSenderNetwork::OnSubscribeCallback(void* /*aObj*/)
+{
+
+}
+
+
+void ServiceSenderNetwork::OnCancelSubscribe()
+{
+    if (iSubscribedSource != NULL)
     {
-        ServiceSenderNetwork(INetwork aNetwork, IInjectorDevice aDevice, CpDevice aCpDevice, ILog aLog)
-            : base(aNetwork, aDevice, aLog)
-        {
-            iCpDevice = aCpDevice;
-            iCpDevice.AddRef();
-
-            iService = new CpProxyAvOpenhomeOrgSender1(aCpDevice);
-
-            iService.SetPropertyAudioChanged(HandleAudioChanged);
-            iService.SetPropertyMetadataChanged(HandleMetadataChanged);
-            iService.SetPropertyStatusChanged(HandleStatusChanged);
-
-            iService.SetPropertyInitialEvent(HandleInitialEvent);
-        }
-
-        override void Dispose()
-        {
-            base.Dispose();
-
-            iService.Dispose();
-            iService = null;
-
-            iCpDevice.RemoveRef();
-        }
-
-        protected override Task OnSubscribe()
-        {
-            Do.Assert(iSubscribedSource == null);
-
-            iSubscribedSource = new TaskCompletionSource<TBool>();
-
-            iService.Subscribe();
-
-            return iSubscribedSource.Task.ContinueWith((t) => { });
-        }
-
-        protected override void OnCancelSubscribe()
-        {
-            if (iSubscribedSource != null)
-            {
-                iSubscribedSource.TrySetCanceled();
-            }
-        }
-
-        private void HandleInitialEvent()
-        {
-            iAttributes = iService.PropertyAttributes();
-            iPresentationUrl = iService.PropertyPresentationUrl();
-
-            if (!iSubscribedSource.Task.IsCanceled)
-            {
-                iSubscribedSource.SetResult(true);
-            }
-        }
-
-        protected override void OnUnsubscribe()
-        {
-            if (iService != null)
-            {
-                iService.Unsubscribe();
-            }
-
-            iSubscribedSource = null;
-        }
-
-        private void HandleAudioChanged()
-        {
-            TBool audio = iService.PropertyAudio();
-            Network.Schedule(() =>
-            {
-                iDisposeHandler.WhenNotDisposed(() =>
-                {
-                    iAudio->Update(audio);
-                });
-            });
-        }
-
-        private void HandleMetadataChanged()
-        {
-            string metadata = iService.PropertyMetadata();
-            Network.Schedule(() =>
-            {
-                iDisposeHandler.WhenNotDisposed(() =>
-                {
-                    iMetadata->Update(new SenderMetadata(metadata));
-                });
-            });
-        }
-
-        private void HandleStatusChanged()
-        {
-            string status = iService.PropertyStatus();
-            Network.Schedule(() =>
-            {
-                iDisposeHandler.WhenNotDisposed(() =>
-                {
-                    iStatus->Update(status);
-                });
-            });
-        }
-
-        private readonly CpDevice iCpDevice;
-        private TaskCompletionSource<TBool> iSubscribedSource;
-        private CpProxyAvOpenhomeOrgSender1 iService;
+        //iSubscribedSource->TrySetCancelled();
+        iSubscribedSource->Cancel();
     }
+}
+
+void ServiceSenderNetwork::HandleInitialEvent()
+{
+    Brhz attributes;
+    iService->PropertyAttributes(attributes);
+    iAttributes.Replace(attributes);
+
+    Brhz presentationUrl;
+    iService->PropertyPresentationUrl(presentationUrl);
+    iPresentationUrl.Replace(presentationUrl);
+
+    if (!iSubscribedSource->GetJob()->IsCancelled())
+    {
+        iSubscribedSource->SetResult(true);
+    }
+}
+
+void ServiceSenderNetwork::OnUnsubscribe()
+{
+    if (iService != NULL)
+    {
+        iService->Unsubscribe();
+    }
+
+    iSubscribedSource = NULL;
+}
+
+void ServiceSenderNetwork::HandleAudioChanged()
+{
+    iService->PropertyAudio(iAudioValue);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::AudioChangedCallback);
+    iNetwork.Schedule(f, &iAudioValue);
+
+/*
+    Network.Schedule(() =>
+    {
+        iDisposeHandler.WhenNotDisposed(() =>
+        {
+            iAudio->Update(audio);
+        });
+    });
 */
+}
+
+
+void ServiceSenderNetwork::AudioChangedCallback(void* aAudio)
+{
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::AudioChangedCallbackCallback);
+    iDisposeHandler->WhenNotDisposed(f, aAudio);
+}
+
+
+void ServiceSenderNetwork::AudioChangedCallbackCallback(void* aAudio)
+{
+    iAudio->Update(*(TBool*)iAudioValue);
+}
+
+
+void ServiceSenderNetwork::HandleMetadataChanged()
+{
+    Brhz metadata;
+    iService->PropertyMetadata(metadata);
+    ISenderMetadata* senderMetadata = new SenderMetadata(metadata);
+
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::MetadataChangedCallback);
+    iNetwork.Schedule(f, senderMetadata);
+/*
+    Network.Schedule(() =>
+    {
+        iDisposeHandler.WhenNotDisposed(() =>
+        {
+            iMetadata->Update(new SenderMetadata(metadata));
+        });
+    });
+*/
+}
+
+
+void ServiceSenderNetwork::MetadataChangedCallback(void* aMetadata)
+{
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::MetadataChangedCallbackCallback);
+    iDisposeHandler->WhenNotDisposed(f, aMetadata);
+}
+
+
+void ServiceSenderNetwork::MetadataChangedCallbackCallback(void* aMetadata)
+{
+    ISenderMetadata* metadata = (ISenderMetadata*)aMetadata;
+    iMetadata->Update(metadata);
+    delete iCurrentMetadata;
+    iCurrentMetadata = metadata;
+}
+
+
+void ServiceSenderNetwork::HandleStatusChanged()
+{
+    Brhz status;
+    iService->PropertyStatus(status);
+    Bws<100>* newStatus = new Bws<100>(status);
+
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::StatusChangedCallback);
+    iNetwork.Schedule(f, newStatus);
+/*
+    Network.Schedule(() =>
+    {
+        iDisposeHandler.WhenNotDisposed(() =>
+        {
+            iStatus->Update(status);
+        });
+    });
+*/
+}
+
+
+void ServiceSenderNetwork::StatusChangedCallback(void* aStatus)
+{
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::StatusChangedCallbackCallback);
+    iDisposeHandler->WhenNotDisposed(f, aStatus);
+}
+
+
+void ServiceSenderNetwork::StatusChangedCallbackCallback(void* aStatus)
+{
+    Bws<100>* status = (Bws<100>*)aStatus;
+    iStatus->Update(Brn(*status));
+    delete iCurrentStatus;
+    iCurrentStatus = status;
+}
+
+
 
 ///////////////////////////////////////////////////////////////////
 
@@ -218,10 +304,7 @@ void ServiceSenderMock::Execute(ICommandTokens& aValue)
 
         iMetadata->Update(metadata);
 
-        //if (iCurrentMetadata!=NULL)
-        //{
-            delete iCurrentMetadata;
-        //}
+        delete iCurrentMetadata;
 
         iCurrentMetadata = metadata;
     }
