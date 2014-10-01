@@ -423,7 +423,7 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
 
 
 
-void ServiceProductMock::SetSourceIndex(TUint aValue)
+void ServiceProductMock::SetSourceIndex(TUint /*aValue*/)
 {
 /*
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, & ServiceProductMock::SetSourceIndexCallback);
@@ -454,13 +454,13 @@ void ServiceProductMock::SetSourceIndexCallback(void* aObj)
 
 
 
-void ServiceProductMock::SetSourceIndexByName(const Brx& aValue)
+void ServiceProductMock::SetSourceIndexByName(const Brx& /*aValue*/)
 {
     THROW(NotSupportedException);
 }
 
 
-void ServiceProductMock::SetStandby(TBool aValue)
+void ServiceProductMock::SetStandby(TBool /*aValue*/)
 {
 /*
     Job task = Job.Factory.StartNew(() =>

@@ -26,7 +26,7 @@ class Network;
 
 
 
-class Injector : public IDisposable
+class Injector : public IDisposable, public INonCopyable
 {
 public:
     void Refresh();

@@ -100,12 +100,7 @@ Job* ServiceReceiverNetwork::OnSubscribe()
     //return iSubscribedSource->GetJob()->ContinueWith((t) => { });
 }
 
-/*
-void ServiceReceiverNetwork::OnSubscribeCallback(void* aObj)
-{
 
-}
-*/
 void ServiceReceiverNetwork::OnCancelSubscribe()
 {
     if (iSubscribedSource != NULL)
@@ -114,6 +109,7 @@ void ServiceReceiverNetwork::OnCancelSubscribe()
         iSubscribedSource->Cancel();
     }
 }
+
 
 void ServiceReceiverNetwork::HandleInitialEvent()
 {
@@ -344,7 +340,7 @@ void ServiceReceiverMock::Play()
 }
 
 
-void ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
+void ServiceReceiverMock::Play(ISenderMetadata& /*aMetadata*/)
 {
     //return(0); // FIXME
 /*

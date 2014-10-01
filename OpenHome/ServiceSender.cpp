@@ -187,7 +187,7 @@ void ServiceSenderNetwork::AudioChangedCallback(void* aAudio)
 
 void ServiceSenderNetwork::AudioChangedCallbackCallback(void* aAudio)
 {
-    iAudio->Update(*(TBool*)iAudioValue);
+    iAudio->Update(*(TBool*)aAudio);
 }
 
 
