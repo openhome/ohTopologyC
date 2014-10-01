@@ -77,9 +77,9 @@ public:
     virtual IWatchable<Brn>& SourceXml() = 0;
     virtual IWatchable<TBool>& Standby() = 0;
 
-    virtual Job* SetSourceIndex(TUint aValue) = 0;
-    virtual Job* SetSourceIndexByName(const Brx& aValue) = 0;
-    virtual Job* SetStandby(TBool aValue) = 0;
+    virtual void SetSourceIndex(TUint aValue) = 0;
+    virtual void SetSourceIndexByName(const Brx& aValue) = 0;
+    virtual void SetStandby(TBool aValue) = 0;
 
     virtual Brn Attributes() = 0;
     virtual Brn ManufacturerImageUri() = 0;
@@ -116,9 +116,9 @@ public:
     virtual IWatchable<TBool>& Standby();
 
     // abstract
-    virtual Job* SetSourceIndex(TUint aValue) = 0;
-    virtual Job* SetSourceIndexByName(const Brx& aValue) = 0;
-    virtual Job* SetStandby(TBool aValue) = 0;
+    virtual void SetSourceIndex(TUint aValue) = 0;
+    virtual void SetSourceIndexByName(const Brx& aValue) = 0;
+    virtual void SetStandby(TBool aValue) = 0;
 
 
     // IProduct methods
@@ -171,9 +171,9 @@ public:
         const Brx& aModelInfo, const Brx& aModelName, const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog& aLog);
 
     virtual void Execute(ICommandTokens& aValue);
-    virtual Job* SetSourceIndex(TUint aValue);
-    virtual Job* SetSourceIndexByName(const Brx& aValue);
-    virtual Job* SetStandby(TBool aValue);
+    virtual void SetSourceIndex(TUint aValue);
+    virtual void SetSourceIndexByName(const Brx& aValue);
+    virtual void SetStandby(TBool aValue);
 
 private:
     virtual void SetSourceIndexCallback(void* aValue);
@@ -199,9 +199,9 @@ public:
     virtual IWatchable<Brn>& SourceXml();
     virtual IWatchable<TBool>& Standby();
 
-    virtual Job* SetSourceIndex(TUint aValue);
-    virtual Job* SetSourceIndexByName(const Brx& aValue);
-    virtual Job* SetStandby(TBool aValue);
+    virtual void SetSourceIndex(TUint aValue);
+    virtual void SetSourceIndexByName(const Brx& aValue);
+    virtual void SetStandby(TBool aValue);
 
     virtual Brn Attributes();
     virtual Brn ManufacturerImageUri();
@@ -242,9 +242,9 @@ public:
     ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
 
     virtual void Dispose();
-    virtual Job* SetSourceIndex(TUint aValue);
-    virtual Job* SetSourceIndexByName(const Brx& aValue);
-    virtual Job* SetStandby(TBool aValue);
+    virtual void SetSourceIndex(TUint aValue);
+    virtual void SetSourceIndexByName(const Brx& aValue);
+    virtual void SetStandby(TBool aValue);
 
 protected:
     virtual Job* OnSubscribe();

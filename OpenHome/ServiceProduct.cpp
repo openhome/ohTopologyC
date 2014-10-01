@@ -423,9 +423,14 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
 
 
 
-Job* ServiceProductMock::SetSourceIndex(TUint aValue)
+void ServiceProductMock::SetSourceIndex(TUint aValue)
 {
-    return(0);
+/*
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, & ServiceProductMock::SetSourceIndexCallback);
+
+    iNetwork.Schedule(f, );
+*/
+
 
 /*
     Job task = Job.Factory.StartNew(() =>
@@ -442,22 +447,21 @@ Job* ServiceProductMock::SetSourceIndex(TUint aValue)
 
 void ServiceProductMock::SetSourceIndexCallback(void* aObj)
 {
-    iSourceIndex->Update(*((TUint*)aObj));
+    TUint index = *((TUint*)aObj);
+    iSourceIndex->Update(index);
 
 }
 
 
 
-Job* ServiceProductMock::SetSourceIndexByName(const Brx& aValue)
+void ServiceProductMock::SetSourceIndexByName(const Brx& aValue)
 {
     THROW(NotSupportedException);
 }
 
 
-Job* ServiceProductMock::SetStandby(TBool aValue)
+void ServiceProductMock::SetStandby(TBool aValue)
 {
-    return(0);
-
 /*
     Job task = Job.Factory.StartNew(() =>
     {
@@ -513,21 +517,21 @@ IWatchable<TBool>& ProxyProduct::Standby()
 
 
 
-Job* ProxyProduct::SetSourceIndex(TUint aValue)
+void ProxyProduct::SetSourceIndex(TUint aValue)
 {
-    return (iService.SetSourceIndex(aValue));
+    iService.SetSourceIndex(aValue);
 }
 
 
-Job* ProxyProduct::SetSourceIndexByName(const Brx& aValue)
+void ProxyProduct::SetSourceIndexByName(const Brx& aValue)
 {
-    return (iService.SetSourceIndexByName(aValue));
+    iService.SetSourceIndexByName(aValue);
 }
 
 
-Job* ProxyProduct::SetStandby(TBool aValue)
+void ProxyProduct::SetStandby(TBool aValue)
 {
-    return (iService.SetStandby(aValue));
+    iService.SetStandby(aValue);
 }
 
 
@@ -630,18 +634,6 @@ ServiceProductNetwork::ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice
     iCpDevice.AddRef();
 
     iService = new CpProxyAvOpenhomeOrgProduct1(aCpDevice);
-    //iServiceConfiguration = new CpProxyLinnCoUkConfiguration1(aCpDevice);
-
-/*
-    Brh value;
-    if (aCpDevice.GetAttribute(Brn("Upnp.Service.linn-co-uk.Volkano"), value))
-    {
-        if (uint.Parse(value) == 1)
-        {
-            iServiceVolkano = new CpProxyLinnCoUkVolkano1(aCpDevice);
-        }
-    }
-*/
     Functor f1 = MakeFunctor(*this, &ServiceProductNetwork::HandleRoomChanged);
     iService->SetPropertyProductRoomChanged(f1);
 
@@ -660,8 +652,6 @@ ServiceProductNetwork::ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice
     Functor f6 = MakeFunctor(*this, &ServiceProductNetwork::HandleInitialEvent);
     iService->SetPropertyInitialEvent(f6);
 
-    //iServiceConfiguration.SetPropertyParameterXmlChanged(HandleParameterXmlChanged);
-    //iServiceConfiguration.SetPropertyInitialEvent(HandleInitialEventConfiguration);
 }
 
 void ServiceProductNetwork::Dispose()
@@ -670,69 +660,29 @@ void ServiceProductNetwork::Dispose()
 
     delete iService;
     iService = NULL;
-/*
-    iServiceConfiguration.Dispose();
-    iServiceConfiguration = NULL;
-
-    if (iServiceVolkano != NULL)
-    {
-        iServiceVolkano.Dispose();
-        iServiceVolkano = NULL;
-    }
-*/
     iCpDevice.RemoveRef();
 }
 
 Job* ServiceProductNetwork::OnSubscribe()
 {
-    ASSERT(iSubscribedSource == NULL);
-    //ASSERT(iSubscribedConfigurationSource == NULL);
-    //ASSERT(iSubscribedVolkanoSource == NULL);
+    // Subscribe to (ohNet) Service and get informed later (on a separate thread) when its completed
+    // Completion is signalled in HandleInitialEvent()
 
-    //JobDone volkano = new JobDone();
     iSubscribedSource = new JobDone();
-    //iSubscribedConfigurationSource = new JobDone();
-    //iSubscribedVolkanoSource = volkano;
 
     iService->Subscribe();
-    //iServiceConfiguration.Subscribe();
 
-/*
-    if (iServiceVolkano != NULL)
-    {
-        iServiceVolkano.BeginProductId((ptr) =>
-        {
-            try
-            {
-                iServiceVolkano.EndProductId(ptr, out iProductId);
-                if (!volkano.Job.IsCancelled)
-                {
-                    volkano.SetResult(true);
-                }
-            }
-            catch (ProxyError e)
-            {
-                if (!volkano.Job.IsCancelled)
-                {
-                    volkano.SetException(e);
-                }
-            }
-        });
-    }
-    else
-    {
-        if (!volkano.Job.IsCancelled)
-        {
-            volkano.SetResult(true);
-        }
-    }
-*/
 
 
 /*
-    return Job.Factory.ContinueWhenAll(
-        new Job[] { iSubscribedSource.Job , iSubscribedConfigurationSource.Job, iSubscribedVolkanoSource.Job },
-        (tasks) => { Job.WaitAll(tasks); });
+    iSubscribedSource = new TaskCompletionSource<bool>();
+
+    iService.Subscribe();
+
+
+    return Task.Factory.ContinueWhenAll(
+        new Task[] { iSubscribedSource.Task, iSubscribedConfigurationSource.Task, iSubscribedVolkanoSource.Task },
+        (tasks) => { Task.WaitAll(tasks); });
 
     since we're not using ConfigurationSource and or VolkanoSource, theres only 1 task now so that would probably become...
     return(iSubscribedSource.Job);
@@ -748,16 +698,6 @@ void ServiceProductNetwork::OnCancelSubscribe()
         //iSubscribedSource->TrySetCancelled();
         iSubscribedSource->Cancel();
     }
-/*
-    if (iSubscribedConfigurationSource != NULL)
-    {
-        iSubscribedConfigurationSource.TrySetCanceled();
-    }
-    if (iSubscribedVolkanoSource != NULL)
-    {
-        iSubscribedVolkanoSource.TrySetCanceled();
-    }
-*/
 }
 
 void ServiceProductNetwork::HandleInitialEvent()
@@ -816,27 +756,7 @@ void ServiceProductNetwork::HandleInitialEvent()
     }
 }
 
-/*
-void ServiceProductNetwork::HandleInitialEventConfiguration()
-{
 
-    string propertyXml = iServiceConfiguration.PropertyParameterXml();
-
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            ParseParameterXml(propertyXml);
-        });
-    });
-
-    if (!iSubscribedConfigurationSource.Job.IsCancelled)
-    {
-        iSubscribedConfigurationSource.SetResult(true);
-    }
-
-}
-*/
 
 void ServiceProductNetwork::OnUnsubscribe()
 {
@@ -844,23 +764,18 @@ void ServiceProductNetwork::OnUnsubscribe()
     {
         iService->Unsubscribe();
     }
-/*
-    if (iServiceConfiguration != NULL)
-    {
-        iServiceConfiguration.Unsubscribe();
-    }
-*/
+
     iSubscribedSource = NULL;
-    //iSubscribedConfigurationSource = NULL;
-    //iSubscribedVolkanoSource = NULL;
 }
 
-Job* ServiceProductNetwork::SetSourceIndex(TUint aValue)
+void ServiceProductNetwork::SetSourceIndex(TUint aValue)
 {
-    JobDone* jobDone = new JobDone();
-
-    FunctorAsync f = MakeFunctorAsync(*this, &ServiceProductNetwork::BeginSetSourceIndexCallback);
+    Job2* job = new Job2(); // read from existing pool - don't allocate new jobs
+    FunctorAsync f = job->AsyncCb();
     iService->BeginSetSourceIndex(aValue, f);
+
+    //FunctorAsync f = MakeFunctorAsync(*this, &ServiceProductNetwork::BeginSetSourceIndexCallback);
+    //iService->BeginSetSourceIndex(aValue, f);
 
 /*
     iService->BeginSetSourceIndex(aValue, (ptr) =>
@@ -868,7 +783,8 @@ Job* ServiceProductNetwork::SetSourceIndex(TUint aValue)
         try
         {
             iService->EndSetSourceIndex(ptr);
-            taskSource.SetResult(true);
+            Callback();
+            //taskSource.SetResult(true);
         }
         catch (Exception e)
         {
@@ -878,31 +794,14 @@ Job* ServiceProductNetwork::SetSourceIndex(TUint aValue)
 */
 
     //jobDone->Job().ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return (jobDone->GetJob());
-}
-
-void ServiceProductNetwork::BeginSetSourceIndexCallback(IAsync& aValue)
-{
-    JobDone* jobDone = new JobDone(); // FIXME: this should be the object created in the original method
-
-    try
-    {
-        iService->EndSetSourceIndex(aValue);
-        jobDone->SetResult(true);
-    }
-    catch (Exception e)
-    {
-        jobDone->SetException(e);
-    }
+    //return (jobDone->GetJob());
 }
 
 
-Job* ServiceProductNetwork::SetSourceIndexByName(const Brx& aValue)
+void ServiceProductNetwork::SetSourceIndexByName(const Brx& aValue)
 {
-    JobDone* jobDone = new JobDone();
-
-    //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::BeginSetSourceIndexByNameCallback);
-    FunctorAsync f = MakeFunctorAsync(*this, &ServiceProductNetwork::BeginSetSourceIndexByNameCallback);
+    Job2* job = new Job2(); // read from existing pool - don't allocate new jobs
+    FunctorAsync f = job->AsyncCb();
     iService->BeginSetSourceIndexByName(aValue, f);
 
 /*
@@ -919,40 +818,17 @@ Job* ServiceProductNetwork::SetSourceIndexByName(const Brx& aValue)
         }
     });
 */
-    FunctorGeneric<void*> f2 = MakeFunctorGeneric(*this, &ServiceProductNetwork::DoNothing);
-    Job* job = jobDone->GetJob()->ContinueWith(f2, NULL);
-    return (job);
+//    FunctorGeneric<void*> f2 = MakeFunctorGeneric(*this, &ServiceProductNetwork::DoNothing);
+//    Job* job = jobDone->GetJob()->ContinueWith(f2, NULL);
+//    return (job);
 }
 
 
-void ServiceProductNetwork::BeginSetSourceIndexByNameCallback(IAsync& aAsync)
+
+void ServiceProductNetwork::SetStandby(TBool aValue)
 {
-    JobDone* jobDone = new JobDone(); // FIXME: this should be the object created in the original method
-
-    try
-    {
-        iService->EndSetSourceIndexByName(aAsync);
-        jobDone->SetResult(true);
-    }
-    catch (Exception e)
-    {
-        jobDone->SetException(e);
-    }
-}
-
-
-void ServiceProductNetwork::DoNothing(void* /*aObj*/)
-{
-
-}
-
-
-Job* ServiceProductNetwork::SetStandby(TBool aValue)
-{
-    JobDone* jobDone = new JobDone();
-
-    //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::BeginSetStandbyCallback);
-    FunctorAsync f = MakeFunctorAsync(*this, &ServiceProductNetwork::BeginSetStandbyCallback);
+    Job2* job = new Job2(); // read from existing pool - don't allocate new jobs
+    FunctorAsync f = job->AsyncCb();
     iService->BeginSetStandby(aValue, f);
 /*
     iService->BeginSetStandby(aValue, (ptr) =>
@@ -970,25 +846,9 @@ Job* ServiceProductNetwork::SetStandby(TBool aValue)
 */
 
     //return taskSource.Job.ContinueWith((t) => { });
-    FunctorGeneric<void*> f2 = MakeFunctorGeneric(*this, &ServiceProductNetwork::DoNothing);
-    Job* job = jobDone->GetJob()->ContinueWith(f2, NULL);
-    return (job);
-}
-
-
-void ServiceProductNetwork::BeginSetStandbyCallback(IAsync& aAsync)
-{
-    JobDone* jobDone = new JobDone(); // FIXME: this should be the object created in the original method
-
-    try
-    {
-        iService->EndSetStandby(aAsync);
-        jobDone->SetResult(true);
-    }
-    catch (Exception e)
-    {
-        jobDone->SetException(e);
-    }
+    //FunctorGeneric<void*> f2 = MakeFunctorGeneric(*this, &ServiceProductNetwork::DoNothing);
+    //Job* job = jobDone->GetJob()->ContinueWith(f2, NULL);
+    //return (job);
 }
 
 

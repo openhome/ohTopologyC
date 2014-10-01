@@ -11,8 +11,8 @@ using namespace OpenHome::Av;
 
 
 Job::Job(FunctorGeneric<void*> aAction, void* aObj)
-    :iCallback(new CallbackHandler(aAction, aObj))
-    //,iContinueCallback(NULL)
+    :iAction(aAction)
+    ,iActionArg(aObj)
     ,iSem("TKSM", 0)
     ,iMutex("TKMX")
     ,iStarted(false)
@@ -24,23 +24,22 @@ Job::Job(FunctorGeneric<void*> aAction, void* aObj)
 }
 
 
-Job::Job()
-    :iCallback(NULL)
-    ,iSem("TKSM", 0)
-    ,iMutex("TKMX")
-    ,iStarted(false)
-    ,iCompleted(false)
-    ,iCancelled(false)
+void Job::Start()
 {
-
+    AutoMutex mutex(iMutex);
+    ASSERT(!iStarted);
+    iSem.Signal();
+    iStarted = true;
 }
 
 
 void Job::Run()
 {
     iSem.Wait();
-    //iAction(NULL);
-    iCallback->Callback();
+    if (iAction)
+    {
+        iAction(iActionArg);
+    }
 
     AutoMutex mutex(iMutex);
     iCompleted = true;
@@ -51,6 +50,7 @@ void Job::Run()
 
 void Job::Continue()
 {
+    AutoMutex mutex(iMutex);
     if (iJobContinue!=NULL)
     {
         iJobContinue->Start();
@@ -58,32 +58,18 @@ void Job::Continue()
 }
 
 
-
 Job* Job::ContinueWith(FunctorGeneric<void*> aAction, void* aObj)
 {
     AutoMutex mutex(iMutex);
-    //iThreadContinue = new ThreadFunctor("JOB", MakeFunctor(*this, &aAction) );
     iJobContinue = new Job(aAction, aObj);
     return(iJobContinue);
 }
 
 
-
-void Job::Start()
-{
-    AutoMutex mutex(iMutex);
-    ASSERT(!iStarted);
-    iSem.Signal();
-    iStarted = true;
-}
-
-
-
 void Job::Wait()
 {
-
+    iThread->Join();
 }
-
 
 
 void Job::Cancel()
@@ -98,6 +84,7 @@ void Job::Cancel()
 
 TBool Job::IsCancelled()
 {
+    AutoMutex mutex(iMutex);
     return(iCancelled);
 }
 
@@ -107,53 +94,10 @@ Job* Job::StartNew(FunctorGeneric<void*> aAction, void* aObj)
     return(new Job(aAction, aObj));
 }
 
-
-TBool Job::Result()
+void Job::SetComplete()
 {
-    return(true); // FIXME:
+
+
 }
 
 //////////////////////////////////////////////////////////
-
-JobDone::JobDone()
-    :iJob(new Job())
-{
-
-}
-
-
-void JobDone::SetResult(TBool /*aResult*/)
-{
-}
-
-
-void JobDone::SetException(Exception /*aException*/)
-{
-
-}
-
-
-Job* JobDone::GetJob()
-{
-    return(iJob);
-}
-
-void JobDone::Cancel()
-{
-    iJob->Cancel();
-}
-
-//////////////////////////////////////////////////////////
-
-CallbackHandler::CallbackHandler(FunctorGeneric<void*> aCallback, void* aObj)
-    :iCallback(aCallback)
-    ,iObj(aObj)
-{
-
-}
-
-
-void CallbackHandler::Callback()
-{
-    iCallback(iObj);
-}

@@ -6,6 +6,7 @@
 #include <OpenHome/Buffer.h>
 #include <OpenHome/Private/Thread.h>
 #include <OpenHome/Private/Fifo.h>
+#include <OpenHome/Net/Core/FunctorAsync.h>
 #include <vector>
 
 
@@ -20,16 +21,13 @@ class CallbackHandler;
 
 class Job
 {
-    friend class JobDone;
-
 public:
     Job(FunctorGeneric<void*> aAction, void* aObj); // can't be cancelled
-    Job(FunctorGeneric<void*> aAction, void* aObj, Functor aCancellation);
+    Job();
 
     void Start();
     void Wait();
     void Cancel();
-    TBool Result();
     TBool IsCancelled();
 
     Job* ContinueWith(FunctorGeneric<void*> aAction, void* aObj);
@@ -38,11 +36,11 @@ public:
 private:
     void Run();
     void Continue();
-    Job();
+    void SetComplete();
 
 private:
-    CallbackHandler* iCallback;
-    //CallbackHandler* iContinueCallback;
+    FunctorGeneric<void*> iAction;
+    void* iActionArg;
     Functor iCancellation;
     ThreadFunctor* iThread;
     Job* iJobContinue;
@@ -53,37 +51,102 @@ private:
     TBool iCancelled;
 };
 
-//////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////
 
 class JobDone
 {
 public:
-    JobDone();
-    void SetResult(TBool aResult);
-    void SetException(Exception aException);
-    Job* GetJob();
-    void Cancel();
-    //void TrySetCancelled();
+    JobDone() : iJob(new Job(FunctorGeneric<void*>(), NULL)) { }
+
+    void SetResult(TBool aResult)
+    {
+        if(aResult)
+        {
+            iJob->Start();
+        }
+    }
+
+    void Cancel() {iJob->Cancel();}
+    Job* GetJob() {return(iJob);}
+
 private:
     Job* iJob;
 };
 
-//////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 
-class CallbackHandler
+class Job2 : private Thread
 {
-public:
-    CallbackHandler(FunctorGeneric<void*> aCallback, void* aObj);
-
-    void Callback();
-
 private:
     FunctorGeneric<void*> iCallback;
-    void* iObj;
+    void* iCbArg;
+    TBool iCancelled;
+    mutable Mutex iMutex;
 
+public:
+    Job2()
+        :Thread("thname")
+        ,iCbArg(NULL)
+        ,iCancelled(false)
+        ,iMutex("JOBX")
+    {
+        Start();
+    }
+
+
+    void SetCallback(FunctorGeneric<void*> aAction, void* aArg)
+    {
+        iCallback = aAction;
+        iCbArg = aArg;
+    }
+
+
+    void CallbackComplete()
+    {
+        iCallback = FunctorGeneric<void*>();  // reset to null functor
+        iCbArg = NULL;
+        // add this back into fifo of available jobs
+    }
+
+
+    void Run()
+    {
+        Wait();
+        ASSERT(iCallback);
+        iCallback(iCbArg);
+    }
+
+
+    Net::FunctorAsync AsyncCb()
+    {
+        return (MakeFunctorAsync(*this, &Job2::AsyncComplete));
+    }
+
+
+    void AsyncComplete(Net::IAsync& aAsync)
+    {
+        iMutex.Wait();
+        TBool cancelled = iCancelled;
+        iMutex.Signal();
+
+        if (iCallback && !cancelled)
+        {
+            Signal();
+        }
+    }
+
+
+    void Cancel()
+    {
+        iMutex.Wait();
+        iCancelled = true;
+        iMutex.Wait();
+    }
 };
 
 
+//////////////////////////////////////////////////////////////
 
 } // Av
 } // OpenHome

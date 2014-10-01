@@ -91,19 +91,21 @@ Job* ServiceReceiverNetwork::OnSubscribe()
 
     iService->Subscribe();
 
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::OnSubscribeCallback);
+    return(iSubscribedSource->GetJob());
 
-    Job* job = iSubscribedSource->GetJob()->ContinueWith(f, NULL);
-    return(job);
+    //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::OnSubscribeCallback);
+
+    //Job* job = iSubscribedSource->GetJob()->ContinueWith(f, NULL);
+    //return(job);
     //return iSubscribedSource->GetJob()->ContinueWith((t) => { });
 }
 
-
+/*
 void ServiceReceiverNetwork::OnSubscribeCallback(void* aObj)
 {
 
 }
-
+*/
 void ServiceReceiverNetwork::OnCancelSubscribe()
 {
     if (iSubscribedSource != NULL)
@@ -119,10 +121,12 @@ void ServiceReceiverNetwork::HandleInitialEvent()
     iService->PropertyProtocolInfo(protocolInfo);
     iProtocolInfo.Replace(protocolInfo);
 
+
     if (!iSubscribedSource->GetJob()->IsCancelled())
     {
         iSubscribedSource->SetResult(true);
     }
+
 }
 
 void ServiceReceiverNetwork::OnUnsubscribe()
@@ -135,11 +139,10 @@ void ServiceReceiverNetwork::OnUnsubscribe()
     iSubscribedSource = NULL;
 }
 
-Job* ServiceReceiverNetwork::Play()
+void ServiceReceiverNetwork::Play()
 {
-    JobDone* jobDone = new JobDone();
-
-    FunctorAsync f = MakeFunctorAsync(*this, &ServiceReceiverNetwork::BeginPlayCallback);
+    Job2* job = new Job2();
+    FunctorAsync f = job->AsyncCb();
     iService->BeginPlay(f);
 
 /*
@@ -158,32 +161,14 @@ Job* ServiceReceiverNetwork::Play()
 */
 
     //jobDone->GetJob().ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-
-
-    return (jobDone->GetJob());
 }
 
 
-void ServiceReceiverNetwork::BeginPlayCallback(IAsync& aAsync)
+
+
+
+void ServiceReceiverNetwork::Play(ISenderMetadata& aMetadata)
 {
-    JobDone* jobDone = new JobDone(); // FIXME: this should be the object created in the original method
-
-    try
-    {
-        iService->EndPlay(aAsync);
-        jobDone->SetResult(true);
-    }
-    catch (Exception e)
-    {
-        jobDone->SetException(e);
-    }
-}
-
-
-Job* ServiceReceiverNetwork::Play(ISenderMetadata& aMetadata)
-{
-    JobDone* jobDone = new JobDone();
-
     FunctorAsync f = MakeFunctorAsync(*this, &ServiceReceiverNetwork::BeginSetSenderCallback);
     iService->BeginSetSender(aMetadata.Uri(), aMetadata.ToString(), f);
 
@@ -213,31 +198,23 @@ Job* ServiceReceiverNetwork::Play(ISenderMetadata& aMetadata)
     });
 */
     //jobDone->GetJob()->ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return (jobDone->GetJob());
+    //return (jobDone->GetJob());
 }
 
 
 void ServiceReceiverNetwork::BeginSetSenderCallback(IAsync& aAsync)
 {
-    JobDone* jobDone = new JobDone(); // FIXME: this should be the object created in the original method
-    try
-    {
-        iService->EndSetSender(aAsync);
-        FunctorAsync f = MakeFunctorAsync(*this, &ServiceReceiverNetwork::BeginPlayCallback);
-        iService->BeginPlay(f);
-    }
-    catch (Exception e)
-    {
-        jobDone->SetException(e);
-    }
+    Job2* job = new Job2();
+    FunctorAsync f = job->AsyncCb();
+    iService->BeginPlay(f);
 }
 
 
 
-Job* ServiceReceiverNetwork::Stop()
+void ServiceReceiverNetwork::Stop()
 {
-    JobDone* jobDone = new JobDone();
-    FunctorAsync f = MakeFunctorAsync(*this, &ServiceReceiverNetwork::BeginStopCallback);
+    Job2* job = new Job2();
+    FunctorAsync f = job->AsyncCb();
     iService->BeginStop(f);
 
 /*
@@ -255,24 +232,9 @@ Job* ServiceReceiverNetwork::Stop()
     });
 */
     //jobDone->GetJob().ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return (jobDone->GetJob());
+    //return (jobDone->GetJob());
 }
 
-
-void ServiceReceiverNetwork::BeginStopCallback(IAsync& aAsync)
-{
-    JobDone* jobDone = new JobDone(); // FIXME: this should be the object created in the original method
-
-    try
-    {
-        iService->EndStop(aAsync);
-        jobDone->SetResult(true);
-    }
-    catch (Exception e)
-    {
-        jobDone->SetException(e);
-    }
-}
 
 
 
@@ -369,9 +331,9 @@ ServiceReceiverMock::ServiceReceiverMock(INetwork& aNetwork, IInjectorDevice& aD
 }
 
 
-Job* ServiceReceiverMock::Play()
+void ServiceReceiverMock::Play()
 {
-    return(0);
+    //return(0);
 
 /*
     return Start(() =>
@@ -382,9 +344,9 @@ Job* ServiceReceiverMock::Play()
 }
 
 
-Job* ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
+void ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
 {
-    return(0); // FIXME
+    //return(0); // FIXME
 /*
     return Start(() =>
     {
@@ -394,9 +356,9 @@ Job* ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
 */
 }
 
-Job* ServiceReceiverMock::Stop()
+void ServiceReceiverMock::Stop()
 {
-    return(0); // FIXME
+    //return(0); // FIXME
 /*
     return Start(() =>
     {
@@ -495,19 +457,22 @@ IWatchable<Brn>& ProxyReceiver::TransportState()
 }
 
 
-Job* ProxyReceiver::Play()
+void ProxyReceiver::Play()
 {
-    return (iService.Play());
+    iService.Play();
+    //return (iService.Play());
 }
 
-Job* ProxyReceiver::Play(ISenderMetadata& aMetadata)
+void ProxyReceiver::Play(ISenderMetadata& aMetadata)
 {
-    return (iService.Play(aMetadata));
+    iService.Play(aMetadata);
+//    return (iService.Play(aMetadata));
 }
 
-Job* ProxyReceiver::Stop()
+void ProxyReceiver::Stop()
 {
-    return (iService.Stop());
+    iService.Stop();
+//    return (iService.Stop());
 }
 
 

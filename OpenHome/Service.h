@@ -112,8 +112,8 @@ protected:
 
 
     virtual Job* OnSubscribe();
-    Job* Start(FunctorGeneric<void*> aAction, void* aObj);
-    JobDone* Start();
+    Job* Start(FunctorGeneric<void*> aAction);
+    //JobDone* Start();
     //Task<T> Start<T>(Func<T> aFunction);
     virtual void OnCancelSubscribe();
     virtual void OnUnsubscribe();
@@ -121,7 +121,10 @@ protected:
 private:
     //void HandleAggregate(AggregateException aException);
     void DisposeCallback(void*);
-    void CreateCallback(void*);
+    void CreateCallback(void* aArgs);
+    void CreateCallbackCallback(void* aArgs);
+    void StartCallback(void* aArgs);
+    void StartCallbackCallback(void* aArgs);
 
 
 
@@ -136,6 +139,7 @@ private:
     //CancellationTokenSource iCancelSubscribe;
     std::vector<Job*> iJobs;
     TUint iRefCount;
+    mutable Mutex iMutexJobs;
 };
 
 

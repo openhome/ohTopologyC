@@ -10,10 +10,11 @@ Service::Service(INetwork& aNetwork, IInjectorDevice* aDevice, ILog& aLog)
     :iNetwork(aNetwork)
     ,iLog(aLog)
     ,iDisposeHandler(new DisposeHandler())
-    ,iDevice(aDevice)
     //,iCancelSubscribe(new CancellationTokenSource())
+    ,iSubscribeTask(NULL)
+    ,iDevice(aDevice)
     ,iRefCount(0)
-//    ,iSubscribeTask(NULL);
+    ,iMutexJobs("JOBX")
 {
 }
 
@@ -30,7 +31,7 @@ void Service::Dispose()
     // wait for any inflight subscriptions to complete
     if (iSubscribeTask != NULL)
     {
-
+        iSubscribeTask->Wait();
 /*
         try
         {
@@ -127,6 +128,13 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceTyp
             });
         });
 */
+
+        ArgsTwo<FunctorGeneric<void*>, IDevice*>* args = new ArgsTwo<FunctorGeneric<void*>, IDevice*>(aCallback, aDevice);
+
+        FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::CreateCallback);
+
+        iSubscribeTask = iSubscribeTask->ContinueWith(f, args);
+
     }
     else
 
@@ -135,20 +143,54 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceTyp
         ArgsTwo<IDevice*, IProxy*>* args = new ArgsTwo<IDevice*, IProxy*>(aDevice, product);
         aCallback(args);
     }
+}
 
 
+
+void Service::CreateCallback(void* aArgs)
+//void Service::CreateCallback(ArgsTwo<FunctorGeneric<void*>, IDevice*>* aArgs)
+{
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::CreateCallbackCallback);
+    iNetwork.Schedule(f, aArgs);
+}
+
+
+void Service::CreateCallbackCallback(void* aArgs)
+//void Service::CreateCallbackCallback(ArgsTwo<FunctorGeneric<void*>, IDevice*>* aArgs)
+{
+    ArgsTwo<FunctorGeneric<void*>, IDevice*>* args = (ArgsTwo<FunctorGeneric<void*>, IDevice*>*)aArgs;
+
+    FunctorGeneric<void*> callback = args->Arg1();
+    IDevice* device = args->Arg2();
+
+    callback(OnCreate(device));
+/*
+    if (t.Exception == NULL && !iCancelSubscribe.IsCancellationRequested)
+    {
+        callback(OnCreate(device));
+    }
+    else
+    {
+        --iRefCount;
+        if (iRefCount == 0)
+        {
+            iSubscribeTask = NULL;
+        }
+    }
+*/
 }
 
 
 Job* Service::OnSubscribe()
 {
-    return NULL;
+    return(NULL);
 }
 
 
 void Service::OnCancelSubscribe()
 {
 }
+
 
 void Service::OnUnsubscribe()
 {
@@ -165,16 +207,16 @@ void Service::Unsubscribe()
         OnUnsubscribe();
         if (iSubscribeTask != NULL)
         {
-/*
-            try
-            {
+
+            //try
+            //{
                 iSubscribeTask->Wait();
-            }
-            catch (AggregateException ex)
-            {
-                HandleAggregate(ex);
-            }
-*/
+            //}
+            //catch (AggregateException ex)
+            //{
+            //    HandleAggregate(ex);
+            //}
+
             iSubscribeTask = NULL;
 
         }
@@ -183,10 +225,18 @@ void Service::Unsubscribe()
 }
 
 
-/*
-Task Service::Start(FunctorGeneric<void*> aAction)
-{
 
+Job* Service::Start(FunctorGeneric<void*> aAction)
+{
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::StartCallback);
+    Job* job = Job::StartNew(f, &aAction);
+
+    AutoMutex mutex(iMutexJobs);
+    iJobs.push_back(job);
+    return(job);
+
+
+/*
     var task = Task.Factory.StartNew(() =>
     {
         iNetwork.Schedule(() =>
@@ -195,15 +245,31 @@ Task Service::Start(FunctorGeneric<void*> aAction)
         });
     });
 
+
     lock (iTasks)
     {
         iTasks.Add(task);
     }
 
-
     return (task);
+*/
 }
 
+
+void Service::StartCallback(void* aArg)
+{
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::StartCallbackCallback);
+    iNetwork.Schedule(f, aArg);
+}
+
+
+void Service::StartCallbackCallback(void* aArg)
+{
+    FunctorGeneric<void*> action = *((FunctorGeneric<void*>*)aArg);
+    action(NULL);
+}
+
+/*
 Task<T> Service::Start<T>(Func<T> aFunction)
 {
 
@@ -227,6 +293,7 @@ Task<T> Service::Start<T>(Func<T> aFunction)
     return (task);
 }
 */
+
 
 TBool Service::Wait()
 {

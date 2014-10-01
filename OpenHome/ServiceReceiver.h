@@ -29,9 +29,9 @@ public:
     virtual IWatchable<IInfoMetadata*>& Metadata() = 0;
     virtual IWatchable<Brn>& TransportState() = 0;
 
-    virtual Job* Play() = 0;
-    virtual Job* Play(ISenderMetadata& aMetadata) = 0;
-    virtual Job* Stop() = 0;
+    virtual void Play() = 0;
+    virtual void Play(ISenderMetadata& aMetadata) = 0;
+    virtual void Stop() = 0;
 
 };
 
@@ -48,9 +48,9 @@ public:
 
     virtual const Brx& ProtocolInfo();
 
-    virtual Job* Play() = 0;
-    virtual Job* Play(ISenderMetadata& aMetadata) = 0;
-    virtual Job* Stop() = 0;
+    virtual void Play() = 0;
+    virtual void Play(ISenderMetadata& aMetadata) = 0;
+    virtual void Stop() = 0;
 
 protected:
     ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
@@ -70,9 +70,9 @@ class ServiceReceiverNetwork : public ServiceReceiver
 public:
     ServiceReceiverNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
     virtual void Dispose();
-    virtual Job* Play();
-    virtual Job* Play(ISenderMetadata& aMetadata);
-    virtual Job* Stop();
+    virtual void Play();
+    virtual void Play(ISenderMetadata& aMetadata);
+    virtual void Stop();
 
 protected:
     virtual Job* OnSubscribe();
@@ -111,9 +111,9 @@ public:
 
     virtual void Execute(ICommandTokens& aValue);
 
-    virtual Job* Play();
-    virtual Job* Play(ISenderMetadata& aMetadata);
-    virtual Job* Stop();
+    virtual void Play();
+    virtual void Play(ISenderMetadata& aMetadata);
+    virtual void Stop();
 };
 
 //////////////////////////////////////////////////////////////
@@ -127,9 +127,9 @@ public:
     virtual IWatchable<IInfoMetadata*>& Metadata();
     virtual IWatchable<Brn>& TransportState();
 
-    virtual Job* Play();
-    virtual Job* Play(ISenderMetadata& aMetadata);
-    virtual Job* Stop();
+    virtual void Play();
+    virtual void Play(ISenderMetadata& aMetadata);
+    virtual void Stop();
 
     // IProxyReceiver
     virtual IDevice& Device();

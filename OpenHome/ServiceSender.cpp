@@ -115,17 +115,13 @@ Job* ServiceSenderNetwork::OnSubscribe()
 
     iService->Subscribe();
 
+    return(iSubscribedSource->GetJob());
 
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::OnSubscribeCallback);
-    Job* job = iSubscribedSource->GetJob()->ContinueWith(f, NULL);
+
+    //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::OnSubscribeCallback);
+    //Job* job = iSubscribedSource->GetJob()->ContinueWith(f, NULL);
     //return iSubscribedSource->GetJob()->ContinueWith((t) => { });
-    return(job);
-}
-
-
-void ServiceSenderNetwork::OnSubscribeCallback(void* /*aObj*/)
-{
-
+    //return(job);
 }
 
 
