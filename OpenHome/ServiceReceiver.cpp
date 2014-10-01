@@ -198,7 +198,7 @@ void ServiceReceiverNetwork::Play(ISenderMetadata& aMetadata)
 }
 
 
-void ServiceReceiverNetwork::BeginSetSenderCallback(IAsync& aAsync)
+void ServiceReceiverNetwork::BeginSetSenderCallback(IAsync& /*aAsync*/)
 {
     Job2* job = new Job2();
     FunctorAsync f = job->AsyncCb();

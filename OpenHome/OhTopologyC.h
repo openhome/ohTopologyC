@@ -44,7 +44,7 @@ class FunctorGeneric
 {
 public:
     void operator()(Type aType) const { iThunk(*this, aType); }
-    operator TBool() const { return (iObject); }
+    operator TBool() const { return (iObject!=NULL); }
     typedef TAny (FunctorGeneric::*MemberFunction)();
     static const TUint kFudgeFactor = 2;
 

@@ -124,7 +124,7 @@ public:
     }
 
 
-    void AsyncComplete(Net::IAsync& aAsync)
+    void AsyncComplete(Net::IAsync& /*aAsync*/)
     {
         iMutex.Wait();
         TBool cancelled = iCancelled;
