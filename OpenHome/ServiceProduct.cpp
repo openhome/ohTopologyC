@@ -423,7 +423,7 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
 
 
 
-Job* ServiceProductMock::SetSourceIndex(TUint aValue)
+Job* ServiceProductMock::SetSourceIndex(TUint /*aValue*/)
 {
     return(0);
 
@@ -448,13 +448,13 @@ void ServiceProductMock::SetSourceIndexCallback(void* aObj)
 
 
 
-Job* ServiceProductMock::SetSourceIndexByName(const Brx& aValue)
+Job* ServiceProductMock::SetSourceIndexByName(const Brx& /*aValue*/)
 {
     THROW(NotSupportedException);
 }
 
 
-Job* ServiceProductMock::SetStandby(TBool aValue)
+Job* ServiceProductMock::SetStandby(TBool /*aValue*/)
 {
     return(0);
 

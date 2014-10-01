@@ -99,7 +99,7 @@ Job* ServiceReceiverNetwork::OnSubscribe()
 }
 
 
-void ServiceReceiverNetwork::OnSubscribeCallback(void* aObj)
+void ServiceReceiverNetwork::OnSubscribeCallback(void* /*aObj*/)
 {
 
 }
@@ -372,7 +372,6 @@ ServiceReceiverMock::ServiceReceiverMock(INetwork& aNetwork, IInjectorDevice& aD
 Job* ServiceReceiverMock::Play()
 {
     return(0);
-
 /*
     return Start(() =>
     {
@@ -382,9 +381,9 @@ Job* ServiceReceiverMock::Play()
 }
 
 
-Job* ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
+Job* ServiceReceiverMock::Play(ISenderMetadata& /*aMetadata*/)
 {
-    return(0); // FIXME
+    return(0);
 /*
     return Start(() =>
     {
@@ -396,7 +395,7 @@ Job* ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
 
 Job* ServiceReceiverMock::Stop()
 {
-    return(0); // FIXME
+    return(0);
 /*
     return Start(() =>
     {

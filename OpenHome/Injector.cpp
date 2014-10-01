@@ -64,7 +64,7 @@ IInjectorDevice* Injector::Create(INetwork& aNetwork, CpDevice& aDevice)
 }
 
 
-TBool Injector::FilterOut(CpDevice& aCpDevice)
+TBool Injector::FilterOut(CpDevice& /*aCpDevice*/)
 {
     return false;
 }
