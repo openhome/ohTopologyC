@@ -7,11 +7,11 @@ suiteRunner = MakeSuiteRunner(context)
 tests = '''
     TestWatchableThread
     TestWatchable
-    #TestTopology1 -s {ws_hostname} -p {ws_port} --path Topology1TestScript.txt
-    #TestTopology2 -s {ws_hostname} -p {ws_port} --path Topology2TestScript.txt
-    #TestTopology3 -s {ws_hostname} -p {ws_port} --path Topology3TestScript.txt
-    #TestTopology4 -s {ws_hostname} -p {ws_port} --path Topology4TestScript.txt
-    #TestTopology5 -s {ws_hostname} -p {ws_port} --path Topology5TestScript.txt
+    TestTopology1 -s {ws_hostname} -p {ws_port} --path Topology1TestScript.txt
+    TestTopology2 -s {ws_hostname} -p {ws_port} --path Topology2TestScript.txt
+    TestTopology3 -s {ws_hostname} -p {ws_port} --path Topology3TestScript.txt
+    TestTopology4 -s {ws_hostname} -p {ws_port} --path Topology4TestScript.txt
+    TestTopology5 -s {ws_hostname} -p {ws_port} --path Topology5TestScript.txt
     '''
 
 w = StaticWebServer('TestScripts')
