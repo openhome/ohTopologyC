@@ -17,33 +17,42 @@ ServiceReceiver::ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, I
 {
 }
 
+
+ServiceReceiver::~ServiceReceiver()
+{
+    delete iMetadata;
+    delete iTransportState;
+    delete iCurrentMetadata;
+    iMetadata = NULL;
+    iTransportState = NULL;
+    iCurrentMetadata = NULL;
+}
+
 void ServiceReceiver::Dispose()
 {
     Service::Dispose();
     iMetadata->Dispose();
     iTransportState->Dispose();
-    //delete iMetadata;
-    //delete iTransportState;
-    //delete iCurrentMetadata;
-    //iMetadata = NULL;
-    //iTransportState = NULL;
-	//iCurrentMetadata = NULL;
 }
+
 
 IProxy* ServiceReceiver::OnCreate(IDevice* aDevice)
 {
     return(new ProxyReceiver(*this, *aDevice));
 }
 
+
 IWatchable<IInfoMetadata*>& ServiceReceiver::Metadata()
 {
     return(*iMetadata);
 }
 
+
 IWatchable<Brn>& ServiceReceiver::TransportState()
 {
     return(*iTransportState);
 }
+
 
 const Brx& ServiceReceiver::ProtocolInfo()
 {

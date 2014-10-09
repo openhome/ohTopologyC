@@ -87,6 +87,8 @@ public:
 class Service : public IService, public IWatchableThread, public INonCopyable
 {
 public:
+    ~Service();
+
     virtual TBool Wait();
     virtual void Unsubscribe();
     virtual IInjectorDevice& Device();
@@ -109,7 +111,6 @@ public:
 
 protected:
     Service(INetwork& aNetwork, IInjectorDevice* aDevice, ILog& aLog);
-
 
     virtual Job* OnSubscribe();
     Job* Start(FunctorGeneric<void*> aAction);

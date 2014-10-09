@@ -19,12 +19,18 @@ Service::Service(INetwork& aNetwork, IInjectorDevice* aDevice, ILog& aLog)
 }
 
 
+Service::~Service()
+{
+    delete iDisposeHandler;
+}
+
+
 void Service::Dispose()
 {
     Assert();
 
     iDisposeHandler->Dispose();
-    delete iDisposeHandler;
+    //delete iDisposeHandler;
     //iCancelSubscribe.Cancel();
     OnCancelSubscribe();
 
@@ -55,10 +61,10 @@ void Service::Dispose()
 
 void Service::DisposeCallback(void*)
 {
-	if (iRefCount != 0)
-	{
-		ASSERTS();
-	}
+    if (iRefCount != 0)
+    {
+        ASSERTS();
+    }
 }
 
 /*

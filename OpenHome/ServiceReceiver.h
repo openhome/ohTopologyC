@@ -40,6 +40,7 @@ public:
 class ServiceReceiver : public Service
 {
 public:
+    ~ServiceReceiver();
     virtual void Dispose();
     virtual IProxy* OnCreate(IDevice* aDevice);
 

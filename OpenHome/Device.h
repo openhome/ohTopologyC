@@ -43,6 +43,8 @@ class Device : public IDevice, public IDisposable, public INonCopyable
 {
 public:
     Device(IInjectorDevice* aDevice);
+    ~Device();
+
     virtual Brn Udn();
 
     // IDevice
@@ -68,6 +70,7 @@ class InjectorDevice : public IInjectorDevice
 {
 public:
     InjectorDevice(const Brx& aUdn);
+    ~InjectorDevice();
 
     virtual void Join(Functor aAction);
     virtual void Unjoin(Functor aAction);

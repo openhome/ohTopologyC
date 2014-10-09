@@ -19,10 +19,23 @@ ServiceProduct::ServiceProduct(INetwork& aNetwork, IInjectorDevice& aDevice, ILo
     ,iSourceIndex(new Watchable<TUint>(aNetwork, Brn("SourceIndex"), 0))
     ,iSourceXml(new Watchable<Brn>(aNetwork, Brn("SourceXml"), Brx::Empty()))
     ,iStandby(new Watchable<TBool>(aNetwork, Brn("Standby"), false))
-	,iCurrentRoom(NULL)
-	,iCurrentName(NULL)
+    ,iCurrentRoom(NULL)
+    ,iCurrentName(NULL)
 {
 }
+
+
+ServiceProduct::~ServiceProduct()
+{
+    delete iCurrentRoom;
+    delete iCurrentName;
+    delete iRoom;
+    delete iName;
+    delete iSourceIndex;
+    delete iSourceXml;
+    delete iStandby;
+}
+
 
 
 void ServiceProduct::Dispose()
@@ -33,14 +46,6 @@ void ServiceProduct::Dispose()
     iSourceIndex->Dispose();
     iSourceXml->Dispose();
     iStandby->Dispose();
-
-    delete iCurrentRoom;
-    delete iCurrentName;
-    delete iRoom;
-    delete iName;
-    delete iSourceIndex;
-    delete iSourceXml;
-    delete iStandby;
 }
 
 
@@ -505,13 +510,13 @@ void ServiceProductNetwork::SetStandby(TBool aValue)
 
 void ServiceProductNetwork::HandleRoomChanged()
 {
-	FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::RoomChangedCallback);
-	iNetwork.Schedule(f, NULL);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::RoomChangedCallback);
+    iNetwork.Schedule(f, NULL);
 /*
     string room;
     iService->PropertyProductRoom(room);
 
-	iNetwork.Schedule(() =>
+    iNetwork.Schedule(() =>
     {
         iDisposeHandler.WhenNotDisposed(() =>
         {
@@ -524,22 +529,22 @@ void ServiceProductNetwork::HandleRoomChanged()
 
 void ServiceProductNetwork::RoomChangedCallback(void*)
 {
-	FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::RoomChangedCallbackCallback);
-	iDisposeHandler->WhenNotDisposed(f, NULL);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::RoomChangedCallbackCallback);
+    iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
 
 void ServiceProductNetwork::RoomChangedCallbackCallback(void*)
 {
-	Brhz room;
-	iService->PropertyProductRoom(room);
-	iRoom->Update(Brn(room));
+    Brhz room;
+    iService->PropertyProductRoom(room);
+    iRoom->Update(Brn(room));
 }
 
 void ServiceProductNetwork::HandleNameChanged()
 {
-	FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::NameChangedCallback);
-	iNetwork.Schedule(f, NULL);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::NameChangedCallback);
+    iNetwork.Schedule(f, NULL);
 /*
     string name;
     iService->PropertyProductName(name);
@@ -557,30 +562,30 @@ void ServiceProductNetwork::HandleNameChanged()
 
 void ServiceProductNetwork::NameChangedCallback(void*)
 {
-	FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::NameChangedCallbackCallback);
-	iDisposeHandler->WhenNotDisposed(f, NULL);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::NameChangedCallbackCallback);
+    iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
 
 void ServiceProductNetwork::NameChangedCallbackCallback(void*)
 {
-	Brhz name;
+    Brhz name;
     iService->PropertyProductName(name);
-	iName->Update(Brn(name));
+    iName->Update(Brn(name));
 }
 
 
 
 void ServiceProductNetwork::HandleSourceIndexChanged()
 {
-	FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceIndexChangedCallback);
-	iNetwork.Schedule(f, NULL);
-		
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceIndexChangedCallback);
+    iNetwork.Schedule(f, NULL);
+
 /*
     TUint sourceIndex;
     iService->PropertySourceIndex(sourceIndex);
 
-	iNetwork.Schedule(() =>
+    iNetwork.Schedule(() =>
     {
         iDisposeHandler.WhenNotDisposed(() =>
         {
@@ -592,8 +597,8 @@ void ServiceProductNetwork::HandleSourceIndexChanged()
 
 void ServiceProductNetwork::SourceIndexChangedCallback(void*)
 {
-	FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceIndexChangedCallbackCallback);
-	iDisposeHandler->WhenNotDisposed(f, NULL);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceIndexChangedCallbackCallback);
+    iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
 
@@ -601,19 +606,19 @@ void ServiceProductNetwork::SourceIndexChangedCallbackCallback(void*)
 {
     TUint sourceIndex;
     iService->PropertySourceIndex(sourceIndex);
-	iSourceIndex->Update(sourceIndex);
+    iSourceIndex->Update(sourceIndex);
 }
 
 
 void ServiceProductNetwork::HandleSourceXmlChanged()
 {
-	FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceXmlChangedCallback);
-	iNetwork.Schedule(f, NULL);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceXmlChangedCallback);
+    iNetwork.Schedule(f, NULL);
 /*
     string sourceXml;
     iService->PropertySourceXml(sourceXml);
 
-	iNetwork.Schedule(() =>
+    iNetwork.Schedule(() =>
     {
         iDisposeHandler.WhenNotDisposed(() =>
         {
@@ -626,23 +631,23 @@ void ServiceProductNetwork::HandleSourceXmlChanged()
 
 void ServiceProductNetwork::SourceXmlChangedCallback(void*)
 {
-	FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceXmlChangedCallbackCallback);
-	iDisposeHandler->WhenNotDisposed(f, NULL);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceXmlChangedCallbackCallback);
+    iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
 void ServiceProductNetwork::SourceXmlChangedCallbackCallback(void*)
 {
-	Brhz sourceXml;
-	iService->PropertySourceXml(sourceXml);
-	iSourceXml->Update(Brn(sourceXml));
+    Brhz sourceXml;
+    iService->PropertySourceXml(sourceXml);
+    iSourceXml->Update(Brn(sourceXml));
 }
 
 void ServiceProductNetwork::HandleStandbyChanged()
 {
-	FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::StandbyChangedCallback);
-	iNetwork.Schedule(f, NULL);
-/*	
-	TBool standby;
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::StandbyChangedCallback);
+    iNetwork.Schedule(f, NULL);
+/*
+    TBool standby;
     iService->PropertyStandby(standby);
 
     iNetwork.Schedule(() =>
@@ -657,15 +662,15 @@ void ServiceProductNetwork::HandleStandbyChanged()
 
 void ServiceProductNetwork::StandbyChangedCallback(void*)
 {
-	FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::StandbyChangedCallbackCallback);
-	iDisposeHandler->WhenNotDisposed(f, NULL);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::StandbyChangedCallbackCallback);
+    iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
 void ServiceProductNetwork::StandbyChangedCallbackCallback(void*)
 {
-	TBool standby;
+    TBool standby;
     iService->PropertyStandby(standby);
-	iStandby->Update(standby);
+    iStandby->Update(standby);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -103,6 +103,7 @@ class ServiceProduct : public Service
 {
 protected:
     ServiceProduct(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
+    ~ServiceProduct();
 
 public:
     virtual void Dispose();
@@ -263,16 +264,16 @@ private:
     void BeginSetStandbyCallback(Net::IAsync& aAsync);
     void BeginSetSourceIndexByNameCallback(Net::IAsync& aAsync);
 
-	void RoomChangedCallback(void*);
-	void RoomChangedCallbackCallback(void*);
-	void NameChangedCallback(void*);
-	void NameChangedCallbackCallback(void*);
-	void SourceIndexChangedCallback(void*);
-	void SourceIndexChangedCallbackCallback(void*);
-	void SourceXmlChangedCallback(void*);
-	void SourceXmlChangedCallbackCallback(void*);
-	void StandbyChangedCallback(void*);
-	void StandbyChangedCallbackCallback(void*);
+    void RoomChangedCallback(void*);
+    void RoomChangedCallbackCallback(void*);
+    void NameChangedCallback(void*);
+    void NameChangedCallbackCallback(void*);
+    void SourceIndexChangedCallback(void*);
+    void SourceIndexChangedCallbackCallback(void*);
+    void SourceXmlChangedCallback(void*);
+    void SourceXmlChangedCallbackCallback(void*);
+    void StandbyChangedCallback(void*);
+    void StandbyChangedCallbackCallback(void*);
 
 
 private:

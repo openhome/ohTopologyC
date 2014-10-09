@@ -115,6 +115,16 @@ InjectorMock::InjectorMock(Network& aNetwork, const Brx& /*aResourceRoot*/, ILog
 }
 
 
+InjectorMock::~InjectorMock()
+{
+    map<Brn, InjectorDeviceMock*, BufferCmp>::iterator it;
+    for(it=iMockDevices.begin();it!=iMockDevices.end();it++)
+    {
+        delete it->second;
+    }
+}
+
+
 void InjectorMock::Dispose()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &InjectorMock::DisposeCallback);
@@ -125,7 +135,6 @@ void InjectorMock::Dispose()
 void InjectorMock::DisposeCallback(void*)
 {
     map<Brn, InjectorDeviceMock*, BufferCmp>::iterator it;
-
     for(it=iMockDevices.begin();it!=iMockDevices.end();it++)
     {
         it->second->Dispose();
@@ -253,7 +262,7 @@ void InjectorMock::CreateAndAdd(IInjectorDevice* aDevice)
 {
     InjectorDeviceMock* device = Create(aDevice);
     IInjectorDevice* dev = device->On();
-	iNetwork.Add(dev);
+    iNetwork.Add(dev);
 }
 
 /////////////////////////////////////////////////////////////////

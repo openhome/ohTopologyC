@@ -20,6 +20,12 @@ Device::Device(IInjectorDevice* aDevice)
 }
 
 
+Device::~Device()
+{
+    delete iDevice;
+}
+
+
 Brn Device::Udn()
 {
     DisposeLock lock(*iDisposeHandler);
@@ -140,7 +146,9 @@ InjectorDeviceMock::InjectorDeviceMock(IInjectorDevice* aDevice)
 
 InjectorDeviceMock::~InjectorDeviceMock()
 {
+    delete iDevice;
 }
+
 
 
 IInjectorDevice* InjectorDeviceMock::On()
@@ -199,11 +207,23 @@ InjectorDevice::InjectorDevice(const Brx& aUdn)
 
 }
 
+InjectorDevice::~InjectorDevice()
+{
+    delete iDisposeHandler;
+    map<EServiceType, Service*>::iterator it;
+    for (it=iServices.begin(); it!=iServices.end(); it++)
+    {
+        Service* service = it->second;
+        delete service;
+    }
+}
+
 void InjectorDevice::Join(Functor aAction)
 {
     DisposeLock lock(*iDisposeHandler);
     iJoiners.push_back(aAction);
 }
+
 
 void InjectorDevice::Unjoin(Functor aAction)
 {
@@ -212,6 +232,7 @@ void InjectorDevice::Unjoin(Functor aAction)
     ASSERT(it != iJoiners.end());
     iJoiners.erase(it);
 }
+
 
 Brn InjectorDevice::Udn()
 {
@@ -327,7 +348,7 @@ void InjectorDevice::Dispose()
         //delete it->second;
     }
 
-    delete iDisposeHandler;
+    //delete iDisposeHandler;
 }
 
 

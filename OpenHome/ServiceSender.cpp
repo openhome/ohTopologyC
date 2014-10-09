@@ -18,17 +18,13 @@ ServiceSender::ServiceSender(INetwork& aNetwork, IInjectorDevice& aDevice, ILog&
     ,iAudio(new Watchable<TBool>(aNetwork, Brn("Audio"), false))
     ,iMetadata(new Watchable<ISenderMetadata*>(aNetwork, Brn("Metadata"), SenderMetadata::Empty()))
     ,iStatus(new Watchable<Brn>(aNetwork, Brn("Status"), Brx::Empty()))
-	,iCurrentMetadata(NULL)
+    ,iCurrentMetadata(NULL)
 {
 }
 
 
-void ServiceSender::Dispose()
+ServiceSender::~ServiceSender()
 {
-    Service::Dispose();
-    iAudio->Dispose();
-    iMetadata->Dispose();
-    iStatus->Dispose();
     delete iAudio;
     delete iMetadata;
     delete iStatus;
@@ -40,30 +36,45 @@ void ServiceSender::Dispose()
     iCurrentMetadata = NULL;
 }
 
+
+void ServiceSender::Dispose()
+{
+    Service::Dispose();
+    iAudio->Dispose();
+    iMetadata->Dispose();
+    iStatus->Dispose();
+}
+
+
 IProxy* ServiceSender::OnCreate(IDevice* aDevice)
 {
     return(new ProxySender(*this, *aDevice));
 }
+
 
 IWatchable<TBool>& ServiceSender::Audio()
 {
     return(*iAudio);
 }
 
+
 IWatchable<ISenderMetadata*>& ServiceSender::Metadata()
 {
     return(*iMetadata);
 }
+
 
 IWatchable<Brn>& ServiceSender::Status()
 {
     return(*iStatus);
 }
 
+
 const Brx& ServiceSender::Attributes()
 {
     return iAttributes;
 }
+
 
 const Brx& ServiceSender::PresentationUrl()
 {
