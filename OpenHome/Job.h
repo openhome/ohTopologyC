@@ -36,12 +36,11 @@ public:
 private:
     void Run();
     void Continue();
-    void SetComplete();
 
 private:
     FunctorGeneric<void*> iAction;
     void* iActionArg;
-    Functor iCancellation;
+    //Functor iCancellation;
     ThreadFunctor* iThread;
     Job* iJobContinue;
     Semaphore iSem;
@@ -113,7 +112,10 @@ public:
     void Run()
     {
         Wait();
-        ASSERT(iCallback);
+		if (!iCallback)
+		{
+			ASSERTS();
+		}
         iCallback(iCbArg);
     }
 

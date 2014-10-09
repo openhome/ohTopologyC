@@ -13,13 +13,14 @@ using namespace OpenHome::Av;
 Job::Job(FunctorGeneric<void*> aAction, void* aObj)
     :iAction(aAction)
     ,iActionArg(aObj)
+	,iJobContinue(NULL)
     ,iSem("TKSM", 0)
     ,iMutex("TKMX")
     ,iStarted(false)
     ,iCompleted(false)
     ,iCancelled(false)
 {
-    iThread = new ThreadFunctor("JOB", MakeFunctor(*this, &Job::Run) );
+	iThread = new ThreadFunctor("JOB", MakeFunctor(*this, &Job::Run) );
     iThread->Start();
 }
 
@@ -27,8 +28,12 @@ Job::Job(FunctorGeneric<void*> aAction, void* aObj)
 void Job::Start()
 {
     AutoMutex mutex(iMutex);
-    ASSERT(!iStarted);
-    iSem.Signal();
+    if (iStarted)
+	{
+		ASSERTS();
+	}
+    
+	iSem.Signal();
     iStarted = true;
 }
 
@@ -50,7 +55,7 @@ void Job::Run()
 
 void Job::Continue()
 {
-    AutoMutex mutex(iMutex);
+    //AutoMutex mutex(iMutex);
     if (iJobContinue!=NULL)
     {
         iJobContinue->Start();
@@ -94,10 +99,5 @@ Job* Job::StartNew(FunctorGeneric<void*> aAction, void* aObj)
     return(new Job(aAction, aObj));
 }
 
-void Job::SetComplete()
-{
-
-
-}
 
 //////////////////////////////////////////////////////////

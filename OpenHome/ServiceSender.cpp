@@ -18,6 +18,7 @@ ServiceSender::ServiceSender(INetwork& aNetwork, IInjectorDevice& aDevice, ILog&
     ,iAudio(new Watchable<TBool>(aNetwork, Brn("Audio"), false))
     ,iMetadata(new Watchable<ISenderMetadata*>(aNetwork, Brn("Metadata"), SenderMetadata::Empty()))
     ,iStatus(new Watchable<Brn>(aNetwork, Brn("Status"), Brx::Empty()))
+	,iCurrentMetadata(NULL)
 {
 }
 
@@ -76,6 +77,7 @@ const Brx& ServiceSender::PresentationUrl()
 ServiceSenderNetwork::ServiceSenderNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
     :ServiceSender(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
+    ,iSubscribedSource(NULL)
 {
     iCpDevice.AddRef();
 

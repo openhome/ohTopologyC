@@ -22,11 +22,12 @@ void ServiceReceiver::Dispose()
     Service::Dispose();
     iMetadata->Dispose();
     iTransportState->Dispose();
-    delete iMetadata;
-    delete iTransportState;
-    delete iCurrentMetadata;
-    iMetadata = NULL;
-    iTransportState = NULL;
+    //delete iMetadata;
+    //delete iTransportState;
+    //delete iCurrentMetadata;
+    //iMetadata = NULL;
+    //iTransportState = NULL;
+	//iCurrentMetadata = NULL;
 }
 
 IProxy* ServiceReceiver::OnCreate(IDevice* aDevice)
@@ -56,6 +57,7 @@ const Brx& ServiceReceiver::ProtocolInfo()
 ServiceReceiverNetwork::ServiceReceiverNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
     :ServiceReceiver(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
+    ,iSubscribedSource(NULL)
 {
     iCpDevice.AddRef();
 

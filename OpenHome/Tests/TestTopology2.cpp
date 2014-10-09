@@ -261,8 +261,8 @@ void SuiteTopology2::Test1()
 
 
     iTopology2->Dispose();
-    network->Dispose();
     mockInjector->Dispose();
+    network->Dispose();
 
     delete watcher;
     delete mocker;

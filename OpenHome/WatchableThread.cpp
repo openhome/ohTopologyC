@@ -85,7 +85,14 @@ void WatchableThread::Schedule(FunctorGeneric<void*> aCallback, void* aObj)
 {
     // Add the callback to queue of callbacks to be run on the WT.
     // Don't wait on the callback being run
-    SignalledCallback* callback = iFree.Read();
+    if (IsWatchableThread())
+	{
+		if(iFree.SlotsUsed()==0)
+		{
+			ASSERTS();
+		}
+	}
+	SignalledCallback* callback = iFree.Read();
     callback->Set(aCallback, aObj);
     iScheduled.Write(callback);
 }

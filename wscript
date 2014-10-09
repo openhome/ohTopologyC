@@ -178,6 +178,7 @@ def build(bld):
                 'OpenHome/Tests/TestTopology3.cpp',
                 'OpenHome/Tests/TestTopology4.cpp',
                 'OpenHome/Tests/TestTopology5.cpp',
+                'OpenHome/Tests/TestTopologyManual.cpp',
                 'OpenHome/Tests/TestShell.cpp',
             ],
             use=['ohTopologyC'],
@@ -217,6 +218,11 @@ def build(bld):
            source='OpenHome/Tests/TestTopology5Main.cpp',
            use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
            target='TestTopology5')
+
+    bld.program(
+           source='OpenHome/Tests/TestTopologyManualMain.cpp',
+           use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
+           target='TestTopologyManual')
 
     bld.program(
            source='OpenHome/Tests/TestShellMain.cpp',

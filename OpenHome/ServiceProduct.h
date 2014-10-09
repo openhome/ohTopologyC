@@ -138,7 +138,7 @@ public:
 
 
 protected:
-    Bws<100> iAttributes;
+    Bws<200> iAttributes;
     Bws<100> iManufacturerImageUri;
     Bws<100> iManufacturerInfo;
     Bws<100> iManufacturerName;
@@ -262,7 +262,18 @@ private:
     void BeginSetSourceIndexCallback(Net::IAsync& aValue);
     void BeginSetStandbyCallback(Net::IAsync& aAsync);
     void BeginSetSourceIndexByNameCallback(Net::IAsync& aAsync);
-    void DoNothing(void* aObj);
+
+	void RoomChangedCallback(void*);
+	void RoomChangedCallbackCallback(void*);
+	void NameChangedCallback(void*);
+	void NameChangedCallbackCallback(void*);
+	void SourceIndexChangedCallback(void*);
+	void SourceIndexChangedCallbackCallback(void*);
+	void SourceXmlChangedCallback(void*);
+	void SourceXmlChangedCallbackCallback(void*);
+	void StandbyChangedCallback(void*);
+	void StandbyChangedCallbackCallback(void*);
+
 
 private:
     Net::CpDevice& iCpDevice;

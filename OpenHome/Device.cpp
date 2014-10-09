@@ -56,7 +56,7 @@ void Device::Dispose()
     iDevice->Dispose();
 
     delete iDisposeHandler;
-    delete iDevice;
+    //delete iDevice;
 }
 
 
@@ -163,7 +163,7 @@ IInjectorDevice* InjectorDeviceMock::Off()
 void InjectorDeviceMock::Dispose()
 {
     iDevice->Dispose();
-    delete iDevice;
+    //delete iDevice;
 }
 
 
@@ -322,8 +322,9 @@ void InjectorDevice::Dispose()
     map<EServiceType, Service*>::iterator it;
     for (it=iServices.begin(); it!=iServices.end(); it++)
     {
-        it->second->Dispose();
-        delete it->second;
+        Service* service = it->second;
+        service->Dispose();
+        //delete it->second;
     }
 
     delete iDisposeHandler;

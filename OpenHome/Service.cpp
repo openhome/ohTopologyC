@@ -55,7 +55,10 @@ void Service::Dispose()
 
 void Service::DisposeCallback(void*)
 {
-    ASSERT(iRefCount == 0);
+	if (iRefCount != 0)
+	{
+		ASSERTS();
+	}
 }
 
 /*
@@ -92,7 +95,7 @@ IInjectorDevice& Service::Device()
 
 void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceType*/, IDevice* aDevice)
 {
-    Assert();
+    Assert(); // check we're on watchable thread
 
     DisposeLock lock(*iDisposeHandler);
 
@@ -137,7 +140,6 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceTyp
 
     }
     else
-
     {
         IProxy* product = OnCreate(aDevice);
         ArgsTwo<IDevice*, IProxy*>* args = new ArgsTwo<IDevice*, IProxy*>(aDevice, product);
@@ -162,8 +164,12 @@ void Service::CreateCallbackCallback(void* aArgs)
 
     FunctorGeneric<void*> callback = args->Arg1();
     IDevice* device = args->Arg2();
+    delete args;
 
-    callback(OnCreate(device));
+    IProxy* product = OnCreate(device);
+    ArgsTwo<IDevice*, IProxy*>* cbArgs = new ArgsTwo<IDevice*, IProxy*>(device, product);
+
+    callback(cbArgs);
 /*
     if (t.Exception == NULL && !iCancelSubscribe.IsCancellationRequested)
     {
@@ -297,6 +303,18 @@ Task<T> Service::Start<T>(Func<T> aFunction)
 
 TBool Service::Wait()
 {
+    iMutexJobs.Wait();
+    vector<Job*> jobs(iJobs);
+    iJobs.clear();
+    iMutexJobs.Signal();
+
+    for(TUint i=0; i<jobs.size(); i++)
+    {
+        jobs[i]->Wait();
+    }
+
+    return(jobs.size()==0);
+
 /*
     Task[] tasks;
 
@@ -310,7 +328,6 @@ TBool Service::Wait()
 
     return (tasks.Length == 0);
 */
-    return(true);
 }
 
 

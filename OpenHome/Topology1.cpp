@@ -145,7 +145,6 @@ void Topology1::UnorderedAddCallback(void* aObj)
 
     IDevice* device = args->Arg1();
     IProxyProduct* product = args->Arg2();
-
     delete args;
 
     vector<IDevice*>::iterator it = find(iPendingSubscriptions.begin(), iPendingSubscriptions.end(), device);

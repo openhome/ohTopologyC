@@ -129,7 +129,7 @@ void InjectorMock::DisposeCallback(void*)
     for(it=iMockDevices.begin();it!=iMockDevices.end();it++)
     {
         it->second->Dispose();
-        delete it->second;
+        //delete it->second;
     }
 }
 
@@ -252,7 +252,8 @@ InjectorDeviceMock* InjectorMock::Create(IInjectorDevice* aDevice)
 void InjectorMock::CreateAndAdd(IInjectorDevice* aDevice)
 {
     InjectorDeviceMock* device = Create(aDevice);
-    iNetwork.Add(device->On());
+    IInjectorDevice* dev = device->On();
+	iNetwork.Add(dev);
 }
 
 /////////////////////////////////////////////////////////////////
