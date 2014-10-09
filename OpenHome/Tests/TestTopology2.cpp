@@ -270,8 +270,8 @@ void SuiteTopology2::Test1()
     delete log;
 
     delete iTopology2;
-    delete network;
     delete mockInjector;
+    delete network;
 }
 
 

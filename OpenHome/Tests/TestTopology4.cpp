@@ -154,11 +154,10 @@ void SuiteTopology4::Test1()
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology4::ExecuteCallback);
     network->Execute(fe, watcher);
 
-	
+
     iTopology4->Dispose();
     mockInjector->Dispose();
     network->Dispose();
-	
 
     delete watcher;
     delete mocker;
@@ -166,8 +165,8 @@ void SuiteTopology4::Test1()
     delete log;
 
     delete iTopology4;
-    delete network;
     delete mockInjector;
+    delete network;
 }
 
 
