@@ -25,6 +25,3 @@ try:
 finally:
     w.stop()
 
-
-
-#suiteRunner.run(tests)

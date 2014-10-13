@@ -32,7 +32,19 @@ public:
         ASSERT(optionPort.Value() <= 65535);
 
 
-        std::vector<NetworkAdapter*>* ifs = Os::NetworkListAdapters(aEnv, Net::InitialisationParams::ELoopbackExclude, "TestTopology1");
+
+        Net::InitialisationParams::ELoopback loopback;
+        if (optionServer.Value().Equals(Brn("127.0.0.1"))) { // using loopback
+            loopback = Net::InitialisationParams::ELoopbackUse;
+        }
+        else {
+            loopback = Net::InitialisationParams::ELoopbackExclude;
+        }
+        std::vector<NetworkAdapter*>* ifs = Os::NetworkListAdapters(aEnv, loopback, "TestTopology");
+
+        //std::vector<NetworkAdapter*>* ifs = Os::NetworkListAdapters(aEnv, Net::InitialisationParams::ELoopbackUse, "TestTopology");
+
+        //std::vector<NetworkAdapter*>* ifs = Os::NetworkListAdapters(aEnv, Net::InitialisationParams::ELoopbackExclude, "TestTopology1");
 
 
         ASSERT(ifs->size() > 0);
@@ -42,7 +54,7 @@ public:
             Endpoint endpt(optionPort.Value(), addrTmp);
             Endpoint::AddressBuf buf;
             endpt.AppendAddress(buf);
-            (*ifs)[i]->RemoveRef("TestTopology1");
+            (*ifs)[i]->RemoveRef("TestTopology");
         }
         delete ifs;
 
