@@ -1,5 +1,7 @@
 from testharness.testsuite import MakeSuiteRunner
 from testharness.servers   import StaticWebServer
+import os.path
+
 
 suiteRunner = MakeSuiteRunner(context)
 
@@ -14,7 +16,7 @@ tests = '''
     TestTopology5 -s {ws_hostname} -p {ws_port} --path Topology5TestScript.txt
     '''
 
-w = StaticWebServer('TestScripts')
+w = StaticWebServer(os.path.join("TestScripts"))
 w.start()
 
 try:

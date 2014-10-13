@@ -16,7 +16,7 @@ tests = '''
     TestTopology5 -s {ws_hostname} -p {ws_port} --path Topology5TestScript.txt
     '''
 
-w = StaticWebServer(os.path.join('dependencies', 'AnyPlatform', 'TesScripts'))
+w = StaticWebServer(os.path.join("TestScripts"))
 w.start()
 
 try:

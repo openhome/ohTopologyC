@@ -42,29 +42,39 @@ public:
         }
         std::vector<NetworkAdapter*>* ifs = Os::NetworkListAdapters(aEnv, loopback, "TestTopology");
 
-        //std::vector<NetworkAdapter*>* ifs = Os::NetworkListAdapters(aEnv, Net::InitialisationParams::ELoopbackUse, "TestTopology");
-
-        //std::vector<NetworkAdapter*>* ifs = Os::NetworkListAdapters(aEnv, Net::InitialisationParams::ELoopbackExclude, "TestTopology1");
 
 
         ASSERT(ifs->size() > 0);
         TIpAddress addr = (*ifs)[0]->Address(); // assume we are only on one subnet (or using loopback)
+
         for (TUint i=0; i<ifs->size(); i++) {
-            TIpAddress addrTmp = (*ifs)[i]->Address();
-            Endpoint endpt(optionPort.Value(), addrTmp);
-            Endpoint::AddressBuf buf;
-            endpt.AppendAddress(buf);
+
+            //Log::Print("ifs adr:%x \n", (*ifs)[i]->Address());
             (*ifs)[i]->RemoveRef("TestTopology");
+
         }
+
         delete ifs;
 
         Endpoint endptClient(0, addr);
         Endpoint::AddressBuf buf;
         endptClient.AppendAddress(buf);
         //Log::Print("Using network interface %s\n", buf.Ptr());
+        //Log::Print("Client IP:%x \n", addr);
+        //Log::Print("Server IP:");
+        //Log::Print(optionServer.Value());
+        //Log::Print("\n");
 
         // set up server uri
-        Endpoint endptServer = Endpoint(optionPort.Value(), optionServer.Value());
+
+        // There is a problem with DNS resolution of the loopback name on windows and other platforms (linux is ok)
+        // So, we're hard coding the loopback address for now to allow the tests to run properly
+        // The symptom of the fault is that the server name gets resolved to 0.0.0.0 instead of
+        // the actual IP address of the server.
+
+        //Endpoint endptServer = Endpoint(optionPort.Value(), optionServer.Value());
+        Endpoint endptServer = Endpoint(optionPort.Value(), Brn("127.0.0.1"));  // hard code loopback address
+
         iUriBuf.Replace(Brn("http://"));
         endptServer.AppendEndpoint(iUriBuf);
         iUriBuf.Append(Brn("/"));
@@ -73,15 +83,14 @@ public:
         Uri uri(iUriBuf);
 
         //Log::Print("HttpReader setup \n");
-        //Log::Print("Uri:");
+        //Log::Print("Uri:\n");
         //Log::Print(iUriBuf);
         //Log::Print("\n");
 
 
         if (!Connect(uri))
         {
-            //Log::Print("Failed to connect \n");
-
+            Log::Print("Failed to connect \n");
             ASSERTS();
         }
     }
