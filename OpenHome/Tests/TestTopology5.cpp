@@ -437,13 +437,14 @@ void SuiteTopology5::Test1()
 
 
     delete watcher;
-    delete mocker;
     delete runner;
-    delete log;
 
     delete iTopology5;
     delete mockInjector;
     delete network;
+
+    delete log;
+    delete mocker;
 }
 
 

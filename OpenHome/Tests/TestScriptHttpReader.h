@@ -67,13 +67,7 @@ public:
 
         // set up server uri
 
-        // There is a problem with DNS resolution of the loopback name on windows and other platforms (linux is ok)
-        // So, we're hard coding the loopback address for now to allow the tests to run properly
-        // The symptom of the fault is that the server name gets resolved to 0.0.0.0 instead of
-        // the actual IP address of the server.
-
-        //Endpoint endptServer = Endpoint(optionPort.Value(), optionServer.Value());
-        Endpoint endptServer = Endpoint(optionPort.Value(), Brn("127.0.0.1"));  // hard code loopback address
+        Endpoint endptServer = Endpoint(optionPort.Value(), optionServer.Value());
 
         iUriBuf.Replace(Brn("http://"));
         endptServer.AppendEndpoint(iUriBuf);
