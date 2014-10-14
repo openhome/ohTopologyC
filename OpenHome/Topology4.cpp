@@ -52,13 +52,17 @@ Topology4Room::Topology4Room(IWatchableThread& aThread, const Brx& aName, ITopol
 }
 
 
+Topology4Room::~Topology4Room()
+{
+    delete iWatchableGroups;
+    iWatchableGroups = NULL;
+    iGroups.clear();
+}
+
+
 void Topology4Room::Dispose()
 {
     iWatchableGroups->Dispose();
-    delete iWatchableGroups;
-    iWatchableGroups = NULL;
-
-    iGroups.clear();
 }
 
 // ITopology4Room
@@ -115,6 +119,15 @@ Topology4::Topology4(Topology3* aTopology3, ILog& /*aLog*/)
 
 Topology4::~Topology4()
 {
+    delete iTopology3;
+    delete iRooms;
+    iRooms = NULL;
+
+    map<ITopology3Group*, Topology4GroupWatcher*>::iterator it;
+    for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
+    {
+        delete it->second;
+    }
 
 }
 
@@ -136,15 +149,11 @@ void Topology4::Dispose()
     iNetwork.Execute(MakeFunctorGeneric(*this, &Topology4::DisposeCallback), NULL);
 
     iTopology3->Dispose();
-    delete iTopology3;
-    iTopology3 = NULL;
 
     //iRoomLookup = NULL;
     //iGroupWatcherLookup = NULL;
 
     iRooms->Dispose();
-    delete iRooms;
-    iRooms = NULL;
 
     iDisposed = true;
 }
@@ -160,7 +169,7 @@ void Topology4::DisposeCallback(void*)
     for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
     {
         it->second->Dispose();
-        delete it->second;
+        //delete it->second;
     }
 
 /*

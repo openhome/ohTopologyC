@@ -77,6 +77,7 @@ class Topology2Group : public ITopology2Group, public IWatcher<Brn>, public INon
 {
 public:
     Topology2Group(IWatchableThread& aThread, const Brx& aId, IProxyProduct& aProduct);
+    ~Topology2Group();
 
     virtual void Dispose();
 

@@ -25,6 +25,14 @@ Topology1::~Topology1()
 {
     InfoMetadata::DestroyStatics();  // FIXME: should probably live elsewhere
     SenderMetadata::DestroyStatics(); // FIXME: should probably live elsewhere
+
+    map<IDevice*, IProxyProduct*>::iterator it;
+    for(it=iProductLookup.begin(); it!=iProductLookup.end(); it++)
+    {
+        delete it->second;
+    }
+
+    delete iProducts;
 }
 
 
@@ -38,34 +46,23 @@ void Topology1::ExecuteCallback(void*)
 
 void Topology1::Dispose()
 {
-
     if (iDisposed)
     {
         //throw new ObjectDisposedException("Topology1.Dispose");
     }
 
-
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::DisposeCallback);
     iNetwork->Execute(f, NULL);
-
-    //iDevices = null;
 
     // dispose of all products, which will in turn unsubscribe
     map<IDevice*, IProxyProduct*>::iterator it;
     for(it=iProductLookup.begin(); it!=iProductLookup.end(); it++)
     {
         it->second->Dispose();
-        delete it->second;
     }
 
-    //iProductLookup = null;
-
     iProducts->Dispose();
-    delete iProducts;
-    iProducts = NULL;
-
     iDisposed = true;
-
 }
 
 

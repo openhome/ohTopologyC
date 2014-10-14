@@ -58,6 +58,7 @@ class Topology4Room : public ITopology4Room
 {
 public:
     Topology4Room(IWatchableThread& aThread, const Brx& aName, ITopology3Group& aGroup);
+    ~Topology4Room();
 
     // IDisposable
     virtual void Dispose();

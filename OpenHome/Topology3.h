@@ -92,6 +92,7 @@ class Topology3Group : public ITopology3Group, public INonCopyable
 {
 public:
     Topology3Group(INetwork& aNetwork, ITopology2Group& aGroup);
+    ~Topology3Group();
 
     virtual void SetSender(ITopology3Sender* aSender);
 
@@ -130,6 +131,7 @@ class ReceiverWatcher : public IWatcher<Brn>, public IWatcher<IInfoMetadata*>, p
 {
 public:
     ReceiverWatcher(Topology3& aTopology, Topology3Group& aGroup);
+    ~ReceiverWatcher();
 
     // IDisposable
     virtual void Dispose();
@@ -166,6 +168,7 @@ class SenderWatcher : public IWatcher<ISenderMetadata*>, public IDisposable, pub
 {
 public:
     SenderWatcher(Topology3& aTopology, ITopology2Group& aGroup);
+    ~SenderWatcher();
     // IDisposable
     virtual void Dispose();
     virtual const Brx& Uri();

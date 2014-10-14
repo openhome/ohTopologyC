@@ -363,7 +363,7 @@ void Topology5Group::Dispose()
     {
         iSender->Status().RemoveWatcher(*this);
         iSender->Dispose();
-        iSender = NULL;
+        //iSender = NULL;
         iHasSender = false;
     }
 
@@ -1080,7 +1080,7 @@ Topology5::Topology5(ITopology4* aTopology4, ILog& aLog)
 Topology5::~Topology5()
 {
     delete iDisposeHandler;
-    iRoomLookup.clear();
+    //iRoomLookup.clear();
     delete iRooms;
     delete iTopology4;
 
@@ -1154,36 +1154,36 @@ void Topology5::UnorderedClose()
 }
 
 
-void Topology5::UnorderedAdd(ITopology4Room* aItem)
+void Topology5::UnorderedAdd(ITopology4Room* aT4Room)
 {
-    iDisposeHandler->WhenNotDisposed(MakeFunctorGeneric(*this, &Topology5::UnorderedAddCallback), aItem);
+    iDisposeHandler->WhenNotDisposed(MakeFunctorGeneric(*this, &Topology5::UnorderedAddCallback), aT4Room);
 }
 
 
-void Topology5::UnorderedAddCallback(void* aT3Room)
+void Topology5::UnorderedAddCallback(void* aT4Room)
 {
-    ITopology4Room* t3Room = (ITopology4Room*)aT3Room;
-    Topology5Room* t4Room = new Topology5Room(iNetwork, *t3Room, iLog);
-    iRooms->Add(t4Room);
-    iRoomLookup[t3Room] = t4Room;
+    ITopology4Room* t4Room = (ITopology4Room*)aT4Room;
+    Topology5Room* t5Room = new Topology5Room(iNetwork, *t4Room, iLog);
+    iRooms->Add(t5Room);
+    iRoomLookup[t4Room] = t5Room;
 }
 
 
-void Topology5::UnorderedRemove(ITopology4Room* aItem)
+void Topology5::UnorderedRemove(ITopology4Room* aT4Room)
 {
-    iDisposeHandler->WhenNotDisposed(MakeFunctorGeneric(*this, &Topology5::UnorderedRemoveCallback), aItem);
+    iDisposeHandler->WhenNotDisposed(MakeFunctorGeneric(*this, &Topology5::UnorderedRemoveCallback), aT4Room);
 }
 
 
-void Topology5::UnorderedRemoveCallback(void* aT3Room)
+void Topology5::UnorderedRemoveCallback(void* aT4Room)
 {
     // schedule notification of L4 room removal
-    ITopology4Room* t3Room = (ITopology4Room*)aT3Room;
-    Topology5Room* t4Room = iRoomLookup[t3Room];
-    iRooms->Remove(t4Room);
-    iRoomLookup.erase(t3Room);
-    t4Room->Dispose();
-    delete t4Room;
+    ITopology4Room* t4Room = (ITopology4Room*)aT4Room;
+    Topology5Room* t5Room = iRoomLookup[t4Room];
+    iRooms->Remove(t5Room);
+    iRoomLookup.erase(t4Room);
+    t5Room->Dispose();
+    delete t5Room;
 }
 
 

@@ -54,6 +54,19 @@ Topology2Group::Topology2Group(IWatchableThread& aThread, const Brx& aId, IProxy
 }
 
 
+Topology2Group::~Topology2Group()
+{
+    for(TUint i=0; i<iWatchableSources.size(); i++)
+    {
+        delete iWatchableSources[i];
+    }
+
+    for(TUint i=0; i<iSources.size(); i++)
+    {
+        delete iSources[i];
+    }
+}
+
 void Topology2Group::Dispose()
 {
     if (iDisposed)
@@ -62,19 +75,11 @@ void Topology2Group::Dispose()
     }
 
     iProduct.SourceXml().RemoveWatcher(*this);
-    //iProduct = null;
 
     for(TUint i=0; i<iWatchableSources.size(); i++)
     {
-        Watchable<ITopology2Source*>* x = (Watchable<ITopology2Source*>*) iWatchableSources[i];
-        x->Dispose();
-        delete x;
-
-    }
-
-    for(TUint i=0; i<iSources.size(); i++)
-    {
-        delete iSources[i];
+        //Watchable<ITopology2Source*>* x = (Watchable<ITopology2Source*>*) iWatchableSources[i];
+        iWatchableSources[i]->Dispose();
     }
 
     iDisposed = true;
@@ -281,6 +286,8 @@ Topology2::Topology2(ITopology1* aTopology1, ILog& /*aLog*/)
 
 Topology2::~Topology2()
 {
+    delete iTopology1;
+    delete iGroups;
 }
 
 void Topology2::ScheduleCallback(void*)
@@ -300,15 +307,11 @@ void Topology2::Dispose()
     iNetwork.Execute(f, NULL);
 
     iTopology1->Dispose();
-    delete iTopology1;
-    iTopology1 = NULL;
 
     //iTopology1 = null;
     //iGroupLookup = NULL;
 
     iGroups->Dispose();
-    delete iGroups;
-    iGroups = NULL;
 
     iDisposed = true;
 }
