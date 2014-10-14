@@ -44,6 +44,20 @@ Network::~Network()
 {
     delete iWatchableThread;
     delete iTagManager;
+
+    std::map<EServiceType , WatchableUnordered<IDevice*>*>::iterator it;
+    for(it=iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
+    {
+        delete it->second;
+    }
+
+    std::map<Brn, Device*, BufferCmp>::iterator it2;
+    for(it2=iDevices.begin(); it2!=iDevices.end(); it2++)
+    {
+        delete it2->second;
+    }
+
+    delete iDisposeHandler;
 }
 
 
@@ -316,11 +330,9 @@ void Network::Dispose()
     Wait();
 
     std::map<EServiceType , WatchableUnordered<IDevice*>*>::iterator it;
-
     for(it=iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
     {
         it->second->Dispose();
-        delete it->second;
     }
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::DisposeCallback);
@@ -328,7 +340,6 @@ void Network::Dispose()
 
     //iEventSupervisor.Dispose();
     iDisposeHandler->Dispose();
-    delete iDisposeHandler;
 
     if (iExceptions.size() > 0)
     {
@@ -343,12 +354,10 @@ void Network::Dispose()
 void Network::DisposeCallback(void*)
 {
     std::map<Brn, Device*, BufferCmp>::iterator it;
-
     for(it=iDevices.begin(); it!=iDevices.end(); it++)
     {
-		Device* device = it->second;
+        Device* device = it->second;
         device->Dispose();
-        delete it->second;
     }
 }
 

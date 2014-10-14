@@ -26,6 +26,12 @@ Injector::Injector(Network& aNetwork, CpStack& aCpStack, const Brx& aDomain, con
 }
 
 
+Injector::~Injector()
+{
+    delete iDeviceList;
+    delete iDisposeHandler;
+}
+
 void Injector::Added(/*CpDeviceList& aList, */CpDevice& aDevice)
 {
     Brn udn(aDevice.Udn());
@@ -79,7 +85,7 @@ void Injector::Refresh()
 
 void Injector::Dispose()
 {
-    //iDeviceList->Dispose();
+    //iDeviceList->Dispose();  // this object doesn't have a dispose method (C# ???)
     iDisposeHandler->Dispose();
 }
 
@@ -138,7 +144,6 @@ void InjectorMock::DisposeCallback(void*)
     for(it=iMockDevices.begin();it!=iMockDevices.end();it++)
     {
         it->second->Dispose();
-        //delete it->second;
     }
 }
 

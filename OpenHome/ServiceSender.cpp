@@ -29,11 +29,6 @@ ServiceSender::~ServiceSender()
     delete iMetadata;
     delete iStatus;
     delete iCurrentMetadata;
-
-    iAudio = NULL;
-    iMetadata = NULL;
-    iStatus = NULL;
-    iCurrentMetadata = NULL;
 }
 
 

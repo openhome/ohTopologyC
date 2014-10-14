@@ -23,9 +23,6 @@ ServiceReceiver::~ServiceReceiver()
     delete iMetadata;
     delete iTransportState;
     delete iCurrentMetadata;
-    iMetadata = NULL;
-    iTransportState = NULL;
-    iCurrentMetadata = NULL;
 }
 
 void ServiceReceiver::Dispose()

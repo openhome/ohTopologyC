@@ -36,6 +36,8 @@ public:
 
 protected:
     Injector(Network& aNetwork, Net::CpStack& aCpStack, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& aLog);
+    ~Injector();
+
     void Added(/*Net::CpDeviceList& aList,*/ Net::CpDevice& aDevice);
     void Removed(/*Net::CpDeviceList& aList,*/ Net::CpDevice& aDevice);
     virtual IInjectorDevice* Create(INetwork& aNetwork, Net::CpDevice& aDevice);
