@@ -67,9 +67,13 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
         ASSERTS(); // stream is empty!
     }
 
+    TUint count = 0;
 
     for (;;)
     {
+        count++;
+        //OpenHome::Log::Print("Count = %d\n", count);
+
         LOG(kTrace, "\n\n");
         iLine.Replace(lastline);
 
@@ -90,6 +94,7 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
                 (!lastline.BeginsWith(Brn("empty"))) &&
                 (!lastline.BeginsWith(Brn("break"))))
         {
+            count++;
             iLine.Append(Brn("\n"));
             iLine.Append(lastline);
 
@@ -164,6 +169,7 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
                     }
                     catch (Exception e)
                     {
+                        OpenHome::Log::Print("exception\n");
                         //Console.WriteLine(e);
                     }
 

@@ -87,6 +87,7 @@ class Topology5Source : public ITopology5Source, public INonCopyable
 {
 public:
     Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITopology2Source* aSource);
+
     virtual TUint Index();
     virtual Brn Name();
     virtual ITopology5Group& Group();
@@ -172,6 +173,7 @@ class Topology5Group : public ITopology5Root, public ITopology5Registration, pub
 {
 public:
     Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopology3Group& aGroup, std::vector<ITopology2Source*> aSources, ILog& aLog);
+    ~Topology5Group();
     virtual void Dispose();
     virtual Brn Name();
     virtual IDevice& Device();
@@ -279,6 +281,7 @@ class Topology5Room : public ITopology5Room, public IWatcherUnordered<ITopology3
 {
 public:
     Topology5Room(INetwork& aNetwork, ITopology4Room& aRoom, ILog& aLog);
+    ~Topology5Room();
 
     virtual void Dispose();
     virtual Brn Name();
@@ -343,6 +346,7 @@ class Topology5 : public ITopology5, public IWatcherUnordered<ITopology4Room*>, 
 {
 public:
     Topology5(ITopology4* aTopology4, ILog& aLog);
+    ~Topology5();
     virtual void Dispose();
     virtual IWatchableUnordered<ITopology5Room*>& Rooms();
     virtual INetwork& Network();

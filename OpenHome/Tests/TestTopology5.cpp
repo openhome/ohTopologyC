@@ -146,7 +146,7 @@ public:
 
 private:
     ResultWatcherFactory* iFactory;
-    Bws<5000> iBuf;
+    Bws<6000> iBuf;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -373,7 +373,7 @@ private:
     MockableScriptRunner& iRunner;
     ResultWatcherFactory* iFactory;
     map<ITopology5Room*, RoomWatcher*> iWatcherLookup;
-    Bws<5000> iBuf;
+    Bws<6000> iBuf;
 };
 
 
@@ -426,15 +426,16 @@ void SuiteTopology5::Test1()
 
     Functor f = MakeFunctor(*network, &Network::Wait);
 
-    TEST(runner->Run(f, iReader, *mocker));
+
+    TBool test = runner->Run(f, iReader, *mocker);
+    OpenHome::Log::Print("test = %d\n", test);
+    TEST(test);
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology5::ExecuteCallback);
     network->Execute(fe, watcher);
-
 
     iTopology5->Dispose();
     mockInjector->Dispose();
     network->Dispose();
-
 
     delete watcher;
     delete runner;

@@ -23,6 +23,7 @@ Device::Device(IInjectorDevice* aDevice)
 Device::~Device()
 {
     delete iDevice;
+    delete iDisposeHandler;
 }
 
 
@@ -60,9 +61,6 @@ void Device::Dispose()
 {
     iDisposeHandler->Dispose();
     iDevice->Dispose();
-
-    delete iDisposeHandler;
-    //delete iDevice;
 }
 
 
@@ -345,10 +343,7 @@ void InjectorDevice::Dispose()
     {
         Service* service = it->second;
         service->Dispose();
-        //delete it->second;
     }
-
-    //delete iDisposeHandler;
 }
 
 
