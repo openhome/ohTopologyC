@@ -12,7 +12,7 @@ import os.path, sys
 sys.path[0:0] = [os.path.join('dependencies', 'AnyPlatform', 'ohWafHelpers')]
 
 from filetasks import gather_files, build_tree, copy_task
-from utilfuncs import invoke_test, guess_dest_platform, configure_toolchain, guess_ohnet_location, guess_libplatform_location
+from utilfuncs import invoke_test, guess_dest_platform, configure_toolchain, guess_ohnet_location, guess_libplatform_location, guess_libosa_location, is_core_platform 
 
 def options(opt):
     opt.load('msvc')
@@ -46,7 +46,11 @@ def configure(conf):
         except KeyError:
             conf.fatal('Specify --dest-platform')
 
-    guess_libplatform_location(conf)
+    
+    if is_core_platform(conf):
+        guess_libosa_location(conf)
+        guess_libplatform_location(conf)
+    
     guess_ohnet_location(conf)
     configure_toolchain(conf)
 
