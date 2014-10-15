@@ -2,7 +2,7 @@
     {   "name": "ohNet",
         "type": "openhome",
         "platform-specific": true,
-        "version": "1.0.1345",
+        "version": "1.0.1351",
         "archive-suffix": "-${debugmode}",
         "main-dir": "${dest}${name}-${platform}-${debugmode}",
         "configure-args": [
@@ -17,24 +17,24 @@
     {   "name": "ohWafHelpers",
         "type": "openhome",
         "platform-specific": false,
-        "version": "0.0.58",
+        "version": "0.0.62",
         "archive-filename": "${name}-${version}.tar.gz"
     },
     {   "name":             "testharness",
-        "version":          "0.1.24",
+        "version":          "0.1.26",
         "type":             "internal",
         "archive-filename": "${name}-${version}.tar.gz",
         "dest":             "dependencies/AnyPlatform/"
     },
     {   "name": "libplatform",
         "type": "internal",
-        "version": "0.0.85",
+        "version": "0.0.103",
         "archive-suffix": "-${debugmode}",
         "platform-specific": true
     },
     {   "name":             "libosa",
         "type":             "internal",
-        "version":          "0.0.173",
+        "version":          "0.0.181",
         "archive-suffix":   "-Release",
         "platform-ignore": {
             "Core-armv5": false,
@@ -58,7 +58,7 @@
     {   "name": "ohNetmon",
         "type": "internal",
         "platform-specific": true,
-        "version": "0.0.13",
+        "version": "0.0.16",
         "archive-suffix": "-${debugmode}",
         "main-dir": "${dest}${name}-${platform}-${debugmode}"
     },
