@@ -30,7 +30,7 @@
         "type": "internal",
         "version": "0.0.103",
         "archive-suffix": "-${debugmode}",
-        "platform-specific": true
+        "platform-specific": true,
         "platform-ignore": {
             "Core-armv5": false,
             "Core-armv6": false,
