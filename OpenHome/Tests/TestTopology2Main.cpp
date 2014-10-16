@@ -14,13 +14,12 @@ void OpenHome::TestFramework::Runner::Main(TInt aArgc, TChar* aArgv[], Net::Init
     std::vector<Brn> args = OptionParser::ConvertArgs(aArgc, aArgv);
 
     Log::Print(
-        "\n"
-        "======================================================\n"
-        "TestCodecMain overriding server name to '127.0.0.1'\n"
-        "This is a temporary hack to avoid DNS issues with OSX\n"
-        "Only the standalone version of TestCodec is affected by this.\n"
-        "======================================================\n"
-        "\n");
+        "\n======================================================\n"
+        "Overriding server name to '127.0.0.1'\n"
+        "Temp hack to avoid DNS issues with OSX and Windows\n"
+        "This won't be applied to Tests when run on Core platform"
+        "\n======================================================\n\n"
+        );
     // Note, getaddrinfo() in Windows OS port requires "127.0.0.1" be passed.
     // "localhost" is resolved to 0.0.0.0
     args.emplace_back("-s");
