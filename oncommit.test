@@ -10,10 +10,10 @@ tests = '''
     TestWatchableThread
     TestWatchable
     #TestTopology1 -s {ws_hostname} -p {ws_port} --path Topology1TestScript.txt
-    TestTopology2 -s {ws_hostname} -p {ws_port} --path Topology2TestScript.txt
-    TestTopology3 -s {ws_hostname} -p {ws_port} --path Topology3TestScript.txt
-    TestTopology4 -s {ws_hostname} -p {ws_port} --path Topology4TestScript.txt
-    TestTopology5 -s {ws_hostname} -p {ws_port} --path Topology5TestScript.txt
+    #TestTopology2 -s {ws_hostname} -p {ws_port} --path Topology2TestScript.txt
+    #TestTopology3 -s {ws_hostname} -p {ws_port} --path Topology3TestScript.txt
+    #TestTopology4 -s {ws_hostname} -p {ws_port} --path Topology4TestScript.txt
+    #TestTopology5 -s {ws_hostname} -p {ws_port} --path Topology5TestScript.txt
     '''
 
 w = StaticWebServer(os.path.join("TestScripts"))
@@ -21,14 +21,7 @@ w.start()
 
 try:
     suiteRunner.run(tests.format(
-
-        # There is a problem with DNS resolution of the loopback name on windows and other platforms (linux is ok)
-        # So, we're hard coding the loopback address for now to allow the tests to run properly
-        # The symptom of the fault is that the server name gets resolved to 0.0.0.0 instead of
-        # the actual IP address of the server.
-
-        #ws_hostname = w.host(),
-        ws_hostname = "127.0.0.1",
+        ws_hostname = w.host(),
         ws_port = w.port()
         ))
 finally:
