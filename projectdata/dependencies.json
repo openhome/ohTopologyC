@@ -31,6 +31,11 @@
         "version": "0.0.103",
         "archive-suffix": "-${debugmode}",
         "platform-specific": true
+        "platform-ignore": {
+            "Core-armv5": false,
+            "Core-armv6": false,
+            "Core-ppc32": false,
+            "*": true },
     },
     {   "name":             "libosa",
         "type":             "internal",
