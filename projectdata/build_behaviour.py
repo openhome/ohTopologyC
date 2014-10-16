@@ -53,14 +53,14 @@
 #     ssh("echo", "hello")
 #
 #     Connect via ssh and issue commands. Command arguments similar to python().
-#  
+#
 
 from ci import (
         build_step, require_version, add_option, specify_optional_steps,
         build_condition, default_platform, get_dependency_args,
         get_vsvars_environment, fetch_dependencies, python, scp)
 
-require_version(22)
+require_version(36)
 
 
 # Command-line options. See documentation for Python's optparse module.
