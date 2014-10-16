@@ -78,7 +78,7 @@ private:
     std::map<ETagRealm, ITagRealm*> iRealms;
 
     //ITagRealmSystem* iSystem;
-    ITagRealmGlobal* iGlobal;
+    //ITagRealmGlobal* iGlobal;
     ITagRealmAudio* iAudio;
     //ITagRealmVideo* iVideo;
     //ITagRealmImage* iImage;
