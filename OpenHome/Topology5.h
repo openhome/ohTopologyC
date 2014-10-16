@@ -215,7 +215,7 @@ private:
     Brn iName;
     ITopology3Group* iGroup;
     std::unique_ptr<ITopology5Source> iCurrentSource;
-    ILog& iLog;
+    //ILog& iLog;
     TBool iDisposed;
 
     TUint iParentSourceIndex;

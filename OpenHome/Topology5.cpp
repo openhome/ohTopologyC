@@ -285,13 +285,13 @@ void Topology5Source::Select()
 
 //////////////////////////////////////////////////////////////////
 
-Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopology3Group& aGroup, std::vector<ITopology2Source*> aSources, ILog& aLog)
+Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopology3Group& aGroup, std::vector<ITopology2Source*> aSources, ILog& /*aLog*/)
     :iNetwork(aNetwork)
     ,iRoom(aRoom)
     ,iName(aName)
     ,iGroup(&aGroup)
     ,iCurrentSource(unique_ptr<ITopology5Source>(new Topology5SourceNull()))
-    ,iLog(aLog)
+    //,iLog(aLog)
     ,iDisposed(false)
     ,iParent(NULL)
     ,iSender(NULL)
