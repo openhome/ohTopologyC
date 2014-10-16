@@ -36,6 +36,7 @@
             "Core-armv6": false,
             "Core-ppc32": false,
             "*": true },
+        "ignore":           "${platform-ignore[$platform]}"
     },
     {   "name":             "libosa",
         "type":             "internal",
