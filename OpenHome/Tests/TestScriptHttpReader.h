@@ -90,7 +90,7 @@ public:
     }
 
 private:
-    Bws<500> iUriBuf;
+    Bws<100> iUriBuf;
 
 };
 

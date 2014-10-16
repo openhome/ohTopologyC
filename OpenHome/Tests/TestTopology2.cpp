@@ -304,11 +304,13 @@ void TestTopology2(Environment& aEnv, const std::vector<Brn>& aArgs)
         args.push_back(Brn("~eamonnb/Topology2TestScript.txt"));
     }
 
-    TestScriptHttpReader reader(aEnv, args);
+    TestScriptHttpReader* reader = new TestScriptHttpReader(aEnv, args);
 
     Runner runner("Topology2 tests\n");
-    runner.Add(new SuiteTopology2(reader));
+    runner.Add(new SuiteTopology2(*reader));
     runner.Run();
+
+    delete reader;
 }
 
 

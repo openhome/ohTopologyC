@@ -197,11 +197,13 @@ void TestTopology4(Environment& aEnv, const std::vector<Brn>& aArgs)
         args.push_back(Brn("~eamonnb/Topology4TestScript.txt"));
     }
 
-    TestScriptHttpReader reader(aEnv, args);
+    TestScriptHttpReader* reader = new TestScriptHttpReader(aEnv, args);
 
     Runner runner("Topology4 tests\n");
-    runner.Add(new SuiteTopology4(reader));
+    runner.Add(new SuiteTopology4(*reader));
     runner.Run();
+
+    delete reader;
 }
 
 

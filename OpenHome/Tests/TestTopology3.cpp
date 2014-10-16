@@ -205,10 +205,14 @@ void TestTopology3(Environment& aEnv, const std::vector<Brn>& aArgs)
         args.push_back(Brn("--path"));
         args.push_back(Brn("~eamonnb/Topology3TestScript.txt"));
     }
-    TestScriptHttpReader reader(aEnv, args);
+
+    TestScriptHttpReader* reader = new TestScriptHttpReader(aEnv, args);
+
     Runner runner("Topology3 tests\n");
-    runner.Add(new SuiteTopology3(reader));
+    runner.Add(new SuiteTopology3(*reader));
     runner.Run();
+
+    delete reader;
 }
 
 

@@ -475,11 +475,13 @@ void TestTopology5(Environment& aEnv, const std::vector<Brn>& aArgs)
         args.push_back(Brn("~eamonnb/Topology5TestScript.txt"));
     }
 
-    TestScriptHttpReader reader(aEnv, args);
+    TestScriptHttpReader* reader = new TestScriptHttpReader(aEnv, args);
 
     Runner runner("Topology5 tests\n");
-    runner.Add(new SuiteTopology5(reader));
+    runner.Add(new SuiteTopology5(*reader));
     runner.Run();
+
+    delete reader;
 }
 
 
