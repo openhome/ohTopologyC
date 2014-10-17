@@ -55,25 +55,25 @@ public:
     {
     }
 
-    void Dispose()
+    virtual void Dispose()
     {
         iFactory->Dispose();
         delete iFactory;
     }
 
-    void UnorderedOpen()
+    virtual void UnorderedOpen()
     {
     }
 
-    void UnorderedInitialised()
+    virtual void UnorderedInitialised()
     {
     }
 
-    void UnorderedClose()
+    virtual void UnorderedClose()
     {
     }
 
-    void UnorderedRemove(ITopology2Group* aItem)
+    virtual void UnorderedRemove(ITopology2Group* aItem)
     {
         Bws<100> buf;
         buf.Replace(aItem->Device().Udn());
@@ -85,7 +85,7 @@ public:
     }
 
 
-    void UnorderedAdd(ITopology2Group* aItem)
+    virtual void UnorderedAdd(ITopology2Group* aItem)
     {
         Bws<100> buf;
 
