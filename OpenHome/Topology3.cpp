@@ -418,8 +418,6 @@ Topology3::Topology3(ITopology2* aTopology2, ILog& /*aLog*/)
 
 Topology3::~Topology3()
 {
-    Topology3Sender::DestroyStatics();
-    delete iTopology2;
     delete iGroups;
 
     map<ITopology2Group*, Topology3Group*>::iterator it1;
@@ -439,6 +437,9 @@ Topology3::~Topology3()
     {
         delete it3->second;
     }
+
+    Topology3Sender::DestroyStatics();
+    delete iTopology2;
 }
 
 
