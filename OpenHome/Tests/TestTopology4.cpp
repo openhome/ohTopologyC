@@ -50,12 +50,12 @@ public:
     }
 
     // IUnorderedWatcher<ITopology4Room*>
-    void UnorderedOpen() {}
-    void UnorderedInitialised() {}
-    void UnorderedClose() {}
+    virtual void UnorderedOpen() {}
+    virtual void UnorderedInitialised() {}
+    virtual void UnorderedClose() {}
 
 
-    void UnorderedAdd(ITopology4Room* aItem)
+    virtual void UnorderedAdd(ITopology4Room* aItem)
     {
         Bws<100> buf;
         buf.Replace("Room Added ");
@@ -66,7 +66,7 @@ public:
         iFactory->Create<ITopology3Group*>(aItem->Name(), aItem->Groups(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
     }
 
-    void UnorderedRemove(ITopology4Room* aItem)
+    virtual void UnorderedRemove(ITopology4Room* aItem)
     {
         Bws<100> buf;
         buf.Replace("Room Removed ");
@@ -78,7 +78,7 @@ public:
     }
 
     // IDisposable
-    void Dispose()
+    virtual void Dispose()
     {
         iFactory->Dispose();
         delete iFactory;

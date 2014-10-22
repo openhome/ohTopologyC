@@ -138,7 +138,7 @@ public:
     }
 
 
-    void Dispose()
+    virtual void Dispose()
     {
         iFactory->Dispose();
         delete iFactory;
@@ -166,7 +166,7 @@ public:
         iRoom.Roots().AddWatcher(*this);
     }
 
-    void Dispose()
+    virtual void Dispose()
     {
         iRoom.Roots().RemoveWatcher(*this);
         for(TUint i=0; i<iWatchers.size(); i++)
@@ -176,7 +176,7 @@ public:
         }
     }
 
-    void ItemOpen(const Brx& /*aId*/, vector<ITopology5Root*>* aValue)
+    virtual void ItemOpen(const Brx& /*aId*/, vector<ITopology5Root*>* aValue)
     {
         for(TUint i=0; i<aValue->size(); i++)
         {
@@ -184,7 +184,7 @@ public:
         }
     }
 
-    void ItemUpdate(const Brx& /*aId*/, vector<ITopology5Root*>* aValue, vector<ITopology5Root*>* /*aPrevious*/)
+    virtual void ItemUpdate(const Brx& /*aId*/, vector<ITopology5Root*>* aValue, vector<ITopology5Root*>* /*aPrevious*/)
     {
         for(TUint i=0; i<iWatchers.size(); i++)
         {
@@ -200,7 +200,7 @@ public:
         }
     }
 
-    void ItemClose(const Brx& /*aId*/, vector<ITopology5Root*>* /*aValue*/)
+    virtual void ItemClose(const Brx& /*aId*/, vector<ITopology5Root*>* /*aValue*/)
     {
     }
 };
@@ -216,7 +216,7 @@ public:
     {
     }
 
-    void Dispose()
+    virtual void Dispose()
     {
         iFactory->Dispose();
         delete iFactory;
@@ -229,19 +229,19 @@ public:
         }
     }
 
-    void UnorderedOpen()
+    virtual void UnorderedOpen()
     {
     }
 
-    void UnorderedInitialised()
+    virtual void UnorderedInitialised()
     {
     }
 
-    void UnorderedClose()
+    virtual void UnorderedClose()
     {
     }
 
-    void UnorderedAdd(ITopology5Room* aItem)
+    virtual void UnorderedAdd(ITopology5Room* aItem)
     {
 
         iBuf.Replace(Brn("Room Added "));
@@ -254,7 +254,7 @@ public:
         iWatcherLookup[aItem] = new RoomWatcher(iRunner, *aItem);
     }
 
-    void UnorderedRemove(ITopology5Room* aItem)
+    virtual void UnorderedRemove(ITopology5Room* aItem)
     {
         iBuf.Replace(Brn("Room Removed "));
         iBuf.Append(aItem->Name());
