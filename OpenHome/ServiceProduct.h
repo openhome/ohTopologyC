@@ -241,6 +241,7 @@ class ServiceProductNetwork : public ServiceProduct
 {
 public:
     ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
+    ~ServiceProductNetwork();
 
     virtual void Dispose();
     virtual void SetSourceIndex(TUint aValue);

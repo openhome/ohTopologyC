@@ -11,10 +11,14 @@ using namespace OpenHome::Net;
 
 ///////////////////////////////////////////////////////////////
 
-IInfoMetadata* InfoMetadata::iEmpty = new InfoMetadata();
+IInfoMetadata* InfoMetadata::iEmpty = NULL;
 
 IInfoMetadata* InfoMetadata::Empty()
 {
+    if(iEmpty == NULL)
+    {
+        iEmpty = new InfoMetadata();
+    }
     return(iEmpty);
 }
 
@@ -71,10 +75,14 @@ IMediaMetadata& InfoMetatext::Metatext()
 
 ///////////////////////////////////////////////////////////////
 
-SenderMetadata* SenderMetadata::iEmpty = new SenderMetadata();
+SenderMetadata* SenderMetadata::iEmpty = NULL;
 
 SenderMetadata* SenderMetadata::Empty()
 {
+    if(iEmpty == NULL)
+    {
+        iEmpty = new SenderMetadata();
+    }
     return(iEmpty);
 }
 

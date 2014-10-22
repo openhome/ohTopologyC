@@ -311,12 +311,15 @@ ServiceProductNetwork::ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice
 
 }
 
+
+ServiceProductNetwork::~ServiceProductNetwork()
+{
+    delete iService;
+}
+
 void ServiceProductNetwork::Dispose()
 {
     ServiceProduct::Dispose();
-
-    delete iService;
-    iService = NULL;
     iCpDevice.RemoveRef();
 }
 

@@ -3,6 +3,7 @@
 
 
 #include <OpenHome/OhNetTypes.h>
+#include <OpenHome/Private/Debug.h>
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/Device.h>
@@ -257,7 +258,7 @@ ResultWatcher<T>::ResultWatcher(MockableScriptRunner& aRunner, const Brx& aId, I
 template <class T>
 void ResultWatcher<T>::ItemOpen(const Brx& /*aId*/, T aValue)
 {
-    // ignoring aId - we're using iId
+    // ignoring aId - we're not using iId
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultWatcher::ItemOpenCallback);
     ArgsTwo<T, FunctorGeneric<const Brx&>>* args = new ArgsTwo<T, FunctorGeneric<const Brx&>>(aValue, f);
     iAction(args);
@@ -278,7 +279,7 @@ void ResultWatcher<T>::ItemOpenCallback(const Brx& aValue)
 template <class T>
 void ResultWatcher<T>::ItemUpdate(const Brx& /*aId*/, T aValue, T /*aPrevious*/)
 {
-    // ignoring aId - we're using iId
+    // ignoring aId - we're not using iId
     // ignoring aPrevious - not used
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultWatcher::ItemUpdateCallback);
     ArgsTwo<T, FunctorGeneric<const Brx&>>* args = new ArgsTwo<T, FunctorGeneric<const Brx&>>(aValue, f);
@@ -301,7 +302,7 @@ void ResultWatcher<T>::ItemUpdateCallback(const Brx& aValue)
 template <class T>
 void ResultWatcher<T>::ItemClose(const Brx& /*aId*/, T aValue)
 {
-    // ignoring aId - we're using iId
+    // ignoring aId - we're not using iId
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultWatcher::ItemCloseCallback);
     ArgsTwo<T, FunctorGeneric<const Brx&>>* args = new ArgsTwo<T, FunctorGeneric<const Brx&>>(aValue, f);
     iAction(args);

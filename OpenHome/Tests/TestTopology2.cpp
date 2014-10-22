@@ -265,9 +265,9 @@ void SuiteTopology2::Test1()
     network->Dispose();
 
     delete watcher;
-    delete mocker;
     delete runner;
     delete log;
+    delete mocker;
 
     delete iTopology2;
     delete mockInjector;

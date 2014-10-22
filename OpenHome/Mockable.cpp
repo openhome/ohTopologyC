@@ -118,15 +118,6 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
 
         if (iLine.BeginsWith(Brn("//")))
         {
-/*
-            if (iLine.Equals(Brn("// test changing standby state for a two products in a room")))
-            {
-                OpenHome::Log::Print("\n");
-                //continue;
-            }
-            OpenHome::Log::Print("\n\n");
-            OpenHome::Log::Print(iLine);
-*/
             LOG(kTrace, "skipping line : ");
             LOG(kTrace, iLine);
             LOG(kTrace, "\n");
@@ -170,7 +161,6 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
                     catch (Exception e)
                     {
                         OpenHome::Log::Print("exception\n");
-                        //Console.WriteLine(e);
                     }
 
                     wait = false;

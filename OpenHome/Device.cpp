@@ -169,7 +169,6 @@ IInjectorDevice* InjectorDeviceMock::Off()
 void InjectorDeviceMock::Dispose()
 {
     iDevice->Dispose();
-    //delete iDevice;
 }
 
 

@@ -78,7 +78,6 @@ void Topology2Group::Dispose()
 
     for(TUint i=0; i<iWatchableSources.size(); i++)
     {
-        //Watchable<ITopology2Source*>* x = (Watchable<ITopology2Source*>*) iWatchableSources[i];
         iWatchableSources[i]->Dispose();
     }
 
@@ -179,19 +178,19 @@ std::vector<Watchable<ITopology2Source*>*>& Topology2Group::Sources()
 }
 
 
-void Topology2Group:: SetStandby(TBool /*aValue*/)
+void Topology2Group:: SetStandby(TBool aValue)
 {
-    //if (iProduct != null)
+    //if (iProduct != NULL)
     //{
-        //iProduct.SetStandby(aValue);
+        iProduct.SetStandby(aValue);
     //}
 }
 
-void Topology2Group::SetSourceIndex(TUint /*aValue*/)
+void Topology2Group::SetSourceIndex(TUint aValue)
 {
-    //if (iProduct != null)
+    //if (iProduct != NULL)
     //{
-        //iProduct.SetSourceIndex(aValue);
+        iProduct.SetSourceIndex(aValue);
     //}
 }
 
@@ -288,6 +287,14 @@ Topology2::~Topology2()
 {
     delete iTopology1;
     delete iGroups;
+
+    map<IProxyProduct*, Topology2Group*>::iterator it;
+    for(it=iGroupLookup.begin(); it!=iGroupLookup.end(); it++)
+    {
+        delete it->second;
+    }
+
+    iGroupLookup.clear();
 }
 
 void Topology2::ScheduleCallback(void*)
@@ -305,13 +312,8 @@ void Topology2::Dispose()
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology2::ExecuteCallback);
     iNetwork.Execute(f, NULL);
-
-    iTopology1->Dispose();
-
-    //iTopology1 = null;
-    //iGroupLookup = NULL;
-
     iGroups->Dispose();
+    iTopology1->Dispose();
 
     iDisposed = true;
 }
@@ -325,7 +327,6 @@ void Topology2::ExecuteCallback(void*)
     for(it=iGroupLookup.begin(); it!=iGroupLookup.end(); it++)
     {
         it->second->Dispose();
-        delete it->second;
     }
 }
 

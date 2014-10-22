@@ -121,7 +121,6 @@ Topology4::~Topology4()
 {
     delete iTopology3;
     delete iRooms;
-    iRooms = NULL;
 
     map<ITopology3Group*, Topology4GroupWatcher*>::iterator it;
     for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
@@ -145,17 +144,12 @@ void Topology4::Dispose()
         //throw new ObjectDisposedException("Topology4.Dispose");
     }
 
-
     iNetwork.Execute(MakeFunctorGeneric(*this, &Topology4::DisposeCallback), NULL);
-
-    iTopology3->Dispose();
-
-    //iRoomLookup = NULL;
-    //iGroupWatcherLookup = NULL;
 
     iRooms->Dispose();
 
     iDisposed = true;
+    iTopology3->Dispose();
 }
 
 
@@ -163,22 +157,12 @@ void Topology4::DisposeCallback(void*)
 {
     iTopology3->Groups().RemoveWatcher(*this);
 
-    map<ITopology3Group*, Topology4GroupWatcher*>::iterator it;
-
     // removing these watchers should cause all rooms to be detached and disposed
+    map<ITopology3Group*, Topology4GroupWatcher*>::iterator it;
     for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
     {
         it->second->Dispose();
-        //delete it->second;
     }
-
-/*
-    // removing these watchers should cause all rooms to be detached and disposed
-    foreach (var group in iGroupWatcherLookup.Values)
-    {
-        group.Dispose();
-    }
-*/
 }
 
 
@@ -221,36 +205,38 @@ void Topology4::UnorderedRemove(ITopology3Group* aItem)
 }
 
 
-void Topology4::AddGroupToRoom(ITopology3Group& aGroup, const Brx& aRoom)
+void Topology4::AddGroupToRoom(ITopology3Group& aGroup, const Brx& aRoomName)
 {
-    if(iRoomLookup.count(Brn(aRoom))>0)
+    Brn roomName(aRoomName);
+
+    if(iRoomLookup.count(roomName)>0)
     {
         // room already exists
-        iRoomLookup[Brn(aRoom)]->Add(aGroup);
+        iRoomLookup[roomName]->Add(aGroup);
     }
     else
     {
         // need to create a new room
-        Topology4Room* room = new Topology4Room(iNetwork, aRoom, aGroup);
-        iRoomLookup[Brn(aRoom)] = room;
+        Topology4Room* room = new Topology4Room(iNetwork, aRoomName, aGroup);
+        iRoomLookup[roomName] = room;
         iRooms->Add(room);
     }
 }
 
 
-void Topology4::RemoveGroupFromRoom(ITopology3Group& aGroup, const Brx& aRoom)
+void Topology4::RemoveGroupFromRoom(ITopology3Group& aGroup, const Brx& aRoomName)
 {
-    Brn roomName(aRoom);
+    Brn roomName(aRoomName);
 
-    if (iRoomLookup.count(Brn(aRoom)) > 0)
+    if (iRoomLookup.count(roomName) > 0)
     {
-        Topology4Room* room = iRoomLookup[Brn(aRoom)];
+        Topology4Room* room = iRoomLookup[roomName];
 
         if (room->Remove(aGroup))
         {
             // no more groups in room - remove it
             iRooms->Remove(room);
-            iRoomLookup.erase(Brn(aRoom));
+            iRoomLookup.erase(roomName);
             room->Dispose();
             delete room;
         }

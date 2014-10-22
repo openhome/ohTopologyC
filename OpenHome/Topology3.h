@@ -130,7 +130,7 @@ private:
 class ReceiverWatcher : public IWatcher<Brn>, public IWatcher<IInfoMetadata*>, public IWatcher<ITopology2Source*>, public IDisposable, public INonCopyable
 {
 public:
-    ReceiverWatcher(Topology3& aTopology, Topology3Group& aGroup);
+    ReceiverWatcher(Topology3& aTopology3, Topology3Group& aGroup);
     ~ReceiverWatcher();
 
     // IDisposable
@@ -155,7 +155,7 @@ private:
 
 private:
     TBool iDisposed;
-    Topology3& iTopology;
+    Topology3& iTopology3;
     Topology3Group& iGroup;
     IProxyReceiver* iReceiver;
     Bws<100> iTransportState;
@@ -167,7 +167,7 @@ private:
 class SenderWatcher : public IWatcher<ISenderMetadata*>, public IDisposable, public INonCopyable
 {
 public:
-    SenderWatcher(Topology3& aTopology, ITopology2Group& aGroup);
+    SenderWatcher(Topology3& aTopology3, ITopology2Group& aGroup);
     ~SenderWatcher();
     // IDisposable
     virtual void Dispose();
@@ -183,7 +183,7 @@ private:
 
 
 private:
-    Topology3& iTopology;
+    Topology3& iTopology3;
     DisposeHandler* iDisposeHandler;
     IDevice& iDevice;
     IProxySender* iSender;

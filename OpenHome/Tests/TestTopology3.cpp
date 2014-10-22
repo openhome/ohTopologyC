@@ -90,12 +90,16 @@ private:
 
         Bws<100> buf;
 
-        if (sender->Enabled())
+        TBool enabled = sender->Enabled();
+
+        if (enabled)
         {
             buf.Replace(Brn("Sender True "));
 
-            IDevice* device = &sender->Device();
-            buf.Append(device->Udn());
+            IDevice& device = sender->Device();
+
+            Brn udn = device.Udn();
+            buf.Append(udn);
             f(buf);
         }
         else
@@ -168,14 +172,13 @@ void SuiteTopology3::Test1()
     network->Dispose();
 
     delete watcher;
-    delete mocker;
     delete runner;
     delete log;
+    delete mocker;
 
     delete iTopology3;
     delete mockInjector;
     delete network;
-
 }
 
 

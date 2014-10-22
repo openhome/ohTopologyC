@@ -1080,7 +1080,6 @@ Topology5::Topology5(ITopology4* aTopology4, ILog& aLog)
 Topology5::~Topology5()
 {
     delete iDisposeHandler;
-    //iRoomLookup.clear();
     delete iRooms;
     delete iTopology4;
 
@@ -1115,14 +1114,10 @@ void Topology5::DisposeCallback(void*)
     iTopology4->Rooms().RemoveWatcher(*this);
 
     map<ITopology4Room*, Topology5Room*>::iterator it;
-
     for(it=iRoomLookup.begin(); it!=iRoomLookup.end(); it++)
     {
         it->second->Dispose();
-        //delete it->second;
     }
-
-    //iRoomLookup.clear();
 }
 
 

@@ -2,7 +2,6 @@
 #include <OpenHome/OhNetTypes.h>
 #include <algorithm>
 #include <OpenHome/MetaData.h>
-//#include <OpenHome/ServiceSender.h>
 
 
 using namespace OpenHome;
@@ -23,8 +22,6 @@ Topology1::Topology1(INetwork* aNetwork, ILog& /*aLog*/)
 
 Topology1::~Topology1()
 {
-    InfoMetadata::DestroyStatics();  // FIXME: should probably live elsewhere
-    SenderMetadata::DestroyStatics(); // FIXME: should probably live elsewhere
 
     map<IDevice*, IProxyProduct*>::iterator it;
     for(it=iProductLookup.begin(); it!=iProductLookup.end(); it++)
@@ -32,6 +29,8 @@ Topology1::~Topology1()
         delete it->second;
     }
 
+    InfoMetadata::DestroyStatics();  // FIXME: should probably live elsewhere
+    SenderMetadata::DestroyStatics(); // FIXME: should probably live elsewhere
     delete iProducts;
 }
 
