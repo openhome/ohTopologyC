@@ -105,7 +105,7 @@ def setup_universal(context):
     env = context.env
     env.update(
         OH_PUBLISHDIR="artifacts@core.linn.co.uk:/home/artifacts/public_html/artifacts/",
-        OH_PROJECT="ohMediaPlayer",
+        OH_PROJECT="ohTopologyC",
         OH_DEBUG=context.options.debugmode,
         BUILDDIR='buildhudson',
         WAFLOCK='.lock-wafbuildhudson',
