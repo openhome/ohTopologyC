@@ -10,7 +10,7 @@ using namespace OpenHome::Net;
 
 
 ServiceReceiver::ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aNetwork, &aDevice, aLog)
+    :Service(aNetwork, aDevice, aLog)
     ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), InfoMetadata::Empty()))
     ,iTransportState(new Watchable<Brn>(aNetwork, Brn("TransportState"), Brx::Empty()))
     ,iCurrentMetadata(NULL)
@@ -33,9 +33,9 @@ void ServiceReceiver::Dispose()
 }
 
 
-IProxy* ServiceReceiver::OnCreate(IDevice* aDevice)
+IProxy* ServiceReceiver::OnCreate(IDevice& aDevice)
 {
-    return(new ProxyReceiver(*this, *aDevice));
+    return(new ProxyReceiver(*this, aDevice));
 }
 
 

@@ -107,7 +107,7 @@ protected:
 
 public:
     virtual void Dispose();
-    virtual IProxy* OnCreate(IDevice* aDevice);
+    virtual IProxy* OnCreate(IDevice& aDevice);
 
     // IServiceProduct methods
     virtual IWatchable<Brn>& Room();

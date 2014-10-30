@@ -92,7 +92,7 @@ public:
     virtual TBool Wait();
     virtual void Unsubscribe();
     virtual IInjectorDevice& Device();
-    virtual IProxy* OnCreate(IDevice* aDevice) = 0;
+    virtual IProxy* OnCreate(IDevice& aDevice) = 0;
 
     // IService
     virtual void Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType, IDevice* aDevice);
@@ -110,7 +110,7 @@ public:
     virtual void Dispose();
 
 protected:
-    Service(INetwork& aNetwork, IInjectorDevice* aDevice, ILog& aLog);
+    Service(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
 
     virtual Job* OnSubscribe();
     Job* Start(FunctorGeneric<void*> aAction);
@@ -136,7 +136,7 @@ protected:
     Job* iSubscribeTask;
 
 private:
-    IInjectorDevice* iDevice;
+    IInjectorDevice& iDevice;
     //CancellationTokenSource iCancelSubscribe;
     std::vector<Job*> iJobs;
     TUint iRefCount;

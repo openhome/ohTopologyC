@@ -13,7 +13,7 @@ using namespace std;
 
 
 ServiceProduct::ServiceProduct(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aNetwork, &aDevice, aLog)
+    :Service(aNetwork, aDevice, aLog)
     ,iRoom(new Watchable<Brn>(aNetwork, Brn("Room"), Brx::Empty()))
     ,iName(new Watchable<Brn>(aNetwork, Brn("Name"), Brx::Empty()))
     ,iSourceIndex(new Watchable<TUint>(aNetwork, Brn("SourceIndex"), 0))
@@ -49,9 +49,9 @@ void ServiceProduct::Dispose()
 }
 
 
-IProxy* ServiceProduct::OnCreate(IDevice* aDevice)
+IProxy* ServiceProduct::OnCreate(IDevice& aDevice)
 {
-    return(new ProxyProduct(*this, *aDevice));
+    return(new ProxyProduct(*this, aDevice));
 }
 
 
@@ -291,6 +291,7 @@ ServiceProductNetwork::ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice
     iCpDevice.AddRef();
 
     iService = new CpProxyAvOpenhomeOrgProduct1(aCpDevice);
+
     Functor f1 = MakeFunctor(*this, &ServiceProductNetwork::HandleRoomChanged);
     iService->SetPropertyProductRoomChanged(f1);
 

@@ -1,5 +1,5 @@
-#ifndef HEADER_TOPOLOGY3
-#define HEADER_TOPOLOGY3
+#ifndef HEADER_TOPOLOGY4
+#define HEADER_TOPOLOGY4
 
 #include <OpenHome/IWatcher.h>
 #include <OpenHome/IWatchable.h>
@@ -131,5 +131,5 @@ private:
 
 } // OpenHome
 
-#endif //  HEADER_TOPOLOGY3
+#endif //  HEADER_TOPOLOGY4
 

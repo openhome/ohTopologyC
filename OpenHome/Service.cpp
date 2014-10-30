@@ -6,7 +6,7 @@ using namespace OpenHome::Av;
 using namespace std;
 
 
-Service::Service(INetwork& aNetwork, IInjectorDevice* aDevice, ILog& aLog)
+Service::Service(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     :iNetwork(aNetwork)
     ,iLog(aLog)
     ,iDisposeHandler(new DisposeHandler())
@@ -95,7 +95,7 @@ void Service::HandleAggregate(AggregateException aException)
 IInjectorDevice& Service::Device()
 {
     DisposeLock lock(*iDisposeHandler);
-    return(*iDevice);
+    return(iDevice);
 }
 
 
@@ -147,7 +147,7 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceTyp
     }
     else
     {
-        IProxy* product = OnCreate(aDevice);
+        IProxy* product = OnCreate(*aDevice);
         ArgsTwo<IDevice*, IProxy*>* args = new ArgsTwo<IDevice*, IProxy*>(aDevice, product);
         aCallback(args);
     }
@@ -172,7 +172,7 @@ void Service::CreateCallbackCallback(void* aArgs)
     IDevice* device = args->Arg2();
     delete args;
 
-    IProxy* product = OnCreate(device);
+    IProxy* product = OnCreate(*device);
     ArgsTwo<IDevice*, IProxy*>* cbArgs = new ArgsTwo<IDevice*, IProxy*>(device, product);
 
     callback(cbArgs);

@@ -14,7 +14,7 @@ using namespace OpenHome::Net;
 /////////////////////////////////////////////////////////
 
 ServiceSender::ServiceSender(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aNetwork, &aDevice, aLog)
+    :Service(aNetwork, aDevice, aLog)
     ,iAudio(new Watchable<TBool>(aNetwork, Brn("Audio"), false))
     ,iMetadata(new Watchable<ISenderMetadata*>(aNetwork, Brn("Metadata"), SenderMetadata::Empty()))
     ,iStatus(new Watchable<Brn>(aNetwork, Brn("Status"), Brx::Empty()))
@@ -41,9 +41,9 @@ void ServiceSender::Dispose()
 }
 
 
-IProxy* ServiceSender::OnCreate(IDevice* aDevice)
+IProxy* ServiceSender::OnCreate(IDevice& aDevice)
 {
-    return(new ProxySender(*this, *aDevice));
+    return(new ProxySender(*this, aDevice));
 }
 
 
