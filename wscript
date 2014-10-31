@@ -169,6 +169,7 @@ def build(bld):
                 'OpenHome/ServiceReceiver.cpp',
                 'OpenHome/ServiceSender.cpp',
                 'OpenHome/ServiceVolume.cpp',
+                'OpenHome/ServiceInfo.cpp',
                 'OpenHome/Tag.cpp',
                 'OpenHome/TagManager.cpp',
                 'OpenHome/Topology1.cpp',

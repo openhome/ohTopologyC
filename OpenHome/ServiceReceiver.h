@@ -57,7 +57,7 @@ protected:
     ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
 
 protected:
-    Bws<100> iProtocolInfo;
+    Bws<100> iProtocolInfo; // FIXME: random capacity value
     Watchable<IInfoMetadata*>* iMetadata;
     Watchable<Brn>* iTransportState;
     IInfoMetadata* iCurrentMetadata;

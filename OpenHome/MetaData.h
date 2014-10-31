@@ -16,18 +16,18 @@ namespace Av
 //class IMediaMetadata;
 
 //////////////////////////////////////////////////////////////////////
-
+/*
 class IInfoDetails
 {
     virtual TUint BitDepth() = 0;
     virtual TUint BitRate() = 0;
-    virtual Brn CodecName() = 0;
+    virtual const Brx& CodecName() = 0;
     virtual TUint Duration() = 0;
     virtual TBool Lossless() = 0;
     virtual TUint SampleRate() = 0;
     virtual ~IInfoDetails() {}
 };
-
+*/
 //////////////////////////////////////////////////////////////////////
 
 class IInfoMetadata
@@ -39,14 +39,14 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////
-
+/*
 class IInfoMetatext
 {
 public:
     virtual IMediaMetadata& Metatext() = 0;
     virtual ~IInfoMetatext() {}
 };
-
+*/
 //////////////////////////////////////////////////////////////////////
 
 class InfoMetadata : public IInfoMetadata, public INonCopyable
@@ -71,7 +71,7 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////
-
+/*
 class InfoMetatext : public IInfoMetatext, public INonCopyable
 {
 public:
@@ -82,7 +82,7 @@ public:
 private:
     IMediaMetadata& iMetatext;
 };
-
+*/
 //////////////////////////////////////////////////////////////////////
 
 class ISenderMetadata

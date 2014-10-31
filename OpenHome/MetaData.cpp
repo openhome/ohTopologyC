@@ -61,7 +61,7 @@ const Brx& InfoMetadata::Uri()
 
 
 ///////////////////////////////////////////////////////////////
-
+/*
 InfoMetatext::InfoMetatext(IMediaMetadata& aMetatext)
     :iMetatext(aMetatext)
 {
@@ -72,7 +72,7 @@ IMediaMetadata& InfoMetatext::Metatext()
 {
     return(iMetatext);
 }
-
+*/
 ///////////////////////////////////////////////////////////////
 
 SenderMetadata* SenderMetadata::iEmpty = NULL;
