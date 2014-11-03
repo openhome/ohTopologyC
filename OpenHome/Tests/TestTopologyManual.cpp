@@ -47,7 +47,7 @@ private:
 
 
 private:
-    Topology1* iTopology1;
+    //Topology1* iTopology1;
     Net::Library& iLib;
 };
 
