@@ -107,7 +107,7 @@ public:
     virtual void SetHasTime(TBool aHasTime);
     virtual void SetVolumes(std::vector<ITopology5Group*>* aVolumes);
 
-    virtual void Select();
+    virtual void Select();
 
 private:
     INetwork& iNetwork;
