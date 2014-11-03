@@ -60,6 +60,9 @@ public:
     virtual IDevice& Device() = 0;
     virtual TBool HasInfo() = 0;
     virtual TBool HasTime() = 0;
+
+    virtual void Select() = 0;
+
     virtual ~ITopology5Source() {}
 };
 
@@ -78,6 +81,7 @@ public:
     virtual IDevice& Device();
     virtual TBool HasInfo();
     virtual TBool HasTime();
+    virtual void Select();
 
 };
 
@@ -347,6 +351,9 @@ class Topology5 : public ITopology5, public IWatcherUnordered<ITopology4Room*>, 
 public:
     Topology5(ITopology4* aTopology4, ILog& aLog);
     ~Topology5();
+
+    static Topology5* CreateTopology5(INetwork& aNetwork, ILog& aLog);
+
     virtual void Dispose();
     virtual IWatchableUnordered<ITopology5Room*>& Rooms();
     virtual INetwork& Network();

@@ -12,8 +12,7 @@ using namespace OpenHome::Net;
 using namespace std;
 
 
-    //abstract class ServiceVolume : Service
-    //{
+
 ServiceVolume::ServiceVolume(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     : Service(aNetwork, aDevice, aLog)
 {

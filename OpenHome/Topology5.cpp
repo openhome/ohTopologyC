@@ -169,6 +169,12 @@ TBool Topology5SourceNull::HasTime()
 }
 
 
+void Topology5SourceNull::Select()
+{
+    THROW(NotImplementedException);
+}
+
+
 ///////////////////////////////////////////////////
 
 Topology5Source::Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITopology2Source* aSource)
@@ -1091,6 +1097,16 @@ Topology5::~Topology5()
 
     iRoomLookup.clear();
 
+}
+
+Topology5* Topology5::CreateTopology5(INetwork& aNetwork, ILog& aLog)
+{
+    Topology1* topology1 = new Topology1(&aNetwork, aLog);
+    Topology2* topology2 = new Topology2(topology1, aLog);
+    Topology3* topology3 = new Topology3(topology2, aLog);
+    Topology4* topology4 = new Topology4(topology3, aLog);
+    Topology5* top5 = new Topology5(topology4, aLog);
+    return(top5);
 }
 
 void Topology5::ScheduleCallback(void*)
