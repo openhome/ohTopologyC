@@ -10,10 +10,11 @@ using namespace OpenHome::Net;
 
 
 ServiceReceiver::ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aNetwork, &aDevice, aLog)
+    :Service(aNetwork, aDevice, aLog)
     ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), InfoMetadata::Empty()))
     ,iTransportState(new Watchable<Brn>(aNetwork, Brn("TransportState"), Brx::Empty()))
     ,iCurrentMetadata(NULL)
+    ,iCurrentTransportState(NULL)
 {
 }
 
@@ -22,7 +23,12 @@ ServiceReceiver::~ServiceReceiver()
 {
     delete iMetadata;
     delete iTransportState;
-    delete iCurrentMetadata;
+    if (iCurrentMetadata!=InfoMetadata::Empty())
+	{
+		delete iCurrentMetadata;
+	}
+    delete iCurrentTransportState;
+
 }
 
 void ServiceReceiver::Dispose()
@@ -33,9 +39,9 @@ void ServiceReceiver::Dispose()
 }
 
 
-IProxy* ServiceReceiver::OnCreate(IDevice* aDevice)
+IProxy* ServiceReceiver::OnCreate(IDevice& aDevice)
 {
-    return(new ProxyReceiver(*this, *aDevice));
+    return(new ProxyReceiver(*this, aDevice));
 }
 
 
@@ -288,36 +294,27 @@ void ServiceReceiverNetwork::MetadataChangedCallbackCallback(void* aInfoMetadata
 
 void ServiceReceiverNetwork::HandleTransportStateChanged()
 {
-    Brhz transportState;
-    iService->PropertyTransportState(transportState);
-    Bws<100>* newTransportState = new Bws<100>(transportState);
-
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::TransportChangedCallback);
-    iNetwork.Schedule(f, newTransportState);
-/*
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iTransportState.Update(transportState);
-        });
-    });
-*/
+    iNetwork.Schedule(f, NULL);
 }
 
 
-void ServiceReceiverNetwork::TransportChangedCallback(void* aTransportState)
+void ServiceReceiverNetwork::TransportChangedCallback(void*)
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::TransportChangedCallbackCallback);
-    iDisposeHandler->WhenNotDisposed(f, aTransportState);
+    iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
-void ServiceReceiverNetwork::TransportChangedCallbackCallback(void* aTransportState)
+void ServiceReceiverNetwork::TransportChangedCallbackCallback(void*)
 {
-    Bws<100>* transportState = (Bws<100>*)aTransportState;
-    iTransportState->Update(Brn(*transportState));
-    delete iCurrentTransportState;
-    iCurrentTransportState = transportState;
+    Brhz transportState;
+    iService->PropertyTransportState(transportState);
+    
+	Bws<100>* oldTransportState = iCurrentTransportState;
+	Bws<100>* iCurrentTransportState = new Bws<100>(transportState);
+	
+    iTransportState->Update(Brn(*iCurrentTransportState));
+    delete oldTransportState;
 }
 
 

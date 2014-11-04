@@ -123,6 +123,8 @@ upnp_services = [
         GeneratedFile('OpenHome/Av/ServiceXml/OpenHome/Product1.xml', 'av.openhome.org', 'Product', '1', 'AvOpenhomeOrgProduct1'),
         GeneratedFile('OpenHome/Av/ServiceXml/OpenHome/Sender1.xml', 'av.openhome.org', 'Sender', '1', 'AvOpenhomeOrgSender1'),
         GeneratedFile('OpenHome/Av/ServiceXml/OpenHome/Receiver1.xml', 'av.openhome.org', 'Receiver', '1', 'AvOpenhomeOrgReceiver1'),
+        GeneratedFile('OpenHome/Av/ServiceXml/OpenHome/Volume1.xml', 'av.openhome.org', 'Volume', '1', 'AvOpenhomeOrgVolume1'),
+        GeneratedFile('OpenHome/Av/ServiceXml/OpenHome/Info1.xml', 'av.openhome.org', 'Info', '1', 'AvOpenhomeOrgInfo1'),
     ]
 
 
@@ -166,6 +168,8 @@ def build(bld):
                 'OpenHome/ServiceProduct.cpp',
                 'OpenHome/ServiceReceiver.cpp',
                 'OpenHome/ServiceSender.cpp',
+                'OpenHome/ServiceVolume.cpp',
+                'OpenHome/ServiceInfo.cpp',
                 'OpenHome/Tag.cpp',
                 'OpenHome/TagManager.cpp',
                 'OpenHome/Topology1.cpp',

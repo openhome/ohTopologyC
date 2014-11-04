@@ -14,11 +14,12 @@ using namespace OpenHome::Net;
 /////////////////////////////////////////////////////////
 
 ServiceSender::ServiceSender(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aNetwork, &aDevice, aLog)
+    :Service(aNetwork, aDevice, aLog)
     ,iAudio(new Watchable<TBool>(aNetwork, Brn("Audio"), false))
     ,iMetadata(new Watchable<ISenderMetadata*>(aNetwork, Brn("Metadata"), SenderMetadata::Empty()))
     ,iStatus(new Watchable<Brn>(aNetwork, Brn("Status"), Brx::Empty()))
     ,iCurrentMetadata(NULL)
+	,iCurrentStatus(NULL)
 {
 }
 
@@ -28,7 +29,11 @@ ServiceSender::~ServiceSender()
     delete iAudio;
     delete iMetadata;
     delete iStatus;
-    delete iCurrentMetadata;
+    if (iCurrentMetadata!= SenderMetadata::Empty())
+	{
+		delete iCurrentMetadata;
+	}
+    delete iCurrentStatus;
 }
 
 
@@ -41,9 +46,9 @@ void ServiceSender::Dispose()
 }
 
 
-IProxy* ServiceSender::OnCreate(IDevice* aDevice)
+IProxy* ServiceSender::OnCreate(IDevice& aDevice)
 {
-    return(new ProxySender(*this, *aDevice));
+    return(new ProxySender(*this, aDevice));
 }
 
 
@@ -237,21 +242,8 @@ void ServiceSenderNetwork::MetadataChangedCallbackCallback(void* aMetadata)
 
 void ServiceSenderNetwork::HandleStatusChanged()
 {
-    Brhz status;
-    iService->PropertyStatus(status);
-    Bws<100>* newStatus = new Bws<100>(status);
-
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::StatusChangedCallback);
-    iNetwork.Schedule(f, newStatus);
-/*
-    Network.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iStatus->Update(status);
-        });
-    });
-*/
+    iNetwork.Schedule(f, NULL);
 }
 
 
@@ -262,12 +254,16 @@ void ServiceSenderNetwork::StatusChangedCallback(void* aStatus)
 }
 
 
-void ServiceSenderNetwork::StatusChangedCallbackCallback(void* aStatus)
+void ServiceSenderNetwork::StatusChangedCallbackCallback(void*)
 {
-    Bws<100>* status = (Bws<100>*)aStatus;
-    iStatus->Update(Brn(*status));
-    delete iCurrentStatus;
-    iCurrentStatus = status;
+    Brhz status;
+    iService->PropertyStatus(status);
+
+	Bws<100>* oldStatus = iCurrentStatus;
+	Bws<100>* iCurrentStatus = new Bws<100>(status);
+	
+	iStatus->Update(Brn(*iCurrentStatus));
+    delete oldStatus;
 }
 
 

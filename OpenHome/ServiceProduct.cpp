@@ -13,7 +13,7 @@ using namespace std;
 
 
 ServiceProduct::ServiceProduct(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aNetwork, &aDevice, aLog)
+    :Service(aNetwork, aDevice, aLog)
     ,iRoom(new Watchable<Brn>(aNetwork, Brn("Room"), Brx::Empty()))
     ,iName(new Watchable<Brn>(aNetwork, Brn("Name"), Brx::Empty()))
     ,iSourceIndex(new Watchable<TUint>(aNetwork, Brn("SourceIndex"), 0))
@@ -21,6 +21,7 @@ ServiceProduct::ServiceProduct(INetwork& aNetwork, IInjectorDevice& aDevice, ILo
     ,iStandby(new Watchable<TBool>(aNetwork, Brn("Standby"), false))
     ,iCurrentRoom(NULL)
     ,iCurrentName(NULL)
+    ,iCurrentSourceXml(NULL)
 {
 }
 
@@ -29,6 +30,7 @@ ServiceProduct::~ServiceProduct()
 {
     delete iCurrentRoom;
     delete iCurrentName;
+    delete iCurrentSourceXml;
     delete iRoom;
     delete iName;
     delete iSourceIndex;
@@ -49,9 +51,9 @@ void ServiceProduct::Dispose()
 }
 
 
-IProxy* ServiceProduct::OnCreate(IDevice* aDevice)
+IProxy* ServiceProduct::OnCreate(IDevice& aDevice)
 {
-    return(new ProxyProduct(*this, *aDevice));
+    return(new ProxyProduct(*this, aDevice));
 }
 
 
@@ -291,6 +293,7 @@ ServiceProductNetwork::ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice
     iCpDevice.AddRef();
 
     iService = new CpProxyAvOpenhomeOrgProduct1(aCpDevice);
+
     Functor f1 = MakeFunctor(*this, &ServiceProductNetwork::HandleRoomChanged);
     iService->SetPropertyProductRoomChanged(f1);
 
@@ -539,9 +542,19 @@ void ServiceProductNetwork::RoomChangedCallback(void*)
 
 void ServiceProductNetwork::RoomChangedCallbackCallback(void*)
 {
+/*
+    Bws<20>* oldRoom = iCurrentRoom;
+    iCurrentRoom = new Bws<20>(aCommands.RemainingTrimmed());
+    iRoom->Update(Brn(*iCurrentRoom));
+    delete oldRoom;
+*/
     Brhz room;
     iService->PropertyProductRoom(room);
-    iRoom->Update(Brn(room));
+
+    Bws<20>* oldRoom = iCurrentRoom;
+    iCurrentRoom = new Bws<20>(room);
+    iRoom->Update(Brn(*iCurrentRoom));
+    delete oldRoom;
 }
 
 void ServiceProductNetwork::HandleNameChanged()
@@ -574,7 +587,12 @@ void ServiceProductNetwork::NameChangedCallbackCallback(void*)
 {
     Brhz name;
     iService->PropertyProductName(name);
-    iName->Update(Brn(name));
+
+    Bws<50>* oldName = iCurrentName;
+    iCurrentName = new Bws<50>(name);
+
+    iName->Update(Brn(*iCurrentName));
+    delete oldName;
 }
 
 
@@ -642,7 +660,15 @@ void ServiceProductNetwork::SourceXmlChangedCallbackCallback(void*)
 {
     Brhz sourceXml;
     iService->PropertySourceXml(sourceXml);
-    iSourceXml->Update(Brn(sourceXml));
+
+    Bws<2048>* oldSourceXml = iCurrentSourceXml;
+    iCurrentSourceXml = new Bws<2048>(sourceXml);
+
+    Brn xml(*iCurrentSourceXml);
+
+    iSourceXml->Update(xml);
+
+    delete oldSourceXml;
 }
 
 void ServiceProductNetwork::HandleStandbyChanged()
@@ -702,11 +728,12 @@ ServiceProductMock::ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDev
 
     iCurrentRoom = new Bws<20>(aRoom);
     iCurrentName = new Bws<50>(aName);
+    iCurrentSourceXml = new Bws<2048>(iSourceXmlFactory->ToString());
 
     iRoom->Update(Brn(*iCurrentRoom));
     iName->Update(Brn(*iCurrentName));
+    iSourceXml->Update(Brn(*iCurrentSourceXml));
     iSourceIndex->Update(aSourceIndex);
-    iSourceXml->Update(Brn(iSourceXmlFactory->ToString()));
     iStandby->Update(aStandby);
 }
 

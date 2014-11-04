@@ -13,20 +13,6 @@ namespace OpenHome
 namespace Av
 {
 
-//class IMediaMetadata;
-
-//////////////////////////////////////////////////////////////////////
-
-class IInfoDetails
-{
-    virtual TUint BitDepth() = 0;
-    virtual TUint BitRate() = 0;
-    virtual Brn CodecName() = 0;
-    virtual TUint Duration() = 0;
-    virtual TBool Lossless() = 0;
-    virtual TUint SampleRate() = 0;
-    virtual ~IInfoDetails() {}
-};
 
 //////////////////////////////////////////////////////////////////////
 
@@ -40,11 +26,27 @@ public:
 
 //////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////
+
 class IInfoMetatext
 {
 public:
     virtual IMediaMetadata& Metatext() = 0;
-    virtual ~IInfoMetatext() {}
+};
+
+/////////////////////////////////////////
+
+class InfoMetatext : public IInfoMetatext
+{
+public:
+    InfoMetatext();
+    InfoMetatext(IMediaMetadata& aMetatext);
+
+    IMediaMetadata& Metatext();
+
+private:
+    IMediaMetadata* iMetatext;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -68,19 +70,6 @@ private:
     IMediaMetadata* iMetadata;
     Bws<500> iUri;
     static IInfoMetadata* iEmpty;
-};
-
-//////////////////////////////////////////////////////////////////////
-
-class InfoMetatext : public IInfoMetatext, public INonCopyable
-{
-public:
-    InfoMetatext(IMediaMetadata& aMetatext);
-    IMediaMetadata& Metatext();
-
-
-private:
-    IMediaMetadata& iMetatext;
 };
 
 //////////////////////////////////////////////////////////////////////

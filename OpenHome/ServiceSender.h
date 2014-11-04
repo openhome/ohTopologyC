@@ -37,7 +37,7 @@ class ServiceSender : public Service
 public:
     ~ServiceSender();
     virtual void Dispose();
-    virtual IProxy* OnCreate(IDevice* aDevice);
+    virtual IProxy* OnCreate(IDevice& aDevice);
     virtual IWatchable<TBool>& Audio();
     virtual IWatchable<ISenderMetadata*>& Metadata();
     virtual IWatchable<Brn>& Status();

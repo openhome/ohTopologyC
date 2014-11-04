@@ -1,5 +1,5 @@
 #include <OpenHome/Private/SuiteUnitTest.h>
-#include <OpenHome/Topology1.h>
+#include <OpenHome/Topology5.h>
 #include <OpenHome/Mockable.h>
 #include <OpenHome/Injector.h>
 #include <OpenHome/Tests/TestScriptHttpReader.h>
@@ -47,7 +47,6 @@ private:
 
 
 private:
-    Topology1* iTopology1;
     Net::Library& iLib;
 };
 
@@ -88,24 +87,27 @@ void SuiteTopologyManual::Test1()
 
     std::vector<NetworkAdapter*>* list = iLib.CreateSubnetList();
     TIpAddress subnetAddress = (*list)[0]->Subnet();
-
     iLib.DestroySubnetList(list);
-
     Net::CpStack& cpStack = *iLib.StartCp(subnetAddress);
+    /*InjectorProduct* injector = */new InjectorProduct(*network, cpStack, *log);
 
-    InjectorProduct* injector = new InjectorProduct(*network, cpStack, *log);
+    /*Topology5* topology5 =*/ Topology5::CreateTopology5(*network, *log);
 
-    iTopology1 = new Topology1(network, *log);
 
-    Thread::Sleep(10000);
+    for (;;)
+    {
+        // forever
+    }
 
-    iTopology1->Dispose();
+/*
+    topology5->Dispose();
     network->Dispose();
     injector->Dispose();
 
-    delete iTopology1;
+    delete topology5;
     delete network;
     delete injector;
+*/
 }
 
 ////////////////////////////////////////////

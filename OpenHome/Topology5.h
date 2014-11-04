@@ -1,5 +1,5 @@
-#ifndef HEADER_TOPOLOGY4
-#define HEADER_TOPOLOGY4
+#ifndef HEADER_TOPOLOGY5
+#define HEADER_TOPOLOGY5
 
 #include <OpenHome/IWatcher.h>
 #include <OpenHome/IWatchable.h>
@@ -60,6 +60,9 @@ public:
     virtual IDevice& Device() = 0;
     virtual TBool HasInfo() = 0;
     virtual TBool HasTime() = 0;
+
+    virtual void Select() = 0;
+
     virtual ~ITopology5Source() {}
 };
 
@@ -78,6 +81,7 @@ public:
     virtual IDevice& Device();
     virtual TBool HasInfo();
     virtual TBool HasTime();
+    virtual void Select();
 
 };
 
@@ -103,7 +107,7 @@ public:
     virtual void SetHasTime(TBool aHasTime);
     virtual void SetVolumes(std::vector<ITopology5Group*>* aVolumes);
 
-    virtual void Select();
+    virtual void Select();
 
 private:
     INetwork& iNetwork;
@@ -347,6 +351,9 @@ class Topology5 : public ITopology5, public IWatcherUnordered<ITopology4Room*>, 
 public:
     Topology5(ITopology4* aTopology4, ILog& aLog);
     ~Topology5();
+
+    static Topology5* CreateTopology5(INetwork& aNetwork, ILog& aLog);
+
     virtual void Dispose();
     virtual IWatchableUnordered<ITopology5Room*>& Rooms();
     virtual INetwork& Network();
@@ -375,5 +382,5 @@ private:
 } // Av
 } // OpenHome
 
-#endif // HEADER_TOPOLOGY4
+#endif // HEADER_TOPOLOGY5
 

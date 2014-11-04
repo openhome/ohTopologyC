@@ -42,7 +42,7 @@ class ServiceReceiver : public Service
 public:
     ~ServiceReceiver();
     virtual void Dispose();
-    virtual IProxy* OnCreate(IDevice* aDevice);
+    virtual IProxy* OnCreate(IDevice& aDevice);
 
     virtual IWatchable<IInfoMetadata*>& Metadata();
     virtual IWatchable<Brn>& TransportState();
@@ -57,7 +57,7 @@ protected:
     ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
 
 protected:
-    Bws<100> iProtocolInfo;
+    Bws<100> iProtocolInfo; // FIXME: random capacity value
     Watchable<IInfoMetadata*>* iMetadata;
     Watchable<Brn>* iTransportState;
     IInfoMetadata* iCurrentMetadata;

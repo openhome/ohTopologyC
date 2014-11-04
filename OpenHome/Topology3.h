@@ -1,5 +1,5 @@
-#ifndef HEADER_TOPOLOGYM
-#define HEADER_TOPOLOGYM
+#ifndef HEADER_TOPOLOGY3
+#define HEADER_TOPOLOGY3
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/IWatcher.h>
@@ -239,4 +239,4 @@ private:
 } // OpenHome
 
 
-#endif // HEADER_TOPOLOGYM
+#endif // HEADER_TOPOLOGY3
