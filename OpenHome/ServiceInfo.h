@@ -21,7 +21,6 @@ namespace OpenHome
 namespace Av
 {
 
-
 class IInfoDetails
 {
 public:
@@ -31,48 +30,6 @@ public:
     virtual TUint Duration() = 0;
     virtual TBool Lossless() = 0;
     virtual TUint SampleRate() = 0;
-};
-
-/*
-class IInfoDetails
-{
-    virtual TUint BitDepth() = 0;
-    virtual TUint BitRate() = 0;
-    virtual const Brx& CodecName() = 0;
-    virtual TUint Duration() = 0;
-    virtual TBool Lossless() = 0;
-    virtual TUint SampleRate() = 0;
-    virtual ~IInfoDetails() {}
-};
-
-*/
-
-
-/////////////////////////////////////////
-/*
-class IInfoMetadata
-{
-public:
-    virtual IMediaMetadata& Metadata() = 0;
-    virtual const Brx& Uri() = 0;
-};
-*/
-/////////////////////////////////////////
-
-class IInfoMetatext
-{
-public:
-    virtual IMediaMetadata& Metatext() = 0;
-};
-
-/////////////////////////////////////////
-
-class IProxyInfo : public IProxy
-{
-public:
-    virtual IWatchable<IInfoDetails*>& Details() = 0;
-    virtual IWatchable<IInfoMetadata*>& Metadata() = 0;
-    virtual IWatchable<IInfoMetatext*>& Metatext() = 0;
 };
 
 /////////////////////////////////////////
@@ -82,7 +39,6 @@ class InfoDetails : public IInfoDetails
 public:
     InfoDetails();
     InfoDetails(TUint aBitDepth, TUint aBitRate, const Brx& aCodecName, TUint aDuration, TBool aLossless, TUint aSampleRate);
-
 
     virtual TUint BitDepth();
     virtual TUint BitRate();
@@ -100,39 +56,7 @@ private:
     TUint iSampleRate;
 };
 
-/////////////////////////////////////////
-/*
-class InfoMetadata : public IInfoMetadata
-{
-public:
-    static IInfoMetadata* Empty();// = new InfoMetadata();
-    InfoMetadata(IMediaMetadata& aMetadata, const Brx& aUri);
-    IMediaMetadata& Metadata();
-    const Brx& Uri();
-
-private:
-    InfoMetadata();
-
-private:
-    IMediaMetadata& iMetadata;
-    Bws<100> iUri; // FIXME: random capacity value
-};
-*/
-/////////////////////////////////////////
-
-class InfoMetatext : public IInfoMetatext
-{
-public:
-    InfoMetatext();
-    InfoMetatext(IMediaMetadata& aMetatext);
-
-    IMediaMetadata& Metatext();
-
-private:
-    IMediaMetadata* iMetatext;
-};
-
-/////////////////////////////////////////
+/////////////////////////////////////////////////////////
 
 class ServiceInfo : public Service
 {
@@ -187,17 +111,17 @@ private:
     Net::CpProxyAvOpenhomeOrgInfo1* iService;
 };
 
-////////////////////////////////////////////////////////////
-/*
-class ServiceInfoMock : public ServiceInfo, public IMockable
+////////////////////////////////////////////////////////
+
+class IProxyInfo : public IProxy
 {
 public:
-    ServiceInfoMock(INetwork aNetwork, IInjectorDevice aDevice, IInfoDetails aDetails, IInfoMetadata aMetadata, IInfoMetatext aMetatext, ILog aLog)
+    virtual IWatchable<IInfoDetails*>& Details() = 0;
+    virtual IWatchable<IInfoMetadata*>& Metadata() = 0;
+    virtual IWatchable<IInfoMetatext*>& Metatext() = 0;
+};
 
-    virtual void Execute(IEnumerable<string> aValue);
-}
-*/
-///////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 
 class ProxyInfo : public IProxyInfo, public INonCopyable
 {

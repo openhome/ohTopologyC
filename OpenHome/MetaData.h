@@ -13,6 +13,7 @@ namespace OpenHome
 namespace Av
 {
 
+
 //////////////////////////////////////////////////////////////////////
 
 class IInfoMetadata
@@ -21,6 +22,31 @@ public:
     virtual IMediaMetadata& Metadata() = 0;
     virtual const Brx& Uri() = 0;
     virtual ~IInfoMetadata() {}
+};
+
+//////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////
+
+class IInfoMetatext
+{
+public:
+    virtual IMediaMetadata& Metatext() = 0;
+};
+
+/////////////////////////////////////////
+
+class InfoMetatext : public IInfoMetatext
+{
+public:
+    InfoMetatext();
+    InfoMetatext(IMediaMetadata& aMetatext);
+
+    IMediaMetadata& Metatext();
+
+private:
+    IMediaMetadata* iMetatext;
 };
 
 //////////////////////////////////////////////////////////////////////

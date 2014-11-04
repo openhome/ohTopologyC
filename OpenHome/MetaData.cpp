@@ -9,7 +9,25 @@ using namespace OpenHome::Net;
 
 
 
-///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
+InfoMetatext::InfoMetatext()
+    :iMetatext(NULL)
+{
+}
+
+InfoMetatext::InfoMetatext(IMediaMetadata& aMetatext)
+    :iMetatext(&aMetatext)
+{
+}
+
+IMediaMetadata& InfoMetatext::Metatext()
+{
+    return *iMetatext;
+}
+
+
+//////////////////////////////////////////////////////////
 
 IInfoMetadata* InfoMetadata::iEmpty = NULL;
 

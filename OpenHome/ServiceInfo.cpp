@@ -63,63 +63,6 @@ TUint InfoDetails::SampleRate()
     return iSampleRate;
 }
 
-
-//////////////////////////////////////////////////////////
-
-/*
-InfoMetadata* InfoMetadata::iEmpty = NULL;
-
-IInfoMetadata* InfoMetadata::Empty()
-{
-    if(iEmpty==NULL)
-    {
-        iEmpty = new InfoMetadata();
-    }
-    return(iEmpty);
-}
-
-InfoMetadata::InfoMetadata()
-    :iMetadata(NULL)
-    ,iUri(NULL)
-{
-}
-
-InfoMetadata::InfoMetadata(IMediaMetadata& aMetadata, const Brx& aUri)
-    :iMetadata(aMetadata)
-    ,iUri(aUri)
-{
-}
-
-IMediaMetadata InfoMetadata::Metadata()
-{
-    return iMetadata;
-}
-
-const Brx& InfoMetadata::Uri()
-{
-    return iUri;
-}
-
-*/
-
-//////////////////////////////////////////////////////////
-
-
-InfoMetatext::InfoMetatext()
-    :iMetatext(NULL)
-{
-}
-
-InfoMetatext::InfoMetatext(IMediaMetadata& aMetatext)
-    :iMetatext(&aMetatext)
-{
-}
-
-IMediaMetadata& InfoMetatext::Metatext()
-{
-    return *iMetatext;
-}
-
 //////////////////////////////////////////////////////////
 
 ServiceInfo::ServiceInfo(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
