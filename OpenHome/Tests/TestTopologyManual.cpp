@@ -47,7 +47,6 @@ private:
 
 
 private:
-    //Topology1* iTopology1;
     Net::Library& iLib;
 };
 
@@ -90,9 +89,9 @@ void SuiteTopologyManual::Test1()
     TIpAddress subnetAddress = (*list)[0]->Subnet();
     iLib.DestroySubnetList(list);
     Net::CpStack& cpStack = *iLib.StartCp(subnetAddress);
-    InjectorProduct* injector = new InjectorProduct(*network, cpStack, *log);
+    /*InjectorProduct* injector = */new InjectorProduct(*network, cpStack, *log);
 
-    Topology5* topology5 = Topology5::CreateTopology5(*network, *log);
+    /*Topology5* topology5 =*/ Topology5::CreateTopology5(*network, *log);
 
 
     for (;;)
@@ -100,6 +99,7 @@ void SuiteTopologyManual::Test1()
         // forever
     }
 
+/*
     topology5->Dispose();
     network->Dispose();
     injector->Dispose();
@@ -107,6 +107,7 @@ void SuiteTopologyManual::Test1()
     delete topology5;
     delete network;
     delete injector;
+*/
 }
 
 ////////////////////////////////////////////

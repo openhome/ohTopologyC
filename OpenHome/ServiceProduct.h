@@ -160,6 +160,7 @@ protected:
 
     Bws<20>* iCurrentRoom;
     Bws<50>* iCurrentName;
+    Bws<2048>* iCurrentSourceXml;
 };
 
 /////////////////////////////////////////////////////////////////
