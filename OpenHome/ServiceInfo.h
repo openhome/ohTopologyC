@@ -62,6 +62,7 @@ class ServiceInfo : public Service
 {
 protected:
     ServiceInfo(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
+    ~ServiceInfo();
 
 public:
     void Dispose();

@@ -14,8 +14,17 @@ using namespace std;
 
 
 ServiceVolume::ServiceVolume(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    : Service(aNetwork, aDevice, aLog)
+    :Service(aNetwork, aDevice, aLog)
+    ,iBalance(new Watchable<TInt>(aNetwork, Brn("Balance"), 0))
+    ,iFade(new Watchable<TInt>(aNetwork, Brn("Fade"), 0))
+    ,iMute(new Watchable<TBool>(aNetwork, Brn("Mute"), false))
+    ,iValue(new Watchable<TUint>(aNetwork, Brn("Value"), 0))
+    ,iVolumeLimit(new Watchable<TUint>(aNetwork, Brn("VolumeLimit"), 0))
+    ,iVolumeMilliDbPerStep(new Watchable<TUint>(aNetwork, Brn("VolumeMilliDbPerStep"), 0))
+    ,iVolumeSteps(new Watchable<TUint>(aNetwork, Brn("VolumeSteps"), 0))
+    ,iVolumeUnity(new Watchable<TUint>(aNetwork, Brn("VolumeUnity"), 0))
 {
+/*
     iBalance = new Watchable<TInt>(aNetwork, Brn("Balance"), 0);
     iFade = new Watchable<TInt>(aNetwork, Brn("Fade"), 0);
     iMute = new Watchable<TBool>(aNetwork, Brn("Mute"), false);
@@ -24,6 +33,7 @@ ServiceVolume::ServiceVolume(INetwork& aNetwork, IInjectorDevice& aDevice, ILog&
     iVolumeMilliDbPerStep = new Watchable<TUint>(aNetwork, Brn("VolumeMilliDbPerStep"), 0);
     iVolumeSteps = new Watchable<TUint>(aNetwork, Brn("VolumeSteps"), 0);
     iVolumeUnity = new Watchable<TUint>(aNetwork, Brn("VolumeUnity"), 0);
+*/
 }
 
 ServiceVolume::~ServiceVolume()
@@ -159,7 +169,6 @@ ServiceVolumeNetwork::~ServiceVolumeNetwork()
 void ServiceVolumeNetwork::Dispose()
 {
     ServiceVolume::Dispose();
-    //iService->Dispose();
     iCpDevice.RemoveRef();
 }
 

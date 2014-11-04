@@ -67,10 +67,17 @@ TUint InfoDetails::SampleRate()
 
 ServiceInfo::ServiceInfo(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     :Service(aNetwork, aDevice, aLog)
+    ,iDetails(new Watchable<IInfoDetails*>(aNetwork, Brn("Details"), new InfoDetails()))
+    ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), InfoMetadata::Empty()))
+    ,iMetatext(new Watchable<IInfoMetatext*>(aNetwork, Brn("Metatext"), new InfoMetatext()))
 {
-    iDetails = new Watchable<IInfoDetails*>(aNetwork, Brn("Details"), new InfoDetails());
-    iMetadata = new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), InfoMetadata::Empty());
-    iMetatext = new Watchable<IInfoMetatext*>(aNetwork, Brn("Metatext"), new InfoMetatext());
+}
+
+ServiceInfo::~ServiceInfo()
+{
+    delete iDetails;
+    delete iMetadata;
+    delete iMetatext;
 }
 
 void ServiceInfo::Dispose()
@@ -132,10 +139,6 @@ ServiceInfoNetwork::~ServiceInfoNetwork()
 void ServiceInfoNetwork::Dispose()
 {
     ServiceInfo::Dispose();
-
-    //iService.Dispose();
-    //iService = NULL;
-
     iCpDevice.RemoveRef();
 }
 
@@ -147,11 +150,8 @@ Job* ServiceInfoNetwork::OnSubscribe()
     return(iSubscribedSource->GetJob());
 /*
     ASSERT(iSubscribedSource == NULL);
-
     iSubscribedSource = new TaskCompletionSource<TBool>();
-
     iService.Subscribe();
-
     return iSubscribedSource.Task.ContinueWith((t) => { });
 */
 }
