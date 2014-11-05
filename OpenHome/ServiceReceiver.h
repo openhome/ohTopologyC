@@ -8,13 +8,16 @@
 #include <OpenHome/MetaData.h>
 #include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
-#include <Generated/CpAvOpenhomeOrgReceiver1.h>
 #include <OpenHome/Job.h>
 
 
 
 namespace OpenHome
 {
+namespace Net
+{
+class CpProxyAvOpenhomeOrgReceiver1;
+}
 namespace Av
 {
 

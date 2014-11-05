@@ -7,12 +7,15 @@
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/Watchable.h>
 #include <OpenHome/Net/Core/CpDevice.h>
-#include <Generated/CpAvOpenhomeOrgSender1.h>
 #include <OpenHome/Job.h>
 
 
 namespace OpenHome
 {
+namespace Net
+{
+class CpProxyAvOpenhomeOrgSender1;
+}
 namespace Av
 {
 
