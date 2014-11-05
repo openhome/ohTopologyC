@@ -177,7 +177,6 @@ def build(bld):
                 'OpenHome/Topology3.cpp',
                 'OpenHome/Topology4.cpp',
                 'OpenHome/Topology5.cpp',
-				'OpenHome/TopologyPolicy.cpp',
                 'Generated/CpAvOpenhomeOrgSender1.cpp',
                 'Generated/CpAvOpenhomeOrgReceiver1.cpp',
                 'Generated/CpAvOpenhomeOrgProduct1.cpp',
