@@ -56,18 +56,11 @@ private:
 class JobDone
 {
 public:
-    JobDone() : iJob(new Job(FunctorGeneric<void*>(), NULL)) { }
+    JobDone();
 
-    void SetResult(TBool aResult)
-    {
-        if(aResult)
-        {
-            iJob->Start();
-        }
-    }
-
-    void Cancel() {iJob->Cancel();}
-    Job* GetJob() {return(iJob);}
+    void SetResult(TBool aResult);
+    void Cancel();
+    Job* GetJob();
 
 private:
     Job* iJob;
@@ -77,74 +70,20 @@ private:
 
 class Job2 : private Thread
 {
+public:
+    Job2();
+    void SetCallback(FunctorGeneric<void*> aAction, void* aArg);
+    void CallbackComplete();
+    void Run();
+    Net::FunctorAsync AsyncCb();
+    void AsyncComplete(Net::IAsync& aAsync);
+    void Cancel();
+
 private:
     FunctorGeneric<void*> iCallback;
     void* iCbArg;
     TBool iCancelled;
     mutable Mutex iMutex;
-
-public:
-    Job2()
-        :Thread("thname")
-        ,iCbArg(NULL)
-        ,iCancelled(false)
-        ,iMutex("JOBX")
-    {
-        Start();
-    }
-
-
-    void SetCallback(FunctorGeneric<void*> aAction, void* aArg)
-    {
-        iCallback = aAction;
-        iCbArg = aArg;
-    }
-
-
-    void CallbackComplete()
-    {
-        iCallback = FunctorGeneric<void*>();  // reset to null functor
-        iCbArg = NULL;
-        // add this back into fifo of available jobs
-    }
-
-
-    void Run()
-    {
-        Wait();
-		if (!iCallback)
-		{
-			ASSERTS();
-		}
-        iCallback(iCbArg);
-    }
-
-
-    Net::FunctorAsync AsyncCb()
-    {
-        return (MakeFunctorAsync(*this, &Job2::AsyncComplete));
-    }
-
-
-    void AsyncComplete(Net::IAsync& /*aAsync*/)
-    {
-        iMutex.Wait();
-        TBool cancelled = iCancelled;
-        iMutex.Signal();
-
-        if (iCallback && !cancelled)
-        {
-            Signal();
-        }
-    }
-
-
-    void Cancel()
-    {
-        iMutex.Wait();
-        iCancelled = true;
-        iMutex.Wait();
-    }
 };
 
 

@@ -13,14 +13,14 @@ using namespace OpenHome::Av;
 Job::Job(FunctorGeneric<void*> aAction, void* aObj)
     :iAction(aAction)
     ,iActionArg(aObj)
-	,iJobContinue(NULL)
-    ,iSem("TKSM", 0)
-    ,iMutex("TKMX")
+    ,iJobContinue(NULL)
+    ,iSem("JOBS", 0)
+    ,iMutex("JOBX")
     ,iStarted(false)
     ,iCompleted(false)
     ,iCancelled(false)
 {
-	iThread = new ThreadFunctor("JOB", MakeFunctor(*this, &Job::Run) );
+    iThread = new ThreadFunctor("JOB", MakeFunctor(*this, &Job::Run) );
     iThread->Start();
 }
 
@@ -29,11 +29,11 @@ void Job::Start()
 {
     AutoMutex mutex(iMutex);
     if (iStarted)
-	{
-		ASSERTS();
-	}
-    
-	iSem.Signal();
+    {
+        ASSERTS();
+    }
+
+    iSem.Signal();
     iStarted = true;
 }
 
@@ -52,10 +52,8 @@ void Job::Run()
 }
 
 
-
 void Job::Continue()
 {
-    //AutoMutex mutex(iMutex);
     if (iJobContinue!=NULL)
     {
         iJobContinue->Start();
@@ -101,3 +99,93 @@ Job* Job::StartNew(FunctorGeneric<void*> aAction, void* aObj)
 
 
 //////////////////////////////////////////////////////////
+
+JobDone::JobDone()
+{
+    iJob = new Job(FunctorGeneric<void*>(), NULL);
+}
+
+
+void JobDone::SetResult(TBool aResult)
+{
+    if(aResult)
+    {
+        iJob->Start();
+    }
+}
+
+
+void JobDone::Cancel()
+{
+    iJob->Cancel();
+}
+
+
+Job* JobDone::GetJob()
+{
+    return(iJob);
+}
+
+////////////////////////////////////////////////////////////
+
+Job2::Job2()
+    :Thread("thname")
+    ,iCbArg(NULL)
+    ,iCancelled(false)
+    ,iMutex("JOB2")
+{
+    Start();
+}
+
+
+void Job2::SetCallback(FunctorGeneric<void*> aAction, void* aArg)
+{
+    iCallback = aAction;
+    iCbArg = aArg;
+}
+
+
+void Job2::CallbackComplete()
+{
+    iCallback = FunctorGeneric<void*>();  // reset to null functor
+    iCbArg = NULL;
+    // add this back into fifo of available jobs
+}
+
+
+void Job2::Run()
+{
+    Wait();
+    if (!iCallback)
+    {
+        ASSERTS();
+    }
+    iCallback(iCbArg);
+}
+
+
+Net::FunctorAsync Job2::AsyncCb()
+{
+    return (MakeFunctorAsync(*this, &Job2::AsyncComplete));
+}
+
+
+void Job2::AsyncComplete(Net::IAsync& /*aAsync*/)
+{
+    iMutex.Wait();
+    TBool cancelled = iCancelled;
+    iMutex.Signal();
+
+    if (iCallback && !cancelled)
+    {
+        Signal();
+    }
+}
+
+
+void Job2::Cancel()
+{
+    iMutex.Wait();
+    iCancelled = true;
+    iMutex.Wait();
+}

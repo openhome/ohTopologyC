@@ -107,7 +107,7 @@ TBool Topology4Room::Remove(ITopology3Group& aGroup)
 
 ///////////////////////////////////////////////////////
 
-Topology4::Topology4(Topology3* aTopology3, ILog& /*aLog*/)
+Topology4::Topology4(ITopology3* aTopology3, ILog& /*aLog*/)
     :iDisposed(false)
     ,iNetwork(aTopology3->Network())
     ,iTopology3(aTopology3)

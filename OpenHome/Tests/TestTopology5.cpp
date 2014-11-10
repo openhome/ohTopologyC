@@ -411,12 +411,12 @@ void SuiteTopology5::Test1()
     InjectorMock* mockInjector = new InjectorMock(*network, Brx::Empty(), *log);
     mocker->Add(Brn("network"), *mockInjector);
 
+
     Topology1* topology1 = new Topology1(network, *log);
     Topology2* topology2 = new Topology2(topology1, *log);
     Topology3* topology3 = new Topology3(topology2, *log);
     Topology4* topology4 = new Topology4(topology3, *log);
     iTopology5 = new Topology5(topology4, *log);
-
 
     MockableScriptRunner* runner = new MockableScriptRunner();
     HouseWatcher* watcher = new HouseWatcher(*runner);
@@ -426,10 +426,10 @@ void SuiteTopology5::Test1()
 
     Functor f = MakeFunctor(*network, &Network::Wait);
 
-
     TBool test = runner->Run(f, iReader, *mocker);
     OpenHome::Log::Print("test = %d\n", test);
     TEST(test);
+
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology5::ExecuteCallback);
     network->Execute(fe, watcher);
 
@@ -469,7 +469,7 @@ void TestTopology5(Environment& aEnv, const std::vector<Brn>& aArgs)
 {
     std::vector<Brn> args(aArgs);
 
-    if(args.size()<2)
+    if( find(args.begin(), args.end(), Brn("--path")) == args.end() )
     {
         args.push_back(Brn("--path"));
         args.push_back(Brn("~eamonnb/Topology5TestScript.txt"));

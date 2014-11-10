@@ -169,11 +169,12 @@ void TestTopology1(Environment& aEnv, const std::vector<Brn>& aArgs)
 {
     std::vector<Brn> args(aArgs);
 
-    if(args.size()<2)
+    if( find(args.begin(), args.end(), Brn("--path")) == args.end() )
     {
         args.push_back(Brn("--path"));
         args.push_back(Brn("~eamonnb/Topology1TestScript.txt"));
     }
+
 
     TestScriptHttpReader* reader = new TestScriptHttpReader(aEnv, args);
 

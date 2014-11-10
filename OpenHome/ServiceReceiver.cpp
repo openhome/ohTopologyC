@@ -24,9 +24,9 @@ ServiceReceiver::~ServiceReceiver()
     delete iMetadata;
     delete iTransportState;
     if (iCurrentMetadata!=InfoMetadata::Empty())
-	{
-		delete iCurrentMetadata;
-	}
+    {
+        delete iCurrentMetadata;
+    }
     delete iCurrentTransportState;
 
 }
@@ -151,7 +151,7 @@ void ServiceReceiverNetwork::OnUnsubscribe()
 
 void ServiceReceiverNetwork::Play()
 {
-    Job2* job = new Job2();
+    Job2* job = new Job2(); // FIXME: read from existing pool - don't allocate new jobs
     FunctorAsync f = job->AsyncCb();
     iService->BeginPlay(f);
 
@@ -214,7 +214,7 @@ void ServiceReceiverNetwork::Play(ISenderMetadata& aMetadata)
 
 void ServiceReceiverNetwork::BeginSetSenderCallback(IAsync& /*aAsync*/)
 {
-    Job2* job = new Job2();
+    Job2* job = new Job2(); // FIXME: read from existing pool - don't allocate new jobs
     FunctorAsync f = job->AsyncCb();
     iService->BeginPlay(f);
 }
@@ -223,7 +223,7 @@ void ServiceReceiverNetwork::BeginSetSenderCallback(IAsync& /*aAsync*/)
 
 void ServiceReceiverNetwork::Stop()
 {
-    Job2* job = new Job2();
+    Job2* job = new Job2(); // FIXME: read from existing pool - don't allocate new jobs
     FunctorAsync f = job->AsyncCb();
     iService->BeginStop(f);
 
@@ -309,10 +309,10 @@ void ServiceReceiverNetwork::TransportChangedCallbackCallback(void*)
 {
     Brhz transportState;
     iService->PropertyTransportState(transportState);
-    
-	Bws<100>* oldTransportState = iCurrentTransportState;
-	Bws<100>* iCurrentTransportState = new Bws<100>(transportState);
-	
+
+    Bws<100>* oldTransportState = iCurrentTransportState;
+    Bws<100>* iCurrentTransportState = new Bws<100>(transportState);
+
     iTransportState->Update(Brn(*iCurrentTransportState));
     delete oldTransportState;
 }

@@ -94,7 +94,7 @@ public:
 class Topology4 : public ITopology4, public IWatcherUnordered<ITopology3Group*>, public INonCopyable
 {
 public:
-    Topology4(Topology3* aTopology3, ILog& aLog);
+    Topology4(ITopology3* aTopology3, ILog& aLog);
     ~Topology4();
 
     // IDisposable
@@ -120,7 +120,7 @@ private:
 private:
     TBool iDisposed;
     INetwork& iNetwork;
-    Topology3* iTopology3;
+    ITopology3* iTopology3;
     WatchableUnordered<ITopology4Room*>* iRooms;
     std::map<ITopology3Group*, Topology4GroupWatcher*> iGroupWatcherLookup;
     std::map<Brn, Topology4Room*, BufferCmp> iRoomLookup;
