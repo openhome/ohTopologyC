@@ -3,7 +3,7 @@
 #include <OpenHome/Private/Debug.h>
 #include <OpenHome/Network.h>
 //#include <OpenHome/Net/Private/XmlParser.h>
-
+#include <Generated/CpAvOpenhomeOrgSender1.h>
 
 
 using namespace OpenHome;

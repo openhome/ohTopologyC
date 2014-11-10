@@ -3,6 +3,7 @@
 #include <OpenHome/Private/Debug.h>
 #include <OpenHome/Service.h>
 #include <OpenHome/Network.h>
+#include <Generated/CpAvOpenhomeOrgReceiver1.h>
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
