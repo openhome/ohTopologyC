@@ -1,6 +1,7 @@
 #include <OpenHome/Private/TestFramework.h>
 #include <OpenHome/Private/OptionParser.h>
 #include <OpenHome/Buffer.h>
+#include <algorithm>
 
 using namespace OpenHome;
 
@@ -22,8 +23,11 @@ void OpenHome::TestFramework::Runner::Main(TInt aArgc, TChar* aArgv[], Net::Init
         );
     // Note, getaddrinfo() in Windows OS port requires "127.0.0.1" be passed.
     // "localhost" is resolved to 0.0.0.0
-    args.emplace_back("-s");
-    args.emplace_back(kLocalhost);
+    if(std::find(args.begin(), args.end(), Brn("-s")) != args.end() )  // only if found (ie already specified)
+    {
+        args.emplace_back("-s");
+        args.emplace_back(kLocalhost);
+    }
     TestTopology2(lib->Env(), args);
     delete lib;
 }
