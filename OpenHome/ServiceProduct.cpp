@@ -882,7 +882,7 @@ void ServiceProductMock::SetStandby(TBool aValue)
 
 void ServiceProductMock::SetStandbyCallback(void* aValue)
 {
-    iStandby->Update((TBool)aValue);
+    iStandby->Update(aValue>0);
 }
 
 /////////////////////////////////////////////////////////////////////

@@ -213,7 +213,7 @@ private:
 /////////////////////////////////////////////////////////////////////////////
 
 
-class PlaylistSnapshot : public IMediaClientSnapshot<IMediaPreset*>
+class PlaylistSnapshot : public IMediaClientSnapshot<IMediaPreset*>, public INonCopyable
 {
 public:
     PlaylistSnapshot(INetwork& aNetwork, IIdCacheSession& aCacheSession, std::vector<TUint>* aIdArray, ServicePlaylist& aPlaylist);

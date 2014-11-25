@@ -201,7 +201,7 @@ void ServiceSenderNetwork::AudioChangedCallback1(void* aAudio)
 
 void ServiceSenderNetwork::AudioChangedCallback2(void* aAudio)
 {
-    iAudio->Update((TBool)aAudio);
+    iAudio->Update(aAudio>0);
 }
 
 

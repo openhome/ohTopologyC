@@ -178,7 +178,7 @@ private:
 
 //////////////////////////////////////////////////////////////////
 
-class RadioSnapshot : public IMediaClientSnapshot<IMediaPreset*>
+class RadioSnapshot : public IMediaClientSnapshot<IMediaPreset*>, public INonCopyable
 {
 public:
     RadioSnapshot(INetwork& aNetwork, IIdCacheSession& aCacheSession, std::vector<TUint>* aIdArray, ServiceRadio& aRadio);
