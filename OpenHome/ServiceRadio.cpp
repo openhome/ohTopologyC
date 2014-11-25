@@ -92,36 +92,36 @@ void MediaPresetRadio::EvaluatePlaying()
     iSelected->Update(iCurrentId == iId);
 }
 
-void MediaPresetRadio::ItemOpen(const Brx& aId, TUint aValue)
+void MediaPresetRadio::ItemOpen(const Brx& /*aId*/, TUint aValue)
 {
     iCurrentId = aValue;
     EvaluatePlaying();
 }
 
-void MediaPresetRadio::ItemUpdate(const Brx& aId, TUint aValue, TUint aPrevious)
+void MediaPresetRadio::ItemUpdate(const Brx& /*aId*/, TUint aValue, TUint /*aPrevious*/)
 {
     iCurrentId = aValue;
     EvaluatePlaying();
 }
 
-void MediaPresetRadio::ItemClose(const Brx& aId, TUint aValue)
+void MediaPresetRadio::ItemClose(const Brx& /*aId*/, TUint /*aValue*/)
 {
     iPlaying->Update(false);
 }
 
-void MediaPresetRadio::ItemOpen(const Brx& aId, Brn aValue)
+void MediaPresetRadio::ItemOpen(const Brx& /*aId*/, Brn aValue)
 {
     iCurrentTransportState.Replace(aValue);
     EvaluatePlaying();
 }
 
-void MediaPresetRadio::ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious)
+void MediaPresetRadio::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn /*aPrevious*/)
 {
     iCurrentTransportState.Replace(aValue);
     EvaluatePlaying();
 }
 
-void MediaPresetRadio::ItemClose(const Brx& aId, Brn aValue)
+void MediaPresetRadio::ItemClose(const Brx& /*aId*/, Brn aValue)
 {
     iPlaying->Update(false);
 }
@@ -476,7 +476,7 @@ void ServiceRadioNetwork::SetChannel(const Brx& aUri, IMediaMetadata& aMetadata)
 
 
 
-void ServiceRadioNetwork::ReadList(ReadListData* aReadListData)
+void ServiceRadioNetwork::ReadList(ReadListData* /*aReadListData*/)
 {
 
 /*

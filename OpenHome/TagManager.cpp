@@ -130,7 +130,7 @@ IMediaMetadata* TagManager::FromDidlLite(const Brx& aMetadata)
 
 
 
-void TagManager::ToDidlLite(IMediaMetadata& aMetadata, Brh& aBuf)
+void TagManager::ToDidlLite(IMediaMetadata& /*aMetadata*/, Brh& /*aBuf*/)
 {
 /*
     if (aMetadata == null)

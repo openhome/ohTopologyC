@@ -108,6 +108,10 @@ public:
     void Dispose();
 
 private:
+    void ReadCallback(std::vector<T>*);
+
+
+private:
     //CancellationToken& iCancellationToken;
     IMediaClientSnapshot<T>* iSnapshot;
     TBool iDisposed;
@@ -196,12 +200,19 @@ std::vector<TUint>* MediaSnapshot<T>::Alpha()
 
 
 template <class T>
-void MediaSnapshot<T>::Read(TUint aIndex, TUint aCount, /*CancellationToken aCancellationToken,*/ FunctorGeneric<IWatchableFragment<T>*> aCallback)
+void MediaSnapshot<T>::Read(TUint aIndex, TUint aCount, /*CancellationToken aCancellationToken,*/ FunctorGeneric<IWatchableFragment<T>*> /*aCallback*/)
 {
 
-/*
-    CancellationTokenLink ct = new CancellationTokenLink(iCancellationToken, aCancellationToken);
 
+//    CancellationTokenLink ct = new CancellationTokenLink(iCancellationToken, aCancellationToken);
+
+    auto f = MakeFunctorGeneric<std::vector<T>*>(*this, &MediaSnapshot<T>::ReadCallback);
+    iSnapshot->Read(aIndex, aCount, f);
+
+    // Need to pass aCallback and aIndex into functor (aValues comes from the consumer of the functor)
+
+
+/*
     iSnapshot.Read(ct.Token, aIndex, aCount, (values) =>
     {
         if (!iDisposed)
@@ -215,6 +226,22 @@ void MediaSnapshot<T>::Read(TUint aIndex, TUint aCount, /*CancellationToken aCan
     });
 */
 }
+
+template <class T>
+void MediaSnapshot<T>::ReadCallback(std::vector<T>*)
+{
+/*
+    if (!iDisposed)
+    {
+        aCallback(new WatchableFragment<T>(aIndex, values));
+    }
+    else
+    {
+        ASSERT(false);
+    }
+*/
+}
+
 
 // IDisposable
 

@@ -90,36 +90,36 @@ void MediaPresetPlaylist::EvaluatePlaying()
     iSelected->Update(iCurrentId == iId);
 }
 
-void MediaPresetPlaylist::ItemOpen(const Brx& aId, TUint aValue)
+void MediaPresetPlaylist::ItemOpen(const Brx& /*aId*/, TUint aValue)
 {
     iCurrentId = aValue;
     EvaluatePlaying();
 }
 
-void MediaPresetPlaylist::ItemUpdate(const Brx& aId, TUint aValue, TUint aPrevious)
+void MediaPresetPlaylist::ItemUpdate(const Brx& /*aId*/, TUint aValue, TUint /*aPrevious*/)
 {
     iCurrentId = aValue;
     EvaluatePlaying();
 }
 
-void MediaPresetPlaylist::ItemClose(const Brx& aId, TUint aValue)
+void MediaPresetPlaylist::ItemClose(const Brx& /*aId*/, TUint /*aValue*/)
 {
     iPlaying->Update(false);
 }
 
-void MediaPresetPlaylist::ItemOpen(const Brx& aId, Brn aValue)
+void MediaPresetPlaylist::ItemOpen(const Brx& /*aId*/, Brn aValue)
 {
     iCurrentTransportState.Replace(aValue);
     EvaluatePlaying();
 }
 
-void MediaPresetPlaylist::ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious)
+void MediaPresetPlaylist::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn /*aPrevious*/)
 {
     iCurrentTransportState.Replace(aValue);
     EvaluatePlaying();
 }
 
-void MediaPresetPlaylist::ItemClose(const Brx& aId, Brn aValue)
+void MediaPresetPlaylist::ItemClose(const Brx& /*aId*/, Brn /*aPrevious*/)
 {
     iPlaying->Update(false);
 }
