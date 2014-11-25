@@ -142,7 +142,7 @@ public:
     void Pause();
     void Stop();
     void SeekSecondAbsolute(TUint aValue);
-    void SeekSecondRelative(int aValue);
+    void SeekSecondRelative(TInt aValue);
     void SetId(TUint aId, const Brx& aUri);
     void SetChannel(const Brx& aUri, IMediaMetadata& aMetadata);
 

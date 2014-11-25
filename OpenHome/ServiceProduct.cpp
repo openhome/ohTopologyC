@@ -877,7 +877,15 @@ void ServiceProductMock::SetStandby(TBool aValue)
     return task;
 */
     auto f = MakeFunctorGeneric(*this, &ServiceProductMock::SetStandbyCallback);
-    iNetwork.Schedule(f, (void*)aValue);
+
+    if (aValue)
+    {
+        iNetwork.Schedule(f, (void*)1);
+    }
+    else
+    {
+        iNetwork.Schedule(f, (void*)0);
+    }
 }
 
 void ServiceProductMock::SetStandbyCallback(void* aValue)

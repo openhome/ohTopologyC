@@ -178,7 +178,15 @@ void ServiceSenderNetwork::HandleAudioChanged()
     TBool audio;
     iService->PropertyAudio(audio);
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::AudioChangedCallback1);
-    iNetwork.Schedule(f, (void*)audio);
+
+    if (audio)
+    {
+        iNetwork.Schedule(f, (void*)1);
+    }
+    else
+    {
+        iNetwork.Schedule(f, (void*)0);
+    }
 
 /*
     Network.Schedule(() =>
