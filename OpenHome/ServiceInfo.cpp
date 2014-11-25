@@ -209,18 +209,18 @@ void ServiceInfoNetwork::HandleDetailsChanged()
         });
     });
 */
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleDetailsChangedCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleDetailsChangedCallback1);
     iNetwork.Schedule(f, NULL);
 }
 
 
-void ServiceInfoNetwork::HandleDetailsChangedCallback(void*)
+void ServiceInfoNetwork::HandleDetailsChangedCallback1(void*)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleDetailsChangedCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleDetailsChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
-void ServiceInfoNetwork::HandleDetailsChangedCallbackCallback(void*)
+void ServiceInfoNetwork::HandleDetailsChangedCallback2(void*)
 {
     TUint bitDepth;
     iService->PropertyBitDepth(bitDepth);
@@ -262,20 +262,20 @@ void ServiceInfoNetwork::HandleMetadataChanged()
         });
     });
 */
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleMetadataChangedCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleMetadataChangedCallback1);
     iNetwork.Schedule(f, NULL);
 
 }
 
-void ServiceInfoNetwork::HandleMetadataChangedCallback(void*)
+void ServiceInfoNetwork::HandleMetadataChangedCallback1(void*)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleMetadataChangedCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleMetadataChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, NULL);
 
 }
 
 
-void ServiceInfoNetwork::HandleMetadataChangedCallbackCallback(void*)
+void ServiceInfoNetwork::HandleMetadataChangedCallback2(void*)
 {
     Brhz metadatastr;
     iService->PropertyMetadata(metadatastr);
@@ -301,18 +301,18 @@ void ServiceInfoNetwork::HandleMetatextChanged()
         });
     });
 */
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleMetatextChangedCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleMetatextChangedCallback1);
     iNetwork.Schedule(f, NULL);
 }
 
-void ServiceInfoNetwork::HandleMetatextChangedCallback(void*)
+void ServiceInfoNetwork::HandleMetatextChangedCallback1(void*)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleMetatextChangedCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleMetatextChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
 
-void ServiceInfoNetwork::HandleMetatextChangedCallbackCallback(void*)
+void ServiceInfoNetwork::HandleMetatextChangedCallback2(void*)
 {
     Brhz metatextstr;
     iService->PropertyMetatext(metatextstr);

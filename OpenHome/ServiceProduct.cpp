@@ -4,6 +4,7 @@
 #include <OpenHome/Network.h>
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/Private/Debug.h>
+#include <Generated/CpAvOpenhomeOrgProduct1.h>
 #include <vector>
 
 using namespace OpenHome;
@@ -429,8 +430,7 @@ void ServiceProductNetwork::OnUnsubscribe()
 
 void ServiceProductNetwork::SetSourceIndex(TUint aValue)
 {
-    Job2* job = new Job2(); // read from existing pool - don't allocate new jobs
-    FunctorAsync f = job->AsyncCb();
+    FunctorAsync f;
     iService->BeginSetSourceIndex(aValue, f);
 
     //FunctorAsync f = MakeFunctorAsync(*this, &ServiceProductNetwork::BeginSetSourceIndexCallback);
@@ -459,8 +459,7 @@ void ServiceProductNetwork::SetSourceIndex(TUint aValue)
 
 void ServiceProductNetwork::SetSourceIndexByName(const Brx& aValue)
 {
-    Job2* job = new Job2(); // read from existing pool - don't allocate new jobs
-    FunctorAsync f = job->AsyncCb();
+    FunctorAsync f;
     iService->BeginSetSourceIndexByName(aValue, f);
 
 /*
@@ -486,8 +485,7 @@ void ServiceProductNetwork::SetSourceIndexByName(const Brx& aValue)
 
 void ServiceProductNetwork::SetStandby(TBool aValue)
 {
-    Job2* job = new Job2(); // read from existing pool - don't allocate new jobs
-    FunctorAsync f = job->AsyncCb();
+    FunctorAsync f;
     iService->BeginSetStandby(aValue, f);
 /*
     iService->BeginSetStandby(aValue, (ptr) =>
@@ -516,7 +514,7 @@ void ServiceProductNetwork::SetStandby(TBool aValue)
 
 void ServiceProductNetwork::HandleRoomChanged()
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::RoomChangedCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::RoomChangedCallback1);
     iNetwork.Schedule(f, NULL);
 /*
     string room;
@@ -533,21 +531,15 @@ void ServiceProductNetwork::HandleRoomChanged()
 }
 
 
-void ServiceProductNetwork::RoomChangedCallback(void*)
+void ServiceProductNetwork::RoomChangedCallback1(void*)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::RoomChangedCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::RoomChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
 
-void ServiceProductNetwork::RoomChangedCallbackCallback(void*)
+void ServiceProductNetwork::RoomChangedCallback2(void*)
 {
-/*
-    Bws<20>* oldRoom = iCurrentRoom;
-    iCurrentRoom = new Bws<20>(aCommands.RemainingTrimmed());
-    iRoom->Update(Brn(*iCurrentRoom));
-    delete oldRoom;
-*/
     Brhz room;
     iService->PropertyProductRoom(room);
 
@@ -559,31 +551,19 @@ void ServiceProductNetwork::RoomChangedCallbackCallback(void*)
 
 void ServiceProductNetwork::HandleNameChanged()
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::NameChangedCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::NameChangedCallback1);
     iNetwork.Schedule(f, NULL);
-/*
-    string name;
-    iService->PropertyProductName(name);
-
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iName.Update(name);
-        });
-    });
-*/
 }
 
 
-void ServiceProductNetwork::NameChangedCallback(void*)
+void ServiceProductNetwork::NameChangedCallback1(void*)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::NameChangedCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::NameChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
 
-void ServiceProductNetwork::NameChangedCallbackCallback(void*)
+void ServiceProductNetwork::NameChangedCallback2(void*)
 {
     Brhz name;
     iService->PropertyProductName(name);
@@ -599,7 +579,7 @@ void ServiceProductNetwork::NameChangedCallbackCallback(void*)
 
 void ServiceProductNetwork::HandleSourceIndexChanged()
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceIndexChangedCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceIndexChangedCallback1);
     iNetwork.Schedule(f, NULL);
 
 /*
@@ -616,14 +596,14 @@ void ServiceProductNetwork::HandleSourceIndexChanged()
 */
 }
 
-void ServiceProductNetwork::SourceIndexChangedCallback(void*)
+void ServiceProductNetwork::SourceIndexChangedCallback1(void*)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceIndexChangedCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceIndexChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
 
-void ServiceProductNetwork::SourceIndexChangedCallbackCallback(void*)
+void ServiceProductNetwork::SourceIndexChangedCallback2(void*)
 {
     TUint sourceIndex;
     iService->PropertySourceIndex(sourceIndex);
@@ -633,7 +613,7 @@ void ServiceProductNetwork::SourceIndexChangedCallbackCallback(void*)
 
 void ServiceProductNetwork::HandleSourceXmlChanged()
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceXmlChangedCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceXmlChangedCallback1);
     iNetwork.Schedule(f, NULL);
 /*
     string sourceXml;
@@ -650,13 +630,13 @@ void ServiceProductNetwork::HandleSourceXmlChanged()
 }
 
 
-void ServiceProductNetwork::SourceXmlChangedCallback(void*)
+void ServiceProductNetwork::SourceXmlChangedCallback1(void*)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceXmlChangedCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceXmlChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
-void ServiceProductNetwork::SourceXmlChangedCallbackCallback(void*)
+void ServiceProductNetwork::SourceXmlChangedCallback2(void*)
 {
     Brhz sourceXml;
     iService->PropertySourceXml(sourceXml);
@@ -673,7 +653,7 @@ void ServiceProductNetwork::SourceXmlChangedCallbackCallback(void*)
 
 void ServiceProductNetwork::HandleStandbyChanged()
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::StandbyChangedCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::StandbyChangedCallback1);
     iNetwork.Schedule(f, NULL);
 /*
     TBool standby;
@@ -689,13 +669,13 @@ void ServiceProductNetwork::HandleStandbyChanged()
 */
 }
 
-void ServiceProductNetwork::StandbyChangedCallback(void*)
+void ServiceProductNetwork::StandbyChangedCallback1(void*)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::StandbyChangedCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::StandbyChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
-void ServiceProductNetwork::StandbyChangedCallbackCallback(void*)
+void ServiceProductNetwork::StandbyChangedCallback2(void*)
 {
     TBool standby;
     iService->PropertyStandby(standby);
@@ -853,13 +833,10 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
 
 
 
-void ServiceProductMock::SetSourceIndex(TUint /*aValue*/)
+void ServiceProductMock::SetSourceIndex(TUint aIndex)
 {
-/*
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, & ServiceProductMock::SetSourceIndexCallback);
-
-    iNetwork.Schedule(f, );
-*/
+    iNetwork.Schedule(f, (void*)aIndex);
 
 
 /*
@@ -875,13 +852,10 @@ void ServiceProductMock::SetSourceIndex(TUint /*aValue*/)
 }
 
 
-void ServiceProductMock::SetSourceIndexCallback(void* aObj)
+void ServiceProductMock::SetSourceIndexCallback(void* aIndex)
 {
-    TUint index = *((TUint*)aObj);
-    iSourceIndex->Update(index);
-
+    iSourceIndex->Update((TUint)aIndex);
 }
-
 
 
 void ServiceProductMock::SetSourceIndexByName(const Brx& /*aValue*/)
@@ -890,7 +864,7 @@ void ServiceProductMock::SetSourceIndexByName(const Brx& /*aValue*/)
 }
 
 
-void ServiceProductMock::SetStandby(TBool /*aValue*/)
+void ServiceProductMock::SetStandby(TBool aValue)
 {
 /*
     Job task = Job.Factory.StartNew(() =>
@@ -902,9 +876,14 @@ void ServiceProductMock::SetStandby(TBool /*aValue*/)
     });
     return task;
 */
+    auto f = MakeFunctorGeneric(*this, &ServiceProductMock::SetStandbyCallback);
+    iNetwork.Schedule(f, (void*)aValue);
 }
 
-
+void ServiceProductMock::SetStandbyCallback(void* aValue)
+{
+    iStandby->Update((TBool)aValue);
+}
 
 /////////////////////////////////////////////////////////////////////
 

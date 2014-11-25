@@ -156,11 +156,9 @@ void Job2::CallbackComplete()
 void Job2::Run()
 {
     Wait();
-    if (!iCallback)
-    {
-        ASSERTS();
-    }
+    ASSERT(iCallback);
     iCallback(iCbArg);
+    CallbackComplete();
 }
 
 
@@ -187,5 +185,5 @@ void Job2::Cancel()
 {
     iMutex.Wait();
     iCancelled = true;
-    iMutex.Wait();
+    iMutex.Signal();
 }

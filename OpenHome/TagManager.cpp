@@ -129,6 +129,83 @@ IMediaMetadata* TagManager::FromDidlLite(const Brx& aMetadata)
 }
 
 
+
+void TagManager::ToDidlLite(IMediaMetadata& aMetadata, Brh& aBuf)
+{
+/*
+    if (aMetadata == null)
+    {
+        return string.Empty;
+    }
+    if (aMetadata[aTagManager.System.Folder] != null)
+    {
+        return aMetadata[aTagManager.System.Folder].Value;
+    }
+
+    XmlDocument document = new XmlDocument();
+
+    XmlElement didl = document.CreateElement("DIDL-Lite", kNsDidl);
+
+    XmlElement container = document.CreateElement("item", kNsDidl);
+
+    XmlElement title = document.CreateElement("dc", "title", kNsDc);
+    title.AppendChild(document.CreateTextNode(aMetadata[aTagManager.Audio.Title].Value));
+
+    container.AppendChild(title);
+
+    XmlElement cls = document.CreateElement("upnp", "class", kNsUpnp);
+    cls.AppendChild(document.CreateTextNode("object.item.audioItem.musicTrack"));
+
+    container.AppendChild(cls);
+
+    if (aMetadata[aTagManager.Audio.Artwork] != null)
+    {
+        foreach (var a in aMetadata[aTagManager.Audio.Artwork].Values)
+        {
+            XmlElement artwork = document.CreateElement("upnp", "albumArtURI", kNsUpnp);
+            artwork.AppendChild(document.CreateTextNode(a));
+            container.AppendChild(artwork);
+        }
+    }
+
+    if (aMetadata[aTagManager.Audio.AlbumTitle] != null)
+    {
+        XmlElement albumtitle = document.CreateElement("upnp", "album", kNsUpnp);
+        albumtitle.AppendChild(document.CreateTextNode(aMetadata[aTagManager.Audio.AlbumTitle].Value));
+        container.AppendChild(albumtitle);
+    }
+
+    if (aMetadata[aTagManager.Audio.Artist] != null)
+    {
+        foreach (var a in aMetadata[aTagManager.Audio.Artist].Values)
+        {
+            XmlElement artist = document.CreateElement("upnp", "artist", kNsUpnp);
+            artist.AppendChild(document.CreateTextNode(a));
+            container.AppendChild(artist);
+        }
+    }
+
+    if (aMetadata[aTagManager.Audio.AlbumArtist] != null)
+    {
+        XmlElement albumartist = document.CreateElement("upnp", "artist", kNsUpnp);
+        albumartist.AppendChild(document.CreateTextNode(aMetadata[aTagManager.Audio.AlbumArtist].Value));
+        XmlAttribute role = document.CreateAttribute("upnp", "role", kNsUpnp);
+        role.AppendChild(document.CreateTextNode("albumartist"));
+        albumartist.Attributes.Append(role);
+        container.AppendChild(albumartist);
+    }
+
+    didl.AppendChild(container);
+
+    document.AppendChild(didl);
+
+    return document.OuterXml;
+*/
+}
+
+
+
+
 TUint TagManager::MaxSystemTagId()
 {
     return(kMaxSystemTagId);

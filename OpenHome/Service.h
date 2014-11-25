@@ -122,10 +122,10 @@ protected:
 private:
     //void HandleAggregate(AggregateException aException);
     void DisposeCallback(void*);
-    void CreateCallback(void* aArgs);
-    void CreateCallbackCallback(void* aArgs);
-    void StartCallback(void* aArgs);
-    void StartCallbackCallback(void* aArgs);
+    void CreateCallback1(void* aArgs);
+    void CreateCallback2(void* aArgs);
+    void StartCallback1(void* aArgs);
+    void StartCallback2(void* aArgs);
 
 
 

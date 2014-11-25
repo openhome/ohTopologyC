@@ -9,6 +9,7 @@
 #include <OpenHome/Device.h>
 #include <OpenHome/Buffer.h>
 #include <OpenHome/Topology4.h>
+#include <OpenHome/Media.h>
 #include <vector>
 #include <map>
 
@@ -22,6 +23,7 @@ namespace Av
 class Topology5Group;
 class Topology5Room;
 
+/*
 class IMediaPreset : public IDisposable
 {
 public:
@@ -33,6 +35,7 @@ public:
     virtual void Play() = 0;
     virtual ~IMediaPreset() {}
 };
+*/
 
 /////////////////////////////////////////////////////////////////////
 
@@ -352,7 +355,7 @@ public:
     Topology5(ITopology4* aTopology4, ILog& aLog);
     ~Topology5();
 
-    static Topology5* CreateTopology5(INetwork& aNetwork, ILog& aLog);
+    static Topology5* CreateTopology5(INetwork* aNetwork, ILog& aLog);
 
     virtual void Dispose();
     virtual IWatchableUnordered<ITopology5Room*>& Rooms();

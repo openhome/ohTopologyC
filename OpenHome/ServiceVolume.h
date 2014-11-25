@@ -7,7 +7,6 @@
 #include <OpenHome/Service.h>
 #include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
-#include <Generated/CpAvOpenhomeOrgVolume1.h>
 #include <OpenHome/Job.h>
 
 
@@ -17,6 +16,10 @@
 
 namespace OpenHome
 {
+namespace Net
+{
+class CpProxyAvOpenhomeOrgVolume1;
+}
 
 namespace Av
 {
@@ -122,22 +125,22 @@ private:
     void HandleFadeChanged();
     void HandleBalanceChanged();
 
-    void VolumeUnityChangedCallback(void*);
-    void VolumeUnityChangedCallbackCallback(void*);
-    void VolumeStepsChangedCallback(void*);
-    void VolumeStepsChangedCallbackCallback(void*);
-    void VolumeMilliDbPerStepChangedCallback(void*);
-    void VolumeMilliDbPerStepChangedCallbackCallback(void*);
-    void VolumeLimitChangedCallback(void*);
-    void VolumeLimitChangedCallbackCallback(void*);
-    void VolumeChangedCallback(void*);
-    void VolumeChangedCallbackCallback(void*);
-    void MuteChangedCallback(void*);
-    void MuteChangedCallbackCallback(void*);
-    void FadeChangedCallback(void*);
-    void FadeChangedCallbackCallback(void*);
-    void BalanceChangedCallback(void*);
-    void BalanceChangedCallbackCallback(void*);
+    void VolumeUnityChangedCallback1(void*);
+    void VolumeUnityChangedCallback2(void*);
+    void VolumeStepsChangedCallback1(void*);
+    void VolumeStepsChangedCallback2(void*);
+    void VolumeMilliDbPerStepChangedCallback1(void*);
+    void VolumeMilliDbPerStepChangedCallback2(void*);
+    void VolumeLimitChangedCallback1(void*);
+    void VolumeLimitChangedCallback2(void*);
+    void VolumeChangedCallback1(void*);
+    void VolumeChangedCallback2(void*);
+    void MuteChangedCallback1(void*);
+    void MuteChangedCallback2(void*);
+    void FadeChangedCallback1(void*);
+    void FadeChangedCallback2(void*);
+    void BalanceChangedCallback1(void*);
+    void BalanceChangedCallback2(void*);
 
 
 private:

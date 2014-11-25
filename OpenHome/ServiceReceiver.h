@@ -73,6 +73,8 @@ class ServiceReceiverNetwork : public ServiceReceiver
 {
 public:
     ServiceReceiverNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
+    ~ServiceReceiverNetwork();
+
     virtual void Dispose();
     virtual void Play();
     virtual void Play(ISenderMetadata& aMetadata);
@@ -87,17 +89,12 @@ private:
     void HandleMetadataChanged();
     void HandleTransportStateChanged();
     void HandleInitialEvent();
-    void MetadataChangedCallback(void* aMetadata);
-    void MetadataChangedCallbackCallback(void* aMetadata);
-    void TransportChangedCallback(void* aTransportState);
-    void TransportChangedCallbackCallback(void* aTransportState);
-    void OnSubscribeCallback(void* aObj);
+    void MetadataChangedCallback1(void* aMetadata);
+    void MetadataChangedCallback2(void* aMetadata);
+    void TransportChangedCallback1(void* aTransportState);
+    void TransportChangedCallback2(void* aTransportState);
 
-    void BeginPlayCallback(Net::IAsync& aAsync);
-    void BeginStopCallback(Net::IAsync& aAsync);
     void BeginSetSenderCallback(Net::IAsync& aAsync);
-
-
 
 private:
     Net::CpDevice& iCpDevice;
@@ -122,7 +119,7 @@ public:
 
 //////////////////////////////////////////////////////////////
 
-class ProxyReceiver : /*public Proxy<ServiceReceiver*>,*/ public IProxyReceiver, public INonCopyable
+class ProxyReceiver : public IProxyReceiver, public INonCopyable
 {
 public:
     ProxyReceiver(ServiceReceiver& aService, IDevice& aDevice);

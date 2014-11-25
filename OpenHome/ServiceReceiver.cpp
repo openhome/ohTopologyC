@@ -76,24 +76,25 @@ ServiceReceiverNetwork::ServiceReceiverNetwork(INetwork& aNetwork, IInjectorDevi
 
     iService = new CpProxyAvOpenhomeOrgReceiver1(aCpDevice);
 
-    Functor fHmc = MakeFunctor(*this, &ServiceReceiverNetwork::HandleMetadataChanged);
-    iService->SetPropertyMetadataChanged(fHmc);
+    Functor f1 = MakeFunctor(*this, &ServiceReceiverNetwork::HandleMetadataChanged);
+    iService->SetPropertyMetadataChanged(f1);
 
-    Functor fHtsc = MakeFunctor(*this, &ServiceReceiverNetwork::HandleTransportStateChanged);
-    iService->SetPropertyTransportStateChanged(fHtsc);
+    Functor f2 = MakeFunctor(*this, &ServiceReceiverNetwork::HandleTransportStateChanged);
+    iService->SetPropertyTransportStateChanged(f2);
 
-    Functor fHie = MakeFunctor(*this, &ServiceReceiverNetwork::HandleInitialEvent);
-    iService->SetPropertyInitialEvent(fHie);
+    Functor f3 = MakeFunctor(*this, &ServiceReceiverNetwork::HandleInitialEvent);
+    iService->SetPropertyInitialEvent(f3);
+}
+
+ServiceReceiverNetwork::~ServiceReceiverNetwork()
+{
+    delete iService;
 }
 
 
 void ServiceReceiverNetwork::Dispose()
 {
     ServiceReceiver::Dispose();
-
-    delete iService;
-    iService = NULL;
-
     iCpDevice.RemoveRef();
 }
 
@@ -101,11 +102,8 @@ void ServiceReceiverNetwork::Dispose()
 Job* ServiceReceiverNetwork::OnSubscribe()
 {
     ASSERT(iSubscribedSource == NULL);
-
     iSubscribedSource = new JobDone();
-
     iService->Subscribe();
-
     return(iSubscribedSource->GetJob());
 
     //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::OnSubscribeCallback);
@@ -152,8 +150,7 @@ void ServiceReceiverNetwork::OnUnsubscribe()
 
 void ServiceReceiverNetwork::Play()
 {
-    Job2* job = new Job2(); // FIXME: read from existing pool - don't allocate new jobs
-    FunctorAsync f = job->AsyncCb();
+    FunctorAsync f;;
     iService->BeginPlay(f);
 
 /*
@@ -215,8 +212,7 @@ void ServiceReceiverNetwork::Play(ISenderMetadata& aMetadata)
 
 void ServiceReceiverNetwork::BeginSetSenderCallback(IAsync& /*aAsync*/)
 {
-    Job2* job = new Job2(); // FIXME: read from existing pool - don't allocate new jobs
-    FunctorAsync f = job->AsyncCb();
+    FunctorAsync f;
     iService->BeginPlay(f);
 }
 
@@ -224,8 +220,7 @@ void ServiceReceiverNetwork::BeginSetSenderCallback(IAsync& /*aAsync*/)
 
 void ServiceReceiverNetwork::Stop()
 {
-    Job2* job = new Job2(); // FIXME: read from existing pool - don't allocate new jobs
-    FunctorAsync f = job->AsyncCb();
+    FunctorAsync f;
     iService->BeginStop(f);
 
 /*
@@ -262,7 +257,7 @@ void ServiceReceiverNetwork::HandleMetadataChanged()
     IInfoMetadata* infoMetadata = new InfoMetadata(mediaMetadata, Brn(uri)); // FIXME: is it ok to new this here rather than in the functor below ???
 
 
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::MetadataChangedCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::MetadataChangedCallback1);
     iNetwork.Schedule(f, infoMetadata);
 /*
     iNetwork.Schedule(() =>
@@ -276,14 +271,14 @@ void ServiceReceiverNetwork::HandleMetadataChanged()
 }
 
 
-void ServiceReceiverNetwork::MetadataChangedCallback(void* aInfoMetadata)
+void ServiceReceiverNetwork::MetadataChangedCallback1(void* aInfoMetadata)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::MetadataChangedCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::MetadataChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, aInfoMetadata);
 }
 
 
-void ServiceReceiverNetwork::MetadataChangedCallbackCallback(void* aInfoMetadata)
+void ServiceReceiverNetwork::MetadataChangedCallback2(void* aInfoMetadata)
 {
     IInfoMetadata* infoMetadata = (IInfoMetadata*)aInfoMetadata;
     iMetadata->Update(infoMetadata);
@@ -295,18 +290,18 @@ void ServiceReceiverNetwork::MetadataChangedCallbackCallback(void* aInfoMetadata
 
 void ServiceReceiverNetwork::HandleTransportStateChanged()
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::TransportChangedCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::TransportChangedCallback1);
     iNetwork.Schedule(f, NULL);
 }
 
 
-void ServiceReceiverNetwork::TransportChangedCallback(void*)
+void ServiceReceiverNetwork::TransportChangedCallback1(void*)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::TransportChangedCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::TransportChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
-void ServiceReceiverNetwork::TransportChangedCallbackCallback(void*)
+void ServiceReceiverNetwork::TransportChangedCallback2(void*)
 {
     Brhz transportState;
     iService->PropertyTransportState(transportState);
@@ -343,10 +338,11 @@ void ServiceReceiverMock::Play()
         iTransportState.Update(Brn("Playing"));
     });
 */
+    iTransportState->Update(Brn("Playing"));
 }
 
 
-void ServiceReceiverMock::Play(ISenderMetadata& /*aMetadata*/)
+void ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
 {
     //return(0); // FIXME
 /*
@@ -356,6 +352,10 @@ void ServiceReceiverMock::Play(ISenderMetadata& /*aMetadata*/)
         iTransportState.Update(Brn("Playing"));
     });
 */
+
+    iMetadata->Update(new InfoMetadata(iNetwork.TagManager().FromDidlLite(aMetadata.ToString()), aMetadata.Uri()));
+    iTransportState->Update(Brn("Playing"));
+
 }
 
 void ServiceReceiverMock::Stop()
@@ -367,6 +367,7 @@ void ServiceReceiverMock::Stop()
         iTransportState.Update(Brn("Stopped"));
     });
 */
+    iTransportState->Update(Brn("Stopped"));
 }
 
 

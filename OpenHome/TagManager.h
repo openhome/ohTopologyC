@@ -56,6 +56,7 @@ public:
     //virtual ITagRealmContainer Container() = 0;
 
     virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata) = 0;
+    virtual void ToDidlLite(IMediaMetadata& aMetadata, Brh& aBuf) = 0;
     virtual ~ITagManager() {}
 };
 
@@ -68,6 +69,7 @@ private:
 
 public:
     virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata);
+    virtual void ToDidlLite(IMediaMetadata& aMetadata, Brh& aBuf);
     virtual TUint MaxSystemTagId();
     virtual ITag* Tag(TUint aId);
     virtual ITagRealm& Realm(ETagRealm aRealm);

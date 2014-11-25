@@ -8,7 +8,6 @@
 #include <OpenHome/Service.h>
 #include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
-#include <Generated/CpAvOpenhomeOrgProduct1.h>
 #include <OpenHome/Job.h>
 
 
@@ -19,6 +18,10 @@
 
 namespace OpenHome
 {
+namespace Net
+{
+class CpProxyAvOpenhomeOrgProduct1;
+}
 
 namespace Av
 {
@@ -179,7 +182,7 @@ public:
 
 private:
     virtual void SetSourceIndexCallback(void* aValue);
-    //virtual void SetStandbyCallback(void* aValue);
+    virtual void SetStandbyCallback(void* aValue);
 
 
 private:
@@ -266,16 +269,16 @@ private:
     void BeginSetStandbyCallback(Net::IAsync& aAsync);
     void BeginSetSourceIndexByNameCallback(Net::IAsync& aAsync);
 
-    void RoomChangedCallback(void*);
-    void RoomChangedCallbackCallback(void*);
-    void NameChangedCallback(void*);
-    void NameChangedCallbackCallback(void*);
-    void SourceIndexChangedCallback(void*);
-    void SourceIndexChangedCallbackCallback(void*);
-    void SourceXmlChangedCallback(void*);
-    void SourceXmlChangedCallbackCallback(void*);
-    void StandbyChangedCallback(void*);
-    void StandbyChangedCallbackCallback(void*);
+    void RoomChangedCallback1(void*);
+    void RoomChangedCallback2(void*);
+    void NameChangedCallback1(void*);
+    void NameChangedCallback2(void*);
+    void SourceIndexChangedCallback1(void*);
+    void SourceIndexChangedCallback2(void*);
+    void SourceXmlChangedCallback1(void*);
+    void SourceXmlChangedCallback2(void*);
+    void StandbyChangedCallback1(void*);
+    void StandbyChangedCallback2(void*);
 
 
 private:

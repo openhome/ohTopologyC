@@ -43,7 +43,7 @@ template<class T1, class T2>
 class ArgsTwo
 {
 public:
-    ArgsTwo(T1 aArg1, T2 aArg2) :iArg1(aArg1), iArg2(aArg2) {}
+    ArgsTwo(T1 aArg1, T2 aArg2) : iArg1(aArg1), iArg2(aArg2) {}
     T1 Arg1() const {return(iArg1);}
     T2 Arg2() const {return(iArg2);}
 private:

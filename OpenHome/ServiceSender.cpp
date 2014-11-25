@@ -19,7 +19,7 @@ ServiceSender::ServiceSender(INetwork& aNetwork, IInjectorDevice& aDevice, ILog&
     ,iMetadata(new Watchable<ISenderMetadata*>(aNetwork, Brn("Metadata"), SenderMetadata::Empty()))
     ,iStatus(new Watchable<Brn>(aNetwork, Brn("Status"), Brx::Empty()))
     ,iCurrentMetadata(NULL)
-	,iCurrentStatus(NULL)
+    ,iCurrentStatus(NULL)
 {
 }
 
@@ -30,9 +30,9 @@ ServiceSender::~ServiceSender()
     delete iMetadata;
     delete iStatus;
     if (iCurrentMetadata!= SenderMetadata::Empty())
-	{
-		delete iCurrentMetadata;
-	}
+    {
+        delete iCurrentMetadata;
+    }
     delete iCurrentStatus;
 }
 
@@ -175,9 +175,10 @@ void ServiceSenderNetwork::OnUnsubscribe()
 
 void ServiceSenderNetwork::HandleAudioChanged()
 {
-    iService->PropertyAudio(iAudioValue);
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::AudioChangedCallback);
-    iNetwork.Schedule(f, &iAudioValue);
+    TBool audio;
+    iService->PropertyAudio(audio);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::AudioChangedCallback1);
+    iNetwork.Schedule(f, (void*)audio);
 
 /*
     Network.Schedule(() =>
@@ -191,16 +192,16 @@ void ServiceSenderNetwork::HandleAudioChanged()
 }
 
 
-void ServiceSenderNetwork::AudioChangedCallback(void* aAudio)
+void ServiceSenderNetwork::AudioChangedCallback1(void* aAudio)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::AudioChangedCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::AudioChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, aAudio);
 }
 
 
-void ServiceSenderNetwork::AudioChangedCallbackCallback(void* aAudio)
+void ServiceSenderNetwork::AudioChangedCallback2(void* aAudio)
 {
-    iAudio->Update(*(TBool*)aAudio);
+    iAudio->Update((TBool)aAudio);
 }
 
 
@@ -210,7 +211,7 @@ void ServiceSenderNetwork::HandleMetadataChanged()
     iService->PropertyMetadata(metadata);
     ISenderMetadata* senderMetadata = new SenderMetadata(metadata);
 
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::MetadataChangedCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::MetadataChangedCallback1);
     iNetwork.Schedule(f, senderMetadata);
 /*
     Network.Schedule(() =>
@@ -224,14 +225,14 @@ void ServiceSenderNetwork::HandleMetadataChanged()
 }
 
 
-void ServiceSenderNetwork::MetadataChangedCallback(void* aMetadata)
+void ServiceSenderNetwork::MetadataChangedCallback1(void* aMetadata)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::MetadataChangedCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::MetadataChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, aMetadata);
 }
 
 
-void ServiceSenderNetwork::MetadataChangedCallbackCallback(void* aMetadata)
+void ServiceSenderNetwork::MetadataChangedCallback2(void* aMetadata)
 {
     ISenderMetadata* metadata = (ISenderMetadata*)aMetadata;
     iMetadata->Update(metadata);
@@ -242,27 +243,27 @@ void ServiceSenderNetwork::MetadataChangedCallbackCallback(void* aMetadata)
 
 void ServiceSenderNetwork::HandleStatusChanged()
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::StatusChangedCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::StatusChangedCallback1);
     iNetwork.Schedule(f, NULL);
 }
 
 
-void ServiceSenderNetwork::StatusChangedCallback(void* aStatus)
+void ServiceSenderNetwork::StatusChangedCallback1(void* aStatus)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::StatusChangedCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::StatusChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, aStatus);
 }
 
 
-void ServiceSenderNetwork::StatusChangedCallbackCallback(void*)
+void ServiceSenderNetwork::StatusChangedCallback2(void*)
 {
     Brhz status;
     iService->PropertyStatus(status);
 
-	Bws<100>* oldStatus = iCurrentStatus;
-	Bws<100>* iCurrentStatus = new Bws<100>(status);
-	
-	iStatus->Update(Brn(*iCurrentStatus));
+    Bws<100>* oldStatus = iCurrentStatus;
+    Bws<100>* iCurrentStatus = new Bws<100>(status);
+
+    iStatus->Update(Brn(*iCurrentStatus));
     delete oldStatus;
 }
 

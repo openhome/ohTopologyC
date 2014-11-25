@@ -81,22 +81,20 @@ private:
     void HandleMetadataChanged();
     void HandleStatusChanged();
 
-    void AudioChangedCallback(void* aAudio);
-    void AudioChangedCallbackCallback(void* aAudio);
-    void MetadataChangedCallback(void* aMetadata);
-    void MetadataChangedCallbackCallback(void* aMetadata);
-    void StatusChangedCallback(void* aStatus);
-    void StatusChangedCallbackCallback(void* aStatus);
+    void AudioChangedCallback1(void* aAudio);
+    void AudioChangedCallback2(void* aAudio);
+    void MetadataChangedCallback1(void* aMetadata);
+    void MetadataChangedCallback2(void* aMetadata);
+    void StatusChangedCallback1(void* aStatus);
+    void StatusChangedCallback2(void* aStatus);
 
-    void OnSubscribeCallback(void* aObj);
+    //void OnSubscribeCallback(void* aObj);
 
 
 private:
     Net::CpDevice& iCpDevice;
     JobDone* iSubscribedSource;
     Net::CpProxyAvOpenhomeOrgSender1* iService;
-
-    TBool iAudioValue;
 };
 
 

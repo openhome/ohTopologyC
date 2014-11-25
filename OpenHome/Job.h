@@ -60,7 +60,7 @@ public:
 
     void SetResult(TBool aResult);
     void Cancel();
-    Job* GetJob();
+    Job* GetJob();  //  shouldn't this return a ref?
 
 private:
     Job* iJob;

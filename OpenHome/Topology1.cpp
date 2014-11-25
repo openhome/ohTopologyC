@@ -22,7 +22,6 @@ Topology1::Topology1(INetwork* aNetwork, ILog& /*aLog*/)
 
 Topology1::~Topology1()
 {
-
     map<IDevice*, IProxyProduct*>::iterator it;
     for(it=iProductLookup.begin(); it!=iProductLookup.end(); it++)
     {

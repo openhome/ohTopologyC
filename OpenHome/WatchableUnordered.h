@@ -93,8 +93,8 @@ void WatchableUnordered<T>::Add(T aWatchable)
 template <class T>
 void WatchableUnordered<T>::Remove(T aWatchable)
 {
-    Log::Print("\nWatchableUnordered<T>::Remove ");
-    Log::Print(typeid(this).name());
+    //Log::Print("\nWatchableUnordered<T>::Remove ");
+    //Log::Print(typeid(this).name());
 
     //LOG(kTrace, "WatchableUnordered<T>::Remove \n");
     Assert(); /// must be on watchable thread

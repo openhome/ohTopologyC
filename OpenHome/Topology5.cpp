@@ -309,7 +309,7 @@ Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& 
 
     for(TUint i=0; i<aSources.size(); i++)
     {
-        Topology5Source* source = new Topology5Source(aNetwork, *this, aSources[i]);
+        auto source = new Topology5Source(aNetwork, *this, aSources[i]);
         iSources.push_back(source);
     }
 
@@ -1099,9 +1099,9 @@ Topology5::~Topology5()
 
 }
 
-Topology5* Topology5::CreateTopology5(INetwork& aNetwork, ILog& aLog)
+Topology5* Topology5::CreateTopology5(INetwork* aNetwork, ILog& aLog)
 {
-    Topology1* topology1 = new Topology1(&aNetwork, aLog);
+    Topology1* topology1 = new Topology1(aNetwork, aLog);
     Topology2* topology2 = new Topology2(topology1, aLog);
     Topology3* topology3 = new Topology3(topology2, aLog);
     Topology4* topology4 = new Topology4(topology3, aLog);

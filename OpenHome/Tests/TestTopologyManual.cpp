@@ -91,7 +91,7 @@ void SuiteTopologyManual::Test1()
     Net::CpStack& cpStack = *iLib.StartCp(subnetAddress);
     /*InjectorProduct* injector = */new InjectorProduct(*network, cpStack, *log);
 
-    /*Topology5* topology5 =*/ Topology5::CreateTopology5(*network, *log);
+    /*Topology5* topology5 =*/ Topology5::CreateTopology5(network, *log);
 
 
     for (;;)

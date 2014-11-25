@@ -140,7 +140,7 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceTyp
 
         ArgsTwo<FunctorGeneric<void*>, IDevice*>* args = new ArgsTwo<FunctorGeneric<void*>, IDevice*>(aCallback, aDevice);
 
-        FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::CreateCallback);
+        FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::CreateCallback1);
 
         iSubscribeTask = iSubscribeTask->ContinueWith(f, args);
 
@@ -155,16 +155,15 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceTyp
 
 
 
-void Service::CreateCallback(void* aArgs)
+void Service::CreateCallback1(void* aArgs)
 //void Service::CreateCallback(ArgsTwo<FunctorGeneric<void*>, IDevice*>* aArgs)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::CreateCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::CreateCallback2);
     iNetwork.Schedule(f, aArgs);
 }
 
 
-void Service::CreateCallbackCallback(void* aArgs)
-//void Service::CreateCallbackCallback(ArgsTwo<FunctorGeneric<void*>, IDevice*>* aArgs)
+void Service::CreateCallback2(void* aArgs)
 {
     ArgsTwo<FunctorGeneric<void*>, IDevice*>* args = (ArgsTwo<FunctorGeneric<void*>, IDevice*>*)aArgs;
 
@@ -240,7 +239,7 @@ void Service::Unsubscribe()
 
 Job* Service::Start(FunctorGeneric<void*> aAction)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::StartCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::StartCallback1);
     Job* job = Job::StartNew(f, &aAction);
 
     AutoMutex mutex(iMutexJobs);
@@ -268,14 +267,14 @@ Job* Service::Start(FunctorGeneric<void*> aAction)
 }
 
 
-void Service::StartCallback(void* aArg)
+void Service::StartCallback1(void* aArg)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::StartCallbackCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::StartCallback2);
     iNetwork.Schedule(f, aArg);
 }
 
 
-void Service::StartCallbackCallback(void* aArg)
+void Service::StartCallback2(void* aArg)
 {
     FunctorGeneric<void*> action = *((FunctorGeneric<void*>*)aArg);
     action(NULL);

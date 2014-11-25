@@ -33,10 +33,12 @@ IInfoMetadata* InfoMetadata::iEmpty = NULL;
 
 IInfoMetadata* InfoMetadata::Empty()
 {
+
     if(iEmpty == NULL)
     {
         iEmpty = new InfoMetadata();
     }
+
     return(iEmpty);
 }
 
@@ -63,7 +65,6 @@ InfoMetadata::~InfoMetadata()
 void InfoMetadata::DestroyStatics()
 { // static
     delete iEmpty;
-    iEmpty = NULL; // not necessary but may aid debugging
 }
 
 IMediaMetadata& InfoMetadata::Metadata()
@@ -93,7 +94,6 @@ SenderMetadata* SenderMetadata::Empty()
 void SenderMetadata::DestroyStatics()
 { // static
     delete iEmpty;
-    iEmpty = NULL; // not necessary but may aid debugging
 }
 
 

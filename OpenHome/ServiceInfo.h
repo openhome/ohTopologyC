@@ -99,12 +99,12 @@ private:
     void HandleMetadataChanged();
     void HandleMetatextChanged();
 
-    void HandleDetailsChangedCallback(void*);
-    void HandleDetailsChangedCallbackCallback(void*);
-    void HandleMetadataChangedCallback(void*);
-    void HandleMetadataChangedCallbackCallback(void*);
-    void HandleMetatextChangedCallback(void*);
-    void HandleMetatextChangedCallbackCallback(void*);
+    void HandleDetailsChangedCallback1(void*);
+    void HandleDetailsChangedCallback2(void*);
+    void HandleMetadataChangedCallback1(void*);
+    void HandleMetadataChangedCallback2(void*);
+    void HandleMetatextChangedCallback1(void*);
+    void HandleMetatextChangedCallback2(void*);
 
 private:
     Net::CpDevice& iCpDevice;
