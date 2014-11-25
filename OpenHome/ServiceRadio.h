@@ -82,7 +82,7 @@ class IProxyRadio : public IProxy
     virtual void Pause() = 0;
     virtual void Stop() = 0;
     virtual void SeekSecondAbsolute(TUint aValue) = 0;
-    virtual void SeekSecondRelative(int aValue) = 0;
+    virtual void SeekSecondRelative(TInt aValue) = 0;
     virtual void SetId(TUint aId, const Brx& aUri) = 0;
     virtual void SetChannel(const Brx& aUri, IMediaMetadata& aMetadata) = 0;
 
@@ -112,7 +112,7 @@ public:
     virtual void Pause() = 0;
     virtual void Stop() = 0;
     virtual void SeekSecondAbsolute(TUint aValue) = 0;
-    virtual void SeekSecondRelative(int aValue) = 0;
+    virtual void SeekSecondRelative(TInt aValue) = 0;
     virtual void SetId(TUint aId, const Brx& aUri) = 0;
     virtual void SetChannel(const Brx& aUri, IMediaMetadata& aMetadata) = 0;
 
@@ -216,7 +216,7 @@ public:
     void Pause();
     void Stop();
     void SeekSecondAbsolute(TUint aValue);
-    void SeekSecondRelative(int aValue);
+    void SeekSecondRelative(TInt aValue);
     void SetId(TUint aId, const Brx& aUri);
     void SetChannel(const Brx& aUri, IMediaMetadata& aMetadata);
 
