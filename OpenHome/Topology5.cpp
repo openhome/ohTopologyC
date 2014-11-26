@@ -801,6 +801,10 @@ Topology5Room::~Topology5Room()
     iGroups.clear();
 
 
+    delete iCurrentRoots;
+    delete iCurrentSources;
+    delete iCurrentRegistrations;
+
     delete iWatchableRoots;
     delete iWatchableSources;
     delete iWatchableRegistrations;
