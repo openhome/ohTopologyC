@@ -444,7 +444,6 @@ Topology3::~Topology3()
         delete it3->second;
     }
 
-    Topology3Sender::DestroyStatics();
     delete iTopology2;
 }
 
