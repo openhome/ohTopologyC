@@ -859,6 +859,7 @@ void ServiceProductMock::SetSourceIndex(TUint aIndex)
 void ServiceProductMock::SetSourceIndexCallback(void* aIndex)
 {
     TUint index = ((UintValue*)aIndex)->iUintValue;
+    delete aIndex;
     iSourceIndex->Update(index);
 }
 
