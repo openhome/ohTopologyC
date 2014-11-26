@@ -4,6 +4,7 @@
 #include <OpenHome/Injector.h>
 #include <OpenHome/Tests/TestScriptHttpReader.h>
 #include <OpenHome/Private/Ascii.h>
+#include <OpenHome/MetaData.h>
 #include <exception>
 
 
@@ -272,6 +273,9 @@ void SuiteTopology2::Test1()
     delete iTopology2;
     delete mockInjector;
     delete network;
+
+    InfoMetadata::DestroyStatics();
+    SenderMetadata::DestroyStatics();
 }
 
 

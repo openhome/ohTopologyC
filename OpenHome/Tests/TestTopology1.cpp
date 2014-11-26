@@ -2,6 +2,7 @@
 #include <OpenHome/Topology1.h>
 #include <OpenHome/Mockable.h>
 #include <OpenHome/Injector.h>
+#include <OpenHome/MetaData.h>
 #include <OpenHome/Tests/TestScriptHttpReader.h>
 #include <exception>
 
@@ -144,6 +145,9 @@ void SuiteTopology1::Test1()
     delete iTopology1;
     delete mockInjector;
     delete network;
+
+    InfoMetadata::DestroyStatics();
+    SenderMetadata::DestroyStatics();
 }
 
 

@@ -65,6 +65,7 @@ InfoMetadata::~InfoMetadata()
 void InfoMetadata::DestroyStatics()
 { // static
     delete iEmpty;
+    iEmpty = NULL;
 }
 
 IMediaMetadata& InfoMetadata::Metadata()
@@ -94,6 +95,7 @@ SenderMetadata* SenderMetadata::Empty()
 void SenderMetadata::DestroyStatics()
 { // static
     delete iEmpty;
+    iEmpty = NULL;
 }
 
 

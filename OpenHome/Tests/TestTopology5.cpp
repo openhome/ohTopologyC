@@ -4,8 +4,8 @@
 #include <OpenHome/Injector.h>
 #include <OpenHome/Tests/TestScriptHttpReader.h>
 #include <OpenHome/Private/Ascii.h>
+#include <OpenHome/MetaData.h>
 #include <exception>
-
 #include <vector>
 
 
@@ -446,6 +446,9 @@ void SuiteTopology5::Test1()
 
     delete log;
     delete mocker;
+
+    InfoMetadata::DestroyStatics();
+    SenderMetadata::DestroyStatics();
 }
 
 

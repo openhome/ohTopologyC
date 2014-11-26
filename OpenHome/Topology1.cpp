@@ -28,8 +28,6 @@ Topology1::~Topology1()
         delete it->second;
     }
 
-    InfoMetadata::DestroyStatics();  // FIXME: should probably live elsewhere
-    SenderMetadata::DestroyStatics(); // FIXME: should probably live elsewhere
     delete iProducts;
 }
 
