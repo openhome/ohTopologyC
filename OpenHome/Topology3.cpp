@@ -426,20 +426,17 @@ Topology3::~Topology3()
 {
     delete iGroups;
 
-    //map<ITopology2Group*, Topology3Group*>::iterator it1;
     for(auto it1 = iGroupLookup.begin(); it1!=iGroupLookup.end(); it1++)
     {
         delete it1->second;
     }
 
-    map<ITopology2Group*, ReceiverWatcher*>::iterator it2;
-    for(it2 = iReceiverLookup.begin(); it2!=iReceiverLookup.end(); it2++)
+    for(auto it2 = iReceiverLookup.begin(); it2!=iReceiverLookup.end(); it2++)
     {
         delete it2->second;
     }
 
-    map<ITopology2Group*, SenderWatcher*>::iterator it3;
-    for(it3 = iSenderLookup.begin(); it3!=iSenderLookup.end(); it3++)
+    for(auto it3 = iSenderLookup.begin(); it3!=iSenderLookup.end(); it3++)
     {
         delete it3->second;
     }
@@ -473,25 +470,20 @@ void Topology3::DisposeCallback(void*)
 {
     iTopology2->Groups().RemoveWatcher(*this);
 
-    map<ITopology2Group*, ReceiverWatcher*>::iterator it2;
-    for(it2 = iReceiverLookup.begin(); it2!=iReceiverLookup.end(); it2++)
+    for(auto it2 = iReceiverLookup.begin(); it2!=iReceiverLookup.end(); it2++)
     {
         it2->second->Dispose();
     }
 
-    map<ITopology2Group*, SenderWatcher*>::iterator it3;
-    for(it3 = iSenderLookup.begin(); it3!=iSenderLookup.end(); it3++)
+    for(auto it3 = iSenderLookup.begin(); it3!=iSenderLookup.end(); it3++)
     {
         it3->second->Dispose();
     }
 
-    map<ITopology2Group*, Topology3Group*>::iterator it1;
-    for(it1 = iGroupLookup.begin(); it1!=iGroupLookup.end(); it1++)
+    for(auto it1 = iGroupLookup.begin(); it1!=iGroupLookup.end(); it1++)
     {
         it1->second->Dispose();
     }
-
-
 }
 
 
