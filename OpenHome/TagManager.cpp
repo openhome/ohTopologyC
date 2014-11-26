@@ -269,26 +269,18 @@ const vector<Brn> MediaValue::Values()
 }
 
 
-/*
-IEnumerable<Brn> MediaValue::Values()
-{
-    return (iValues);
-}
-*/
+
 
 /////////////////////////////////////////////////
 
 MediaDictionary::MediaDictionary()
 {
-    //iMetadata = new Dictionary<ITag, IMediaValue>();
 }
 
 
 MediaDictionary::MediaDictionary(IMediaMetadata& aMetadata)
     :iMetadata(aMetadata.Values())
 {
-    //iMetadata = new Dictionary<ITag, IMediaValue>(aMetadata.ToDictionary(x => x.Key, x => x.Value));
-
 }
 
 
@@ -398,17 +390,4 @@ const std::map<ITag*, IMediaValue*> MediaMetadata::Values()
 }
 
 
-/*
-// IEnumerable<KeyValuePair<ITag, IMediaServer>>
-IEnumerator<KeyValuePair<ITag, IMediaValue>> MediaMetadata::GetEnumerator()
-{
-    return (iMetadata.GetEnumerator());
-}
-
-// IEnumerable
-IEnumerator MediaMetadata::GetEnumerator()
-{
-    return (iMetadata.GetEnumerator());
-}
-*/
 

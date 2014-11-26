@@ -323,9 +323,9 @@ private:
     TUint iStandbyCount;
     EStandby iStandby;
 
-    std::unique_ptr<std::vector<ITopology5Root*>> iCurrentRoots; // added in ohTopologyC
-    std::unique_ptr<std::vector<ITopology5Source*>> iCurrentSources; // added in ohTopologyC
-    std::unique_ptr<std::vector<ITopology5Registration*>> iCurrentRegistrations; // added in ohTopologyC
+    std::vector<ITopology5Root*>* iCurrentRoots; // added in ohTopologyC
+    std::vector<ITopology5Source*>* iCurrentSources; // added in ohTopologyC
+    std::vector<ITopology5Registration*>* iCurrentRegistrations; // added in ohTopologyC
 
     Watchable<EStandby>* iWatchableStandby;
     Watchable<std::vector<ITopology5Root*>*>* iWatchableRoots;

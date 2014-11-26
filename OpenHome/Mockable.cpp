@@ -175,6 +175,7 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
                     if (!Test(*result, expected))
                     {
                         OpenHome::Log::Print("\n########################################################\n");
+                        OpenHome::Log::Print("Count = %d\n", count);
                         OpenHome::Log::Print("########################################################\n");
                         OpenHome::Log::Print("########################################################\n");
                         OpenHome::Log::Print("########################################################\n");

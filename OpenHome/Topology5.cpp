@@ -775,13 +775,13 @@ Topology5Room::Topology5Room(INetwork& aNetwork, ITopology4Room& aRoom, ILog& aL
     ,iName(iRoom.Name())
     ,iStandbyCount(0)
     ,iStandby(eOff)
-    ,iCurrentRoots(unique_ptr<vector<ITopology5Root*>>(new vector<ITopology5Root*>()))
-    ,iCurrentSources(unique_ptr<vector<ITopology5Source*>>(new vector<ITopology5Source*>()))
-    ,iCurrentRegistrations(unique_ptr<vector<ITopology5Registration*>>(new vector<ITopology5Registration*>()))
+    ,iCurrentRoots(new vector<ITopology5Root*>())
+    ,iCurrentSources(new vector<ITopology5Source*>())
+    ,iCurrentRegistrations(new vector<ITopology5Registration*>())
     ,iWatchableStandby(new Watchable<EStandby>(iNetwork, Brn("standby"), eOff))
-    ,iWatchableRoots(new Watchable<vector<ITopology5Root*>*>(iNetwork, Brn("roots"), iCurrentRoots.get()))
-    ,iWatchableSources(new Watchable<vector<ITopology5Source*>*>(iNetwork, Brn("sources"), iCurrentSources.get()))
-    ,iWatchableRegistrations(new Watchable<vector<ITopology5Registration*>*>(iNetwork, Brn("registration"), iCurrentRegistrations.get()))
+    ,iWatchableRoots(new Watchable<vector<ITopology5Root*>*>(iNetwork, Brn("roots"), iCurrentRoots))
+    ,iWatchableSources(new Watchable<vector<ITopology5Source*>*>(iNetwork, Brn("sources"), iCurrentSources))
+    ,iWatchableRegistrations(new Watchable<vector<ITopology5Registration*>*>(iNetwork, Brn("registration"), iCurrentRegistrations))
 {
     iRoom.Groups().AddWatcher(*this);
 }
@@ -917,16 +917,25 @@ void Topology5Room::UnorderedRemove(ITopology3Group* aItem)
 
 void Topology5Room::CreateTree()
 {
+    OpenHome::Log::Print("\n\nTopology5Room::CreateTree() \n");
+
     vector<ITopology5Registration*>* registrations = new vector<ITopology5Registration*>();
     vector<Topology5Group*> oldGroups(iGroups);
 
     iGroups.clear();
     iRoots.clear();
 
-    map<ITopology3Group*, Topology5GroupWatcher*>::iterator it;
-    for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
+    for(auto it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
     {
         Topology5Group* group = new Topology5Group(iNetwork, it->second->Room(), it->second->Name(), *it->first, it->second->Sources(), iLog);
+
+        OpenHome::Log::Print("Topology5Group: Name=");
+        OpenHome::Log::Print(group->Name());
+        OpenHome::Log::Print(" ProductId=");
+        OpenHome::Log::Print(group->ProductId());
+        OpenHome::Log::Print(" being inserted into Tree \n");
+
+
         InsertIntoTree(*group);
 
         if (!group->ProductId().Equals(Brx::Empty()))
@@ -945,19 +954,25 @@ void Topology5Room::CreateTree()
         group->EvaluateSources();
         group->EvaluateSenders();
 
-        auto s = group->Sources();
-        sources->insert(sources->end(), s.begin(), s.end());
+        auto gSources = group->Sources();
+        sources->insert(sources->end(), gSources.begin(), gSources.end());
 
         roots->push_back(group);
     }
 
-    iCurrentRoots = unique_ptr<std::vector<ITopology5Root*>>(roots);
-    iCurrentRegistrations = unique_ptr<std::vector<ITopology5Registration*>>(registrations);
-    iCurrentSources = unique_ptr<std::vector<ITopology5Source*>>(sources);
 
     iWatchableRoots->Update(roots);
     iWatchableSources->Update(sources);
     iWatchableRegistrations->Update(registrations);
+
+    delete iCurrentRoots;
+    delete iCurrentRegistrations;
+    delete iCurrentSources;
+
+    iCurrentRoots = roots;
+    iCurrentRegistrations = registrations;
+    iCurrentSources = sources;
+
 
     for(TUint i=0; i<oldGroups.size(); i++)
     {
@@ -990,7 +1005,8 @@ void Topology5Room::InsertIntoTree(Topology5Group& aGroup)
     // check for parent of an existing root
     for(TUint i=0; i<iRoots.size(); i++)
     {
-        if (aGroup.AddIfIsChild(*iRoots[i]))
+        Topology5Group* g = iRoots[i];
+        if ( aGroup.AddIfIsChild(*g) )
         {
             iRoots.erase(iRoots.begin()+i);
             break;
