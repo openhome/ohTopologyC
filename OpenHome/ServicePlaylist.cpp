@@ -4,6 +4,7 @@
 #include <OpenHome/Network.h>
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/Private/Debug.h>
+#include <OpenHome/Net/Private/XmlParser.h>
 #include <Generated/CpAvOpenhomeOrgPlaylist1.h>
 #include <vector>
 
@@ -798,7 +799,16 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
     auto entries = new vector<IIdCacheEntry*>();
 
     // Parse XML here and populate entries
-
+    Brn xmlNodeList = XmlParserBasic::Find(Brn("TrackList"), trackList);
+    Brn remaining = xmlNodeList;
+    while(!remaining.Equals(Brx::Empty()))
+    {
+        Brn metadataText = XmlParserBasic::Find(Brn("Metadata"), xmlNodeList, remaining);
+        Brn uriText = XmlParserBasic::Find(Brn("Uri"), xmlNodeList, remaining);
+        xmlNodeList = remaining;
+        IMediaMetadata* metadata = iNetwork.TagManager().FromDidlLite(metadataText);
+        entries->push_back(new IdCacheEntry(metadata, uriText));
+    }
 
     readListData->iEntries = entries;
     readListData->iCallback(readListData);

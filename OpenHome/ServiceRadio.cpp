@@ -5,6 +5,7 @@
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/Private/Debug.h>
 #include <Generated/CpAvOpenhomeOrgRadio1.h>
+#include <OpenHome/Net/Private/XmlParser.h>
 #include <vector>
 
 using namespace OpenHome;
@@ -574,12 +575,21 @@ void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
 
         if (id > 0)
         {
-/*
-            XmlNode n = document.SelectSingleNode(string.Format("/ChannelList/Entry[Id={0}]/Metadata", id));
-            IMediaMetadata metadata = iNetwork.TagManager.FromDidlLite(n.InnerText);
-            string uri = metadata[iNetwork.TagManager.Audio.Uri].Value;
-            entries.Add(new IdCacheEntry(metadata, uri));
-*/
+
+            Bwh xmlNodeName;
+            xmlNodeName.Replace(Brn("/ChannelList/Entry[Id="));
+            Ascii::AppendDec(xmlNodeName, id);
+            xmlNodeName.Append(Brn("]/Metadata"));
+
+            Brn innerText = XmlParserBasic::Find(xmlNodeName, channelList);
+
+            IMediaMetadata* metadata = iNetwork.TagManager().FromDidlLite(innerText);
+
+            auto mvs = metadata->Values();
+            auto mv = mvs[iNetwork.TagManager().Audio().Uri()];
+            Brn uri = mv->Value();
+            entries->push_back(new IdCacheEntry(metadata, uri));
+
         }
     }
 
