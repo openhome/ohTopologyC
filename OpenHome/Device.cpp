@@ -207,8 +207,7 @@ InjectorDevice::InjectorDevice(const Brx& aUdn)
 InjectorDevice::~InjectorDevice()
 {
     delete iDisposeHandler;
-    map<EServiceType, Service*>::iterator it;
-    for (it=iServices.begin(); it!=iServices.end(); it++)
+    for (auto it=iServices.begin(); it!=iServices.end(); it++)
     {
         Service* service = it->second;
         delete service;
@@ -225,7 +224,7 @@ void InjectorDevice::Join(Functor aAction)
 void InjectorDevice::Unjoin(Functor aAction)
 {
     DisposeLock lock(*iDisposeHandler);
-    vector<Functor>::iterator  it = find(iJoiners.begin(), iJoiners.end(), aAction);
+    auto it = find(iJoiners.begin(), iJoiners.end(), aAction);
     ASSERT(it != iJoiners.end());
     iJoiners.erase(it);
 }
@@ -311,8 +310,7 @@ TBool InjectorDevice::Wait()
 {
     TBool complete = true;
 
-    map<EServiceType, Service*>::iterator it;
-    for (it=iServices.begin(); it!=iServices.end(); it++)
+    for (auto it=iServices.begin(); it!=iServices.end(); it++)
     {
         complete &= it->second->Wait();
     }
@@ -337,8 +335,7 @@ void InjectorDevice::Dispose()
         iJoiners[i]();
     }
 
-    map<EServiceType, Service*>::iterator it;
-    for (it=iServices.begin(); it!=iServices.end(); it++)
+    for (auto it=iServices.begin(); it!=iServices.end(); it++)
     {
         Service* service = it->second;
         service->Dispose();

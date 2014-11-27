@@ -123,8 +123,7 @@ InjectorMock::InjectorMock(Network& aNetwork, const Brx& /*aResourceRoot*/, ILog
 
 InjectorMock::~InjectorMock()
 {
-    map<Brn, InjectorDeviceMock*, BufferCmp>::iterator it;
-    for(it=iMockDevices.begin();it!=iMockDevices.end();it++)
+    for(auto it=iMockDevices.begin();it!=iMockDevices.end();it++)
     {
         delete it->second;
     }
@@ -140,8 +139,7 @@ void InjectorMock::Dispose()
 
 void InjectorMock::DisposeCallback(void*)
 {
-    map<Brn, InjectorDeviceMock*, BufferCmp>::iterator it;
-    for(it=iMockDevices.begin();it!=iMockDevices.end();it++)
+    for(auto it=iMockDevices.begin();it!=iMockDevices.end();it++)
     {
         it->second->Dispose();
     }

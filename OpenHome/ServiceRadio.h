@@ -153,6 +153,7 @@ protected:
 
 private:
     void ReadList(ReadListData* aReadListData);
+    void ReadListCallback(AsyncCbArg* aArg);
 
     void HandleInitialEvent();
     void HandleIdChanged();

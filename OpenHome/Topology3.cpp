@@ -555,8 +555,7 @@ void Topology3::ReceiverChanged(ReceiverWatcher& aReceiver)
 {
     Brn receiverUri(aReceiver.ListeningToUri());
 
-    map<ITopology2Group*, SenderWatcher*>::iterator it;
-    for(it = iSenderLookup.begin(); it!=iSenderLookup.end(); it++)
+    for(auto it = iSenderLookup.begin(); it!=iSenderLookup.end(); it++)
     {
         SenderWatcher* watcher = it->second;
         Brn watcherUri(watcher->Uri());
@@ -575,8 +574,7 @@ void Topology3::ReceiverChanged(ReceiverWatcher& aReceiver)
 
 void Topology3::SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri)
 {
-    map<ITopology2Group*, ReceiverWatcher*>::iterator it;
-    for(it = iReceiverLookup.begin(); it!=iReceiverLookup.end(); it++)
+    for(auto it = iReceiverLookup.begin(); it!=iReceiverLookup.end(); it++)
     {
         ReceiverWatcher* watcher = it->second;
 

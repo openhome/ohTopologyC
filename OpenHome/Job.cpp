@@ -130,6 +130,7 @@ Job* JobDone::GetJob()
 
 Job2::Job2()
     :Thread("thname")
+    ,iArg(NULL)
     ,iCbArg(NULL)
     ,iCancelled(false)
     ,iMutex("JOB2")
@@ -138,18 +139,19 @@ Job2::Job2()
 }
 
 
-void Job2::SetCallback(FunctorGeneric<void*> aAction, void* aArg)
+void Job2::SetCallback(FunctorGeneric<AsyncCbArg*> aCallback, void* aArg)
 {
-    iCallback = aAction;
-    iCbArg = aArg;
+    iCallback = aCallback;
+    iArg = aArg;
 }
 
 
 void Job2::CallbackComplete()
 {
-    iCallback = FunctorGeneric<void*>();  // reset to null functor
+    iCallback = FunctorGeneric<AsyncCbArg*>();  // reset to null functor
+    iArg = NULL;
     iCbArg = NULL;
-    // add this back into fifo of available jobs
+    // add "this" back into fifo of available jobs here
 }
 
 
@@ -168,7 +170,7 @@ Net::FunctorAsync Job2::AsyncCb()
 }
 
 
-void Job2::AsyncComplete(Net::IAsync& /*aAsync*/)
+void Job2::AsyncComplete(Net::IAsync& aAsync)
 {
     iMutex.Wait();
     TBool cancelled = iCancelled;
@@ -176,6 +178,10 @@ void Job2::AsyncComplete(Net::IAsync& /*aAsync*/)
 
     if (iCallback && !cancelled)
     {
+        iCbArg = new AsyncCbArg();
+        iCbArg->iAsync = &aAsync;
+        iCbArg->iArg = iArg;
+
         Signal();
     }
 }

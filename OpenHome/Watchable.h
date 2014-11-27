@@ -121,7 +121,7 @@ TBool Watchable<T>::Update(T aValue)
     {
         IWatcher<T>* watcher = watchers[i];
 
-        typename std::vector<IWatcher<T>*>::iterator it = std::find(iRecentlyRemoved.begin(), iRecentlyRemoved.end(), watcher);
+        auto it = std::find(iRecentlyRemoved.begin(), iRecentlyRemoved.end(), watcher);
 
         if (it==iRecentlyRemoved.end()) // not found
         {
@@ -165,7 +165,7 @@ template <class T>
 void Watchable<T>::AddWatcher(IWatcher<T>& aWatcher)
 {
     Assert();
-    typename std::vector<IWatcher<T>*>::iterator it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
+    auto it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
     ASSERT(it==iWatchers.end());
     iWatchers.push_back(&aWatcher);
     aWatcher.ItemOpen(iId, iValue);
@@ -180,7 +180,7 @@ void Watchable<T>::RemoveWatcher(IWatcher<T>& aWatcher)
 {
     Assert();
 
-    typename std::vector<IWatcher<T>*>::iterator it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
+    auto it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
     ASSERT(it!=iWatchers.end());
     iWatchers.erase(it);
 

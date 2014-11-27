@@ -308,8 +308,7 @@ void ResultWatcherFactory::Destroy(const Brx& aId)
 
 void ResultWatcherFactory::Dispose()
 {
-    std::map<Brn, std::vector<IDisposable*>, BufferCmp>::iterator it;
-    for(it=iWatchers.begin();it!=iWatchers.end(); it++)
+    for(auto it=iWatchers.begin();it!=iWatchers.end(); it++)
     {
         std::vector<IDisposable*> v = it->second;
         for(TUint i=0; i<v.size(); i++)

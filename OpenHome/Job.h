@@ -68,11 +68,19 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////
 
+struct AsyncCbArg
+{
+    Net::IAsync* iAsync;
+    void* iArg;
+};
+
+///////////////////////////////////////////////////////////////////////////
+
 class Job2 : private Thread
 {
 public:
     Job2();
-    void SetCallback(FunctorGeneric<void*> aAction, void* aArg);
+    void SetCallback(FunctorGeneric<AsyncCbArg*> aAction, void* aArg);
     void CallbackComplete();
     void Run();
     Net::FunctorAsync AsyncCb();
@@ -80,8 +88,9 @@ public:
     void Cancel();
 
 private:
-    FunctorGeneric<void*> iCallback;
-    void* iCbArg;
+    FunctorGeneric<AsyncCbArg*> iCallback;
+    void* iArg;
+    AsyncCbArg* iCbArg;
     TBool iCancelled;
     mutable Mutex iMutex;
 };

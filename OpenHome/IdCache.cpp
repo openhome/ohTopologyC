@@ -608,15 +608,16 @@ void IdCacheSession::GetMissingEntriesCallback(void* aObj)
     auto entries = payload->iEntries;
     auto callback = payload->iCallback;
 
-    for (TUint i=0, index = 0; i<retrievedEntries->size(); i++, index++)
+    for (TUint i=0; i<retrievedEntries->size(); i++)
     {
-        TUint id = (*missingIds)[index];
+        TUint id = (*missingIds)[i];
         IIdCacheEntry* entry = iCache->AddEntry(iSessionId, id, (*retrievedEntries)[i]);
         auto it = find(requiredIds->begin(), requiredIds->end(), id);
         ASSERT(it!=requiredIds->end());
         (*entries)[it-requiredIds->begin()] = entry;
     }
 
+    delete payload;
     callback(entries);
 }
 

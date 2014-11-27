@@ -45,14 +45,12 @@ Network::~Network()
     delete iWatchableThread;
     delete iTagManager;
 
-    std::map<EServiceType , WatchableUnordered<IDevice*>*>::iterator it;
-    for(it=iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
+    for(auto it=iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
     {
         delete it->second;
     }
 
-    std::map<Brn, Device*, BufferCmp>::iterator it2;
-    for(it2=iDevices.begin(); it2!=iDevices.end(); it2++)
+    for(auto it2=iDevices.begin(); it2!=iDevices.end(); it2++)
     {
         delete it2->second;
     }
@@ -127,9 +125,7 @@ void Network::WaitDevicesCallback(void* aObj)
     Assert(); /// must be on watchable thread
     TBool* complete = (TBool*)aObj;
 
-    std::map<Brn, Device*, BufferCmp>::iterator it;
-
-    for(it = iDevices.begin(); it!=iDevices.end(); it++)
+    for(auto it = iDevices.begin(); it!=iDevices.end(); it++)
     {
         (*complete) &= it->second->Wait();
     }
@@ -199,9 +195,7 @@ void Network::AddCallback(void* aObj)
 
     iDevices[device->Udn()] = device;
 
-    std::map<EServiceType, WatchableUnordered<IDevice*>*>::iterator it;
-
-    for(it = iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
+    for(auto it = iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
     {
         if (injDevice->HasService(it->first))
         {
@@ -234,9 +228,7 @@ void Network::RemoveCallback(void* aObj)
     {
         Device* device = iDevices[injDevice->Udn()];
 
-        map<EServiceType, WatchableUnordered<IDevice*>*>::iterator it;
-
-        for(it = iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
+        for(auto it = iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
         {
             if (injDevice->HasService(it->first))
             {
@@ -271,9 +263,7 @@ IWatchableUnordered<IDevice*>* Network::Create(EServiceType aServiceType)
 
         iDeviceLists[aServiceType] = watchables;
 
-        std::map<Brn, Device*, BufferCmp>::iterator it;
-
-        for(it=iDevices.begin(); it!=iDevices.end(); it++)
+        for(auto it=iDevices.begin(); it!=iDevices.end(); it++)
         {
             if (it->second->HasService(aServiceType))
             {
@@ -329,8 +319,7 @@ void Network::Dispose()
 {
     Wait();
 
-    std::map<EServiceType , WatchableUnordered<IDevice*>*>::iterator it;
-    for(it=iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
+    for(auto it=iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
     {
         it->second->Dispose();
     }
@@ -353,8 +342,7 @@ void Network::Dispose()
  */
 void Network::DisposeCallback(void*)
 {
-    std::map<Brn, Device*, BufferCmp>::iterator it;
-    for(it=iDevices.begin(); it!=iDevices.end(); it++)
+    for(auto it=iDevices.begin(); it!=iDevices.end(); it++)
     {
         Device* device = it->second;
         device->Dispose();

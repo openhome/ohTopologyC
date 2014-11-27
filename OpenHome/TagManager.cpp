@@ -384,7 +384,7 @@ MediaMetadata::MediaMetadata()
 }
 
 
-const std::map<ITag*, IMediaValue*> MediaMetadata::Values()
+const map<ITag*, IMediaValue*> MediaMetadata::Values()
 {
     return(iMetadata);
 }

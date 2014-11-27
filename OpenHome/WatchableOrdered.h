@@ -92,7 +92,7 @@ void WatchableOrdered<T>::Move(T aWatchable, TUint aNewIndex)
 {
     Assert(); /// must be on watchable thread
 
-    typename std::vector<T>::iterator it = std::find(iWatchables.begin(), iWatchables.end(), aWatchable);
+    auto it = std::find(iWatchables.begin(), iWatchables.end(), aWatchable);
     ASSERT(it != iWatchables.end()); /// aWatchable must exist in iWatchables
 
     TUint oldIndex = it-iWatchables.begin();
@@ -118,7 +118,7 @@ void WatchableOrdered<T>::Remove(T aWatchable)
 {
     Assert(); /// must be on watchable thread
 
-    typename std::vector<T>::iterator it = std::find(iWatchables.begin(), iWatchables.end(), aWatchable);
+    auto it = std::find(iWatchables.begin(), iWatchables.end(), aWatchable);
     ASSERT(it != iWatchables.end()); /// aWatchable must exist in iWatchables
 
     TUint index = it-iWatchables.begin();
@@ -186,7 +186,7 @@ void WatchableOrdered<T>::RemoveWatcher(IWatcherOrdered<T>& aWatcher)
 {
     Assert(); /// must be on watchable thread
 
-    typename std::vector<IWatcherOrdered<T>*>::iterator it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
+    auto it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
 
     if (it != iWatchers.end()) /// check aWatcher exists
     {

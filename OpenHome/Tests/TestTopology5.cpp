@@ -221,8 +221,7 @@ public:
         iFactory->Dispose();
         delete iFactory;
 
-        map<ITopology5Room*, RoomWatcher*>::iterator it;
-        for(it=iWatcherLookup.begin(); it!=iWatcherLookup.end(); it++)
+        for(auto it=iWatcherLookup.begin(); it!=iWatcherLookup.end(); it++)
         {
             it->second->Dispose();
             delete it->second;

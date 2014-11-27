@@ -99,7 +99,7 @@ void WatchableUnordered<T>::Remove(T aWatchable)
     //LOG(kTrace, "WatchableUnordered<T>::Remove \n");
     Assert(); /// must be on watchable thread
 
-    typename std::vector<T>::iterator it = std::find(iWatchables.begin(), iWatchables.end(), aWatchable);
+    auto it = std::find(iWatchables.begin(), iWatchables.end(), aWatchable);
     ASSERT(it != iWatchables.end()); /// aWatchable must exist in iWatchables
     iWatchables.erase(it); /// remove aWatchable from iWatchables
 
@@ -166,7 +166,7 @@ template <class T>
 void WatchableUnordered<T>::RemoveWatcher(IWatcherUnordered<T>& aWatcher)
 {
     Assert(); /// must be on watchable thread
-    typename std::vector<IWatcherUnordered<T>*>::iterator it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
+    auto it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
 
     if (it != iWatchers.end())  /// check aWatcher exists
     {

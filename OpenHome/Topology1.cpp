@@ -22,8 +22,7 @@ Topology1::Topology1(INetwork* aNetwork, ILog& /*aLog*/)
 
 Topology1::~Topology1()
 {
-    map<IDevice*, IProxyProduct*>::iterator it;
-    for(it=iProductLookup.begin(); it!=iProductLookup.end(); it++)
+    for(auto it=iProductLookup.begin(); it!=iProductLookup.end(); it++)
     {
         delete it->second;
     }
@@ -51,8 +50,7 @@ void Topology1::Dispose()
     iNetwork->Execute(f, NULL);
 
     // dispose of all products, which will in turn unsubscribe
-    map<IDevice*, IProxyProduct*>::iterator it;
-    for(it=iProductLookup.begin(); it!=iProductLookup.end(); it++)
+    for(auto it=iProductLookup.begin(); it!=iProductLookup.end(); it++)
     {
         it->second->Dispose();
     }
@@ -140,7 +138,7 @@ void Topology1::UnorderedAddCallback(void* aObj)
     IProxyProduct* product = args->Arg2();
     delete args;
 
-    vector<IDevice*>::iterator it = find(iPendingSubscriptions.begin(), iPendingSubscriptions.end(), device);
+    auto it = find(iPendingSubscriptions.begin(), iPendingSubscriptions.end(), device);
 
     if ((!iDisposed) && (it!=iPendingSubscriptions.end()))
     {
@@ -168,7 +166,7 @@ void Topology1::UnorderedAddCallback(void* aObj)
 
 void Topology1::UnorderedRemove(IDevice* aDevice)
 {
-    vector<IDevice*>::iterator it = find(iPendingSubscriptions.begin(), iPendingSubscriptions.end(), aDevice);
+    auto it = find(iPendingSubscriptions.begin(), iPendingSubscriptions.end(), aDevice);
     if (it!=iPendingSubscriptions.end())
     {
         iPendingSubscriptions.erase(it);

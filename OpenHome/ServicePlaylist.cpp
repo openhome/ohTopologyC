@@ -737,16 +737,12 @@ void ServicePlaylistNetwork::ReadList(ReadListData* aReadListData)
         idList.Append(Brn("}"));
     }
 
+    Job2* job = new Job2(); // read from existing pool - don't allocate new jobs
+    auto f = MakeFunctorGeneric<AsyncCbArg*>(*this, &ServicePlaylistNetwork::ReadListCallback);
+    job->SetCallback(f, aReadListData);
+    FunctorAsync fa = job->AsyncCb();
 
-    //Job2* job = new Job2(); // read from existing pool - don't allocate new jobs
-    // We're using Job2 here because we want the callback to be run on a separate thread from the ohNet iService
-    //job->Set
-
-/*
-    FunctorAsync f = job->AsyncCb();
-    iService->BeginReadList(idList, f);
-*/
-
+    iService->BeginReadList(idList, fa);
 
 /*
     TaskCompletionSource<IEnumerable<IIdCacheEntry>> taskSource = new TaskCompletionSource<IEnumerable<IIdCacheEntry>>();
@@ -792,14 +788,22 @@ void ServicePlaylistNetwork::ReadList(ReadListData* aReadListData)
 }
 
 
-void ServicePlaylistNetwork::ReadListCallback(IAsync& aPtr)
+void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
 {
     Brh trackList;
-    iService->EndReadList(aPtr, trackList);
+    iService->EndReadList(*aArg->iAsync, trackList);
+
+    ReadListData* readListData = (ReadListData*)aArg->iArg;
+
+    auto entries = new vector<IIdCacheEntry*>();
+
+    // Parse XML here and populate entries
+
+
+    readListData->iEntries = entries;
+    readListData->iCallback(readListData);
 
 /*
-    auto entries = new vector<IIdCacheEntry>();
-
     XmlDocument document = new XmlDocument();
     document.LoadXml(trackList);
 
@@ -810,9 +814,10 @@ void ServicePlaylistNetwork::ReadListCallback(IAsync& aPtr)
         string uri = n["Uri"].InnerText;
         entries.Add(new IdCacheEntry(metadata, uri));
     }
-*/
 
-    //taskSource.SetResult(entries);
+
+    taskSource.SetResult(entries);
+*/
 
 
 

@@ -76,6 +76,9 @@ void MediaPresetRadio::Play()
 
     if (iId > 0)
     {
+        iRadio.SetId(iId, iUri);
+        iRadio.Play();
+
 /*
         iRadio.SetId(iId, iUri).ContinueWith((t) =>
         {
@@ -476,8 +479,32 @@ void ServiceRadioNetwork::SetChannel(const Brx& aUri, IMediaMetadata& aMetadata)
 
 
 
-void ServiceRadioNetwork::ReadList(ReadListData* /*aReadListData*/)
+void ServiceRadioNetwork::ReadList(ReadListData* aReadListData)
 {
+    // called by IdCacheSession::CreateJobCallback - iFunction(payload);
+
+    auto requiredIds = aReadListData->iMissingIds;
+
+    Bwh idList;
+    for (TUint i=0;i<requiredIds->size(); i++)
+    {
+        if (i>0)
+        {
+            idList.Append(Brn(" "));
+        }
+        idList.Append(Brn("{"));
+        Ascii::AppendDec(idList, (*requiredIds)[i]);
+        idList.Append(Brn("}"));
+    }
+
+    Job2* job = new Job2(); // read from existing pool - don't allocate new jobs
+    auto f = MakeFunctorGeneric<AsyncCbArg*>(*this, &ServiceRadioNetwork::ReadListCallback);
+    job->SetCallback(f, aReadListData);
+    FunctorAsync fa = job->AsyncCb();
+
+    iService->BeginReadList(idList, fa);
+
+
 
 /*
     TaskCompletionSource<IEnumerable<IIdCacheEntry>> taskSource = new TaskCompletionSource<IEnumerable<IIdCacheEntry>>();
@@ -523,6 +550,54 @@ void ServiceRadioNetwork::ReadList(ReadListData* /*aReadListData*/)
     taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
     return taskSource.Task;
 */
+}
+
+
+void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
+{
+    Brh channelList;
+    iService->EndReadList(*aArg->iAsync, channelList);
+
+    ReadListData* readListData = (ReadListData*)aArg->iArg;
+
+    auto entries = new vector<IIdCacheEntry*>();
+
+    // Parse XML here and populate entries
+/*
+    XmlDocument document = new XmlDocument();
+    document.LoadXml(channelList);
+*/
+    auto requiredIds = readListData->iMissingIds;
+    for(TUint i=0; i<requiredIds->size(); i++)
+    {
+        TUint id = (*requiredIds)[i];
+
+        if (id > 0)
+        {
+/*
+            XmlNode n = document.SelectSingleNode(string.Format("/ChannelList/Entry[Id={0}]/Metadata", id));
+            IMediaMetadata metadata = iNetwork.TagManager.FromDidlLite(n.InnerText);
+            string uri = metadata[iNetwork.TagManager.Audio.Uri].Value;
+            entries.Add(new IdCacheEntry(metadata, uri));
+*/
+        }
+    }
+
+/*
+    foreach (TUint id in aIdList)
+    {
+        if (id > 0)
+        {
+            XmlNode n = document.SelectSingleNode(string.Format("/ChannelList/Entry[Id={0}]/Metadata", id));
+            IMediaMetadata metadata = iNetwork.TagManager.FromDidlLite(n.InnerText);
+            string uri = metadata[iNetwork.TagManager.Audio.Uri].Value;
+            entries.Add(new IdCacheEntry(metadata, uri));
+        }
+    }
+*/
+
+    readListData->iEntries = entries;
+    readListData->iCallback(readListData);
 }
 
 

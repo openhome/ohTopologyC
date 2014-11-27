@@ -288,8 +288,7 @@ Topology2::~Topology2()
     delete iTopology1;
     delete iGroups;
 
-    map<IProxyProduct*, Topology2Group*>::iterator it;
-    for(it=iGroupLookup.begin(); it!=iGroupLookup.end(); it++)
+    for(auto it=iGroupLookup.begin(); it!=iGroupLookup.end(); it++)
     {
         delete it->second;
     }
@@ -323,8 +322,7 @@ void Topology2::ExecuteCallback(void*)
 {
     iTopology1->Products().RemoveWatcher(*this);
 
-    map<IProxyProduct*, Topology2Group*>::iterator it;
-    for(it=iGroupLookup.begin(); it!=iGroupLookup.end(); it++)
+    for(auto it=iGroupLookup.begin(); it!=iGroupLookup.end(); it++)
     {
         it->second->Dispose();
     }

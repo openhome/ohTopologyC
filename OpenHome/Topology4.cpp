@@ -97,7 +97,7 @@ TBool Topology4Room::Remove(ITopology3Group& aGroup)
 {
     iWatchableGroups->Remove(&aGroup);
 
-    vector<ITopology3Group*>::iterator it =  find(iGroups.begin(), iGroups.end(), &aGroup);;
+    auto it =  find(iGroups.begin(), iGroups.end(), &aGroup);;
     ASSERT(it!=iGroups.end());
 
     iGroups.erase(it);
@@ -122,8 +122,7 @@ Topology4::~Topology4()
     delete iTopology3;
     delete iRooms;
 
-    map<ITopology3Group*, Topology4GroupWatcher*>::iterator it;
-    for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
+    for(auto it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
     {
         delete it->second;
     }
@@ -158,8 +157,7 @@ void Topology4::DisposeCallback(void*)
     iTopology3->Groups().RemoveWatcher(*this);
 
     // removing these watchers should cause all rooms to be detached and disposed
-    map<ITopology3Group*, Topology4GroupWatcher*>::iterator it;
-    for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
+    for(auto it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
     {
         it->second->Dispose();
     }

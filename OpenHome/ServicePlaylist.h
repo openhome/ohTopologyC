@@ -201,7 +201,7 @@ protected:
     void HandleShuffleChangedCallback2(void*);
 
 private:
-    void ReadListCallback(Net::IAsync& aPtr);
+    void ReadListCallback(AsyncCbArg* aArg);
 
 private:
     Net::CpDevice& iCpDevice;

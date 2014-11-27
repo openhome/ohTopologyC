@@ -751,7 +751,7 @@ void Topology5GroupWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aValu
 
 void Topology5GroupWatcher::ItemUpdate(const Brx& /*aId*/, ITopology2Source* aValue, ITopology2Source* aPrevious)
 {
-    vector<ITopology2Source*>::iterator it = find(iSources.begin(), iSources.end(), aPrevious);
+    auto it = find(iSources.begin(), iSources.end(), aPrevious);
     if (it!=iSources.end())
     {
         iSources[it-iSources.begin()] = aValue;
@@ -788,8 +788,7 @@ Topology5Room::Topology5Room(INetwork& aNetwork, ITopology4Room& aRoom, ILog& aL
 
 Topology5Room::~Topology5Room()
 {
-    map<ITopology3Group*, Topology5GroupWatcher*>::iterator it;
-    for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
+    for(auto it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
     {
         delete it->second;
     }
@@ -819,15 +818,11 @@ Topology5Room::~Topology5Room()
 void Topology5Room::Dispose()
 {
     iRoom.Groups().RemoveWatcher(*this);
-    //iRoom = null;
 
-    map<ITopology3Group*, Topology5GroupWatcher*>::iterator it;
-
-    for(it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
+    for(auto it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
     {
         it->first->Standby().RemoveWatcher(*this);
         it->second->Dispose();
-        //delete it->second;
     }
 
     for(TUint i=0; i<iGroups.size() ;i++)
@@ -841,8 +836,6 @@ void Topology5Room::Dispose()
     iWatchableSources->Dispose();
     iWatchableRegistrations->Dispose();
 
-
-  //  iRoots = null;
 }
 
 
@@ -1109,8 +1102,7 @@ Topology5::~Topology5()
     delete iRooms;
     delete iTopology4;
 
-    map<ITopology4Room*, Topology5Room*>::iterator it;
-    for(it=iRoomLookup.begin(); it!=iRoomLookup.end(); it++)
+    for(auto it=iRoomLookup.begin(); it!=iRoomLookup.end(); it++)
     {
         delete it->second;
     }
