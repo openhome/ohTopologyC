@@ -12,10 +12,10 @@ using namespace OpenHome::Net;
 
 ServiceReceiver::ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     :Service(aNetwork, aDevice, aLog)
-    ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), InfoMetadata::Empty()))
-    ,iTransportState(new Watchable<Brn>(aNetwork, Brn("TransportState"), Brx::Empty()))
-    ,iCurrentMetadata(NULL)
+    ,iCurrentMetadata(InfoMetadata::Empty())
     ,iCurrentTransportState(NULL)
+    ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), iCurrentMetadata))
+    ,iTransportState(new Watchable<Brn>(aNetwork, Brn("TransportState"), Brx::Empty()))
 {
 }
 
@@ -404,12 +404,14 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
         Brn allButLastToken(remaining.Split(0, allButLastTokenBytes));
 
         // FIXME : use a static function to do the new here (allowing implementation of a fixed size pool of objects in future)
-        IInfoMetadata* metadata = new InfoMetadata(iNetwork.TagManager().FromDidlLite(allButLastToken), lastToken);
-        iMetadata->Update(metadata);
+        auto metadata = iCurrentMetadata;
+        iCurrentMetadata = new InfoMetadata(iNetwork.TagManager().FromDidlLite(allButLastToken), lastToken);
+        iMetadata->Update(iCurrentMetadata);
 
-        delete iCurrentMetadata;
-
-        iCurrentMetadata = metadata;
+        if (metadata!=InfoMetadata::Empty())
+        {
+            delete metadata;
+        }
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("transportstate")))
     {

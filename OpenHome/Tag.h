@@ -36,7 +36,7 @@ class ITag
 {
 public:
     virtual TUint Id() = 0;
-    virtual ETagRealm Realm() = 0;
+    virtual ETagRealm& Realm() = 0;
     virtual Brn Name() = 0;
     virtual Brn FullName() = 0;
     virtual TBool IsKey() = 0;
@@ -55,16 +55,6 @@ public:
 };
 
 ////////////////////////////////////////////
-
-/*
-    public interface ITagRealmSystem : ITagRealm
-    {
-        ITag Realm { get; }
-        ITag Root { get; }
-        ITag Folder { get; }
-        ITag Path { get; }
-    }
-*/
 
 class ITagRealmGlobal : public ITagRealm
 {
@@ -110,46 +100,9 @@ public:
     virtual ITag* AlbumGenre() = 0;
 };
 
-////////////////////////////////////////////////
-
-/*
-    public interface ITagRealmVideo : ITagRealm
-    {
-    }
-
-    public interface ITagRealmImage : ITagRealm
-    {
-        ITag Type { get; }
-        ITag Title { get; }
-        ITag Embedded { get; }
-        ITag Codec { get; }
-        ITag Width { get; }
-        ITag Height { get; }
-    }
-
-    public interface ITagRealmPlaylist : ITagRealm
-    {
-        ITag Playlist { get; }
-        ITag PlaylistType { get; }
-        ITag PlaylistTitle { get; }
-        ITag Artist { get; }
-        ITag Title { get; }
-        ITag Duration { get; }
-        ITag Uri { get; }
-    }
-
-    public interface ITagRealmContainer : ITagRealm
-    {
-        ITag Title { get; }
-        ITag Description { get; }
-        ITag Artwork { get; }
-    }
-*/
-
-
 ///////////////////////////////////////////////
 
-class Tag : ITag
+class Tag : public ITag
 {
 private:
     static const TUint kMaxFullNameBytes = 100; //
@@ -167,7 +120,7 @@ public:
 
     // ITag
     virtual TUint Id();
-    virtual ETagRealm Realm();
+    virtual ETagRealm& Realm();
     virtual Brn Name();
     virtual Brn FullName();
     virtual TBool IsKey();
@@ -208,16 +161,18 @@ class TagRealmBase
 {
 public:
     // ITagRealm
-    virtual ITag* Tag(const Brx& aName);
+    ITag* Tag(const Brx& aName);
 
 protected:
     TagRealmBase();
     TagRealmBase(ITagRealmGlobal& aGlobal);
     void Add(ITag* aTag, ITagManagerInitialiser& aInitialiser);
 
+protected:
+    std::map<Brn, ITag*, BufferCmp> iTags;
+
 private:
     ITagRealmGlobal* iGlobal;
-    std::map<Brn, ITag*, BufferCmp> iTags;
 };
 
 ///////////////////////////////////////////////////////////
@@ -229,7 +184,8 @@ public:
     TagRealmGlobal(ITagManagerInitialiser& aInitialiser);
 
     // ITagRealmGlobal
-    ITag* Hash();
+    virtual ITag* Hash();
+    virtual ITag* Tag(const Brx& aName);
 
 private:
     ITag* iHash;
@@ -335,6 +291,9 @@ public:
     virtual ITag* AlbumDiscs();
     virtual ITag* AlbumYear();
     virtual ITag* AlbumGenre();
+
+    // ITagRealmAudio
+    virtual ITag* Tag(const Brx& aName);
 
 private:
     ITag* iType;
@@ -726,6 +685,55 @@ private:
         {
             iTags.Add(aTag.Id, aTag);
         }
+    }
+*/
+
+
+
+////////////////////////////////////////////////
+
+/*
+    public interface ITagRealmVideo : ITagRealm
+    {
+    }
+
+    public interface ITagRealmImage : ITagRealm
+    {
+        ITag Type { get; }
+        ITag Title { get; }
+        ITag Embedded { get; }
+        ITag Codec { get; }
+        ITag Width { get; }
+        ITag Height { get; }
+    }
+
+    public interface ITagRealmPlaylist : ITagRealm
+    {
+        ITag Playlist { get; }
+        ITag PlaylistType { get; }
+        ITag PlaylistTitle { get; }
+        ITag Artist { get; }
+        ITag Title { get; }
+        ITag Duration { get; }
+        ITag Uri { get; }
+    }
+
+    public interface ITagRealmContainer : ITagRealm
+    {
+        ITag Title { get; }
+        ITag Description { get; }
+        ITag Artwork { get; }
+    }
+*/
+
+
+/*
+    public interface ITagRealmSystem : ITagRealm
+    {
+        ITag Realm { get; }
+        ITag Root { get; }
+        ITag Folder { get; }
+        ITag Path { get; }
     }
 */
 

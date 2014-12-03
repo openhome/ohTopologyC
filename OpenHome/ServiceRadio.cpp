@@ -455,7 +455,7 @@ void ServiceRadioNetwork::SetId(TUint aId, const Brx& aUri)
 
 void ServiceRadioNetwork::SetChannel(const Brx& aUri, IMediaMetadata& aMetadata)
 {
-    Brh didlLite;
+    Bwh didlLite;
     iNetwork.TagManager().ToDidlLite(aMetadata, didlLite);
     FunctorAsync f;
     iService->BeginSetChannel(aUri, didlLite, f);

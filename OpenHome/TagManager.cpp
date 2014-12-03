@@ -5,24 +5,157 @@
 #include <OpenHome/MetaData.h>
 #include <OpenHome/TagManager.h>
 #include <OpenHome/Private/Debug.h>
+#include <OpenHome/Net/Private/XmlParser.h>
+#include <OpenHome/Private/Ascii.h>
 #include <vector>
 
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
+using namespace OpenHome::Net;
 using namespace std;
 
+
+TagManager::TagManager()
+{
+    //iTags = new Dictionary<uint, ITag>();
+    //iRealms = new Dictionary<TagRealm, ITagRealm>();
+
+    //iSystem = new TagRealmSystem(this);
+    iGlobal = new TagRealmGlobal(*this);
+    iAudio = new TagRealmAudio(*this, *iGlobal);
+    //iVideo = new TagRealmVideo(this, iGlobal);
+    //iImage = new TagRealmImage(this, iGlobal);
+    //iPlaylist = new TagRealmPlaylist(this, iGlobal);
+    //iContainer = new TagRealmContainer(this);
+
+/*
+    iRealms.Add(TagRealm.System, iSystem);
+    iRealms.Add(TagRealm.Global, iGlobal);
+    iRealms.Add(TagRealm.Audio, iAudio);
+    iRealms.Add(TagRealm.Video, iVideo);
+    iRealms.Add(TagRealm.Image, iImage);
+    iRealms.Add(TagRealm.Playlist, iPlaylist);
+    iRealms.Add(TagRealm.Container, iContainer);
+*/
+}
+
+
+void TagManager::Add(ITag* aTag)
+{
+    iTags[aTag->Id()] = aTag;
+}
+
+
+void TagManager::Add(map<Brn, ITag*, BufferCmp>& aRealm, ITag* aTag)
+{
+    iTags[aTag->Id()] = aTag;
+    aRealm[aTag->Name()] = aTag;
+}
 
 
 IMediaMetadata* TagManager::FromDidlLite(const Brx& aMetadata)
 {
     MediaMetadata* metadata = new MediaMetadata();
 
-    //if (!string.IsNullOrEmpty(aMetadata))
-    if (!aMetadata.Equals(Brx::Empty()))
+    try
     {
+        if (!aMetadata.Equals(Brx::Empty()))
+        {
+            Brn title = XmlParserBasic::Find(Brn("dc:title"), aMetadata);
 
-    LOG(kTrace, aMetadata);
+            Brn res = XmlParserBasic::Find(Brn("didl:res"), aMetadata);
+            Brn album = XmlParserBasic::Find(Brn("upnp:album"), aMetadata);
+            Brn artist = XmlParserBasic::Find(Brn("upnp:artist"), aMetadata);
+
+
+            if(title != Brx::Empty())
+            {
+                metadata->Add(Audio().Title(), title);
+            }
+
+            if (res != Brx::Empty())
+            {
+                metadata->Add(Audio().Uri(), res);
+            }
+
+            if (album != Brx::Empty())
+            {
+                metadata->Add(Audio().Album(), album);
+            }
+
+            if (artist != Brx::Empty())
+            {
+                metadata->Add(Audio().Artist(), artist);
+            }
+
+            Brn remaining;
+            Brn xmlElements(aMetadata);
+            for(;;)
+            {
+                // search all artist elements and find the one which has a "role" attribute with a value of "AlbumArtist"
+                // take the value of this element as the album artist name
+                Brn artistElement =  XmlParserBasic::Element(Brn("upnp:artist"), xmlElements, remaining);
+
+                if (artistElement!=Brx::Empty())
+                {
+                    Brn roleAttrValue = XmlParserBasic::FindAttribute(Brn("upnp:artist"), Brn("role"), artistElement);
+                    if (roleAttrValue!=Brn("AlbumArtist"))
+                    {
+                        Brn albumArtist = XmlParserBasic::Find(Brn("upnp:artist"), artistElement);
+                        metadata->Add(Audio().AlbumArtist(), albumArtist);
+                        break;
+                    }
+
+                    if (remaining.Bytes()==0)
+                    {
+                        break;
+                    }
+
+                    xmlElements = remaining;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            for(;;)
+            {
+                Brn albumart = XmlParserBasic::Find(Brn("upnp:albumArtURI"), aMetadata);;
+                if (albumart!=Brx::Empty())
+                {
+                    metadata->Add(Audio().Artwork(), albumart);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            for(;;)
+            {
+                Brn genre = XmlParserBasic::Find(Brn("upnp:genre"), aMetadata);;
+                if (genre!=Brx::Empty())
+                {
+                    metadata->Add(Audio().Genre(), genre);
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
+    catch(XmlError)
+    {
+        LOG(kTrace, Brn("\nInvalid aMetadata: \n"));
+        LOG(kTrace, aMetadata);
+        LOG(kTrace, "\n");
+    }
+
+
+    return metadata;
 
 
     /*
@@ -120,18 +253,96 @@ IMediaMetadata* TagManager::FromDidlLite(const Brx& aMetadata)
 */
     //    }
         //catch (XmlException) { }
-    }
+    //}
 
     //metadata->Add(System().Folder(), aMetadata);
-
-    return metadata;
-
 }
 
 
 
-void TagManager::ToDidlLite(IMediaMetadata& /*aMetadata*/, Brh& /*aBuf*/)
+void TagManager::ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf)
 {
+/*
+<DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+  <item id="db/be6b8305a1f3ccddd3f0e619533b7d271" parentID="0" restricted="true">
+    <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Back in Black</dc:title>
+    <upnp:class xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">object.item.audioItem.musicTrack</upnp:class>
+    <upnp:udn xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">34ad33b4e52cd82d754cc1bd2db06fce</upnp:udn>
+    <upnp:artist xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">AC/DC</upnp:artist>
+    <upnp:artist role="composer" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">Brian Johnson</upnp:artist>
+    <upnp:artist role="composer" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">Angus Young</upnp:artist>
+    <upnp:artist role="composer" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">Malcolm Young</upnp:artist>
+    <upnp:artist role="albumartist" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">AC/DC</upnp:artist>
+    <upnp:album xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">Back in Black</upnp:album>
+    <dc:date xmlns:dc="http://purl.org/dc/elements/1.1/">1980-01-01</dc:date>
+    <upnp:genre xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">Rock</upnp:genre>
+    <upnp:originalTrackNumber xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">6</upnp:originalTrackNumber>
+    <res channels="2" bitrate="0" duration="00:04:15" protocolInfo="http-get:*:audio/x-flac:*">http://10.2.10.154:4000/linn.co.uk.kazooserver/ms/audio/e6b8305a1f3ccddd3f0e619533b7d271</res>
+    <upnp:albumArtURI dlna:profileID="JPEG_TN" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">http://10.2.10.154:4000/linn.co.uk.kazooserver/ms/artwork/e211a2ee99ce772e45bd836f00430534?size=0</upnp:albumArtURI>
+  </item>
+</DIDL-Lite></Metadata></Entry></TrackList>
+*/
+
+    auto metadata = aMetadata.Values();
+
+
+    aBuf.Replace(Brn("<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\">"));
+    aBuf.Append(Brn("<item"));
+    aBuf.Append(Brn("<dc:title>"));
+    aBuf.Append(metadata[Audio().Title()]->Value());
+    aBuf.Append(Brn("</dctitle>"));
+
+    aBuf.Append("<upnp:class xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">object.item.audioItem.musicTrack</upnp:class>");
+
+
+    if (metadata[Audio().Artwork()] != NULL)
+    {
+        // <upnp:albumArtURI dlna:profileID="JPEG_TN" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">http://10.2.10.154:4000/linn.co.uk.kazooserver/ms/artwork/e211a2ee99ce772e45bd836f00430534?size=0</upnp:albumArtURI>
+        auto artworkValues = metadata[Audio().Artwork()]->Values();
+        for(TUint i=0; i<artworkValues.size(); i++)
+        {
+            aBuf.Append(Brn("<upnp:albumArtURI dlna:profileID=\"JPEG_TN\" xmlns:dlna=\"urn:schemas-dlna-org:metadata-1-0/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
+            aBuf.Append(artworkValues[i]);
+            aBuf.Append(Brn("</upnp:albumArtURI>"));
+        }
+    }
+
+
+    if (metadata[Audio().AlbumTitle()] != NULL)
+    {
+        // <upnp:album xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">Back in Black</upnp:album>
+        aBuf.Append(Brn("<upnp:album xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
+        aBuf.Append(metadata[Audio().AlbumTitle()]->Value());
+        aBuf.Append(Brn("</upnp:album>"));
+    }
+
+
+
+    //if (metadata.Count(Audio().Artist()) > 0) /// FIXME: maybe this is the way?
+    if (metadata[Audio().Artist()] != NULL)
+    {
+        // <upnp:artist xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">AC/DC</upnp:artist>
+        auto artistValues = metadata[Audio().Artist()]->Values();
+        for (TUint i=0; i<artistValues.size(); i++)
+        {
+            aBuf.Append(Brn("<upnp:artist xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
+            aBuf.Append(artistValues[i]);
+            aBuf.Append(Brn("</upnp:artist>"));
+        }
+    }
+
+    if (metadata[Audio().AlbumArtist()] != NULL)
+    {
+        // <upnp:artist role="albumartist" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">AC/DC</upnp:artist>
+        aBuf.Append(Brn("<upnp:artist role=\"albumartist\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
+        aBuf.Append(metadata[Audio().AlbumArtist()]->Value());
+        aBuf.Append(Brn("</upnp:artist>"));
+    }
+
+    aBuf.Append(Brn("</item>"));
+    aBuf.Append(Brn("</DIDL-Lite>"));
+
+
 /*
     if (aMetadata == null)
     {
@@ -237,23 +448,14 @@ ITagRealmAudio& TagManager::Audio()
 MediaValue::MediaValue(const Brx& aValue)
     :iValue(aValue)
 {
-    //iValues = new List<string>(new string[] { aValue });
     iValues.push_back(Brn(aValue));
 }
 
 
-MediaValue::MediaValue(vector<Brn> aValues)
+MediaValue::MediaValue(const vector<Brn>& aValues)
     :iValues(aValues)
     ,iValue(aValues[0])
 {
-    //iValues = new List<string>(aValues);
-
-/*
-    for(TUint i=0; i<aValues.size(); i++)
-    {
-        iValues.push_back(aValues.Next());
-    }
-*/
 }
 
 // IMediaServerValue
@@ -263,7 +465,7 @@ Brn MediaValue::Value()
 }
 
 
-const vector<Brn> MediaValue::Values()
+const vector<Brn>& MediaValue::Values()
 {
     return (iValues);
 }
@@ -390,4 +592,5 @@ const map<ITag*, IMediaValue*> MediaMetadata::Values()
 }
 
 
+/////////////////////////////////////////////////////
 

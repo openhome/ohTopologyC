@@ -5,8 +5,8 @@
 #include <OpenHome/WatchableThread.h>
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/DisposeHandler.h>
-//#include <OpenHome/MetaData.h>
 #include <OpenHome/Tag.h>
+#include <OpenHome/Net/Private/XmlParser.h>
 #include <vector>
 #include <map>
 
@@ -17,18 +17,17 @@ namespace OpenHome
 namespace Av
 {
 
-//class IMediaMetatdata;
 
 class IMediaValue
 {
 public:
     virtual Brn Value() = 0;
-    virtual const std::vector<Brn> Values() = 0;
+    virtual const std::vector<Brn>& Values() = 0;
 };
 
 /////////////////////////////////////////
 
-class IMediaMetadata //: public IEnumerable<KeyValuePair<ITag, IMediaValue>>
+class IMediaMetadata
 {
 public:
     virtual IMediaValue* Value(ITag* aTag) = 0;
@@ -56,31 +55,38 @@ public:
     //virtual ITagRealmContainer Container() = 0;
 
     virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata) = 0;
-    virtual void ToDidlLite(IMediaMetadata& aMetadata, Brh& aBuf) = 0;
+    virtual void ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf) = 0;
     virtual ~ITagManager() {}
 };
 
 //////////////////////////////////////////////////////////////////////
 
-class TagManager : public ITagManager//, public ITagManagerInitialiser
+class TagManager : public ITagManager, public ITagManagerInitialiser
 {
 private:
     static const TUint kMaxSystemTagId = 49;
 
 public:
+    TagManager();
+
     virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata);
-    virtual void ToDidlLite(IMediaMetadata& aMetadata, Brh& aBuf);
+    virtual void ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf);
     virtual TUint MaxSystemTagId();
     virtual ITag* Tag(TUint aId);
     virtual ITagRealm& Realm(ETagRealm aRealm);
     virtual ITagRealmAudio& Audio();
+    virtual void Add(std::map<Brn, ITag*, BufferCmp>& aRealm, ITag* aTag);
+
+    // ITagManagerInitialiser
+    virtual void Add(ITag* aTag);
+
 
 private:
     std::map<TUint, ITag*> iTags;
     std::map<ETagRealm, ITagRealm*> iRealms;
 
     //ITagRealmSystem* iSystem;
-    //ITagRealmGlobal* iGlobal;
+    ITagRealmGlobal* iGlobal;
     ITagRealmAudio* iAudio;
     //ITagRealmVideo* iVideo;
     //ITagRealmImage* iImage;
@@ -88,16 +94,6 @@ private:
     //ITagRealmContainer* iContainer;
 };
 
-/////////////////////////////////////////////////
-
-
-class IMediaDatum : public IMediaMetadata
-{
-public:
-    virtual Brn Id() = 0;
-    //virtual IEnumerable<ITag> Type() = 0;
-    virtual std::vector<ITag*> Type() = 0;
-};
 
 /////////////////////////////////////////
 
@@ -105,11 +101,11 @@ class MediaValue : public IMediaValue
 {
 public:
     MediaValue(const Brx& aValue);
-    MediaValue(const std::vector<Brn> aValues);
+    MediaValue(const std::vector<Brn>& aValues);
 
     // IMediaServerValue
     virtual Brn Value();
-    virtual const std::vector<Brn> Values();
+    virtual const std::vector<Brn>& Values();
 
 private:
     std::vector<Brn> iValues;
@@ -143,17 +139,16 @@ public:
     MediaMetadata();
 
     const std::map<ITag*, IMediaValue*> Values();
-
-    // IEnumerable<KeyValuePair<ITag, IMediaServer>>
-    //IEnumerator<KeyValuePair<ITag, IMediaValue>> GetEnumerator();
-
-private:
-    // IEnumerable
-    //IEnumerator IEnumerable.GetEnumerator();
 };
 
 ///////////////////////////////////////////////////
 
+
+class XmlParserBasic1 : public Net::XmlParserBasic
+{
+public:
+    static Brn GetTag(const Brx& aTag, const Brx& aDocument, Brn& aRemaining);
+};
 
 
 } // Av

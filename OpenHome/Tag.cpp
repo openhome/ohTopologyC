@@ -55,7 +55,7 @@ TUint Tag::Id()
     return (iId);
 }
 
-ETagRealm Tag::Realm()
+ETagRealm& Tag::Realm()
 {
     return (iRealm);
 }
@@ -250,6 +250,20 @@ TagRealmGlobal::TagRealmGlobal(ITagManagerInitialiser& aInitialiser)
     Add(iHash, aInitialiser);
 }
 
+
+ITag* TagRealmGlobal::Tag(const Brx& aName)
+{
+    return(TagRealmBase::Tag(aName));
+/*
+    if (iTags.count(Brn(aName))>0)
+    {
+        return(iTags[Brn(aName)]);
+    }
+
+    return(NULL);
+*/
+}
+
 ITag* TagRealmGlobal::Hash()
 {
     return (iHash);
@@ -331,8 +345,13 @@ TagRealmAudio::TagRealmAudio(ITagManagerInitialiser& aInitialiser, ITagRealmGlob
 
 }
 
-    // ITagRealmAudio
+// ITagRealm
+ITag* TagRealmAudio::Tag(const Brx& aName)
+{
+    return(TagRealmBase::Tag(aName));
+}
 
+// ITagRealmAudio
 ITag* TagRealmAudio::Type()
 {
     return (iType);

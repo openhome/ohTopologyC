@@ -508,11 +508,11 @@ void ServicePlaylistNetwork::SeekSecondRelative(TInt aValue)
 
 void ServicePlaylistNetwork::Insert(TUint aAfterId, const Brx& aUri, IMediaMetadata& aMetadata)
 {
-    Brh metadataDidlLite;
+    Bwh metadataDidlLite;
     iNetwork.TagManager().ToDidlLite(aMetadata, metadataDidlLite);
 
     FunctorAsync f;
-    iService->BeginInsert(aAfterId, aUri, Brn(metadataDidlLite), f);
+    iService->BeginInsert(aAfterId, aUri, metadataDidlLite, f);
 
 /*
     TaskCompletionSource<TUint> taskSource = new TaskCompletionSource<TUint>();
@@ -540,12 +540,12 @@ void ServicePlaylistNetwork::InsertNext(const Brx& aUri, IMediaMetadata& aMetada
     TUint id;
     iService->PropertyId(id);
 
-    Brh metadataDidlLite;
+    Bwh metadataDidlLite;
     iNetwork.TagManager().ToDidlLite(aMetadata, metadataDidlLite);
 
 
     FunctorAsync f;
-    iService->BeginInsert(id, aUri, Brn(metadataDidlLite), f);
+    iService->BeginInsert(id, aUri, metadataDidlLite, f);
 
 /*
     TUint id = iService.PropertyId();
@@ -585,12 +585,12 @@ void ServicePlaylistNetwork::InsertEnd(const Brx& aUri, IMediaMetadata& aMetadat
         id = idArray[idArray.size()-1]; // last element
     }
 
-    Brh metadataDidlLite;
+    Bwh metadataDidlLite;
     iNetwork.TagManager().ToDidlLite(aMetadata, metadataDidlLite);
 
     Job2* job = new Job2(); // read from existing pool - don't allocate new jobs
     FunctorAsync f = job->AsyncCb();
-    iService->BeginInsert(id, aUri, Brn(metadataDidlLite), f);
+    iService->BeginInsert(id, aUri, metadataDidlLite, f);
 /*
 
 
