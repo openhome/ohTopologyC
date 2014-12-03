@@ -31,11 +31,11 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
     // product service
     std::unique_ptr<SrcXml> xml(new SrcXml());
 
-    xml->Add(unique_ptr<Source>(new Source(Brn("Playlist"), Brn("Playlist"), true)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("Radio"), Brn("Radio"), true)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("UPnP AV"), Brn("UpnpAv"), false)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("Songcast"), Brn("Receiver"), true)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("Net Aux"), Brn("NetAux"), false)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("Playlist"), Brn("Playlist"), true)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("Radio"), Brn("Radio"), true)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("UPnP AV"), Brn("UpnpAv"), false)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("Songcast"), Brn("Receiver"), true)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("Net Aux"), Brn("NetAux"), false)));
 
 
     device->Add(eProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, move(xml), true, aAttributes, Brx::Empty(),
@@ -112,18 +112,18 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
 
     // product service
     std::unique_ptr<SrcXml> xml(new SrcXml());
-    xml->Add(unique_ptr<Source>(new Source(Brn("Playlist"), Brn("Playlist"), true)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("Radio"), Brn("Radio"), true)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("UPnP AV"), Brn("UpnpAv"), false)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("Songcast"), Brn("Receiver"), true)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("Net Aux"), Brn("NetAux"), false)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("Analog1"), Brn("Analog"), true)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("Analog2"), Brn("Analog"), true)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("Phono"), Brn("Analog"), true)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("SPDIF1"), Brn("Digital"), true)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("SPDIF2"), Brn("Digital"), true)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("TOSLINK1"), Brn("Digital"), true)));
-    xml->Add(unique_ptr<Source>(new Source(Brn("TOSLINK2"), Brn("Digital"), true)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("Playlist"), Brn("Playlist"), true)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("Radio"), Brn("Radio"), true)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("UPnP AV"), Brn("UpnpAv"), false)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("Songcast"), Brn("Receiver"), true)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("Net Aux"), Brn("NetAux"), false)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("Analog1"), Brn("Analog"), true)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("Analog2"), Brn("Analog"), true)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("Phono"), Brn("Analog"), true)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("SPDIF1"), Brn("Digital"), true)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("SPDIF2"), Brn("Digital"), true)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("TOSLINK1"), Brn("Digital"), true)));
+    xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("TOSLINK2"), Brn("Digital"), true)));
 
 
 

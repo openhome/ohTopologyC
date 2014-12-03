@@ -26,14 +26,14 @@ class CpProxyAvOpenhomeOrgProduct1;
 namespace Av
 {
 
-class Source
+class TopologySource
 {
 public:
     static const TUint kMaxNameBytes = 50;
     static const TUint kMaxTypeBytes = 50;
 
 public:
-    Source(const Brx& aName, const Brx& aType, TBool aVisible);
+    TopologySource(const Brx& aName, const Brx& aType, TBool aVisible);
     virtual Brn Name();
     virtual Brn Type();
     virtual TBool Visible();
@@ -55,7 +55,7 @@ public:
 public:
     SrcXml();
 
-    virtual void Add(std::unique_ptr<Source>);
+    virtual void Add(std::unique_ptr<TopologySource>);
     virtual const Brx& ToString();
     virtual void UpdateName(TUint aIndex, const Brx& aName);
     virtual void UpdateVisible(TUint aIndex, TBool aVisible);
@@ -65,7 +65,7 @@ private:
 
 private:
     //std::vector<Source*>* iSources;
-    std::vector<std::unique_ptr<Source>> iSources;
+    std::vector<std::unique_ptr<TopologySource>> iSources;
     Bws<kMaxXmlBytes> iSourceXml;
 };
 

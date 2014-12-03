@@ -174,7 +174,7 @@ Brn ServiceProduct::ProductId()
 
 ////////////////////////////////////////////////////////////
 
-Source::Source(const Brx& aName, const Brx& aType, TBool aVisible)
+TopologySource::TopologySource(const Brx& aName, const Brx& aType, TBool aVisible)
     :iName(aName)
     ,iType(aType)
     ,iVisible(aVisible)
@@ -183,31 +183,31 @@ Source::Source(const Brx& aName, const Brx& aType, TBool aVisible)
 }
 
 
-Brn Source::Name()
+Brn TopologySource::Name()
 {
     return(Brn(iName));
 }
 
 
-void Source::SetName(const Brx& aName)
+void TopologySource::SetName(const Brx& aName)
 {
     iName.Replace(aName);
 }
 
 
-Brn Source::Type()
+Brn TopologySource::Type()
 {
     return(Brn(iType));
 }
 
 
-TBool Source::Visible()
+TBool TopologySource::Visible()
 {
     return(iVisible);
 }
 
 
-void Source::SetVisible(TBool aValue)
+void TopologySource::SetVisible(TBool aValue)
 {
     iVisible = aValue;
 }
@@ -245,7 +245,7 @@ void SrcXml::UpdateVisible(TUint aIndex, TBool aVisible)
 }
 
 
-void SrcXml::Add(unique_ptr<Source> aSource)
+void SrcXml::Add(unique_ptr<TopologySource> aSource)
 {
     iSources.push_back(move(aSource));
 }
