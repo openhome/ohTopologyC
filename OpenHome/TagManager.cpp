@@ -29,6 +29,10 @@ TagManager::TagManager()
     //iPlaylist = new TagRealmPlaylist(this, iGlobal);
     //iContainer = new TagRealmContainer(this);
 
+    iRealms[eGlobal] = iGlobal;
+    iRealms[eAudio] = iAudio;
+
+
 /*
     iRealms.Add(TagRealm.System, iSystem);
     iRealms.Add(TagRealm.Global, iGlobal);
@@ -47,8 +51,10 @@ TagManager::~TagManager()
         delete it->second;
    }
 
-   delete iGlobal;
-   delete iAudio;
+   for(auto it=iRealms.begin(); it!=iRealms.end(); it++)
+   {
+        delete it->second;
+   }
 }
 
 
@@ -329,8 +335,6 @@ void TagManager::ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf)
     }
 
 
-
-    //if (metadata.count(iAudio->Artist()) > 0) /// FIXME: maybe this is the way?
     if (metadata.count(iAudio->Artist()) > 0)
     {
         // <upnp:artist xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">AC/DC</upnp:artist>
