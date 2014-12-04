@@ -44,6 +44,7 @@ public:
     virtual TBool IsSearchable() = 0;
     virtual TBool IsArticled() = 0;
     virtual TBool IsHyper() = 0;
+    virtual ~ITag() {}
 };
 
 /////////////////////////////////////
@@ -52,6 +53,7 @@ class ITagRealm
 {
 public:
     virtual ITag* Tag(const Brx& aName) = 0;
+    virtual ~ITagRealm() {}
 };
 
 ////////////////////////////////////////////

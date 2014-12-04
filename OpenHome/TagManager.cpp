@@ -40,6 +40,17 @@ TagManager::TagManager()
 */
 }
 
+TagManager::~TagManager()
+{
+   for(auto it=iTags.begin(); it!=iTags.end(); it++)
+   {
+        delete it->second;
+   }
+
+   delete iGlobal;
+   delete iAudio;
+}
+
 
 void TagManager::Add(ITag* aTag)
 {
@@ -289,16 +300,17 @@ void TagManager::ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf)
     aBuf.Replace(Brn("<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\">"));
     aBuf.Append(Brn("<item"));
     aBuf.Append(Brn("<dc:title>"));
-    aBuf.Append(metadata[Audio().Title()]->Value());
+    aBuf.Append(metadata[iAudio->Title()]->Value());
     aBuf.Append(Brn("</dctitle>"));
 
     aBuf.Append("<upnp:class xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">object.item.audioItem.musicTrack</upnp:class>");
 
 
-    if (metadata[Audio().Artwork()] != NULL)
+    //if (metadata[iAudio->Artwork()] != NULL)
+    if ( metadata.count((iAudio->Artwork())) > 0)
     {
         // <upnp:albumArtURI dlna:profileID="JPEG_TN" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">http://10.2.10.154:4000/linn.co.uk.kazooserver/ms/artwork/e211a2ee99ce772e45bd836f00430534?size=0</upnp:albumArtURI>
-        auto artworkValues = metadata[Audio().Artwork()]->Values();
+        auto artworkValues = metadata[iAudio->Artwork()]->Values();
         for(TUint i=0; i<artworkValues.size(); i++)
         {
             aBuf.Append(Brn("<upnp:albumArtURI dlna:profileID=\"JPEG_TN\" xmlns:dlna=\"urn:schemas-dlna-org:metadata-1-0/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
@@ -308,21 +320,21 @@ void TagManager::ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf)
     }
 
 
-    if (metadata[Audio().AlbumTitle()] != NULL)
+    if (metadata.count(iAudio->AlbumTitle()) > 0)
     {
         // <upnp:album xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">Back in Black</upnp:album>
         aBuf.Append(Brn("<upnp:album xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
-        aBuf.Append(metadata[Audio().AlbumTitle()]->Value());
+        aBuf.Append(metadata[iAudio->AlbumTitle()]->Value());
         aBuf.Append(Brn("</upnp:album>"));
     }
 
 
 
-    //if (metadata.Count(Audio().Artist()) > 0) /// FIXME: maybe this is the way?
-    if (metadata[Audio().Artist()] != NULL)
+    //if (metadata.count(iAudio->Artist()) > 0) /// FIXME: maybe this is the way?
+    if (metadata.count(iAudio->Artist()) > 0)
     {
         // <upnp:artist xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">AC/DC</upnp:artist>
-        auto artistValues = metadata[Audio().Artist()]->Values();
+        auto artistValues = metadata[iAudio->Artist()]->Values();
         for (TUint i=0; i<artistValues.size(); i++)
         {
             aBuf.Append(Brn("<upnp:artist xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
@@ -331,11 +343,11 @@ void TagManager::ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf)
         }
     }
 
-    if (metadata[Audio().AlbumArtist()] != NULL)
+    if (metadata.count(iAudio->AlbumArtist()) > 0)
     {
         // <upnp:artist role="albumartist" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">AC/DC</upnp:artist>
         aBuf.Append(Brn("<upnp:artist role=\"albumartist\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
-        aBuf.Append(metadata[Audio().AlbumArtist()]->Value());
+        aBuf.Append(metadata[iAudio->AlbumArtist()]->Value());
         aBuf.Append(Brn("</upnp:artist>"));
     }
 

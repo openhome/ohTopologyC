@@ -264,6 +264,7 @@ ITag* TagRealmGlobal::Tag(const Brx& aName)
 */
 }
 
+
 ITag* TagRealmGlobal::Hash()
 {
     return (iHash);

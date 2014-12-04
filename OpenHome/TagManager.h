@@ -68,6 +68,7 @@ private:
 
 public:
     TagManager();
+    ~TagManager();
 
     virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata);
     virtual void ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf);
@@ -142,13 +143,6 @@ public:
 };
 
 ///////////////////////////////////////////////////
-
-
-class XmlParserBasic1 : public Net::XmlParserBasic
-{
-public:
-    static Brn GetTag(const Brx& aTag, const Brx& aDocument, Brn& aRemaining);
-};
 
 
 } // Av
