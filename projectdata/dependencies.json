@@ -28,7 +28,7 @@
     },
     {   "name": "libplatform",
         "type": "internal",
-        "version": "0.0.103",
+        "version": "0.0.109",
         "archive-suffix": "-${debugmode}",
         "platform-specific": true,
         "platform-ignore": {
@@ -40,7 +40,7 @@
     },
     {   "name":             "libosa",
         "type":             "internal",
-        "version":          "0.0.181",
+        "version":          "0.0.184",
         "archive-suffix":   "-Release",
         "platform-ignore": {
             "Core-armv5": false,
@@ -64,7 +64,7 @@
     {   "name": "ohNetmon",
         "type": "internal",
         "platform-specific": true,
-        "version": "0.0.16",
+        "version": "1.0.19",
         "archive-suffix": "-${debugmode}",
         "main-dir": "${dest}${name}-${platform}-${debugmode}"
     },
