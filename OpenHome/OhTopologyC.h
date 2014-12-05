@@ -41,7 +41,7 @@ enum EServiceType
 
 struct UintValue
 {
-   TUint iUintValue;
+   TUint iValue;
 };
 
 ////////////////////////////////////////////////////////////////////
@@ -99,16 +99,6 @@ class LogDummy : public ILog
 public:
     virtual void Write(const Brx&) {}
 };
-
-/*
-class ServiceNotFoundException : public Exception
-{
-public:
-    //ServiceNotFoundException();
-    ServiceNotFoundException(const Brx& aMessage);
-    ServiceNotFoundException(const Brx& aMessage, Exception& aInnerException);
-};
-*/
 
 } // OpenHome
 

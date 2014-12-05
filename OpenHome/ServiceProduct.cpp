@@ -840,7 +840,7 @@ void ServiceProductMock::SetSourceIndex(TUint aIndex)
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, & ServiceProductMock::SetSourceIndexCallback);
 
     auto u = new UintValue();
-    u->iUintValue = aIndex;
+    u->iValue = aIndex;
 
     iNetwork.Schedule(f, u);
 
@@ -861,7 +861,7 @@ void ServiceProductMock::SetSourceIndex(TUint aIndex)
 void ServiceProductMock::SetSourceIndexCallback(void* aIndex)
 {
     auto u = ((UintValue*)aIndex);
-    TUint index = u->iUintValue;
+    TUint index = u->iValue;
     delete u;
     iSourceIndex->Update(index);
 }
