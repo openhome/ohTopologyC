@@ -219,10 +219,14 @@ TBool Topology5Source::Visible()
 
 IMediaPreset& Topology5Source::CreatePreset()
 {
-
     MediaMetadata* metadata = new MediaMetadata();
     metadata->Add(iNetwork.TagManager().Audio().Title(), iSource->Name());
-    //metadata.Add(iNetwork.TagManager.Audio.Artwork, Brn("external://") + iSource.Name);
+
+    Bwh extSrcName;
+    extSrcName.Replace(Brn("external://"));
+    extSrcName.Append(iSource->Name());
+
+    metadata->Add(iNetwork.TagManager().Audio().Artwork(), extSrcName);
 
     // get the root group of this group
     Topology5Group* group = &iGroup;
@@ -317,7 +321,8 @@ Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& 
 
     if (Ascii::Contains(iGroup->Attributes(), Brn("Sender")))
     {
-        iGroup->Device().Create(MakeFunctorGeneric(*this, &Topology5Group::CreateCallback), eProxySender);
+        FunctorGeneric<ServiceCreateData*> f  = MakeFunctorGeneric(*this, &Topology5Group::CreateCallback);
+        iGroup->Device().Create(f, eProxySender);
     }
 
 }
@@ -338,10 +343,10 @@ Topology5Group::~Topology5Group()
 }
 
 
-void Topology5Group::CreateCallback(void* aArgs)
+void Topology5Group::CreateCallback(ServiceCreateData* aData)
 {
-    ArgsTwo<IDevice*, IProxySender*>* args = (ArgsTwo<IDevice*, IProxySender*>*)aArgs;
-    IProxySender* sender = args->Arg2();
+    IProxySender* sender = (IProxySender*)aData->iProxy;
+    delete aData;
 
     if (!iDisposed)
     {
@@ -353,23 +358,19 @@ void Topology5Group::CreateCallback(void* aArgs)
         sender->Dispose();
         delete sender;
     }
-    delete args;
 }
 
 
 void Topology5Group::Dispose()
 {
     iGroup->SourceIndex().RemoveWatcher(*this);
-    //iGroup = NULL;
 
     iWatchableSource->Dispose();
-    //iWatchableSource = NULL;
 
     if (iSender != NULL)
     {
         iSender->Status().RemoveWatcher(*this);
         iSender->Dispose();
-        //iSender = NULL;
         iHasSender = false;
     }
 

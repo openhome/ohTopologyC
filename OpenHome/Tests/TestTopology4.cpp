@@ -88,10 +88,10 @@ public:
 private:
 
 
-    void CreateCallback(ArgsTwo<ITopology3Group*, FunctorGeneric<const Brx&>>* aArgs)
+    void CreateCallback(MockCbData<ITopology3Group*>* aArgs)
     {
-        ITopology3Group* group = aArgs->Arg1();
-        FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        ITopology3Group* group = aArgs->iData;
+        FunctorGeneric<const Brx&> f = aArgs->iCallback;
         delete aArgs;
         f(group->Id());
     }

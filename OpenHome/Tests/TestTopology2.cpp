@@ -97,10 +97,10 @@ public:
         iRunner.Result(result);
 
 
-        FunctorGeneric<ArgsTwo<Brn, FunctorGeneric<const Brx&>>*> fRoom = MakeFunctorGeneric(*this, &GroupWatcher::RoomCallback);
-        FunctorGeneric<ArgsTwo<Brn, FunctorGeneric<const Brx&>>*> fName = MakeFunctorGeneric(*this, &GroupWatcher::NameCallback);
-        FunctorGeneric<ArgsTwo<TUint, FunctorGeneric<const Brx&>>*> fSourceIndex = MakeFunctorGeneric(*this, &GroupWatcher::SourceIndexCallback);
-        FunctorGeneric<ArgsTwo<TBool, FunctorGeneric<const Brx&>>*> fStandby = MakeFunctorGeneric(*this, &GroupWatcher::StandbyCallback);
+        FunctorGeneric<MockCbData<Brn>*> fRoom = MakeFunctorGeneric(*this, &GroupWatcher::RoomCallback);
+        FunctorGeneric<MockCbData<Brn>*> fName = MakeFunctorGeneric(*this, &GroupWatcher::NameCallback);
+        FunctorGeneric<MockCbData<TUint>*> fSourceIndex = MakeFunctorGeneric(*this, &GroupWatcher::SourceIndexCallback);
+        FunctorGeneric<MockCbData<TBool>*> fStandby = MakeFunctorGeneric(*this, &GroupWatcher::StandbyCallback);
 
         iFactory->Create<Brn>(aItem->Device().Udn(), aItem->Room(), fRoom);
         iFactory->Create<Brn>(aItem->Device().Udn(), aItem->Name(), fName);
@@ -117,11 +117,11 @@ public:
 
 
 private:
-    void SourcesCallback(ArgsTwo<ITopology2Source*, FunctorGeneric<const Brx&>>* aArgs)
+    void SourcesCallback(MockCbData<ITopology2Source*>* aArgs)
     {
         // w("Source " + v.Index + " " + v.Name + " " + v.Type + " " + v.Visible));
-        ITopology2Source* src = aArgs->Arg1();
-        FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        ITopology2Source* src = aArgs->iData;
+        FunctorGeneric<const Brx&> f = aArgs->iCallback;
 
         Bws<100> buf;
         buf.Replace(Brn("Source "));
@@ -146,10 +146,10 @@ private:
         delete aArgs;
     }
 
-    void RoomCallback(ArgsTwo<Brn, FunctorGeneric<const Brx&>>* aArgs)
+    void RoomCallback(MockCbData<Brn>* aArgs)
     {
-        Brn str = aArgs->Arg1();
-        FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        Brn str = aArgs->iData;
+        FunctorGeneric<const Brx&> f = aArgs->iCallback;
         Bws<100> buf;
         buf.Replace(Brn("Room "));
         buf.Append(str);
@@ -158,10 +158,10 @@ private:
     }
 
 
-    void NameCallback(ArgsTwo<Brn, FunctorGeneric<const Brx&>>* aArgs)
+    void NameCallback(MockCbData<Brn>* aArgs)
     {
-        Brn str = aArgs->Arg1();
-        FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        Brn str = aArgs->iData;
+        FunctorGeneric<const Brx&> f = aArgs->iCallback;
         Bws<100> buf;
         buf.Replace(Brn("Name "));
         buf.Append(str);
@@ -169,10 +169,10 @@ private:
         delete aArgs;
     }
 
-    void SourceIndexCallback(ArgsTwo<TUint, FunctorGeneric<const Brx&>>* aArgs)
+    void SourceIndexCallback(MockCbData<TUint>* aArgs)
     {
-        TUint i = aArgs->Arg1();
-        FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        TUint i = aArgs->iData;
+        FunctorGeneric<const Brx&> f = aArgs->iCallback;
         Bws<100> buf;
         buf.Replace(Brn("SourceIndex "));
         Ascii::AppendDec(buf, i);
@@ -181,10 +181,10 @@ private:
     }
 
 
-    void StandbyCallback(ArgsTwo<TBool, FunctorGeneric<const Brx&>>* aArgs)
+    void StandbyCallback(MockCbData<TBool>* aArgs)
     {
-        TBool i = aArgs->Arg1();
-        FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        TBool i = aArgs->iData;
+        FunctorGeneric<const Brx&> f = aArgs->iCallback;
         Bws<100> buf;
         buf.Replace(Brn("Standby "));
         if (i)

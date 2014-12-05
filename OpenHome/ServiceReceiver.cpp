@@ -89,6 +89,7 @@ ServiceReceiverNetwork::ServiceReceiverNetwork(INetwork& aNetwork, IInjectorDevi
 ServiceReceiverNetwork::~ServiceReceiverNetwork()
 {
     delete iService;
+    delete iSubscribedSource;
 }
 
 

@@ -84,10 +84,10 @@ public:
     }
 
 private:
-    void CreateCallback(ArgsTwo<ITopology3Sender*, FunctorGeneric<const Brx&>>* aArgs)
+    void CreateCallback(MockCbData<ITopology3Sender*>* aArgs)
     {
-        ITopology3Sender* sender = aArgs->Arg1();
-        FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        ITopology3Sender* sender = aArgs->iData;
+        FunctorGeneric<const Brx&> f = aArgs->iCallback;
 
         Bws<100> buf;
 

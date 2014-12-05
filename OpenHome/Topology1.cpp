@@ -97,11 +97,8 @@ void Topology1::UnorderedClose()
 void Topology1::UnorderedAdd(IDevice* aDevice)
 {
     iPendingSubscriptions.push_back(aDevice);
-
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::UnorderedAddCallback);
-
+    FunctorGeneric<ServiceCreateData*> f = MakeFunctorGeneric(*this, &Topology1::UnorderedAddCallback);
     aDevice->Create(f, eProxyProduct);
-
 
 /*
     aDevice.Create<IProxyProduct>(product) =>
@@ -130,13 +127,11 @@ void Topology1::UnorderedAdd(IDevice* aDevice)
 }
 
 
-void Topology1::UnorderedAddCallback(void* aObj)
+void Topology1::UnorderedAddCallback(ServiceCreateData* aData)
 {
-    ArgsTwo<IDevice*, IProxyProduct*>* args = ((ArgsTwo<IDevice*, IProxyProduct*>*)aObj);
-
-    IDevice* device = args->Arg1();
-    IProxyProduct* product = args->Arg2();
-    delete args;
+    IDevice* device = aData->iDevice;
+    IProxyProduct* product = (IProxyProduct*)aData->iProxy;
+    delete aData;
 
     auto it = find(iPendingSubscriptions.begin(), iPendingSubscriptions.end(), device);
 

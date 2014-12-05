@@ -99,7 +99,7 @@ IInjectorDevice& Service::Device()
 }
 
 
-void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceType*/, IDevice* aDevice)
+void Service::Create(FunctorGeneric<ServiceCreateData*> aCallback, IDevice* aDevice)
 {
     Assert(); // check we're on watchable thread
 
@@ -138,25 +138,28 @@ void Service::Create(FunctorGeneric<void*> aCallback, EServiceType /*aServiceTyp
         });
 */
 
-        ArgsTwo<FunctorGeneric<void*>, IDevice*>* args = new ArgsTwo<FunctorGeneric<void*>, IDevice*>(aCallback, aDevice);
-
         FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::CreateCallback1);
 
-        iSubscribeTask = iSubscribeTask->ContinueWith(f, args);
+        auto serviceCreateData = new ServiceCreateData();
+        serviceCreateData->iCallback = aCallback;
+        serviceCreateData->iDevice = aDevice;
+
+        iSubscribeTask = iSubscribeTask->ContinueWith(f, serviceCreateData);
 
     }
     else
     {
-        IProxy* product = OnCreate(*aDevice);
-        ArgsTwo<IDevice*, IProxy*>* args = new ArgsTwo<IDevice*, IProxy*>(aDevice, product);
-        aCallback(args);
+        auto serviceCreateData = new ServiceCreateData();
+        serviceCreateData->iDevice = aDevice;
+        serviceCreateData->iProxy = OnCreate(*aDevice);;
+
+        aCallback(serviceCreateData);
     }
 }
 
 
 
 void Service::CreateCallback1(void* aArgs)
-//void Service::CreateCallback(ArgsTwo<FunctorGeneric<void*>, IDevice*>* aArgs)
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::CreateCallback2);
     iNetwork.Schedule(f, aArgs);
@@ -165,16 +168,9 @@ void Service::CreateCallback1(void* aArgs)
 
 void Service::CreateCallback2(void* aArgs)
 {
-    ArgsTwo<FunctorGeneric<void*>, IDevice*>* args = (ArgsTwo<FunctorGeneric<void*>, IDevice*>*)aArgs;
-
-    FunctorGeneric<void*> callback = args->Arg1();
-    IDevice* device = args->Arg2();
-    delete args;
-
-    IProxy* product = OnCreate(*device);
-    ArgsTwo<IDevice*, IProxy*>* cbArgs = new ArgsTwo<IDevice*, IProxy*>(device, product);
-
-    callback(cbArgs);
+    auto data = (ServiceCreateData*)aArgs;
+    data->iProxy = OnCreate(*(data->iDevice));
+    data->iCallback(data);
 /*
     if (t.Exception == NULL && !iCancelSubscribe.IsCancellationRequested)
     {
@@ -214,27 +210,15 @@ void Service::Unsubscribe()
     iRefCount--;
     if (iRefCount == 0)
     {
-
         OnUnsubscribe();
+
         if (iSubscribeTask != NULL)
         {
-
-            //try
-            //{
-                iSubscribeTask->Wait();
-            //}
-            //catch (AggregateException ex)
-            //{
-            //    HandleAggregate(ex);
-            //}
-
+            iSubscribeTask->Wait();
             iSubscribeTask = NULL;
-
         }
-
     }
 }
-
 
 
 Job* Service::Start(FunctorGeneric<void*> aAction)

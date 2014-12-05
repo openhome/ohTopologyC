@@ -151,7 +151,7 @@ public:
     virtual void ItemClose(const Brx& aId, ITopology2Source* aValue);
 
 private:
-    void CreateCallback(void* aArgs);
+    void CreateCallback(ServiceCreateData* aArgs);
 
 private:
     TBool iDisposed;
@@ -179,7 +179,7 @@ public:
     virtual void ItemClose(const Brx& aId, ISenderMetadata* aValue);
 
 private:
-    void CreateCallback(void* aArgs);
+    void CreateCallback(ServiceCreateData* aArgs);
 
 
 private:

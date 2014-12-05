@@ -272,7 +272,9 @@ void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aValue)
 {
     if (aValue->Type().Equals(Brn("Receiver")))
     {
-        iGroup.Device().Create(MakeFunctorGeneric(*this, &ReceiverWatcher::CreateCallback), eProxyReceiver);
+        FunctorGeneric<ServiceCreateData*> f = MakeFunctorGeneric(*this, &ReceiverWatcher::CreateCallback);
+
+        iGroup.Device().Create(f, eProxyReceiver);
 /*
         iGroup.Device.Create<IProxyReceiver*>((receiver) =>
         {
@@ -293,10 +295,10 @@ void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aValue)
 }
 
 
-void ReceiverWatcher::CreateCallback(void* aArgs)
+void ReceiverWatcher::CreateCallback(ServiceCreateData* aData)
 {
-    ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
-    IProxyReceiver* receiver = (IProxyReceiver*)(args->Arg2());
+    IProxyReceiver* receiver = (IProxyReceiver*)aData->iProxy;
+    delete aData;
 
     if (!iDisposed)
     {
@@ -310,7 +312,6 @@ void ReceiverWatcher::CreateCallback(void* aArgs)
         receiver->Dispose();
         delete receiver;
     }
-    delete args;
 }
 
 
@@ -333,14 +334,15 @@ SenderWatcher::SenderWatcher(Topology3& aTopology3, ITopology2Group& aGroup)
     ,iMetadata(SenderMetadata::Empty())
     ,iDisposed(false)
 {
-    aGroup.Device().Create(MakeFunctorGeneric(*this, &SenderWatcher::CreateCallback), eProxySender);
+    FunctorGeneric<ServiceCreateData*> f = MakeFunctorGeneric(*this, &SenderWatcher::CreateCallback);
+    aGroup.Device().Create(f, eProxySender);
 }
 
 
-void SenderWatcher::CreateCallback(void* aArgs)
+void SenderWatcher::CreateCallback(ServiceCreateData* aData)
 {
-    ArgsTwo<IDevice*, IProxy*>* args = (ArgsTwo<IDevice*, IProxy*>*)aArgs;
-    IProxySender* sender = (IProxySender*)(args->Arg2());
+    IProxySender* sender = (IProxySender*)aData->iProxy;
+    delete aData;
 
     if (!iDisposed)
     {
@@ -352,7 +354,6 @@ void SenderWatcher::CreateCallback(void* aArgs)
     {
         sender->Dispose();
     }
-    delete args;
 }
 
 

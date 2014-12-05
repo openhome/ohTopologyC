@@ -127,6 +127,7 @@ IWatchable<TUint>& ServiceVolume::VolumeUnity()
 ServiceVolumeNetwork::ServiceVolumeNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
     :ServiceVolume(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
+    ,iSubscribedSource(NULL)
 {
     iCpDevice.AddRef();
 
@@ -164,6 +165,7 @@ ServiceVolumeNetwork::ServiceVolumeNetwork(INetwork& aNetwork, IInjectorDevice& 
 ServiceVolumeNetwork::~ServiceVolumeNetwork()
 {
     delete iService;
+    delete iSubscribedSource;
 }
 
 

@@ -213,8 +213,7 @@ private:
     ITopology5Source* EvaluateSource();
     void EvaluateSourceFromChild();
     void EvaluateSendersFromChild();
-    void CreateCallback(void* aSender);
-
+    void CreateCallback(ServiceCreateData* aSender);
 
 private:
     INetwork& iNetwork;

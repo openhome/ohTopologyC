@@ -290,6 +290,7 @@ void SrcXml::CreateSourceXml()
 ServiceProductNetwork::ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
     :ServiceProduct(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
+    ,iSubscribedSource(NULL)
 {
     iCpDevice.AddRef();
 
@@ -319,6 +320,7 @@ ServiceProductNetwork::ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice
 ServiceProductNetwork::~ServiceProductNetwork()
 {
     delete iService;
+    delete iSubscribedSource;
 }
 
 void ServiceProductNetwork::Dispose()
@@ -333,6 +335,7 @@ Job* ServiceProductNetwork::OnSubscribe()
     // Completion is signalled in HandleInitialEvent()
     iSubscribedSource = new JobDone();
     iService->Subscribe();
+    return(iSubscribedSource->GetJob());
 
 /*
     iSubscribedSource = new TaskCompletionSource<bool>();
@@ -348,7 +351,6 @@ Job* ServiceProductNetwork::OnSubscribe()
     return(iSubscribedSource.Job);
 
 */
-    return(iSubscribedSource->GetJob());
 }
 
 void ServiceProductNetwork::OnCancelSubscribe()

@@ -36,7 +36,7 @@ Brn Device::Udn()
 }
 
 
-void Device::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType)
+void Device::Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType)
 {
     DisposeLock lock(*iDisposeHandler);
     iDevice->Create(aCallback, aServiceType, *this);
@@ -104,7 +104,7 @@ Brn InjectorDeviceAdaptor::Udn()
 }
 
 
-void InjectorDeviceAdaptor::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType, IDevice& aDevice)
+void InjectorDeviceAdaptor::Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType, IDevice& aDevice)
 {
     iDevice.Create(aCallback, aServiceType, aDevice);
 }
@@ -253,7 +253,7 @@ TBool InjectorDevice::HasService(EServiceType aServiceType)
 
 
 
-void InjectorDevice::Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType, IDevice& aDevice)
+void InjectorDevice::Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType, IDevice& aDevice)
 {
     DisposeLock lock(*iDisposeHandler);
 
@@ -263,7 +263,7 @@ void InjectorDevice::Create(FunctorGeneric<void*> aCallback, EServiceType aServi
         //throw new ServiceNotFoundException("Cannot find service of type " + typeof(T) + " on " + iUdn);
     }
 
-    iServices[aServiceType]->Create(aCallback, aServiceType, &aDevice);
+    iServices[aServiceType]->Create(aCallback, &aDevice);
 }
 
 

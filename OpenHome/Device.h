@@ -22,7 +22,7 @@ class IDevice : public IJoinable
 {
 public:
     virtual Brn Udn() = 0;
-    virtual void Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType) = 0;
+    virtual void Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType) = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ class IInjectorDevice : public IJoinable, public IMockable, public IDisposable
 {
 public:
     virtual Brn Udn() = 0;
-    virtual void Create(FunctorGeneric<void*>, EServiceType aServiceType, IDevice& aDevice) = 0;
+    virtual void Create(FunctorGeneric<ServiceCreateData*>, EServiceType aServiceType, IDevice& aDevice) = 0;
     virtual TBool HasService(EServiceType aServiceType) = 0;
     virtual TBool Wait() = 0;
 };
@@ -48,7 +48,7 @@ public:
     virtual Brn Udn();
 
     // IDevice
-    virtual void Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType);
+    virtual void Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType);
 
     // IJoinable
     virtual void Join(Functor aAction);
@@ -77,7 +77,7 @@ public:
     virtual Brn Udn();
     virtual void Add(EServiceType aServiceType, Service* aService);
     virtual bool HasService(EServiceType aServiceType);
-    virtual void Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType, IDevice& aDevice);
+    virtual void Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType, IDevice& aDevice);
     virtual TBool Wait();
 
     // IMockable
@@ -107,7 +107,7 @@ public:
     virtual void Join(Functor aAction);
     virtual void Unjoin(Functor aAction);
     virtual Brn Udn();
-    virtual void Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType, IDevice& aDevice);
+    virtual void Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType, IDevice& aDevice);
     virtual TBool HasService(EServiceType aServiceType);
     virtual TBool Wait();
     virtual void Execute(ICommandTokens& aTokens);

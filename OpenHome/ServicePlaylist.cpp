@@ -209,6 +209,7 @@ const Brx& ServicePlaylist::ProtocolInfo()
 ServicePlaylistNetwork::ServicePlaylistNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
     :ServicePlaylist(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
+    ,iSubscribedSource(NULL)
 {
     iCpDevice.AddRef();
 
@@ -237,7 +238,7 @@ ServicePlaylistNetwork::ServicePlaylistNetwork(INetwork& aNetwork, IInjectorDevi
 
 ServicePlaylistNetwork::~ServicePlaylistNetwork()
 {
-
+    delete iSubscribedSource;
 }
 
 

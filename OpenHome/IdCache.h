@@ -88,7 +88,6 @@ class IdCacheSession;
 class IIdCache
 {
 public:
-    //virtual IIdCacheSession* CreateSession(const Brx& aId, FunctorGeneric<ArgsTwo<std::vector<TUint>, Task<std::vector<IIdCacheEntry*>>>> aFunction) = 0;
     virtual IdCacheSession* CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction) = 0;
 };
 
@@ -99,7 +98,6 @@ class IdCache : public IIdCache, public IDisposable
 public:
     IdCache(TUint aMaxCacheEntries);
 
-//    virtual IIdCacheSession* CreateSession(const Brx& aId, FunctorGeneric<ArgsTwo<std::vector<TUint>, Task<std::vector<IIdCacheEntry*>>>> aFunction);
     virtual IdCacheSession* CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction);
 
     // IDisposable
@@ -151,7 +149,6 @@ private:
 private:
     DisposeHandler* iDisposeHandler;
     TUint iSessionId;
-    //FunctorGeneric< ArgsTwo<std::vector<TUint>*, FunctorGeneric<std::vector<IIdCacheEntry*>*>>* > iFunction;
     FunctorGeneric<ReadListData*> iFunction;
 
     IdCache* iCache;

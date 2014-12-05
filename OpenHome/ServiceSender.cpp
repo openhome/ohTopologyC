@@ -117,6 +117,7 @@ void ServiceSenderNetwork::Dispose()
     iService = NULL;
 
     iCpDevice.RemoveRef();
+    delete iSubscribedSource;
 }
 
 

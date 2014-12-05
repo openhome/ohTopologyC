@@ -74,15 +74,26 @@ void Proxy<T>::Dispose()
 
 
 */
+
+////////////////////////////////////////////////
+
+struct ServiceCreateData
+{
+    FunctorGeneric<ServiceCreateData*> iCallback;
+    IDevice* iDevice;
+    IProxy* iProxy;
+};
+
 ////////////////////////////////////////////////
 
 class IService : public IMockable, public IDisposable
 {
 public:
-    virtual void Create(FunctorGeneric<void*>, EServiceType aServiceType, IDevice* aDevice) = 0;
+    virtual void Create(FunctorGeneric<ServiceCreateData*>, IDevice* aDevice) = 0;
 };
 
 ////////////////////////////////////////////////
+
 
 class Service : public IService, public IWatchableThread, public INonCopyable
 {
@@ -95,7 +106,7 @@ public:
     virtual IProxy* OnCreate(IDevice& aDevice) = 0;
 
     // IService
-    virtual void Create(FunctorGeneric<void*> aCallback, EServiceType aServiceType, IDevice* aDevice);
+    virtual void Create(FunctorGeneric<ServiceCreateData*> aCallback, IDevice* aDevice);
 
     // IWatchableThread
     virtual void Assert();

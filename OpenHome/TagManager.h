@@ -110,7 +110,7 @@ public:
 
 private:
     std::vector<Brn> iValues;
-    Brn iValue;
+    Bws<100> iValue; // FIXME: random capacity
 };
 
 ////////////////////////////////////////////////////

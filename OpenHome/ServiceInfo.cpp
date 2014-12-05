@@ -134,6 +134,7 @@ ServiceInfoNetwork::ServiceInfoNetwork(INetwork& aNetwork, IInjectorDevice& aDev
 ServiceInfoNetwork::~ServiceInfoNetwork()
 {
     delete iService;
+    delete iSubscribedSource;
 }
 
 void ServiceInfoNetwork::Dispose()

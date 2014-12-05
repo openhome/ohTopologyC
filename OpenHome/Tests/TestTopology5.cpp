@@ -54,9 +54,10 @@ public:
         iFactory->Create<vector<ITopology5Group*>*>(aRoot.Name(), aRoot.Senders(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback2));
     }
 
-    void CreateCallback1(ArgsTwo<ITopology5Source*, FunctorGeneric<const Brx&>>* aArgs)
+    void CreateCallback1(MockCbData<ITopology5Source*>* aArgs)
     {
-        ITopology5Source* s = aArgs->Arg1();
+        ITopology5Source* s = aArgs->iData;
+        auto f = aArgs->iCallback;
 
         Bws<100> udn;
         udn.Replace(s->Device().Udn());
@@ -112,16 +113,15 @@ public:
             iBuf.Append(s->Volumes()[i]->Device().Udn());
         }
 
-        FunctorGeneric<const Brx&> f = aArgs->Arg2();
 
         f(iBuf);
         delete aArgs;
     }
 
-    void CreateCallback2(ArgsTwo<vector<ITopology5Group*>*, FunctorGeneric<const Brx&>>* aArgs)
+    void CreateCallback2(MockCbData<vector<ITopology5Group*>*>* aArgs)
     {
-        vector<ITopology5Group*>* v = aArgs->Arg1();
-        FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        vector<ITopology5Group*>* v = aArgs->iData;
+        FunctorGeneric<const Brx&> f = aArgs->iCallback;
 
         iBuf.Replace(Brn("\nSenders begin\n"));
 
@@ -267,11 +267,11 @@ public:
         iWatcherLookup.erase(aItem);
     }
 
-    void CreateCallback1(ArgsTwo<EStandby, FunctorGeneric<const Brx&>>* aArgs)
+    void CreateCallback1(MockCbData<EStandby>* aArgs)
     {
         // (v, w) => w("Standby " + v)
-        EStandby arg1 = aArgs->Arg1();
-        FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        EStandby arg1 = aArgs->iData;
+        FunctorGeneric<const Brx&> f = aArgs->iCallback;
 
         iBuf.Replace(Brn("Standby "));
 
@@ -296,10 +296,10 @@ public:
         delete aArgs;
     }
 
-    void CreateCallback2(ArgsTwo<vector<ITopology5Source*>*, FunctorGeneric<const Brx&>>* aArgs)
+    void CreateCallback2(MockCbData<vector<ITopology5Source*>*>* aArgs)
     {
-        vector<ITopology5Source*>* v = aArgs->Arg1();
-        FunctorGeneric<const Brx&> f = aArgs->Arg2();
+        vector<ITopology5Source*>* v = aArgs->iData;
+        FunctorGeneric<const Brx&> f = aArgs->iCallback;
 
         iBuf.Replace(Brn("\nSources begin\n"));
 

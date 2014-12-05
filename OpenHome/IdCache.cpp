@@ -55,7 +55,6 @@ void IdCache::UnpackIdArray(Brh& aIdArrayBuf, vector<TUint>& aIdArray)
 }
 
 
-//IdCacheSession* IdCache::CreateSession(const Brx& aId, FunctorGeneric< ArgsTwo<std::vector<TUint>*, FunctorGeneric<std::vector<IIdCacheEntry*>*>>* > aFunction)
 IdCacheSession* IdCache::CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction)
 {
     DisposeLock lock(*iDisposeHandler);
@@ -321,7 +320,6 @@ void IdCache::RemoveEntry()
 }
 
 
-//IdCacheSession::IdCacheSession(TUint aSessionId, FunctorGeneric< ArgsTwo<std::vector<TUint>*, FunctorGeneric<std::vector<IIdCacheEntry*>*>>* > aFunction, IdCache* aCache)
 IdCacheSession::IdCacheSession(TUint aSessionId, FunctorGeneric<ReadListData*> aFunction, IdCache* aCache)
     :iDisposeHandler(new DisposeHandler())
     ,iSessionId(aSessionId)

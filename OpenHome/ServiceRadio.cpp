@@ -201,6 +201,7 @@ ServiceRadioNetwork::ServiceRadioNetwork(INetwork& aNetwork, IInjectorDevice& aD
     :ServiceRadio(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
     ,iService(new CpProxyAvOpenhomeOrgRadio1(aCpDevice))
+    ,iSubscribedSource(NULL)
 {
     iCpDevice.AddRef();
 
@@ -222,7 +223,7 @@ ServiceRadioNetwork::ServiceRadioNetwork(INetwork& aNetwork, IInjectorDevice& aD
 
 ServiceRadioNetwork::~ServiceRadioNetwork()
 {
-
+    delete iSubscribedSource;
 }
 
 void ServiceRadioNetwork::Dispose()

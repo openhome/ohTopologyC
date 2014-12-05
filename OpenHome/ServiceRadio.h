@@ -172,9 +172,9 @@ private:
 
 private:
     Net::CpDevice& iCpDevice;
-    JobDone* iSubscribedSource;
     Net::CpProxyAvOpenhomeOrgRadio1* iService;
     IIdCacheSession* iCacheSession;
+    JobDone* iSubscribedSource;
 };
 
 //////////////////////////////////////////////////////////////////

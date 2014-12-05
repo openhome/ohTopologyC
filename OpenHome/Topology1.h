@@ -57,7 +57,7 @@ public:
 
 private:
     void ExecuteCallback(void* aObj);
-    void UnorderedAddCallback(void* aObj);
+    void UnorderedAddCallback(ServiceCreateData* aObj);
     void DisposeCallback(void*);
 
 

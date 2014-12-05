@@ -477,7 +477,7 @@ MediaValue::MediaValue(const vector<Brn>& aValues)
 // IMediaServerValue
 Brn MediaValue::Value()
 {
-    return (iValue);
+    return (Brn(iValue));
 }
 
 
