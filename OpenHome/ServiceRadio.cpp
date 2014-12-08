@@ -494,9 +494,7 @@ void ServiceRadioNetwork::ReadList(ReadListData* aReadListData)
         {
             idList.Append(Brn(" "));
         }
-        idList.Append(Brn("{"));
         Ascii::AppendDec(idList, (*requiredIds)[i]);
-        idList.Append(Brn("}"));
     }
 
     Job2* job = new Job2(); // read from existing pool - don't allocate new jobs

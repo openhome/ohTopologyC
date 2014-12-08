@@ -124,11 +124,8 @@ void ServiceSenderNetwork::Dispose()
 Job* ServiceSenderNetwork::OnSubscribe()
 {
     ASSERT(iSubscribedSource == NULL);
-
     iSubscribedSource = new JobDone();
-
     iService->Subscribe();
-
     return(iSubscribedSource->GetJob());
 
 

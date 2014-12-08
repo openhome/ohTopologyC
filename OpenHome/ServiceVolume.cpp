@@ -25,16 +25,6 @@ ServiceVolume::ServiceVolume(INetwork& aNetwork, IInjectorDevice& aDevice, ILog&
     ,iVolumeSteps(new Watchable<TUint>(aNetwork, Brn("VolumeSteps"), 0))
     ,iVolumeUnity(new Watchable<TUint>(aNetwork, Brn("VolumeUnity"), 0))
 {
-/*
-    iBalance = new Watchable<TInt>(aNetwork, Brn("Balance"), 0);
-    iFade = new Watchable<TInt>(aNetwork, Brn("Fade"), 0);
-    iMute = new Watchable<TBool>(aNetwork, Brn("Mute"), false);
-    iValue = new Watchable<TUint>(aNetwork, Brn("Value"), 0);
-    iVolumeLimit = new Watchable<TUint>(aNetwork, Brn("VolumeLimit"), 0);
-    iVolumeMilliDbPerStep = new Watchable<TUint>(aNetwork, Brn("VolumeMilliDbPerStep"), 0);
-    iVolumeSteps = new Watchable<TUint>(aNetwork, Brn("VolumeSteps"), 0);
-    iVolumeUnity = new Watchable<TUint>(aNetwork, Brn("VolumeUnity"), 0);
-*/
 }
 
 ServiceVolume::~ServiceVolume()
@@ -224,8 +214,7 @@ void ServiceVolumeNetwork::OnUnsubscribe()
 
 void ServiceVolumeNetwork::SetBalance(TInt aValue)
 {
-    Job2* job = new Job2(); // FIXME: read from existing pool - don't allocate new jobs
-    FunctorAsync f = job->AsyncCb();
+    FunctorAsync f;
     iService->BeginSetBalance(aValue, f);
 
 /*
@@ -250,8 +239,7 @@ void ServiceVolumeNetwork::SetBalance(TInt aValue)
 
 void ServiceVolumeNetwork::SetFade(TInt aValue)
 {
-    Job2* job = new Job2(); // FIXME: read from existing pool - don't allocate new jobs
-    FunctorAsync f = job->AsyncCb();
+    FunctorAsync f;
     iService->BeginSetFade(aValue, f);
 
 /*
@@ -276,8 +264,7 @@ void ServiceVolumeNetwork::SetFade(TInt aValue)
 
 void ServiceVolumeNetwork::SetMute(TBool aValue)
 {
-    Job2* job = new Job2(); // FIXME: read from existing pool - don't allocate new jobs
-    FunctorAsync f = job->AsyncCb();
+    FunctorAsync f;
     iService->BeginSetMute(aValue, f);
 /*
     TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
@@ -301,8 +288,7 @@ void ServiceVolumeNetwork::SetMute(TBool aValue)
 
 void ServiceVolumeNetwork::SetVolume(TUint aValue)
 {
-    Job2* job = new Job2(); // FIXME: read from existing pool - don't allocate new jobs
-    FunctorAsync f = job->AsyncCb();
+    FunctorAsync f;
     iService->BeginSetVolume(aValue, f);
 /*
     TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
@@ -326,8 +312,7 @@ void ServiceVolumeNetwork::SetVolume(TUint aValue)
 
 void ServiceVolumeNetwork::VolumeDec()
 {
-    Job2* job = new Job2(); // FIXME: read from existing pool - don't allocate new jobs
-    FunctorAsync f = job->AsyncCb();
+    FunctorAsync f;
     iService->BeginVolumeDec(f);
 /*
     TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
@@ -351,8 +336,7 @@ void ServiceVolumeNetwork::VolumeDec()
 
 void ServiceVolumeNetwork::VolumeInc()
 {
-    Job2* job = new Job2(); // FIXME: read from existing pool - don't allocate new jobs
-    FunctorAsync f = job->AsyncCb();
+    FunctorAsync f;
     iService->BeginVolumeInc(f);
 /*
     TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();

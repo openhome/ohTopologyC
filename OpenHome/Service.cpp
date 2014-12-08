@@ -152,7 +152,6 @@ void Service::Create(FunctorGeneric<ServiceCreateData*> aCallback, IDevice* aDev
         auto serviceCreateData = new ServiceCreateData();
         serviceCreateData->iDevice = aDevice;
         serviceCreateData->iProxy = OnCreate(*aDevice);;
-
         aCallback(serviceCreateData);
     }
 }
