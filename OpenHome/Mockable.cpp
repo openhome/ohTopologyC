@@ -174,15 +174,13 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
 
                     if (!Test(*result, expected))
                     {
-                        OpenHome::Log::Print("\n########################################################\n");
+                        OpenHome::Log::Print("\n######################################################\n");
                         OpenHome::Log::Print("Count = %d\n", count);
                         OpenHome::Log::Print("########################################################\n");
                         OpenHome::Log::Print("########################################################\n");
                         OpenHome::Log::Print("########################################################\n");
                         OpenHome::Log::Print("########################################################\n");
                         OpenHome::Log::Print("########################################################\n");
-
-
 
                         delete result;
                         return(false);
@@ -237,7 +235,7 @@ void MockableScriptRunner::Result(Bwh* aValue)
 {
     LOG(kTrace, "\nMockableScriptRunner::Result: \n");
     LOG(kTrace, *aValue);
-    Brn actual(*aValue);
+    //Brn actual(*aValue);
     iResultQueue.Write(aValue);
 }
 

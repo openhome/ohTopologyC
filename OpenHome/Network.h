@@ -10,6 +10,7 @@
 #include <OpenHome/Device.h>
 #include <OpenHome/Buffer.h>
 #include <OpenHome/TagManager.h>
+#include <OpenHome/Job.h>
 #include <vector>
 #include <map>
 
@@ -51,8 +52,9 @@ class INetwork : public IWatchableThread, public IDisposable
 {
 public:
     virtual IIdCache& IdCache() = 0;
-    virtual ITagManager& TagManager() = 0;
+    virtual ITagManager& GetTagManager() = 0;
     virtual IEventSupervisor& EventSupervisor() = 0;
+    virtual JobManager& GetJobManager() = 0;
     virtual IWatchableUnordered<IDevice*>* Create(EServiceType aServiceType) = 0;
     virtual ~INetwork() {}
 };
@@ -72,9 +74,10 @@ public:
 
     // INetwork
     virtual IIdCache& IdCache();
-    virtual ITagManager& TagManager();
+    virtual ITagManager& GetTagManager();
     virtual IEventSupervisor& EventSupervisor();
     virtual IWatchableUnordered<IDevice*>* Create(EServiceType aServiceType);
+    virtual JobManager& GetJobManager();
 
     // IWatchableThread
     virtual void Assert();
@@ -105,6 +108,7 @@ private:
     IIdCache* iIdCache;
     ITagManager* iTagManager;
     IEventSupervisor* iEventSupervisor;
+    JobManager* iJobManager;
     std::map<Brn, Device*, BufferCmp> iDevices;
     std::map<EServiceType, WatchableUnordered<IDevice*>*> iDeviceLists;
 };

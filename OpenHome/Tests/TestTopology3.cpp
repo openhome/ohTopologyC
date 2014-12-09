@@ -57,20 +57,18 @@ public:
 
     virtual void UnorderedAdd(ITopology3Group* aItem)
     {
-        Bws<100> buf;
-        buf.Replace(aItem->Device().Udn());
-        buf.Append(" Group Added");
-        Bwh* result = new Bwh(buf);
+        Bwh* result = new Bwh();
+        result->Replace(aItem->Device().Udn());
+        result->Append(" Group Added");
         iRunner.Result(result);
         iFactory->Create<ITopology3Sender*>(aItem->Device().Udn(), aItem->Sender(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
     }
 
     virtual void UnorderedRemove(ITopology3Group* aItem)
     {
-        Bws<100> buf;
-        buf.Replace(aItem->Device().Udn());
-        buf.Append(" Group Removed");
-        Bwh* result = new Bwh(buf);
+        Bwh* result = new Bwh();
+        result->Replace(aItem->Device().Udn());
+        result->Append(" Group Removed");
 
         iFactory->Destroy(aItem->Device().Udn());
         iRunner.Result(result);

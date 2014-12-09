@@ -79,9 +79,11 @@ void Proxy<T>::Dispose()
 
 struct ServiceCreateData
 {
-    FunctorGeneric<ServiceCreateData*> iCallback;
+    FunctorGeneric<ServiceCreateData*> iCallback1;
+    FunctorGeneric<ServiceCreateData*> iCallback2;
     IDevice* iDevice;
     IProxy* iProxy;
+    TBool iCancelled;
 };
 
 ////////////////////////////////////////////////
@@ -123,7 +125,7 @@ public:
 protected:
     Service(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
 
-    virtual Job* OnSubscribe();
+    virtual void OnSubscribe(ServiceCreateData& aServiceCreateData);
     Job* Start(FunctorGeneric<void*> aAction);
     //JobDone* Start();
     //Task<T> Start<T>(Func<T> aFunction);
@@ -133,7 +135,7 @@ protected:
 private:
     //void HandleAggregate(AggregateException aException);
     void DisposeCallback(void*);
-    void CreateCallback1(void* aArgs);
+    void CreateCallback1(ServiceCreateData* aArgs);
     void CreateCallback2(void* aArgs);
     void StartCallback1(void* aArgs);
     void StartCallback2(void* aArgs);
@@ -144,7 +146,8 @@ protected:
     INetwork& iNetwork;
     ILog& iLog;
     DisposeHandler* iDisposeHandler;
-    Job* iSubscribeTask;
+    Semaphore iSemaSubscribe;
+    Semaphore* iSubscribeTask;
 
 private:
     IInjectorDevice& iDevice;

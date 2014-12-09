@@ -76,10 +76,9 @@ public:
 
     virtual void UnorderedRemove(ITopology2Group* aItem)
     {
-        Bws<100> buf;
-        buf.Replace(aItem->Device().Udn());
-        buf.Append(" Group Removed");
-        Bwh* result = new Bwh(buf);
+        Bwh* result = new Bwh();
+        result->Replace(aItem->Device().Udn());
+        result->Append(" Group Removed");
 
         iFactory->Destroy(aItem->Device().Udn());
         iRunner.Result(result);
@@ -88,14 +87,10 @@ public:
 
     virtual void UnorderedAdd(ITopology2Group* aItem)
     {
-        Bws<100> buf;
-
-        buf.Replace(aItem->Device().Udn());
-        buf.Append(Brn(" Group Added"));
-
-        Bwh* result = new Bwh(buf);
+        Bwh* result = new Bwh();
+        result->Replace(aItem->Device().Udn());
+        result->Append(Brn(" Group Added"));
         iRunner.Result(result);
-
 
         FunctorGeneric<MockCbData<Brn>*> fRoom = MakeFunctorGeneric(*this, &GroupWatcher::RoomCallback);
         FunctorGeneric<MockCbData<Brn>*> fName = MakeFunctorGeneric(*this, &GroupWatcher::NameCallback);

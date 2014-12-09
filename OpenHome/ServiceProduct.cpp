@@ -88,13 +88,6 @@ IWatchable<TBool>& ServiceProduct::Standby()
 }
 
 
-
-//abstract Job SetSourceIndex(TUint aValue);
-//abstract Job SetSourceIndexByName(string aValue);
-//abstract Job SetStandby(TBool aValue);
-
-// IProduct methods
-
 Brn ServiceProduct::Attributes()
 {
     return(Brn(iAttributes));
@@ -329,13 +322,12 @@ void ServiceProductNetwork::Dispose()
     iCpDevice.RemoveRef();
 }
 
-Job* ServiceProductNetwork::OnSubscribe()
+void ServiceProductNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
 {
     // Subscribe to (ohNet) Service and get informed later (on a separate thread) when its completed
     // Completion is signalled in HandleInitialEvent()
-    iSubscribedSource = new JobDone();
+    iSubscribedSource = &aServiceCreateData;
     iService->Subscribe();
-    return(iSubscribedSource->GetJob());
 
 /*
     iSubscribedSource = new TaskCompletionSource<bool>();
@@ -358,7 +350,7 @@ void ServiceProductNetwork::OnCancelSubscribe()
     if (iSubscribedSource != NULL)
     {
         //iSubscribedSource->TrySetCancelled();
-        iSubscribedSource->Cancel();
+        iSubscribedSource->iCancelled = true;
     }
 }
 
@@ -412,9 +404,9 @@ void ServiceProductNetwork::HandleInitialEvent()
     iService->PropertyProductUrl(productUrl);
     iProductUrl.Replace(productUrl);
 
-    if (!iSubscribedSource->GetJob()->IsCancelled())
+    if (!iSubscribedSource->iCancelled)
     {
-        iSubscribedSource->SetResult(true);
+        iSubscribedSource->iCallback2(iSubscribedSource);
     }
 }
 

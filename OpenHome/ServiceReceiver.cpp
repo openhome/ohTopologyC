@@ -100,12 +100,11 @@ void ServiceReceiverNetwork::Dispose()
 }
 
 
-Job* ServiceReceiverNetwork::OnSubscribe()
+void ServiceReceiverNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
 {
     ASSERT(iSubscribedSource == NULL);
-    iSubscribedSource = new JobDone();
+    iSubscribedSource = &aServiceCreateData;
     iService->Subscribe();
-    return(iSubscribedSource->GetJob());
 
     //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::OnSubscribeCallback);
 
@@ -120,7 +119,8 @@ void ServiceReceiverNetwork::OnCancelSubscribe()
     if (iSubscribedSource != NULL)
     {
         //iSubscribedSource->TrySetCancelled();
-        iSubscribedSource->Cancel();
+
+        iSubscribedSource->iCancelled = true;
     }
 }
 
@@ -131,12 +131,10 @@ void ServiceReceiverNetwork::HandleInitialEvent()
     iService->PropertyProtocolInfo(protocolInfo);
     iProtocolInfo.Replace(protocolInfo);
 
-
-    if (!iSubscribedSource->GetJob()->IsCancelled())
+    if (!iSubscribedSource->iCancelled)
     {
-        iSubscribedSource->SetResult(true);
+        iSubscribedSource->iCallback2(iSubscribedSource);
     }
-
 }
 
 void ServiceReceiverNetwork::OnUnsubscribe()
@@ -250,7 +248,7 @@ void ServiceReceiverNetwork::HandleMetadataChanged()
     Brhz metadata;
     iService->PropertyMetadata(metadata);
 
-    IMediaMetadata* mediaMetadata = iNetwork.TagManager().FromDidlLite(metadata);
+    IMediaMetadata* mediaMetadata = iNetwork.GetTagManager().FromDidlLite(metadata);
 
     Brhz uri;
     iService->PropertyUri(uri);
@@ -323,7 +321,7 @@ ServiceReceiverMock::ServiceReceiverMock(INetwork& aNetwork, IInjectorDevice& aD
 {
     iProtocolInfo.Replace(aProtocolInfo);
 
-    iCurrentMetadata = new InfoMetadata(aNetwork.TagManager().FromDidlLite(aMetadata), aUri);
+    iCurrentMetadata = new InfoMetadata(aNetwork.GetTagManager().FromDidlLite(aMetadata), aUri);
     iMetadata->Update(iCurrentMetadata);
     iTransportState->Update(Brn(aTransportState));
 }
@@ -354,7 +352,7 @@ void ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
     });
 */
 
-    iMetadata->Update(new InfoMetadata(iNetwork.TagManager().FromDidlLite(aMetadata.ToString()), aMetadata.Uri()));
+    iMetadata->Update(new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(aMetadata.ToString()), aMetadata.Uri()));
     iTransportState->Update(Brn("Playing"));
 
 }
@@ -406,7 +404,7 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
 
         // FIXME : use a static function to do the new here (allowing implementation of a fixed size pool of objects in future)
         auto metadata = iCurrentMetadata;
-        iCurrentMetadata = new InfoMetadata(iNetwork.TagManager().FromDidlLite(allButLastToken), lastToken);
+        iCurrentMetadata = new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(allButLastToken), lastToken);
         iMetadata->Update(iCurrentMetadata);
 
         if (metadata!=InfoMetadata::Empty())

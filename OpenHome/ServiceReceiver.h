@@ -81,7 +81,7 @@ public:
     virtual void Stop();
 
 protected:
-    virtual Job* OnSubscribe();
+    virtual void OnSubscribe(ServiceCreateData& aServiceCreateData);
     virtual void OnCancelSubscribe();
     virtual void OnUnsubscribe();
 
@@ -98,7 +98,7 @@ private:
 
 private:
     Net::CpDevice& iCpDevice;
-    JobDone* iSubscribedSource;
+    ServiceCreateData* iSubscribedSource;
     Net::CpProxyAvOpenhomeOrgReceiver1* iService;
 };
 

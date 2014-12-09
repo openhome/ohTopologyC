@@ -253,7 +253,7 @@ public:
     virtual void SetStandby(TBool aValue);
 
 protected:
-    virtual Job* OnSubscribe();
+    virtual void OnSubscribe(ServiceCreateData& aServiceCreateData);
     virtual void OnCancelSubscribe();
     virtual void OnUnsubscribe();
 
@@ -283,7 +283,7 @@ private:
 
 private:
     Net::CpDevice& iCpDevice;
-    JobDone* iSubscribedSource;
+    ServiceCreateData* iSubscribedSource;
     Net::CpProxyAvOpenhomeOrgProduct1* iService;
 };
 

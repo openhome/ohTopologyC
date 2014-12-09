@@ -120,13 +120,11 @@ void ServiceSenderNetwork::Dispose()
     delete iSubscribedSource;
 }
 
-
-Job* ServiceSenderNetwork::OnSubscribe()
+void ServiceSenderNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
 {
     ASSERT(iSubscribedSource == NULL);
-    iSubscribedSource = new JobDone();
+    iSubscribedSource = &aServiceCreateData;
     iService->Subscribe();
-    return(iSubscribedSource->GetJob());
 
 
     //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::OnSubscribeCallback);
@@ -141,7 +139,7 @@ void ServiceSenderNetwork::OnCancelSubscribe()
     if (iSubscribedSource != NULL)
     {
         //iSubscribedSource->TrySetCancelled();
-        iSubscribedSource->Cancel();
+        iSubscribedSource->iCancelled = true;
     }
 }
 
@@ -155,9 +153,9 @@ void ServiceSenderNetwork::HandleInitialEvent()
     iService->PropertyPresentationUrl(presentationUrl);
     iPresentationUrl.Replace(presentationUrl);
 
-    if (!iSubscribedSource->GetJob()->IsCancelled())
+    if (!iSubscribedSource->iCancelled)
     {
-        iSubscribedSource->SetResult(true);
+        iSubscribedSource->iCallback2(iSubscribedSource);
     }
 }
 

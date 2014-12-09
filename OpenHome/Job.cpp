@@ -97,99 +97,82 @@ Job* Job::StartNew(FunctorGeneric<void*> aAction, void* aObj)
     return(new Job(aAction, aObj));
 }
 
-
-//////////////////////////////////////////////////////////
-
-JobDone::JobDone()
-{
-    iJob = new Job(FunctorGeneric<void*>(), NULL);
-}
-
-
-void JobDone::SetResult(TBool aResult)
-{
-    if(aResult)
-    {
-        iJob->Start();
-    }
-}
-
-
-void JobDone::Cancel()
-{
-    iJob->Cancel();
-}
-
-
-Job* JobDone::GetJob()
-{
-    return(iJob);
-}
-
 ////////////////////////////////////////////////////////////
 
-Job2::Job2()
-    :Thread("thname")
-    ,iArg(NULL)
-    ,iCbArg(NULL)
-    ,iCancelled(false)
-    ,iMutex("JOB2")
+Job3::Job3(JobManager& aMan)
+    :iJobManager(aMan)
+    ,iCombinedArgs(new AsyncCbArg())
 {
-    Start();
+    Reset();
 }
 
 
-void Job2::SetCallback(FunctorGeneric<AsyncCbArg*> aCallback, void* aArg)
+Job3::~Job3()
+{
+    delete iCombinedArgs;
+}
+
+
+void Job3::SetCallback(FunctorGeneric<AsyncCbArg*> aCallback, void* aArg)
 {
     iCallback = aCallback;
-    iArg = aArg;
+    iCombinedArgs->iArg = aArg;
 }
 
 
-void Job2::CallbackComplete()
+Net::FunctorAsync Job3::AsyncCb()
+{
+    return (MakeFunctorAsync(*this, &Job3::AsyncComplete));
+}
+
+
+void Job3::AsyncComplete(Net::IAsync& aAsync)
+{
+    iCombinedArgs->iAsync = &aAsync;
+    iCallback(iCombinedArgs);
+    Reset();
+    iJobManager.ReleaseJob(*this); // add "this" back into fifo of available jobs
+}
+
+
+void Job3::Reset()
 {
     iCallback = FunctorGeneric<AsyncCbArg*>();  // reset to null functor
-    iArg = NULL;
-    iCbArg = NULL;
-    // add "this" back into fifo of available jobs here
+    iCombinedArgs->iAsync = NULL;
+    iCombinedArgs->iArg = NULL;
 }
 
+//////////////////////////////////////////////
 
-void Job2::Run()
+JobManager::JobManager()
+    :iJobs(kJobCount)
 {
-    Wait();
-    ASSERT(iCallback);
-    iCallback(iCbArg);
-    CallbackComplete();
-}
-
-
-Net::FunctorAsync Job2::AsyncCb()
-{
-    return (MakeFunctorAsync(*this, &Job2::AsyncComplete));
-}
-
-
-void Job2::AsyncComplete(Net::IAsync& aAsync)
-{
-    iMutex.Wait();
-    TBool cancelled = iCancelled;
-    iMutex.Signal();
-
-    if (iCallback && !cancelled)
+    for (TUint i=0; i<kJobCount; i++)
     {
-        iCbArg = new AsyncCbArg();
-        iCbArg->iAsync = &aAsync;
-        iCbArg->iArg = iArg;
-
-        Signal();
+        iJobs.Write(new Job3(*this));
     }
 }
 
 
-void Job2::Cancel()
+JobManager::~JobManager()
 {
-    iMutex.Wait();
-    iCancelled = true;
-    iMutex.Signal();
+    for (TUint i=0; i<kJobCount; i++)
+    {
+        delete (iJobs.Read());
+    }
 }
+
+
+Job3& JobManager::GetJob()
+{
+    return(*iJobs.Read());
+}
+
+
+void JobManager::ReleaseJob(Job3& aJob)
+{
+    return(iJobs.Write(&aJob));
+}
+
+
+

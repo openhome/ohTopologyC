@@ -147,9 +147,9 @@ public:
     void SetChannel(const Brx& aUri, IMediaMetadata& aMetadata);
 
 protected:
-    Job* OnSubscribe();
-    void OnCancelSubscribe();
-    void OnUnsubscribe();
+    virtual void OnSubscribe(ServiceCreateData& aServiceCreateData);
+    virtual void OnCancelSubscribe();
+    virtual void OnUnsubscribe();
 
 private:
     void ReadList(ReadListData* aReadListData);
@@ -174,7 +174,7 @@ private:
     Net::CpDevice& iCpDevice;
     Net::CpProxyAvOpenhomeOrgRadio1* iService;
     IIdCacheSession* iCacheSession;
-    JobDone* iSubscribedSource;
+    ServiceCreateData* iSubscribedSource;
 };
 
 //////////////////////////////////////////////////////////////////

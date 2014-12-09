@@ -71,7 +71,7 @@ public:
     virtual void Dispose();
 
 protected:
-    virtual Job* OnSubscribe();
+    virtual void OnSubscribe(ServiceCreateData& aServiceCreateData);
     virtual void OnCancelSubscribe();
     virtual void OnUnsubscribe();
 
@@ -88,12 +88,9 @@ private:
     void StatusChangedCallback1(void* aStatus);
     void StatusChangedCallback2(void* aStatus);
 
-    //void OnSubscribeCallback(void* aObj);
-
-
 private:
     Net::CpDevice& iCpDevice;
-    JobDone* iSubscribedSource;
+    ServiceCreateData* iSubscribedSource;
     Net::CpProxyAvOpenhomeOrgSender1* iService;
 };
 

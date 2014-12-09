@@ -3,7 +3,8 @@
 #include <OpenHome/WatchableUnordered.h>
 #include <OpenHome/Network.h>
 #include <OpenHome/Private/Debug.h>
-//#include <OpenHome/TagManager.h>
+#include <OpenHome/TagManager.h>
+#include <OpenHome/Job.h>
 
 
 using namespace OpenHome;
@@ -19,11 +20,12 @@ using namespace std;
  */
 Network::Network(TUint /*aMaxCacheEntries*/, ILog&/* aLog*/)
     :iDisposeHandler(new DisposeHandler())
+    ,iWatchableThread(new WatchableThread(*this))
+    //,iCache(new IdCache(aMaxCacheEntries))
+    ,iTagManager(new TagManager())
+    //,iEventSupervisor(new EventSupervisor(iWatchableThread))
+    ,iJobManager(new JobManager())
 {
-    iWatchableThread = new WatchableThread(*this);
-    //iCache = new IdCache(aMaxCacheEntries);
-    iTagManager = new OpenHome::Av::TagManager();
-    //iEventSupervisor = new EventSupervisor(iWatchableThread);
 }
 
 
@@ -33,10 +35,11 @@ Network::Network(TUint /*aMaxCacheEntries*/, ILog&/* aLog*/)
 Network::Network(IWatchableThread& aWatchableThread, TUint /*aMaxCacheEntries*/, ILog&)
     :iDisposeHandler(new DisposeHandler())
     ,iWatchableThread(&aWatchableThread)
+    //,iCache(new IdCache(aMaxCacheEntries))
+    ,iTagManager(new TagManager())
+    //,iEventSupervisor(new EventSupervisor(iWatchableThread);)
+    ,iJobManager(new JobManager())
 {
-    //iCache = new IdCache(aMaxCacheEntries);
-    iTagManager = new OpenHome::Av::TagManager();
-    //iEventSupervisor = new EventSupervisor(iWatchableThread);
 }
 
 
@@ -44,6 +47,7 @@ Network::~Network()
 {
     delete iWatchableThread;
     delete iTagManager;
+    delete iJobManager;
 
     for(auto it=iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
     {
@@ -59,10 +63,16 @@ Network::~Network()
 }
 
 
-ITagManager& Network::TagManager()
+ITagManager& Network::GetTagManager()
 {
     DisposeLock lock(*iDisposeHandler);
     return (*iTagManager);
+}
+
+
+JobManager& Network::GetJobManager()
+{
+    return(*iJobManager);
 }
 
 

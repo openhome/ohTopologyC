@@ -134,7 +134,7 @@ private:
     IWatchable<T>& iWatchable;
     FunctorGeneric<MockCbData<T>*> iAction;
 
-    Bws<kMaxResultBytes> iBuf;
+    //Bws<kMaxResultBytes> iBuf;
 };
 
 //////////////////////////////////////////////////////
@@ -166,7 +166,7 @@ private:
     IWatchableUnordered<T>& iWatchable;
     FunctorGeneric<MockCbData<T>*> iAction;
 
-    Bws<kMaxResultBytes> iBuf;
+    //Bws<kMaxResultBytes> iBuf;
 };
 
 /////////////////////////////////////////////////
@@ -284,10 +284,10 @@ void ResultWatcher<T>::ItemOpen(const Brx& /*aId*/, T aValue)
 template <class T>
 void ResultWatcher<T>::ItemOpenCallback(const Brx& aValue)
 {
-    iBuf.Replace(iId);
-    iBuf.Append(Brn(" open "));
-    iBuf.Append(aValue);
-    Bwh* result = new Bwh(iBuf);
+    Bwh* result = new Bwh();
+    result->Replace(iId);
+    result->Append(Brn(" open "));
+    result->Append(aValue);
     iRunner.Result(result);
 }
 
@@ -309,10 +309,10 @@ void ResultWatcher<T>::ItemUpdate(const Brx& /*aId*/, T aValue, T /*aPrevious*/)
 template <class T>
 void ResultWatcher<T>::ItemUpdateCallback(const Brx& aValue)
 {
-    iBuf.Replace(iId);
-    iBuf.Append(Brn(" update "));
-    iBuf.Append(aValue);
-    Bwh* result = new Bwh(iBuf);
+    Bwh* result = new Bwh();
+    result->Replace(iId);
+    result->Append(Brn(" update "));
+    result->Append(aValue);
     iRunner.Result(result);
 }
 
@@ -386,10 +386,10 @@ void ResultUnorderedWatcher<T>::UnorderedAdd(T aItem)
 template <class T>
 void ResultUnorderedWatcher<T>::UnorderedAddCallback(const Brx& aValue)
 {
-    iBuf.Replace(iId);
-    iBuf.Append(Brn(" add "));
-    iBuf.Append(aValue);
-    Bwh* result = new Bwh(iBuf);
+    Bwh* result = new Bwh();
+    result->Replace(iId);
+    result->Append(Brn(" add "));
+    result->Append(aValue);
     iRunner.Result(result);
 }
 
@@ -409,10 +409,10 @@ void ResultUnorderedWatcher<T>::UnorderedRemove(T aItem)
 template <class T>
 void ResultUnorderedWatcher<T>::UnorderedRemoveCallback(const Brx& aValue)
 {
-    iBuf.Replace(iId);
-    iBuf.Append(Brn(" remove "));
-    iBuf.Append(aValue);
-    Bwh* result = new Bwh(iBuf);
+    Bwh* result = new Bwh();
+    result->Replace(iId);
+    result->Append(Brn(" remove "));
+    result->Append(aValue);
     iRunner.Result(result);
 }
 
@@ -469,10 +469,10 @@ void ResultOrderedWatcher<T>::OrderedAdd(T aItem, TUint /*aIndex*/)
 template <class T>
 void ResultOrderedWatcher<T>::OrderedAddCallback(const Brx& aValue)
 {
-    iBuf.Replace(iId);
-    iBuf.Append(Brn(" add "));
-    iBuf.Append(aValue);
-    Bwh* result = new Bwh(iBuf);
+    Bwh* result = new Bwh();
+    result->Replace(iId);
+    result->Append(Brn(" add "));
+    result->Append(aValue);
     iRunner.Result(result);
 }
 
@@ -497,8 +497,8 @@ void ResultOrderedWatcher<T>::OrderedMove(T aItem, TUint aFrom, TUint aTo)
 template <class T>
 void ResultOrderedWatcher<T>::OrderedMoveCallback(const Brx& aValue)
 {
-    iBuf.Append(aValue);
-    Bwh* result = new Bwh(iBuf);
+    Bwh* result = new Bwh();
+    result->Append(aValue);
     iRunner.Result(result);
 }
 
@@ -517,10 +517,10 @@ void ResultOrderedWatcher<T>::OrderedRemove(T aItem, TUint /*aIndex*/)
 template <class T>
 void ResultOrderedWatcher<T>::OrderedRemoveCallback(const Brx& aValue)
 {
-    iBuf.Replace(iId);
-    iBuf.Append(Brn(" remove "));
-    iBuf.Append(aValue);
-    Bwh* result = new Bwh(iBuf);
+    Bwh* result = new Bwh();
+    result->Replace(iId);
+    result->Append(Brn(" remove "));
+    result->Append(aValue);
     iRunner.Result(result);
 }
 

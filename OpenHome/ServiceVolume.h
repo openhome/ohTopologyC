@@ -110,7 +110,7 @@ public:
     virtual void VolumeInc();
 
 protected:
-    virtual Job* OnSubscribe();
+    virtual void OnSubscribe(ServiceCreateData& aServiceCreateData);
     virtual void OnCancelSubscribe();
     virtual void OnUnsubscribe();
 
@@ -145,7 +145,7 @@ private:
 
 private:
     Net::CpDevice& iCpDevice;
-    JobDone* iSubscribedSource;
+    ServiceCreateData* iSubscribedSource;
     Net::CpProxyAvOpenhomeOrgVolume1* iService;
 };
 

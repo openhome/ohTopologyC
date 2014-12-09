@@ -10,6 +10,7 @@ Service::Service(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     :iNetwork(aNetwork)
     ,iLog(aLog)
     ,iDisposeHandler(new DisposeHandler())
+    ,iSemaSubscribe("SRV", 0)
     //,iCancelSubscribe(new CancellationTokenSource())
     ,iSubscribeTask(NULL)
     ,iDevice(aDevice)
@@ -108,14 +109,27 @@ void Service::Create(FunctorGeneric<ServiceCreateData*> aCallback, IDevice* aDev
     if (iRefCount == 0)
     {
         ASSERT(iSubscribeTask == NULL);
-        iSubscribeTask = OnSubscribe();
+
+        auto serviceCreateData = new ServiceCreateData();
+        serviceCreateData->iCallback1 = aCallback;
+        serviceCreateData->iCallback2 = MakeFunctorGeneric(*this, &Service::CreateCallback1);;
+        serviceCreateData->iDevice = aDevice;
+        serviceCreateData->iCancelled = false;
+
+        iSubscribeTask = &iSemaSubscribe;
+
+        iRefCount++;
+        OnSubscribe(*serviceCreateData);
+
+    }
+    else
+    {
+        iRefCount++;
     }
 
-    iRefCount++;
 
-
-    if (iSubscribeTask != NULL)
-    {
+    //if (iSubscribeTask != NULL)
+    //{
 /*
         iSubscribeTask = iSubscribeTask.ContinueWith((t) =>
         {
@@ -137,9 +151,8 @@ void Service::Create(FunctorGeneric<ServiceCreateData*> aCallback, IDevice* aDev
             });
         });
 */
-
+/*
         FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::CreateCallback1);
-
         auto serviceCreateData = new ServiceCreateData();
         serviceCreateData->iCallback = aCallback;
         serviceCreateData->iDevice = aDevice;
@@ -154,11 +167,12 @@ void Service::Create(FunctorGeneric<ServiceCreateData*> aCallback, IDevice* aDev
         serviceCreateData->iProxy = OnCreate(*aDevice);;
         aCallback(serviceCreateData);
     }
+*/
 }
 
 
 
-void Service::CreateCallback1(void* aArgs)
+void Service::CreateCallback1(ServiceCreateData* aArgs)
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::CreateCallback2);
     iNetwork.Schedule(f, aArgs);
@@ -169,7 +183,9 @@ void Service::CreateCallback2(void* aArgs)
 {
     auto data = (ServiceCreateData*)aArgs;
     data->iProxy = OnCreate(*(data->iDevice));
-    data->iCallback(data);
+    data->iCallback1(data);
+
+    iSubscribeTask->Signal();
 /*
     if (t.Exception == NULL && !iCancelSubscribe.IsCancellationRequested)
     {
@@ -187,9 +203,11 @@ void Service::CreateCallback2(void* aArgs)
 }
 
 
-Job* Service::OnSubscribe()
+void Service::OnSubscribe(ServiceCreateData& aServiceCreateData)
 {
-    return(NULL);
+    // special case..
+    // this is a default implenttation for mock classes
+    CreateCallback2(&aServiceCreateData);
 }
 
 

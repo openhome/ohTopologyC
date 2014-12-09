@@ -220,13 +220,13 @@ TBool Topology5Source::Visible()
 IMediaPreset& Topology5Source::CreatePreset()
 {
     MediaMetadata* metadata = new MediaMetadata();
-    metadata->Add(iNetwork.TagManager().Audio().Title(), iSource->Name());
+    metadata->Add(iNetwork.GetTagManager().Audio().Title(), iSource->Name());
 
     Bwh extSrcName;
     extSrcName.Replace(Brn("external://"));
     extSrcName.Append(iSource->Name());
 
-    metadata->Add(iNetwork.TagManager().Audio().Artwork(), extSrcName);
+    metadata->Add(iNetwork.GetTagManager().Audio().Artwork(), extSrcName);
 
     // get the root group of this group
     Topology5Group* group = &iGroup;
@@ -305,7 +305,9 @@ Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& 
     ,iDisposed(false)
     ,iParent(NULL)
     ,iSender(NULL)
+    ,iHasSender(false)
     ,iVectorSenders(new vector<ITopology5Group*>())
+
 {
     iWatchableSource = new Watchable<ITopology5Source*>(iNetwork, Brn("source"), iCurrentSource.get());
 

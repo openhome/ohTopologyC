@@ -166,12 +166,11 @@ void ServiceVolumeNetwork::Dispose()
 }
 
 
-Job* ServiceVolumeNetwork::OnSubscribe()
+void ServiceVolumeNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
 {
     ASSERT(iSubscribedSource == NULL);
-    iSubscribedSource = new JobDone();
+    iSubscribedSource = &aServiceCreateData;
     iService->Subscribe();
-    return(iSubscribedSource->GetJob());
 
 /*
     ASSERT(iSubscribedSource == NULL);
@@ -186,7 +185,7 @@ void ServiceVolumeNetwork::OnCancelSubscribe()
 {
     if (iSubscribedSource != NULL)
     {
-        iSubscribedSource->Cancel();
+        iSubscribedSource->iCancelled = true;
         //iSubscribedSource.TrySetCanceled();
     }
 }
@@ -194,9 +193,9 @@ void ServiceVolumeNetwork::OnCancelSubscribe()
 
 void ServiceVolumeNetwork::HandleInitialEvent()
 {
-    if (!iSubscribedSource->GetJob()->IsCancelled())
+    if (!iSubscribedSource->iCancelled)
     {
-        iSubscribedSource->SetResult(true);
+        iSubscribedSource->iCallback2(iSubscribedSource);
     }
 }
 

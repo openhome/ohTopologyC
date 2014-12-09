@@ -58,10 +58,9 @@ public:
 
     virtual void UnorderedAdd(ITopology4Room* aItem)
     {
-        Bws<100> buf;
-        buf.Replace("Room Added ");
-        buf.Append(aItem->Name());
-        Bwh* result = new Bwh(buf);
+        Bwh* result = new Bwh();
+        result->Replace("Room Added ");
+        result->Append(aItem->Name());
 
         iRunner.Result(result);
         iFactory->Create<ITopology3Group*>(aItem->Name(), aItem->Groups(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
@@ -69,10 +68,9 @@ public:
 
     virtual void UnorderedRemove(ITopology4Room* aItem)
     {
-        Bws<100> buf;
-        buf.Replace("Room Removed ");
-        buf.Append(aItem->Name());
-        Bwh* result = new Bwh(buf);
+        Bwh* result = new Bwh();
+        result->Replace("Room Removed ");
+        result->Append(aItem->Name());
 
         iFactory->Destroy(aItem->Name());
         iRunner.Result(result);

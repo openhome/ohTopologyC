@@ -237,10 +237,10 @@ void ServiceRadioNetwork::Dispose()
     iCpDevice.RemoveRef();
 }
 
-Job* ServiceRadioNetwork::OnSubscribe()
+void ServiceRadioNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
 {
     ASSERT(iSubscribedSource == NULL);
-    iSubscribedSource = new JobDone();
+    iSubscribedSource = &aServiceCreateData;
 
     TUint id = IdCache::Hash(kCacheIdPrefixRadio, Device().Udn());
     iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioNetwork::ReadList));
@@ -248,7 +248,6 @@ Job* ServiceRadioNetwork::OnSubscribe()
     auto snapshot = new RadioSnapshot(iNetwork, *iCacheSession, new vector<TUint>(), *this);
     iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, snapshot);
     iService->Subscribe();
-    return(iSubscribedSource->GetJob());
 
 /*
     ASSERT(iSubscribedSource == NULL);
@@ -269,7 +268,7 @@ void ServiceRadioNetwork::OnCancelSubscribe()
 {
     if (iSubscribedSource != NULL)
     {
-        iSubscribedSource->Cancel();
+        iSubscribedSource->iCancelled = true;
     }
 }
 
@@ -283,9 +282,9 @@ void ServiceRadioNetwork::HandleInitialEvent()
     iService->PropertyProtocolInfo(protocolInfo);
     iProtocolInfo.Replace(protocolInfo);
 
-    if (!iSubscribedSource->GetJob()->IsCancelled())
+    if (!iSubscribedSource->iCancelled)
     {
-        iSubscribedSource->SetResult(true);
+        iSubscribedSource->iCallback2(iSubscribedSource);
     }
 }
 
@@ -457,7 +456,7 @@ void ServiceRadioNetwork::SetId(TUint aId, const Brx& aUri)
 void ServiceRadioNetwork::SetChannel(const Brx& aUri, IMediaMetadata& aMetadata)
 {
     Bwh didlLite;
-    iNetwork.TagManager().ToDidlLite(aMetadata, didlLite);
+    iNetwork.GetTagManager().ToDidlLite(aMetadata, didlLite);
     FunctorAsync f;
     iService->BeginSetChannel(aUri, didlLite, f);
 /*
@@ -497,10 +496,10 @@ void ServiceRadioNetwork::ReadList(ReadListData* aReadListData)
         Ascii::AppendDec(idList, (*requiredIds)[i]);
     }
 
-    Job2* job = new Job2(); // read from existing pool - don't allocate new jobs
+    Job3& job = iNetwork.GetJobManager().GetJob(); // read from existing pool - don't allocate new jobs
     auto f = MakeFunctorGeneric<AsyncCbArg*>(*this, &ServiceRadioNetwork::ReadListCallback);
-    job->SetCallback(f, aReadListData);
-    FunctorAsync fa = job->AsyncCb();
+    job.SetCallback(f, aReadListData);
+    FunctorAsync fa = job.AsyncCb();
 
     iService->BeginReadList(idList, fa);
 
@@ -582,10 +581,10 @@ void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
 
             Brn innerText = XmlParserBasic::Find(xmlNodeName, channelList);
 
-            IMediaMetadata* metadata = iNetwork.TagManager().FromDidlLite(innerText);
+            IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(innerText);
 
             auto mvs = metadata->Values();
-            auto mv = mvs[iNetwork.TagManager().Audio().Uri()];
+            auto mv = mvs[iNetwork.GetTagManager().Audio().Uri()];
             Brn uri = mv->Value();
             entries->push_back(new IdCacheEntry(metadata, uri));
 
@@ -712,7 +711,7 @@ void ServiceRadioNetwork::HandleMetadataChangedCallback2(void*)
     Brhz metaDataStr;
     iService->PropertyMetadata(metaDataStr);
 
-    IMediaMetadata* metadata = iNetwork.TagManager().FromDidlLite(metaDataStr);
+    IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metaDataStr);
 
     Brhz uri;
     iService->PropertyUri(uri);

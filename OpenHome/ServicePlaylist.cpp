@@ -255,10 +255,10 @@ void ServicePlaylistNetwork::Dispose()
 }
 
 
-Job* ServicePlaylistNetwork::OnSubscribe()
+void ServicePlaylistNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
 {
     ASSERT(iSubscribedSource == NULL);
-    iSubscribedSource = new JobDone();
+    iSubscribedSource = &aServiceCreateData;
 
     TUint id = IdCache::Hash(kCacheIdPrefixPlaylist, Device().Udn());
 
@@ -266,7 +266,6 @@ Job* ServicePlaylistNetwork::OnSubscribe()
     iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, new PlaylistSnapshot(iNetwork, *iCacheSession, new vector<TUint>(), *this));
 
     iService->Subscribe();
-    return(iSubscribedSource->GetJob());
 }
 
 
@@ -274,7 +273,7 @@ void ServicePlaylistNetwork::OnCancelSubscribe()
 {
     if (iSubscribedSource != NULL)
     {
-        iSubscribedSource->Cancel();
+        iSubscribedSource->iCancelled = true;
     }
 }
 
@@ -287,9 +286,9 @@ void ServicePlaylistNetwork::HandleInitialEvent()
     iService->PropertyProtocolInfo(protocolInfo);
     iProtocolInfo.Replace(protocolInfo);
 
-    if (!iSubscribedSource->GetJob()->IsCancelled())
+    if (!iSubscribedSource->iCancelled)
     {
-        iSubscribedSource->SetResult(true);
+        iSubscribedSource->iCallback2(iSubscribedSource);
     }
 }
 
@@ -510,7 +509,7 @@ void ServicePlaylistNetwork::SeekSecondRelative(TInt aValue)
 void ServicePlaylistNetwork::Insert(TUint aAfterId, const Brx& aUri, IMediaMetadata& aMetadata)
 {
     Bwh metadataDidlLite;
-    iNetwork.TagManager().ToDidlLite(aMetadata, metadataDidlLite);
+    iNetwork.GetTagManager().ToDidlLite(aMetadata, metadataDidlLite);
 
     FunctorAsync f;
     iService->BeginInsert(aAfterId, aUri, metadataDidlLite, f);
@@ -542,7 +541,7 @@ void ServicePlaylistNetwork::InsertNext(const Brx& aUri, IMediaMetadata& aMetada
     iService->PropertyId(id);
 
     Bwh metadataDidlLite;
-    iNetwork.TagManager().ToDidlLite(aMetadata, metadataDidlLite);
+    iNetwork.GetTagManager().ToDidlLite(aMetadata, metadataDidlLite);
 
 
     FunctorAsync f;
@@ -587,10 +586,9 @@ void ServicePlaylistNetwork::InsertEnd(const Brx& aUri, IMediaMetadata& aMetadat
     }
 
     Bwh metadataDidlLite;
-    iNetwork.TagManager().ToDidlLite(aMetadata, metadataDidlLite);
+    iNetwork.GetTagManager().ToDidlLite(aMetadata, metadataDidlLite);
 
-    Job2* job = new Job2(); // read from existing pool - don't allocate new jobs
-    FunctorAsync f = job->AsyncCb();
+    FunctorAsync f;
     iService->BeginInsert(id, aUri, metadataDidlLite, f);
 /*
 
@@ -739,10 +737,10 @@ void ServicePlaylistNetwork::ReadList(ReadListData* aReadListData)
         idList.Append(Brn("}"));
     }
 
-    Job2* job = new Job2(); // read from existing pool - don't allocate new jobs
+    Job3& job = iNetwork.GetJobManager().GetJob(); // read from existing pool - don't allocate new jobs
     auto f = MakeFunctorGeneric<AsyncCbArg*>(*this, &ServicePlaylistNetwork::ReadListCallback);
-    job->SetCallback(f, aReadListData);
-    FunctorAsync fa = job->AsyncCb();
+    job.SetCallback(f, aReadListData);
+    FunctorAsync fa = job.AsyncCb();
 
     iService->BeginReadList(idList, fa);
 
@@ -807,7 +805,7 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
         Brn metadataText = XmlParserBasic::Find(Brn("Metadata"), xmlNodeList, remaining);
         Brn uriText = XmlParserBasic::Find(Brn("Uri"), xmlNodeList, remaining);
         xmlNodeList = remaining;
-        IMediaMetadata* metadata = iNetwork.TagManager().FromDidlLite(metadataText);
+        IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metadataText);
         entries->push_back(new IdCacheEntry(metadata, uriText));
     }
 
@@ -821,7 +819,7 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
     XmlNodeList list = document.SelectNodes("/TrackList/Entry");
     foreach (XmlNode n in list)
     {
-        IMediaMetadata* metadata = iNetwork.TagManager().FromDidlLite(n["Metadata"].InnerText);
+        IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(n["Metadata"].InnerText);
         string uri = n["Uri"].InnerText;
         entries.Add(new IdCacheEntry(metadata, uri));
     }

@@ -113,6 +113,8 @@ IWatchable<IInfoMetatext*>& ServiceInfo::Metatext()
 ServiceInfoNetwork::ServiceInfoNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
     :ServiceInfo(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
+    ,iSubscribedSource(NULL)
+
 {
     iCpDevice.AddRef();
 
@@ -143,12 +145,11 @@ void ServiceInfoNetwork::Dispose()
     iCpDevice.RemoveRef();
 }
 
-Job* ServiceInfoNetwork::OnSubscribe()
+void ServiceInfoNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
 {
     ASSERT(iSubscribedSource == NULL);
-    iSubscribedSource = new JobDone();
+    iSubscribedSource = &aServiceCreateData;
     iService->Subscribe();
-    return(iSubscribedSource->GetJob());
 /*
     ASSERT(iSubscribedSource == NULL);
     iSubscribedSource = new TaskCompletionSource<TBool>();
@@ -161,15 +162,15 @@ void ServiceInfoNetwork::OnCancelSubscribe()
 {
     if (iSubscribedSource != NULL)
     {
-        iSubscribedSource->Cancel();
+        iSubscribedSource->iCancelled = true;
     }
 }
 
 void ServiceInfoNetwork::HandleInitialEvent()
 {
-    if (!iSubscribedSource->GetJob()->IsCancelled())
+    if (!iSubscribedSource->iCancelled)
     {
-        iSubscribedSource->SetResult(true);
+        iSubscribedSource->iCallback2(iSubscribedSource);
     }
 }
 
@@ -281,7 +282,7 @@ void ServiceInfoNetwork::HandleMetadataChangedCallback2(void*)
     Brhz metadatastr;
     iService->PropertyMetadata(metadatastr);
 
-    IMediaMetadata* metadata = iNetwork.TagManager().FromDidlLite(metadatastr);
+    IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metadatastr);
     Brhz uri;
     iService->PropertyUri(uri);
 
@@ -317,7 +318,7 @@ void ServiceInfoNetwork::HandleMetatextChangedCallback2(void*)
 {
     Brhz metatextstr;
     iService->PropertyMetatext(metatextstr);
-    IMediaMetadata* metadata = iNetwork.TagManager().FromDidlLite(metatextstr);
+    IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metatextstr);
     iMetatext->Update(new InfoMetatext(*metadata));
 }
 

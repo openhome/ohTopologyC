@@ -59,63 +59,67 @@ public:
         ITopology5Source* s = aArgs->iData;
         auto f = aArgs->iCallback;
 
-        Bws<100> udn;
-        udn.Replace(s->Device().Udn());
+        Bwh* buf = new Bwh();
 
-        iBuf.SetBytes(0);
+        //Bws<100> udn;
+        //udn.Replace(s->Device().Udn());
 
-        iBuf.Append(Brn("Source "));
+        //iBuf.SetBytes(0);
 
-        Ascii::AppendDec(iBuf, s->Index());
+        buf->Replace(Brn("Source "));
 
-        iBuf.Append(Brn(" "));
-        iBuf.Append(s->Group().Name());
-        iBuf.Append(Brn(" "));
-        iBuf.Append(s->Name());
-        iBuf.Append(Brn(" "));
-        iBuf.Append(s->Type());
-        iBuf.Append(Brn(" "));
+        Ascii::AppendDec(*buf, s->Index());
+
+        buf->Append(Brn(" "));
+        buf->Append(s->Group().Name());
+        buf->Append(Brn(" "));
+        buf->Append(s->Name());
+        buf->Append(Brn(" "));
+        buf->Append(s->Type());
+        buf->Append(Brn(" "));
 
         if (s->Visible())
         {
-            iBuf.Append(Brn("True "));
+            buf->Append(Brn("True "));
         }
         else
         {
-            iBuf.Append(Brn("False "));
+            buf->Append(Brn("False "));
         }
 
 
         if (s->HasInfo())
         {
-            iBuf.Append(Brn("True "));
+            buf->Append(Brn("True "));
         }
         else
         {
-            iBuf.Append(Brn("False "));
+            buf->Append(Brn("False "));
         }
 
         if (s->HasTime())
         {
-            iBuf.Append(Brn("True "));
+            buf->Append(Brn("True "));
         }
         else
         {
-            iBuf.Append(Brn("False "));
+            buf->Append(Brn("False "));
         }
-        iBuf.Append(udn);
+        //iBuf.Append(udn);
+        buf->Append(s->Device().Udn());
 
-        iBuf.Append(Brn(" Volume"));
+        buf->Append(Brn(" Volume"));
 
         for(TUint i=0; i<s->Volumes().size(); i++)
         {
-            iBuf.Append(Brn(" "));
-            iBuf.Append(s->Volumes()[i]->Device().Udn());
+            buf->Append(Brn(" "));
+            buf->Append(s->Volumes()[i]->Device().Udn());
         }
 
 
-        f(iBuf);
+        f(*buf);
         delete aArgs;
+        delete buf;
     }
 
     void CreateCallback2(MockCbData<vector<ITopology5Group*>*>* aArgs)
@@ -123,18 +127,20 @@ public:
         vector<ITopology5Group*>* v = aArgs->iData;
         FunctorGeneric<const Brx&> f = aArgs->iCallback;
 
-        iBuf.Replace(Brn("\nSenders begin\n"));
+        Bwh* buf = new Bwh();
+        buf->Replace(Brn("\nSenders begin\n"));
 
         for(TUint i=0; i<v->size(); i++)
         {
-            iBuf.Append(Brn("Sender "));
-            iBuf.Append((*v)[i]->Name());
-            iBuf.Append(Brn("\n"));
+            buf->Append(Brn("Sender "));
+            buf->Append((*v)[i]->Name());
+            buf->Append(Brn("\n"));
         }
 
-        iBuf.Append(Brn("Senders end"));
-        f(iBuf);
+        buf->Append(Brn("Senders end"));
+        f(*buf);
         delete aArgs;
+        delete buf;
     }
 
 
@@ -146,7 +152,7 @@ public:
 
 private:
     ResultWatcherFactory* iFactory;
-    Bws<6000> iBuf;
+    //Bws<6000> iBuf;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -242,10 +248,9 @@ public:
 
     virtual void UnorderedAdd(ITopology5Room* aItem)
     {
-
-        iBuf.Replace(Brn("Room Added "));
-        iBuf.Append(aItem->Name());
-        Bwh* result = new Bwh(iBuf);
+        Bwh* result = new Bwh();
+        result->Replace(Brn("Room Added "));
+        result->Append(aItem->Name());
         iRunner.Result(result);
 
         iFactory->Create<EStandby>(aItem->Name(), aItem->Standby(), MakeFunctorGeneric(*this, &HouseWatcher::CreateCallback1));
@@ -255,9 +260,9 @@ public:
 
     virtual void UnorderedRemove(ITopology5Room* aItem)
     {
-        iBuf.Replace(Brn("Room Removed "));
-        iBuf.Append(aItem->Name());
-        Bwh* result = new Bwh(iBuf);
+        Bwh* result = new Bwh();
+        result->Replace(Brn("Room Removed "));
+        result->Append(aItem->Name());
 
         iRunner.Result(result);
 
@@ -273,27 +278,30 @@ public:
         EStandby arg1 = aArgs->iData;
         FunctorGeneric<const Brx&> f = aArgs->iCallback;
 
-        iBuf.Replace(Brn("Standby "));
+        Bwh* buf = new Bwh();
+
+        buf->Replace(Brn("Standby "));
 
         if (arg1==eOff)
         {
-            iBuf.Append(Brn("eOff"));
+            buf->Append(Brn("eOff"));
         }
         else if (arg1==eOn)
         {
-            iBuf.Append(Brn("eOn"));
+            buf->Append(Brn("eOn"));
         }
         else if (arg1==eMixed)
         {
-            iBuf.Append(Brn("eMixed"));
+            buf->Append(Brn("eMixed"));
         }
         else
         {
             ASSERTS();
         }
 
-        f(iBuf);
+        f(*buf);
         delete aArgs;
+        delete buf;
     }
 
     void CreateCallback2(MockCbData<vector<ITopology5Source*>*>* aArgs)
@@ -301,78 +309,81 @@ public:
         vector<ITopology5Source*>* v = aArgs->iData;
         FunctorGeneric<const Brx&> f = aArgs->iCallback;
 
-        iBuf.Replace(Brn("\nSources begin\n"));
+        Bwh* buf = new Bwh();
+
+        buf->Replace(Brn("\nSources begin\n"));
 
         for(TUint i=0; i<v->size(); i++)
         {
             ITopology5Source* s = (*v)[i];
 
-            iBuf.Append(Brn("Source "));
+            buf->Append(Brn("Source "));
 
-            Ascii::AppendDec(iBuf, s->Index());
+            Ascii::AppendDec(*buf, s->Index());
 
-            iBuf.Append(Brn(" "));
-            iBuf.Append(s->Group().Name());
-            iBuf.Append(Brn(" "));
-            iBuf.Append(s->Name());
-            iBuf.Append(Brn(" "));
-            iBuf.Append(s->Type());
-            iBuf.Append(Brn(" "));
+            buf->Append(Brn(" "));
+            buf->Append(s->Group().Name());
+            buf->Append(Brn(" "));
+            buf->Append(s->Name());
+            buf->Append(Brn(" "));
+            buf->Append(s->Type());
+            buf->Append(Brn(" "));
 
             if (s->Visible())
             {
-                iBuf.Append(Brn("True "));
+                buf->Append(Brn("True "));
             }
             else
             {
-                iBuf.Append(Brn("False "));
+                buf->Append(Brn("False "));
             }
 
             Brn udn(s->Device().Udn());
 
             if (s->HasInfo())
             {
-                iBuf.Append(Brn("True "));
+                buf->Append(Brn("True "));
             }
             else
             {
-                iBuf.Append(Brn("False "));
+                buf->Append(Brn("False "));
             }
 
             if (s->HasTime())
             {
-                iBuf.Append(Brn("True "));
+                buf->Append(Brn("True "));
             }
             else
             {
-                iBuf.Append(Brn("False "));
+                buf->Append(Brn("False "));
             }
 
 
-            iBuf.Append(udn);
-            iBuf.Append(Brn(" Volume"));
+            buf->Append(udn);
+            buf->Append(Brn(" Volume"));
 
 
             for(TUint i=0; i<s->Volumes().size(); i++)
             {
-                iBuf.Append(Brn(" "));
-                iBuf.Append(s->Volumes()[i]->Device().Udn());
+                buf->Append(Brn(" "));
+                buf->Append(s->Volumes()[i]->Device().Udn());
             }
 
-            iBuf.Append(Brn("\n"));
+            buf->Append(Brn("\n"));
 
         }
-        iBuf.Append(Brn("Sources end"));
+        buf->Append(Brn("Sources end"));
 
-        f(iBuf);
+        f(*buf);
         delete aArgs;
+        delete buf;
     }
 
 private:
     MockableScriptRunner& iRunner;
     ResultWatcherFactory* iFactory;
     map<ITopology5Room*, RoomWatcher*> iWatcherLookup;
-    Bws<6000> iBuf;
+    //Bws<6000> iBuf;
 };
 
 

@@ -16,7 +16,7 @@ namespace OpenHome
 namespace Av
 {
 
-class CallbackHandler;
+//class CallbackHandler;
 
 
 class Job
@@ -52,7 +52,7 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////
-
+/*
 class JobDone
 {
 public:
@@ -65,7 +65,7 @@ public:
 private:
     Job* iJob;
 };
-
+*/
 ///////////////////////////////////////////////////////////////////////////
 
 struct AsyncCbArg
@@ -75,7 +75,7 @@ struct AsyncCbArg
 };
 
 ///////////////////////////////////////////////////////////////////////////
-
+/*
 class Job2 : private Thread
 {
 public:
@@ -93,6 +93,61 @@ private:
     AsyncCbArg* iCbArg;
     TBool iCancelled;
     mutable Mutex iMutex;
+};
+*/
+///////////////////////////////////////////////////////////////////////////
+
+class Job3;
+
+///////////////////////////////////////////////////////////////////////////
+
+/*
+class IJobManager
+{
+public:
+    virtual Job3& GetJob() = 0;
+    virtual void ReleaseJob(Job3& aJob) = 0;
+};
+*/
+///////////////////////////////////////////////////////////////////////////
+
+class JobManager //: public IJobManager
+{
+private:
+    static const TUint kJobCount = 10;
+
+public:
+    JobManager();
+    virtual ~JobManager();
+    virtual Job3& GetJob();
+    virtual void ReleaseJob(Job3& aJob);
+
+private:
+    Fifo<Job3*> iJobs;
+};
+
+///////////////////////////////////////////////////////////////////////////
+
+class Job3
+{
+    friend class JobManager;
+
+private:
+    Job3(JobManager& aMan);
+    ~Job3();
+
+public:
+    void SetCallback(FunctorGeneric<AsyncCbArg*> aCallback, void* aArg);
+    Net::FunctorAsync AsyncCb();
+
+private:
+    void AsyncComplete(Net::IAsync& aAsync);
+    void Reset();
+
+private:
+    JobManager& iJobManager;
+    FunctorGeneric<AsyncCbArg*> iCallback;
+    AsyncCbArg* iCombinedArgs;
 };
 
 //////////////////////////////////////////////////////////////
