@@ -9,7 +9,6 @@
 #include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
 #include <Generated/CpAvOpenhomeOrgInfo1.h>
-#include <OpenHome/Job.h>
 #include <OpenHome/MetaData.h>
 
 

@@ -76,7 +76,7 @@ public:
 
     virtual void UnorderedRemove(ITopology2Group* aItem)
     {
-        Bwh* result = new Bwh();
+        Bwh* result = new Bwh(100);
         result->Replace(aItem->Device().Udn());
         result->Append(" Group Removed");
 
@@ -87,7 +87,7 @@ public:
 
     virtual void UnorderedAdd(ITopology2Group* aItem)
     {
-        Bwh* result = new Bwh();
+        Bwh* result = new Bwh(100);
         result->Replace(aItem->Device().Udn());
         result->Append(Brn(" Group Added"));
         iRunner.Result(result);

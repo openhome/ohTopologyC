@@ -105,12 +105,6 @@ void ServiceReceiverNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
     ASSERT(iSubscribedSource == NULL);
     iSubscribedSource = &aServiceCreateData;
     iService->Subscribe();
-
-    //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::OnSubscribeCallback);
-
-    //Job* job = iSubscribedSource->GetJob()->ContinueWith(f, NULL);
-    //return(job);
-    //return iSubscribedSource->GetJob()->ContinueWith((t) => { });
 }
 
 
@@ -119,7 +113,6 @@ void ServiceReceiverNetwork::OnCancelSubscribe()
     if (iSubscribedSource != NULL)
     {
         //iSubscribedSource->TrySetCancelled();
-
         iSubscribedSource->iCancelled = true;
     }
 }

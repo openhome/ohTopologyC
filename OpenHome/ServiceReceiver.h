@@ -8,7 +8,6 @@
 #include <OpenHome/MetaData.h>
 #include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
-#include <OpenHome/Job.h>
 
 
 

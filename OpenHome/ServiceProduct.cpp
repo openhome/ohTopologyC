@@ -426,28 +426,6 @@ void ServiceProductNetwork::SetSourceIndex(TUint aValue)
 {
     FunctorAsync f;
     iService->BeginSetSourceIndex(aValue, f);
-
-    //FunctorAsync f = MakeFunctorAsync(*this, &ServiceProductNetwork::BeginSetSourceIndexCallback);
-    //iService->BeginSetSourceIndex(aValue, f);
-
-/*
-    iService->BeginSetSourceIndex(aValue, (ptr) =>
-    {
-        try
-        {
-            iService->EndSetSourceIndex(ptr);
-            Callback();
-            //taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-*/
-
-    //jobDone->Job().ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    //return (jobDone->GetJob());
 }
 
 
@@ -455,24 +433,6 @@ void ServiceProductNetwork::SetSourceIndexByName(const Brx& aValue)
 {
     FunctorAsync f;
     iService->BeginSetSourceIndexByName(aValue, f);
-
-/*
-    iService->BeginSetSourceIndexByName(aValue, (ptr) =>
-    {
-        try
-        {
-            iService->EndSetSourceIndexByName(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-*/
-//    FunctorGeneric<void*> f2 = MakeFunctorGeneric(*this, &ServiceProductNetwork::DoNothing);
-//    Job* job = jobDone->GetJob()->ContinueWith(f2, NULL);
-//    return (job);
 }
 
 
@@ -481,25 +441,6 @@ void ServiceProductNetwork::SetStandby(TBool aValue)
 {
     FunctorAsync f;
     iService->BeginSetStandby(aValue, f);
-/*
-    iService->BeginSetStandby(aValue, (ptr) =>
-    {
-        try
-        {
-            iService->EndSetStandby(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-*/
-
-    //return taskSource.Job.ContinueWith((t) => { });
-    //FunctorGeneric<void*> f2 = MakeFunctorGeneric(*this, &ServiceProductNetwork::DoNothing);
-    //Job* job = jobDone->GetJob()->ContinueWith(f2, NULL);
-    //return (job);
 }
 
 
@@ -510,18 +451,6 @@ void ServiceProductNetwork::HandleRoomChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::RoomChangedCallback1);
     iNetwork.Schedule(f, NULL);
-/*
-    string room;
-    iService->PropertyProductRoom(room);
-
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iRoom.Update(room);
-        });
-    });
-*/
 }
 
 
@@ -575,19 +504,6 @@ void ServiceProductNetwork::HandleSourceIndexChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceIndexChangedCallback1);
     iNetwork.Schedule(f, NULL);
-
-/*
-    TUint sourceIndex;
-    iService->PropertySourceIndex(sourceIndex);
-
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iSourceIndex.Update(sourceIndex);
-        });
-    });
-*/
 }
 
 void ServiceProductNetwork::SourceIndexChangedCallback1(void*)
@@ -609,18 +525,6 @@ void ServiceProductNetwork::HandleSourceXmlChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceXmlChangedCallback1);
     iNetwork.Schedule(f, NULL);
-/*
-    string sourceXml;
-    iService->PropertySourceXml(sourceXml);
-
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iSourceXml.Update(sourceXml);
-        });
-    });
-*/
 }
 
 
@@ -649,18 +553,6 @@ void ServiceProductNetwork::HandleStandbyChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::StandbyChangedCallback1);
     iNetwork.Schedule(f, NULL);
-/*
-    TBool standby;
-    iService->PropertyStandby(standby);
-
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iStandby.Update(standby);
-        });
-    });
-*/
 }
 
 void ServiceProductNetwork::StandbyChangedCallback1(void*)
@@ -814,7 +706,6 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
         {
             THROW(NotSupportedException);
         }
-
     }
 
     else
@@ -830,23 +721,9 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
 void ServiceProductMock::SetSourceIndex(TUint aIndex)
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, & ServiceProductMock::SetSourceIndexCallback);
-
     auto u = new UintValue();
     u->iValue = aIndex;
-
     iNetwork.Schedule(f, u);
-
-
-/*
-    Job task = Job.Factory.StartNew(() =>
-    {
-        iNetwork.Schedule(() =>
-        {
-            iSourceIndex.Update(aValue);
-        });
-    });
-    return task;
-*/
 }
 
 
@@ -867,16 +744,6 @@ void ServiceProductMock::SetSourceIndexByName(const Brx& /*aValue*/)
 
 void ServiceProductMock::SetStandby(TBool aValue)
 {
-/*
-    Job task = Job.Factory.StartNew(() =>
-    {
-        iNetwork.Schedule(() =>
-        {
-            iStandby.Update(aValue);
-        });
-    });
-    return task;
-*/
     auto f = MakeFunctorGeneric(*this, &ServiceProductMock::SetStandbyCallback);
 
     if (aValue)

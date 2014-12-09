@@ -57,7 +57,7 @@ public:
 
     virtual void UnorderedAdd(IProxyProduct* aWatcher)
     {
-        Bwh* result = new Bwh();
+        Bwh* result = new Bwh(100);
         result->Replace(Brn("product added "));
         result->Append(aWatcher->Device().Udn());
         iRunner.Result(result);
@@ -65,7 +65,7 @@ public:
 
     virtual void UnorderedRemove(IProxyProduct* aWatcher)
     {
-        Bwh* result = new Bwh();
+        Bwh* result = new Bwh(100);
         result->Replace(Brn("product removed "));
         result->Append(aWatcher->Device().Udn());
         iRunner.Result(result);
