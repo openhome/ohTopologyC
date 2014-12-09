@@ -58,7 +58,7 @@ public:
 
     virtual void UnorderedAdd(ITopology4Room* aItem)
     {
-        Bwh* result = new Bwh();
+        Bwh* result = new Bwh(100);
         result->Replace("Room Added ");
         result->Append(aItem->Name());
 
@@ -68,7 +68,7 @@ public:
 
     virtual void UnorderedRemove(ITopology4Room* aItem)
     {
-        Bwh* result = new Bwh();
+        Bwh* result = new Bwh(100);
         result->Replace("Room Removed ");
         result->Append(aItem->Name());
 
