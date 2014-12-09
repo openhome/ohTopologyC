@@ -59,12 +59,7 @@ public:
         ITopology5Source* s = aArgs->iData;
         auto f = aArgs->iCallback;
 
-        Bwh* buf = new Bwh();
-
-        //Bws<100> udn;
-        //udn.Replace(s->Device().Udn());
-
-        //iBuf.SetBytes(0);
+        Bwh* buf = new Bwh(6000);
 
         buf->Replace(Brn("Source "));
 
@@ -127,7 +122,7 @@ public:
         vector<ITopology5Group*>* v = aArgs->iData;
         FunctorGeneric<const Brx&> f = aArgs->iCallback;
 
-        Bwh* buf = new Bwh();
+        Bwh* buf = new Bwh(6000);
         buf->Replace(Brn("\nSenders begin\n"));
 
         for(TUint i=0; i<v->size(); i++)
@@ -248,7 +243,7 @@ public:
 
     virtual void UnorderedAdd(ITopology5Room* aItem)
     {
-        Bwh* result = new Bwh();
+        Bwh* result = new Bwh(10000);
         result->Replace(Brn("Room Added "));
         result->Append(aItem->Name());
         iRunner.Result(result);
@@ -260,7 +255,7 @@ public:
 
     virtual void UnorderedRemove(ITopology5Room* aItem)
     {
-        Bwh* result = new Bwh();
+        Bwh* result = new Bwh(6000);
         result->Replace(Brn("Room Removed "));
         result->Append(aItem->Name());
 
@@ -278,7 +273,7 @@ public:
         EStandby arg1 = aArgs->iData;
         FunctorGeneric<const Brx&> f = aArgs->iCallback;
 
-        Bwh* buf = new Bwh();
+        Bwh* buf = new Bwh(6000);
 
         buf->Replace(Brn("Standby "));
 
@@ -309,7 +304,7 @@ public:
         vector<ITopology5Source*>* v = aArgs->iData;
         FunctorGeneric<const Brx&> f = aArgs->iCallback;
 
-        Bwh* buf = new Bwh();
+        Bwh* buf = new Bwh(6000);
 
         buf->Replace(Brn("\nSources begin\n"));
 
