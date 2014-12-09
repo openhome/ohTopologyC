@@ -56,7 +56,26 @@ struct AsyncCbArg
 
 ///////////////////////////////////////////////////////////////////////////
 
-class Job3
+class Job3;
+
+class JobManager
+{
+private:
+    static const TUint kJobCount = 10;
+
+public:
+    JobManager();
+    virtual ~JobManager();
+    Job3& GetJob();
+    void ReleaseJob(Job3& aJob);
+
+private:
+    Fifo<Job3*> iJobs;
+};
+
+///////////////////////////////////////////////////////////////////////////
+
+class Job3 : public INonCopyable
 {
     friend class JobManager;
 

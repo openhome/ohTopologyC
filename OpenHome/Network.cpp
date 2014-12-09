@@ -20,12 +20,12 @@ using namespace std;
  */
 Network::Network(TUint /*aMaxCacheEntries*/, ILog&/* aLog*/)
     :iDisposeHandler(new DisposeHandler())
-    ,iWatchableThread(new WatchableThread(*this))
     //,iCache(new IdCache(aMaxCacheEntries))
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread))
     ,iJobManager(new JobManager())
 {
+    iWatchableThread = new WatchableThread(*this);
 }
 
 
