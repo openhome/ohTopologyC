@@ -255,9 +255,10 @@ TBool MockableScriptRunner::Test(const Brx& aActual, const Brx& aExpected)
 
     if (!success)
     {
-        OpenHome::Log::Print("\n\nActual/Expected:\n");
+        OpenHome::Log::Print("\n\nActual:\n");
         OpenHome::Log::Print(aActual);
         OpenHome::Log::Print("\n");
+        OpenHome::Log::Print("\nExpected:\n");
         OpenHome::Log::Print(aExpected);
     }
 

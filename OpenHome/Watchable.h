@@ -184,6 +184,7 @@ void Watchable<T>::RemoveWatcher(IWatcher<T>& aWatcher)
     ASSERT(it!=iWatchers.end());
     iWatchers.erase(it);
 
+    // Assert that it no longer exists
     it = std::find(iWatchers.begin(), iWatchers.end(), &aWatcher);
     ASSERT(it==iWatchers.end());
 
