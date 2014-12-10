@@ -272,7 +272,6 @@ void ResultWatcher<T>::ItemOpen(const Brx& /*aId*/, T aValue)
 {
     // ignoring aId - we're not using iId
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultWatcher::ItemOpenCallback);
-    //MockCbData<T>* args = new MockCbData<T>(aValue, f);
     auto args = new MockCbData<T>();
     args->iCallback = f;
     args->iData = aValue;
@@ -298,7 +297,6 @@ void ResultWatcher<T>::ItemUpdate(const Brx& /*aId*/, T aValue, T /*aPrevious*/)
     // ignoring aId - we're not using iId
     // ignoring aPrevious - not used
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultWatcher::ItemUpdateCallback);
-//    MockCbData<T>* args = new MockCbData<T>(aValue, f);
     auto args = new MockCbData<T>();
     args->iCallback = f;
     args->iData = aValue;
@@ -323,7 +321,6 @@ void ResultWatcher<T>::ItemClose(const Brx& /*aId*/, T aValue)
 {
     // ignoring aId - we're not using iId
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultWatcher::ItemCloseCallback);
-    //MockCbData<T>* args = new MockCbData<T>(aValue, f);
     auto args = new MockCbData<T>();
     args->iCallback = f;
     args->iData = aValue;
@@ -375,7 +372,6 @@ template <class T>
 void ResultUnorderedWatcher<T>::UnorderedAdd(T aItem)
 {
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultUnorderedWatcher::UnorderedAddCallback);
-    //MockCbData<T>* args = new MockCbData<T>(aItem, f);
     auto args = new MockCbData<T>();
     args->iCallback = f;
     args->iData = aItem;
@@ -398,7 +394,6 @@ template <class T>
 void ResultUnorderedWatcher<T>::UnorderedRemove(T aItem)
 {
     FunctorGeneric<const Brx&> f = MakeFunctorGeneric(*this, &ResultUnorderedWatcher::UnorderedRemoveCallback);
-    //MockCbData<T>* args = new MockCbData<T>(aItem, f);
     auto args = new MockCbData<T>();
     args->iCallback = f;
     args->iData = aItem;

@@ -526,7 +526,7 @@ void Topology5Group::EvaluateSenders()
         Topology5Group* g = iChildren[i];
 
         vector<ITopology5Group*> v(*(g->Senders().Value()));
-        vectorSenders->insert(vectorSenders->begin(), v.begin(), v.end());
+        vectorSenders->insert(vectorSenders->end(), v.begin(), v.end());
     }
 
     if (iHasSender)
@@ -534,9 +534,10 @@ void Topology5Group::EvaluateSenders()
         vectorSenders->insert(vectorSenders->begin(), this);
     }
 
-    delete iVectorSenders;
+    auto oldVectorSenders = iVectorSenders;
     iVectorSenders = vectorSenders;
     iSenders->Update(iVectorSenders);
+    delete oldVectorSenders;
 }
 
 
