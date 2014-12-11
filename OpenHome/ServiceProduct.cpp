@@ -283,7 +283,6 @@ void SrcXml::CreateSourceXml()
 ServiceProductNetwork::ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
     :ServiceProduct(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
-    ,iSubscribedSource(NULL)
 {
     iCpDevice.AddRef();
 
@@ -313,7 +312,6 @@ ServiceProductNetwork::ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice
 ServiceProductNetwork::~ServiceProductNetwork()
 {
     delete iService;
-    delete iSubscribedSource;
 }
 
 void ServiceProductNetwork::Dispose()
@@ -322,36 +320,23 @@ void ServiceProductNetwork::Dispose()
     iCpDevice.RemoveRef();
 }
 
-void ServiceProductNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
+TBool ServiceProductNetwork::OnSubscribe()
 {
     // Subscribe to (ohNet) Service and get informed later (on a separate thread) when its completed
     // Completion is signalled in HandleInitialEvent()
-    iSubscribedSource = &aServiceCreateData;
     iService->Subscribe();
-
-/*
-    iSubscribedSource = new TaskCompletionSource<bool>();
-
-    iService.Subscribe();
-
-
-    return Task.Factory.ContinueWhenAll(
-        new Task[] { iSubscribedSource.Task, iSubscribedConfigurationSource.Task, iSubscribedVolkanoSource.Task },
-        (tasks) => { Task.WaitAll(tasks); });
-
-    since we're not using ConfigurationSource and or VolkanoSource, theres only 1 task now so that would probably become...
-    return(iSubscribedSource.Job);
-
-*/
+    return(false); // false = not mock
 }
 
 void ServiceProductNetwork::OnCancelSubscribe()
 {
+/*
     if (iSubscribedSource != NULL)
     {
         //iSubscribedSource->TrySetCancelled();
         iSubscribedSource->iCancelled = true;
     }
+*/
 }
 
 void ServiceProductNetwork::HandleInitialEvent()
@@ -404,10 +389,10 @@ void ServiceProductNetwork::HandleInitialEvent()
     iService->PropertyProductUrl(productUrl);
     iProductUrl.Replace(productUrl);
 
-    if (!iSubscribedSource->iCancelled)
-    {
-        iSubscribedSource->iCallback2(iSubscribedSource);
-    }
+    //if (!iSubscribedSource->iCancelled)
+    //{
+        SubscribeCompleted();
+    //}
 }
 
 
@@ -418,8 +403,6 @@ void ServiceProductNetwork::OnUnsubscribe()
     {
         iService->Unsubscribe();
     }
-
-    iSubscribedSource = NULL;
 }
 
 void ServiceProductNetwork::SetSourceIndex(TUint aValue)

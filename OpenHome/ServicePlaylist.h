@@ -171,7 +171,7 @@ public:
     void SetShuffle(TBool aValue);
 
 protected:
-    void OnSubscribe(ServiceCreateData& aServiceCreateData);
+    TBool OnSubscribe();
     void OnCancelSubscribe();
     void OnUnsubscribe();
 
@@ -205,7 +205,6 @@ private:
 
 private:
     Net::CpDevice& iCpDevice;
-    ServiceCreateData* iSubscribedSource;
     Net::CpProxyAvOpenhomeOrgPlaylist1* iService;
     IIdCacheSession* iCacheSession;
 };

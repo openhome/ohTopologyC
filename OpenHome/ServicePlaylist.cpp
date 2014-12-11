@@ -209,7 +209,6 @@ const Brx& ServicePlaylist::ProtocolInfo()
 ServicePlaylistNetwork::ServicePlaylistNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
     :ServicePlaylist(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
-    ,iSubscribedSource(NULL)
 {
     iCpDevice.AddRef();
 
@@ -238,7 +237,6 @@ ServicePlaylistNetwork::ServicePlaylistNetwork(INetwork& aNetwork, IInjectorDevi
 
 ServicePlaylistNetwork::~ServicePlaylistNetwork()
 {
-    delete iSubscribedSource;
 }
 
 
@@ -255,26 +253,26 @@ void ServicePlaylistNetwork::Dispose()
 }
 
 
-void ServicePlaylistNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
+TBool ServicePlaylistNetwork::OnSubscribe()
 {
-    ASSERT(iSubscribedSource == NULL);
-    iSubscribedSource = &aServiceCreateData;
-
     TUint id = IdCache::Hash(kCacheIdPrefixPlaylist, Device().Udn());
 
     iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServicePlaylistNetwork::ReadList));
     iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, new PlaylistSnapshot(iNetwork, *iCacheSession, new vector<TUint>(), *this));
 
     iService->Subscribe();
+    return(false); // false = not mock
 }
 
 
 void ServicePlaylistNetwork::OnCancelSubscribe()
 {
+/*
     if (iSubscribedSource != NULL)
     {
         iSubscribedSource->iCancelled = true;
     }
+*/
 }
 
 
@@ -286,10 +284,10 @@ void ServicePlaylistNetwork::HandleInitialEvent()
     iService->PropertyProtocolInfo(protocolInfo);
     iProtocolInfo.Replace(protocolInfo);
 
-    if (!iSubscribedSource->iCancelled)
-    {
-        iSubscribedSource->iCallback2(iSubscribedSource);
-    }
+//    if (!iSubscribedSource->iCancelled)
+//    {
+        SubscribeCompleted();
+//    }
 }
 
 

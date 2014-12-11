@@ -10,12 +10,14 @@ Service::Service(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     :iNetwork(aNetwork)
     ,iLog(aLog)
     ,iDisposeHandler(new DisposeHandler())
-    ,iSemaSubscribe("SRV", 0)
     //,iCancelSubscribe(new CancellationTokenSource())
-    ,iSubscribeTask(NULL)
+    //,iSubscribeTask(NULL)
     ,iDevice(aDevice)
     ,iRefCount(0)
-    ,iMutexJobs("JOBX")
+    ,iMutexJobs("SVJ")
+    ,iMutexSubscribe("SVS")
+    ,iMockSubscribe(false)
+    ,iSubscribed(false)
 {
 }
 
@@ -36,9 +38,9 @@ void Service::Dispose()
     OnCancelSubscribe();
 
     // wait for any inflight subscriptions to complete
-    if (iSubscribeTask != NULL)
-    {
-        iSubscribeTask->Wait();
+//    if (iSubscribeTask != NULL)
+//    {
+//        iSubscribeTask->Wait();
 /*
         try
         {
@@ -49,7 +51,7 @@ void Service::Dispose()
             HandleAggregate(e);
         }
 */
-    }
+//    }
 
     OnUnsubscribe();
 
@@ -106,86 +108,99 @@ void Service::Create(FunctorGeneric<ServiceCreateData*> aCallback, IDevice* aDev
 
     DisposeLock lock(*iDisposeHandler);
 
+    auto serviceCreateData = new ServiceCreateData();
+    serviceCreateData->iDevice = aDevice;
+    //serviceCreateData->iCancelled = false;
+
     if (iRefCount == 0)
     {
-        ASSERT(iSubscribeTask == NULL);
+        ASSERT(!iMockSubscribe);
+        iMockSubscribe = OnSubscribe();
+    }
 
-        auto serviceCreateData = new ServiceCreateData();
-        serviceCreateData->iCallback1 = aCallback;
-        serviceCreateData->iCallback2 = MakeFunctorGeneric(*this, &Service::CreateCallback1);;
-        serviceCreateData->iDevice = aDevice;
-        serviceCreateData->iCancelled = false;
+    iRefCount++;
 
-        iSubscribeTask = &iSemaSubscribe;
-
-        iRefCount++;
-        OnSubscribe(*serviceCreateData);
-
+    if (iMockSubscribe)
+    {
+        // mock - callback immediately
+        serviceCreateData->iProxy = OnCreate(*aDevice);
+        aCallback(serviceCreateData);
     }
     else
     {
-        iRefCount++;
+        iMutexSubscribe.Wait();
+        if (iSubscribed)
+        {
+            // non mock, already subscribed - callback immediately
+            iMutexSubscribe.Signal();
+            serviceCreateData->iProxy = OnCreate(*aDevice);
+            aCallback(serviceCreateData);
+        }
+        else
+        {
+            // non mock, not yet subscribed - callback later when subscribe completes
+            serviceCreateData->iCallback = aCallback;
+            iSubscriptionsData.push_back(serviceCreateData);
+            iMutexSubscribe.Signal();
+        }
     }
 
-
-    //if (iSubscribeTask != NULL)
-    //{
 /*
-        iSubscribeTask = iSubscribeTask.ContinueWith((t) =>
-        {
-            iNetwork.Schedule(() =>
-            {
-                // we must access t.Exception property to supress finalized task exceptions
-                if (t.Exception == NULL && !iCancelSubscribe.IsCancellationRequested)
+                if (iSubscribeTask != null)
                 {
-                    aCallback(OnCreate(aDevice));
+                    iSubscribeTask = iSubscribeTask.ContinueWith((t) =>
+                    {
+                        iNetwork.Schedule(() =>
+                        {
+                            // we must access t.Exception property to supress finalized task exceptions
+                            if (t.Exception == null && !iCancelSubscribe.IsCancellationRequested)
+                            {
+                                aCallback((T)OnCreate(aDevice));
+                            }
+                            else
+                            {
+                                --iRefCount;
+                                if (iRefCount == 0)
+                                {
+                                    iSubscribeTask = null;
+                                }
+                            }
+                        });
+                    });
                 }
                 else
                 {
-                    --iRefCount;
-                    if (iRefCount == 0)
-                    {
-                        iSubscribeTask = NULL;
-                    }
+                    aCallback((T)OnCreate(aDevice));
                 }
-            });
-        });
+
 */
-/*
-        FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::CreateCallback1);
-        auto serviceCreateData = new ServiceCreateData();
-        serviceCreateData->iCallback = aCallback;
-        serviceCreateData->iDevice = aDevice;
+}
 
-        iSubscribeTask = iSubscribeTask->ContinueWith(f, serviceCreateData);
 
-    }
-    else
+
+void Service::SubscribeCompleted()
+{
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::SubscribeCompletedCallback);
+    iNetwork.Schedule(f, NULL);
+}
+
+
+void Service::SubscribeCompletedCallback(void*/* aArgs*/)
+{
+    ASSERT(!iMockSubscribe);
+    iMutexSubscribe.Wait();
+    auto subscriptionsData = new vector<ServiceCreateData*>(iSubscriptionsData);
+    iSubscriptionsData.clear();
+    iSubscribed = true;
+    iMutexSubscribe.Signal();
+
+    for (TUint i=0; i<subscriptionsData->size(); i++)
     {
-        auto serviceCreateData = new ServiceCreateData();
-        serviceCreateData->iDevice = aDevice;
-        serviceCreateData->iProxy = OnCreate(*aDevice);;
-        aCallback(serviceCreateData);
+        auto data = (*subscriptionsData)[i];
+        data->iProxy = OnCreate(*(data->iDevice));
+        data->iCallback(data);
     }
-*/
-}
 
-
-
-void Service::CreateCallback1(ServiceCreateData* aArgs)
-{
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::CreateCallback2);
-    iNetwork.Schedule(f, aArgs);
-}
-
-
-void Service::CreateCallback2(void* aArgs)
-{
-    auto data = (ServiceCreateData*)aArgs;
-    data->iProxy = OnCreate(*(data->iDevice));
-    data->iCallback1(data);
-
-    iSubscribeTask->Signal();
 /*
     if (t.Exception == NULL && !iCancelSubscribe.IsCancellationRequested)
     {
@@ -203,11 +218,9 @@ void Service::CreateCallback2(void* aArgs)
 }
 
 
-void Service::OnSubscribe(ServiceCreateData& aServiceCreateData)
+TBool Service::OnSubscribe()
 {
-    // special case..
-    // this is a default implenttation for mock classes
-    CreateCallback2(&aServiceCreateData);
+    return(true);
 }
 
 
@@ -229,11 +242,13 @@ void Service::Unsubscribe()
     {
         OnUnsubscribe();
 
+/*
         if (iSubscribeTask != NULL)
         {
             iSubscribeTask->Wait();
             iSubscribeTask = NULL;
         }
+*/
     }
 }
 

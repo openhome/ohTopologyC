@@ -113,7 +113,6 @@ IWatchable<IInfoMetatext*>& ServiceInfo::Metatext()
 ServiceInfoNetwork::ServiceInfoNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
     :ServiceInfo(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
-    ,iSubscribedSource(NULL)
 
 {
     iCpDevice.AddRef();
@@ -136,7 +135,6 @@ ServiceInfoNetwork::ServiceInfoNetwork(INetwork& aNetwork, IInjectorDevice& aDev
 ServiceInfoNetwork::~ServiceInfoNetwork()
 {
     delete iService;
-    delete iSubscribedSource;
 }
 
 void ServiceInfoNetwork::Dispose()
@@ -145,33 +143,30 @@ void ServiceInfoNetwork::Dispose()
     iCpDevice.RemoveRef();
 }
 
-void ServiceInfoNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
+TBool ServiceInfoNetwork::OnSubscribe()
 {
-    ASSERT(iSubscribedSource == NULL);
-    iSubscribedSource = &aServiceCreateData;
     iService->Subscribe();
-/*
-    ASSERT(iSubscribedSource == NULL);
-    iSubscribedSource = new TaskCompletionSource<TBool>();
-    iService.Subscribe();
-    return iSubscribedSource.Task.ContinueWith((t) => { });
-*/
+    return(false); // false = not mock
 }
 
 void ServiceInfoNetwork::OnCancelSubscribe()
 {
+/*
     if (iSubscribedSource != NULL)
     {
         iSubscribedSource->iCancelled = true;
     }
+*/
 }
 
 void ServiceInfoNetwork::HandleInitialEvent()
 {
+/*
     if (!iSubscribedSource->iCancelled)
     {
-        iSubscribedSource->iCallback2(iSubscribedSource);
+        SubscribeCompleted();
     }
+*/
 }
 
 void ServiceInfoNetwork::OnUnsubscribe()
@@ -181,7 +176,7 @@ void ServiceInfoNetwork::OnUnsubscribe()
         iService->Unsubscribe();
     }
 
-    iSubscribedSource = NULL;
+    //iSubscribedSource = NULL;
 }
 
 void ServiceInfoNetwork::HandleDetailsChanged()

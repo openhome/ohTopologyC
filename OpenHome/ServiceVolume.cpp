@@ -117,7 +117,6 @@ IWatchable<TUint>& ServiceVolume::VolumeUnity()
 ServiceVolumeNetwork::ServiceVolumeNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
     :ServiceVolume(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
-    ,iSubscribedSource(NULL)
 {
     iCpDevice.AddRef();
 
@@ -155,7 +154,6 @@ ServiceVolumeNetwork::ServiceVolumeNetwork(INetwork& aNetwork, IInjectorDevice& 
 ServiceVolumeNetwork::~ServiceVolumeNetwork()
 {
     delete iService;
-    delete iSubscribedSource;
 }
 
 
@@ -166,12 +164,10 @@ void ServiceVolumeNetwork::Dispose()
 }
 
 
-void ServiceVolumeNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
+TBool ServiceVolumeNetwork::OnSubscribe()
 {
-    ASSERT(iSubscribedSource == NULL);
-    iSubscribedSource = &aServiceCreateData;
     iService->Subscribe();
-
+    return(false); // false = not mock
 /*
     ASSERT(iSubscribedSource == NULL);
     iSubscribedSource = new TaskCompletionSource<TBool>();
@@ -183,20 +179,22 @@ void ServiceVolumeNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
 
 void ServiceVolumeNetwork::OnCancelSubscribe()
 {
+/*
     if (iSubscribedSource != NULL)
     {
         iSubscribedSource->iCancelled = true;
         //iSubscribedSource.TrySetCanceled();
     }
+*/
 }
 
 
 void ServiceVolumeNetwork::HandleInitialEvent()
 {
-    if (!iSubscribedSource->iCancelled)
-    {
-        iSubscribedSource->iCallback2(iSubscribedSource);
-    }
+    //if (!iSubscribedSource->iCancelled)
+    //{
+        SubscribeCompleted();
+    //}
 }
 
 
@@ -207,7 +205,6 @@ void ServiceVolumeNetwork::OnUnsubscribe()
         iService->Unsubscribe();
     }
 
-    iSubscribedSource = NULL;
 }
 
 

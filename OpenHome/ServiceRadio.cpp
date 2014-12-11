@@ -201,7 +201,6 @@ ServiceRadioNetwork::ServiceRadioNetwork(INetwork& aNetwork, IInjectorDevice& aD
     :ServiceRadio(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
     ,iService(new CpProxyAvOpenhomeOrgRadio1(aCpDevice))
-    ,iSubscribedSource(NULL)
 {
     iCpDevice.AddRef();
 
@@ -223,7 +222,6 @@ ServiceRadioNetwork::ServiceRadioNetwork(INetwork& aNetwork, IInjectorDevice& aD
 
 ServiceRadioNetwork::~ServiceRadioNetwork()
 {
-    delete iSubscribedSource;
 }
 
 void ServiceRadioNetwork::Dispose()
@@ -237,39 +235,25 @@ void ServiceRadioNetwork::Dispose()
     iCpDevice.RemoveRef();
 }
 
-void ServiceRadioNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
+TBool ServiceRadioNetwork::OnSubscribe()
 {
-    ASSERT(iSubscribedSource == NULL);
-    iSubscribedSource = &aServiceCreateData;
-
     TUint id = IdCache::Hash(kCacheIdPrefixRadio, Device().Udn());
     iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioNetwork::ReadList));
 
     auto snapshot = new RadioSnapshot(iNetwork, *iCacheSession, new vector<TUint>(), *this);
     iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, snapshot);
     iService->Subscribe();
-
-/*
-    ASSERT(iSubscribedSource == NULL);
-
-    iSubscribedSource = new TaskCompletionSource<TBool>();
-
-    iCacheSession = iNetwork.IdCache.CreateSession(string.Format(ServiceRadio.kCacheIdFormat, Device.Udn), ReadList);
-
-    iMediaSupervisor = new MediaSupervisor<IMediaPreset>(iNetwork, new RadioSnapshot(iNetwork, iCacheSession, new List<TUint>(), this));
-
-    iService.Subscribe();
-
-    return iSubscribedSource.Task.ContinueWith((t) => { });
-*/
+    return(false); // false = not mock
 }
 
 void ServiceRadioNetwork::OnCancelSubscribe()
 {
+/*
     if (iSubscribedSource != NULL)
     {
         iSubscribedSource->iCancelled = true;
     }
+*/
 }
 
 void ServiceRadioNetwork::HandleInitialEvent()
@@ -282,10 +266,10 @@ void ServiceRadioNetwork::HandleInitialEvent()
     iService->PropertyProtocolInfo(protocolInfo);
     iProtocolInfo.Replace(protocolInfo);
 
-    if (!iSubscribedSource->iCancelled)
-    {
-        iSubscribedSource->iCallback2(iSubscribedSource);
-    }
+    //if (!iSubscribedSource->iCancelled)
+    //{
+        SubscribeCompleted();
+    //}
 }
 
 void ServiceRadioNetwork::OnUnsubscribe()

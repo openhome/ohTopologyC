@@ -21,7 +21,6 @@ class IInjectorDevice;
 class IDevice;
 
 
-
 class IProxy : public IDisposable
 {
 public:
@@ -30,60 +29,12 @@ public:
 
 ////////////////////////////////////////////////
 
-/*
-template <class T>
-class Proxy : public IProxy
-{
-public:
-    // IProxy
-    virtual IDevice& Device();
-    // IDisposable
-    virtual void Dispose();
-
-protected:
-    Proxy(T aService, IDevice& aDevice);
-
-protected:
-    T& iService;
-private:
-    IDevice& iDevice;
-};
-
-////////////////////////////////////////////////
-
-template <class T>
-Proxy<T>::Proxy(T aService, IDevice& aDevice)
-    :iService(aService)
-    ,iDevice(aDevice)
-{
-}
-
-
-template <class T>
-IDevice& Proxy<T>::Device()
-{
-    return (iDevice);
-}
-
-
-template <class T>
-void Proxy<T>::Dispose()
-{
-    iService.Unsubscribe();
-}
-
-
-*/
-
-////////////////////////////////////////////////
-
 struct ServiceCreateData
 {
-    FunctorGeneric<ServiceCreateData*> iCallback1;
-    FunctorGeneric<ServiceCreateData*> iCallback2;
+    FunctorGeneric<ServiceCreateData*> iCallback;
     IDevice* iDevice;
     IProxy* iProxy;
-    TBool iCancelled;
+    //TBool iCancelled;
 };
 
 ////////////////////////////////////////////////
@@ -125,18 +76,18 @@ public:
 protected:
     Service(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
 
-    virtual void OnSubscribe(ServiceCreateData& aServiceCreateData);
+    virtual TBool OnSubscribe();
     Job* Start(FunctorGeneric<void*> aAction);
     //JobDone* Start();
     //Task<T> Start<T>(Func<T> aFunction);
     virtual void OnCancelSubscribe();
     virtual void OnUnsubscribe();
+    void SubscribeCompleted();
 
 private:
     //void HandleAggregate(AggregateException aException);
     void DisposeCallback(void*);
-    void CreateCallback1(ServiceCreateData* aArgs);
-    void CreateCallback2(void* aArgs);
+    void SubscribeCompletedCallback(void* aArgs);
     void StartCallback1(void* aArgs);
     void StartCallback2(void* aArgs);
 
@@ -146,8 +97,6 @@ protected:
     INetwork& iNetwork;
     ILog& iLog;
     DisposeHandler* iDisposeHandler;
-    Semaphore iSemaSubscribe;
-    Semaphore* iSubscribeTask;
 
 private:
     IInjectorDevice& iDevice;
@@ -155,6 +104,10 @@ private:
     std::vector<Job*> iJobs;
     TUint iRefCount;
     mutable Mutex iMutexJobs;
+    std::vector<ServiceCreateData*> iSubscriptionsData;
+    mutable Mutex iMutexSubscribe;
+    TBool iMockSubscribe;
+    TBool iSubscribed;
 };
 
 

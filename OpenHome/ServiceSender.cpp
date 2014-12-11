@@ -88,12 +88,10 @@ const Brx& ServiceSender::PresentationUrl()
 ServiceSenderNetwork::ServiceSenderNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
     :ServiceSender(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
-    ,iSubscribedSource(NULL)
 {
     iCpDevice.AddRef();
 
     iService = new CpProxyAvOpenhomeOrgSender1(aCpDevice);
-
 
     Functor f1 = MakeFunctor(*this, &ServiceSenderNetwork::HandleAudioChanged);
     iService->SetPropertyAudioChanged(f1);
@@ -117,14 +115,12 @@ void ServiceSenderNetwork::Dispose()
     iService = NULL;
 
     iCpDevice.RemoveRef();
-    delete iSubscribedSource;
 }
 
-void ServiceSenderNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
+TBool ServiceSenderNetwork::OnSubscribe()
 {
-    ASSERT(iSubscribedSource == NULL);
-    iSubscribedSource = &aServiceCreateData;
     iService->Subscribe();
+    return(false); // false = not mock
 
 
     //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::OnSubscribeCallback);
@@ -136,11 +132,13 @@ void ServiceSenderNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
 
 void ServiceSenderNetwork::OnCancelSubscribe()
 {
+/*
     if (iSubscribedSource != NULL)
     {
         //iSubscribedSource->TrySetCancelled();
         iSubscribedSource->iCancelled = true;
     }
+*/
 }
 
 void ServiceSenderNetwork::HandleInitialEvent()
@@ -153,10 +151,10 @@ void ServiceSenderNetwork::HandleInitialEvent()
     iService->PropertyPresentationUrl(presentationUrl);
     iPresentationUrl.Replace(presentationUrl);
 
-    if (!iSubscribedSource->iCancelled)
-    {
-        iSubscribedSource->iCallback2(iSubscribedSource);
-    }
+    //if (!iSubscribedSource->iCancelled)
+    //{
+        SubscribeCompleted();
+    //}
 }
 
 void ServiceSenderNetwork::OnUnsubscribe()
@@ -166,7 +164,6 @@ void ServiceSenderNetwork::OnUnsubscribe()
         iService->Unsubscribe();
     }
 
-    iSubscribedSource = NULL;
 }
 
 void ServiceSenderNetwork::HandleAudioChanged()

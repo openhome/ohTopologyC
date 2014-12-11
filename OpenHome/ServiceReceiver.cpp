@@ -70,7 +70,6 @@ const Brx& ServiceReceiver::ProtocolInfo()
 ServiceReceiverNetwork::ServiceReceiverNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
     :ServiceReceiver(aNetwork, aDevice, aLog)
     ,iCpDevice(aCpDevice)
-    ,iSubscribedSource(NULL)
 {
     iCpDevice.AddRef();
 
@@ -89,7 +88,6 @@ ServiceReceiverNetwork::ServiceReceiverNetwork(INetwork& aNetwork, IInjectorDevi
 ServiceReceiverNetwork::~ServiceReceiverNetwork()
 {
     delete iService;
-    delete iSubscribedSource;
 }
 
 
@@ -100,21 +98,22 @@ void ServiceReceiverNetwork::Dispose()
 }
 
 
-void ServiceReceiverNetwork::OnSubscribe(ServiceCreateData& aServiceCreateData)
+TBool ServiceReceiverNetwork::OnSubscribe()
 {
-    ASSERT(iSubscribedSource == NULL);
-    iSubscribedSource = &aServiceCreateData;
     iService->Subscribe();
+    return(false); // false = not mock
 }
 
 
 void ServiceReceiverNetwork::OnCancelSubscribe()
 {
+/*
     if (iSubscribedSource != NULL)
     {
         //iSubscribedSource->TrySetCancelled();
         iSubscribedSource->iCancelled = true;
     }
+*/
 }
 
 
@@ -124,10 +123,10 @@ void ServiceReceiverNetwork::HandleInitialEvent()
     iService->PropertyProtocolInfo(protocolInfo);
     iProtocolInfo.Replace(protocolInfo);
 
-    if (!iSubscribedSource->iCancelled)
-    {
-        iSubscribedSource->iCallback2(iSubscribedSource);
-    }
+    //if (!iSubscribedSource->iCancelled)
+    //{
+        SubscribeCompleted();
+    //}
 }
 
 void ServiceReceiverNetwork::OnUnsubscribe()
@@ -137,7 +136,6 @@ void ServiceReceiverNetwork::OnUnsubscribe()
         iService->Unsubscribe();
     }
 
-    iSubscribedSource = NULL;
 }
 
 void ServiceReceiverNetwork::Play()
