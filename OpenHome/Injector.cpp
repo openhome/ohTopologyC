@@ -207,7 +207,8 @@ void InjectorMock::ExecuteCallback(void* aObj)
         if (iMockDevices.count(udn) > 0)
         {
             InjectorDeviceMock* device = iMockDevices[udn];
-            iNetwork.Add(device->On());
+            auto deviceOn = device->On();
+			iNetwork.Add(deviceOn);
             return;
         }
     }

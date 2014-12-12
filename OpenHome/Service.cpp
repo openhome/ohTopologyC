@@ -110,7 +110,6 @@ void Service::Create(FunctorGeneric<ServiceCreateData*> aCallback, IDevice* aDev
 
     auto serviceCreateData = new ServiceCreateData();
     serviceCreateData->iDevice = aDevice;
-    //serviceCreateData->iCancelled = false;
 
     if (iRefCount == 0)
     {
@@ -185,7 +184,7 @@ void Service::SubscribeCompleted()
 }
 
 
-void Service::SubscribeCompletedCallback(void*/* aArgs*/)
+void Service::SubscribeCompletedCallback(void* /*aArgs*/)
 {
     ASSERT(!iMockSubscribe);
     iMutexSubscribe.Wait();
@@ -240,6 +239,7 @@ void Service::Unsubscribe()
     iRefCount--;
     if (iRefCount == 0)
     {
+		iMockSubscribe = false;
         OnUnsubscribe();
 
 /*

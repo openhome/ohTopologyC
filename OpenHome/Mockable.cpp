@@ -72,7 +72,7 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
     for (;;)
     {
         count++;
-        //OpenHome::Log::Print("Count = %d\n", count);
+        OpenHome::Log::Print("Count = %d\n", count);
 
         LOG(kTrace, "\n\n");
         iLine.Replace(lastline);
@@ -202,9 +202,13 @@ TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMoc
                 catch (Exception e)
                 {
                     //Console.WriteLine(e);
+					 LOG(kTrace, " exception \n");
                 }
 
-                ASSERT(iResultQueue.SlotsUsed() == 0);
+                if (iResultQueue.SlotsUsed() != 0)
+				{
+					ASSERTS();
+				}
             }
             else if (Ascii::CaseInsensitiveEquals(command, Brn("break")))
             {
