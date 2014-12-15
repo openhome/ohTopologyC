@@ -2,6 +2,7 @@
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/ServiceRadio.h>
 #include <OpenHome/Network.h>
+#include <OpenHome/AsyncAdaptor.h>
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/Private/Debug.h>
 #include <Generated/CpAvOpenhomeOrgRadio1.h>
@@ -480,10 +481,10 @@ void ServiceRadioNetwork::ReadList(ReadListData* aReadListData)
         Ascii::AppendDec(idList, (*requiredIds)[i]);
     }
 
-    Job3& job = iNetwork.GetJobManager().GetJob(); // read from existing pool - don't allocate new jobs
+    AsyncAdaptor& asyncAdaptor = iNetwork.GetAsyncAdaptorManager().GetAdaptor();
     auto f = MakeFunctorGeneric<AsyncCbArg*>(*this, &ServiceRadioNetwork::ReadListCallback);
-    job.SetCallback(f, aReadListData);
-    FunctorAsync fa = job.AsyncCb();
+    asyncAdaptor.SetCallback(f, aReadListData);
+    FunctorAsync fa = asyncAdaptor.AsyncCb();
 
     iService->BeginReadList(idList, fa);
 

@@ -155,8 +155,7 @@ def build(bld):
     # Library
     bld.stlib(
             source=[
-                'OpenHome/WatchableThread.cpp',
-                'OpenHome/Watchable.cpp',
+                'OpenHome/AsyncAdaptor.cpp',
                 'OpenHome/Command.cpp',
                 'OpenHome/DisposeHandler.cpp',
                 'OpenHome/Device.cpp',
@@ -182,6 +181,8 @@ def build(bld):
                 'OpenHome/Topology3.cpp',
                 'OpenHome/Topology4.cpp',
                 'OpenHome/Topology5.cpp',
+                'OpenHome/WatchableThread.cpp',
+                'OpenHome/Watchable.cpp',
                 'Generated/CpAvOpenhomeOrgInfo1.cpp',
                 'Generated/CpAvOpenhomeOrgPlaylist1.cpp',
                 'Generated/CpAvOpenhomeOrgProduct1.cpp',

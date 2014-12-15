@@ -23,7 +23,7 @@ Network::Network(TUint /*aMaxCacheEntries*/, ILog&/* aLog*/)
     //,iCache(new IdCache(aMaxCacheEntries))
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread))
-    ,iJobManager(new JobManager())
+    ,iAsyncAdaptorManager(new AsyncAdaptorManager())
 {
     iWatchableThread = new WatchableThread(*this);
 }
@@ -38,7 +38,7 @@ Network::Network(IWatchableThread& aWatchableThread, TUint /*aMaxCacheEntries*/,
     //,iCache(new IdCache(aMaxCacheEntries))
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread);)
-    ,iJobManager(new JobManager())
+    ,iAsyncAdaptorManager(new AsyncAdaptorManager())
 {
 }
 
@@ -47,7 +47,7 @@ Network::~Network()
 {
     delete iWatchableThread;
     delete iTagManager;
-    delete iJobManager;
+    delete iAsyncAdaptorManager;
 
     for(auto it=iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
     {
@@ -70,9 +70,9 @@ ITagManager& Network::GetTagManager()
 }
 
 
-JobManager& Network::GetJobManager()
+AsyncAdaptorManager& Network::GetAsyncAdaptorManager()
 {
-    return(*iJobManager);
+    return(*iAsyncAdaptorManager);
 }
 
 

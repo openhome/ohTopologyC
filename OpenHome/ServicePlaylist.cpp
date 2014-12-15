@@ -2,6 +2,7 @@
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/ServicePlaylist.h>
 #include <OpenHome/Network.h>
+#include <OpenHome/AsyncAdaptor.h>
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/Private/Debug.h>
 #include <OpenHome/Net/Private/XmlParser.h>
@@ -735,10 +736,11 @@ void ServicePlaylistNetwork::ReadList(ReadListData* aReadListData)
         idList.Append(Brn("}"));
     }
 
-    Job3& job = iNetwork.GetJobManager().GetJob(); // read from existing pool - don't allocate new jobs
+    AsyncAdaptor& asyncAdaptor = iNetwork.GetAsyncAdaptorManager().GetAdaptor();
+
     auto f = MakeFunctorGeneric<AsyncCbArg*>(*this, &ServicePlaylistNetwork::ReadListCallback);
-    job.SetCallback(f, aReadListData);
-    FunctorAsync fa = job.AsyncCb();
+    asyncAdaptor.SetCallback(f, aReadListData);
+    FunctorAsync fa = asyncAdaptor.AsyncCb();
 
     iService->BeginReadList(idList, fa);
 
