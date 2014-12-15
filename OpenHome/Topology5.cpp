@@ -918,7 +918,7 @@ void Topology5Room::UnorderedRemove(ITopology3Group* aItem)
 
 void Topology5Room::CreateTree()
 {
-    OpenHome::Log::Print("\n\nTopology5Room::CreateTree() \n");
+    //OpenHome::Log::Print("\n\nTopology5Room::CreateTree() \n");
 
     vector<ITopology5Registration*>* registrations = new vector<ITopology5Registration*>();
     vector<Topology5Group*> oldGroups(iGroups);
@@ -929,13 +929,13 @@ void Topology5Room::CreateTree()
     for(auto it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
     {
         Topology5Group* group = new Topology5Group(iNetwork, it->second->Room(), it->second->Name(), *it->first, it->second->Sources(), iLog);
-
+/*
         OpenHome::Log::Print("Topology5Group: Name=");
         OpenHome::Log::Print(group->Name());
         OpenHome::Log::Print(" ProductId=");
         OpenHome::Log::Print(group->ProductId());
         OpenHome::Log::Print(" being inserted into Tree \n");
-
+*/
 
         InsertIntoTree(*group);
 

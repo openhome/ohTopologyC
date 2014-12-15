@@ -15,9 +15,12 @@ using namespace OpenHome::Av;
 using namespace OpenHome::TestFramework;
 
 
-namespace OpenHome {
-
-namespace Av {
+namespace OpenHome
+{
+namespace Av
+{
+namespace TestTopology5
+{
 
 
 class SuiteTopology5: public SuiteUnitTest, public INonCopyable
@@ -381,11 +384,12 @@ private:
     //Bws<6000> iBuf;
 };
 
-
+} // TestTopology5
 } // Av
-
 } // OpenHome
 
+
+using namespace OpenHome::Av::TestTopology5;
 
 //////////////////////////////////////////////////////////////////////////
 

@@ -15,10 +15,12 @@ using namespace OpenHome::TestFramework;
 EXCEPTION(TestException);
 
 
-namespace OpenHome {
-
-namespace Av {
-
+namespace OpenHome
+{
+namespace Av
+{
+namespace TestTopology1
+{
 
 class TestExceptionReporter;
 
@@ -75,14 +77,14 @@ private:
     MockableScriptRunner& iRunner;
 };
 
-
+} // TestTopology1
 } // namespace Av
-
 } // namespace OpenHome
 
 
 /////////////////////////////////////////////////////////////////////
 
+using namespace OpenHome::Av::TestTopology1;
 
 SuiteTopology1::SuiteTopology1(IReader& aReader)
     :SuiteUnitTest("SuiteTopology1")

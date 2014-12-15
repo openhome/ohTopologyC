@@ -12,10 +12,12 @@ using namespace OpenHome::Av;
 using namespace OpenHome::TestFramework;
 
 
-namespace OpenHome {
-
-namespace Av {
-
+namespace OpenHome
+{
+namespace Av
+{
+namespace TestTopology3
+{
 
 
 /////////////////////////////////////////////////////////////////////
@@ -114,12 +116,14 @@ private:
 };
 
 
-} // namespace Av
-
-} // namespace OpenHome
+} // TestTopology3
+} // Av
+} // OpenHome
 
 
 /////////////////////////////////////////////////////////////////////
+
+using namespace OpenHome::Av::TestTopology3;
 
 
 SuiteTopology3::SuiteTopology3(IReader& aReader)

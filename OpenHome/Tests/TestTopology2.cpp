@@ -16,9 +16,12 @@ using namespace OpenHome::TestFramework;
 EXCEPTION(TestException);
 
 
-namespace OpenHome {
-
-namespace Av {
+namespace OpenHome
+{
+namespace Av
+{
+namespace TestTopology2
+{
 
 
 class TestExceptionReporter;
@@ -200,16 +203,15 @@ private:
     ResultWatcherFactory* iFactory;
 };
 
-
+} // namespace TestTopology2
 } // namespace Av
-
 } // namespace OpenHome
 
 
 /////////////////////////////////////////////////////////////////////
 
 
-//class HttpReader;
+using namespace OpenHome::Av::TestTopology2;
 
 
 SuiteTopology2::SuiteTopology2(IReader& aReader)
