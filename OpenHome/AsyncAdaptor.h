@@ -2,9 +2,6 @@
 #define HEADER_OHTOPC_ASYNC_ADAPTOR
 
 #include <OpenHome/OhNetTypes.h>
-#include <OpenHome/OhTopologyC.h>
-#include <OpenHome/Buffer.h>
-#include <OpenHome/Private/Thread.h>
 #include <OpenHome/Private/Fifo.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
 #include <vector>
