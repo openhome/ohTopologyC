@@ -42,7 +42,7 @@ void AsyncAdaptor::AsyncComplete(Net::IAsync& aAsync)
     iCombinedArgs->iAsync = &aAsync;
     iCallback(iCombinedArgs);
     Reset();
-    iMan.ReleaseJob(*this); // add "this" back into fifo of available jobs
+    iMan.Release(*this); // add "this" back into fifo of available jobs
 }
 
 
@@ -80,7 +80,7 @@ AsyncAdaptor& AsyncAdaptorManager::GetAdaptor()
 }
 
 
-void AsyncAdaptorManager::ReleaseJob(AsyncAdaptor& aAsyncAdaptor)
+void AsyncAdaptorManager::Release(AsyncAdaptor& aAsyncAdaptor)
 {
     return(iAsyncAdaptors.Write(&aAsyncAdaptor));
 }

@@ -34,7 +34,7 @@ public:
     AsyncAdaptorManager();
     ~AsyncAdaptorManager();
     AsyncAdaptor& GetAdaptor();
-    void ReleaseJob(AsyncAdaptor& aAdaptor);
+    void Release(AsyncAdaptor& aAdaptor);
 
 private:
     Fifo<AsyncAdaptor*> iAsyncAdaptors;
