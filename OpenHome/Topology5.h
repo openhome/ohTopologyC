@@ -220,7 +220,7 @@ private:
     Brn iRoom;
     Brn iName;
     ITopology3Group* iGroup;
-    std::unique_ptr<ITopology5Source> iCurrentSource;
+    ITopology5Source* iCurrentSource;
     //ILog& iLog;
     TBool iDisposed;
 
@@ -234,10 +234,10 @@ private:
     std::vector<Topology5Source*> iSources;
     std::vector<ITopology5Source*> iVisibleSources;
     std::vector<ITopology5Group*>* iVectorSenders; // added in ohTopologyC
-    std::unique_ptr<std::vector<ITopology5Group*>> iCurrentVolumes;
+    std::vector<ITopology5Group*>* iCurrentVolumes;
 
-    Watchable<std::vector<ITopology5Group*>*>* iSenders;
     Watchable<ITopology5Source*>* iWatchableSource;
+    Watchable<std::vector<ITopology5Group*>*>* iSenders;
 };
 
 /////////////////////////////////////////////////////////////////////

@@ -300,18 +300,18 @@ Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& 
     ,iRoom(aRoom)
     ,iName(aName)
     ,iGroup(&aGroup)
-    ,iCurrentSource(unique_ptr<ITopology5Source>(new Topology5SourceNull()))
+    ,iCurrentSource(new Topology5SourceNull())
     //,iLog(aLog)
     ,iDisposed(false)
     ,iParent(NULL)
     ,iSender(NULL)
     ,iHasSender(false)
     ,iVectorSenders(new vector<ITopology5Group*>())
+    ,iCurrentVolumes(NULL)
+    ,iWatchableSource(new Watchable<ITopology5Source*>(iNetwork, Brn("source"), iCurrentSource))
+    ,iSenders(new Watchable<vector<ITopology5Group*>*>(iNetwork, Brn("senders"), iVectorSenders))
 
 {
-    iWatchableSource = new Watchable<ITopology5Source*>(iNetwork, Brn("source"), iCurrentSource.get());
-
-    iSenders = new Watchable<vector<ITopology5Group*>*>(iNetwork, Brn("senders"), iVectorSenders);
 
     for(TUint i=0; i<aSources.size(); i++)
     {
@@ -341,7 +341,7 @@ Topology5Group::~Topology5Group()
     }
 
     delete iVectorSenders;
-
+    delete iCurrentVolumes;
 }
 
 
@@ -443,8 +443,9 @@ void Topology5Group::EvaluateSources()
     TBool hasTime = (Ascii::Contains(iGroup->Attributes() ,Brn("Time")) && hasInfo);
 
     // get list of all volume groups
-    iCurrentVolumes = unique_ptr<vector<ITopology5Group*>>(new vector<ITopology5Group*>());
 
+
+    auto volumes = new vector<ITopology5Group*>();
 
     Topology5Group* group = this;
 
@@ -452,7 +453,7 @@ void Topology5Group::EvaluateSources()
     {
         if(Ascii::Contains(group->Group().Attributes(), Brn("Volume")))
         {
-            iCurrentVolumes->insert(iCurrentVolumes->begin(), group);
+            volumes->insert(volumes->begin(), group);
         }
 
         group = group->Parent();
@@ -460,15 +461,21 @@ void Topology5Group::EvaluateSources()
 
     for(TUint i=0; i<iSources.size(); i++)
     {
-        iSources[i]->SetVolumes(iCurrentVolumes.get());
-        iSources[i]->SetDevice(iGroup->Device());
-        iSources[i]->SetHasInfo(hasInfo);
-        iSources[i]->SetHasTime(hasTime);
+        auto source = iSources[i];
+        source->SetVolumes(volumes);
+        source->SetDevice(iGroup->Device());
+        source->SetHasInfo(hasInfo);
+        source->SetHasTime(hasTime);
     }
+
+    auto oldVolumes = iCurrentVolumes;
+    iCurrentVolumes = volumes;
+    delete oldVolumes;
 
     for(TUint i=0; i<iChildren.size(); i++)
     {
-        iChildren[i]->EvaluateSources();
+        auto group = iChildren[i];
+        group->EvaluateSources();
     }
 
     for (TUint i= 0; i<iSources.size(); ++i)
@@ -479,7 +486,7 @@ void Topology5Group::EvaluateSources()
 
         for(TUint i=0; i<iChildren.size(); i++)
         {
-            Topology5Group* g = iChildren[i];
+            auto g = iChildren[i];
 
             // if group is connected to source expand source to group sources
             if (s->Name() == g->Name())
@@ -501,7 +508,10 @@ void Topology5Group::EvaluateSources()
 
 
     ITopology5Source* source = EvaluateSource();
-    iWatchableSource->Update(source);
+    auto oldSource = iCurrentSource;
+    iCurrentSource = source;
+    iWatchableSource->Update(iCurrentSource);
+    delete oldSource;
 }
 
 
@@ -515,18 +525,17 @@ void Topology5Group::EvaluateSenders()
 {
     for(TUint i=0; i<iChildren.size(); i++)
     {
-        Topology5Group* g = iChildren[i];
-        g->EvaluateSenders();
+        auto group = iChildren[i];
+        group->EvaluateSenders();
     }
 
     vector<ITopology5Group*>* vectorSenders = new vector<ITopology5Group*>();
 
     for(TUint i=0; i<iChildren.size(); i++)
     {
-        Topology5Group* g = iChildren[i];
-
-        vector<ITopology5Group*> v(*(g->Senders().Value()));
-        vectorSenders->insert(vectorSenders->end(), v.begin(), v.end());
+        auto* group = iChildren[i];
+        auto v = group->Senders().Value();
+        vectorSenders->insert(vectorSenders->end(), v->begin(), v->end());
     }
 
     if (iHasSender)
@@ -977,8 +986,9 @@ void Topology5Room::CreateTree()
 
     for(TUint i=0; i<oldGroups.size(); i++)
     {
-        oldGroups[i]->Dispose();
-        delete oldGroups[i];
+        auto group = oldGroups[i];
+        group->Dispose();
+        delete group;
     }
 }
 
