@@ -1,8 +1,10 @@
 #include <OpenHome/Service.h>
 #include <OpenHome/Network.h>
+#include <OpenHome/Private/Thread.h>
 
 using namespace OpenHome;
 using namespace OpenHome::Av;
+using namespace OpenHome::Net;
 using namespace std;
 
 
@@ -14,10 +16,10 @@ Service::Service(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     //,iSubscribeTask(NULL)
     ,iDevice(aDevice)
     ,iRefCount(0)
-    //,iMutexJobs("SVJ")
     ,iMutexSubscribe("SVS")
     ,iMockSubscribe(false)
     ,iSubscribed(false)
+    ,iMutexSemas("SSMX")
 {
 }
 
@@ -252,16 +254,30 @@ void Service::Unsubscribe()
     }
 }
 
-/*
-Job* Service::Start(FunctorGeneric<void*> aAction)
+void Service::StartCallback(void* aArg)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::StartCallback1);
-    Job* job = Job::StartNew(f, &aAction);
+    auto data = (StartData*)aArg;
+    data->iCallback(data->iArg);
+    data->iSema->Signal();
+    delete data;
+}
 
-    AutoMutex mutex(iMutexJobs);
-    iJobs.push_back(job);
-    return(job);
-*/
+
+void Service::Start(FunctorGeneric<void*> aCallback, void* aArg)
+{
+    Semaphore* sema = new Semaphore("SVCS", 0);
+    iMutexSemas.Wait();
+    iSemas.push_back(sema);
+    iMutexSemas.Signal();
+
+    auto startData = new StartData();
+    startData->iCallback = aCallback;
+    startData->iArg = aArg;
+    startData->iSema = sema;
+
+    auto f = MakeFunctorGeneric(*this, &Service::StartCallback);
+    Schedule(f, startData);
+
 /*
     var task = Task.Factory.StartNew(() =>
     {
@@ -279,7 +295,9 @@ Job* Service::Start(FunctorGeneric<void*> aAction)
 
     return (task);
 */
-//}
+}
+
+
 
 /*
 Task<T> Service::Start<T>(Func<T> aFunction)
@@ -309,21 +327,19 @@ Task<T> Service::Start<T>(Func<T> aFunction)
 
 TBool Service::Wait()
 {
-    return(true);
+    iMutexSemas.Wait();
+    vector<Semaphore*> semas(iSemas);
+    iSemas.clear();
+    iMutexSemas.Signal();
 
-/*
-    iMutexJobs.Wait();
-    vector<Job*> jobs(iJobs);
-    iJobs.clear();
-    iMutexJobs.Signal();
-
-    for(TUint i=0; i<jobs.size(); i++)
+    for(TUint i=0; i<semas.size(); i++)
     {
-        jobs[i]->Wait();
+        semas[i]->Wait();
     }
 
-    return(jobs.size()==0);
-*/
+    return(true);
+
+
 /*
     Task[] tasks;
 

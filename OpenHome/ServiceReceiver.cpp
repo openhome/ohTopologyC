@@ -283,20 +283,18 @@ ServiceReceiverMock::ServiceReceiverMock(INetwork& aNetwork, IInjectorDevice& aD
 
 void ServiceReceiverMock::Play()
 {
-    //return(0);
-
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverMock::PlayCallback);
+    Start(f, NULL);
 /*
     return Start(() =>
     {
         iTransportState.Update(Brn("Playing"));
     });
 */
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverMock::PlayCallback);
-    Schedule(f, NULL);
 }
 
 
-void ServiceReceiverMock::PlayCallback(void*)
+void ServiceReceiverMock::PlayCallback(void* aArg)
 {
     iTransportState->Update(Brn("Playing"));
 }
@@ -304,6 +302,8 @@ void ServiceReceiverMock::PlayCallback(void*)
 
 void ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
 {
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverMock::PlayMetaCallback);
+    Start(f, &aMetadata);
 /*
     return Start(() =>
     {
@@ -311,9 +311,6 @@ void ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
         iTransportState.Update(Brn("Playing"));
     });
 */
-
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverMock::PlayMetaCallback);
-    Schedule(f, &aMetadata);
 }
 
 

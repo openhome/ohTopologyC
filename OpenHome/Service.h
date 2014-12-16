@@ -5,7 +5,7 @@
 #include <OpenHome/WatchableThread.h>
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/DisposeHandler.h>
-//#include <OpenHome/Job.h>
+#include <OpenHome/Private/Thread.h>
 #include <vector>
 
 EXCEPTION(ServiceNotFoundException)
@@ -66,7 +66,6 @@ public:
     virtual void Schedule(FunctorGeneric<void*> aCallback, void* aObj);
     virtual void Execute(FunctorGeneric<void*> aCallback, void* aObj);
 
-
     // IMockable
     virtual void Execute(ICommandTokens& aCommand);
 
@@ -77,6 +76,7 @@ protected:
     Service(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
 
     virtual TBool OnSubscribe();
+    void Start(FunctorGeneric<void*> aCallback, void* aArg);
     //Job* Start(FunctorGeneric<void*> aAction);
     //JobDone* Start();
     //Task<T> Start<T>(Func<T> aFunction);
@@ -88,9 +88,17 @@ private:
     //void HandleAggregate(AggregateException aException);
     void DisposeCallback(void*);
     void SubscribeCompletedCallback(void* aArgs);
-    //void StartCallback1(void* aArgs);
-    //void StartCallback2(void* aArgs);
+    void StartCallback(void* aArg);
 
+
+
+private:
+    struct StartData
+    {
+        FunctorGeneric<void*> iCallback;
+        void* iArg;
+        Semaphore* iSema;
+    };
 
 
 protected:
@@ -108,6 +116,8 @@ private:
     mutable Mutex iMutexSubscribe;
     TBool iMockSubscribe;
     TBool iSubscribed;
+    mutable Mutex iMutexSemas;
+    std::vector<OpenHome::Semaphore*> iSemas;
 };
 
 
