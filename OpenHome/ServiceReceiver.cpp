@@ -324,12 +324,19 @@ void ServiceReceiverMock::PlayMetaCallback(void* aMetadata)
 
 void ServiceReceiverMock::Stop()
 {
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverMock::StopCallback);
+    Start(f, NULL);
 /*
     return Start(() =>
     {
         iTransportState.Update(Brn("Stopped"));
     });
 */
+}
+
+
+void ServiceReceiverMock::StopCallback(void*)
+{
     iTransportState->Update(Brn("Stopped"));
 }
 

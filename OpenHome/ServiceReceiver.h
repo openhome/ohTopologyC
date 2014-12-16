@@ -118,6 +118,7 @@ public:
 private:
     void PlayCallback(void*);
     void PlayMetaCallback(void* aMetadata);
+    void StopCallback(void*);
 };
 
 //////////////////////////////////////////////////////////////
