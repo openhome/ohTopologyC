@@ -357,7 +357,7 @@ void ServiceVolumeNetwork::VolumeInc()
 void ServiceVolumeNetwork::HandleVolumeUnityChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::VolumeUnityChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     TUint unity = iService.PropertyVolumeUnity();
     iNetwork.Schedule(() =>
@@ -389,7 +389,7 @@ void ServiceVolumeNetwork::VolumeUnityChangedCallback2(void*)
 void ServiceVolumeNetwork::HandleVolumeStepsChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::VolumeStepsChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     TUint steps = iService.PropertyVolumeSteps();
     iNetwork.Schedule(() =>
@@ -422,7 +422,7 @@ void ServiceVolumeNetwork::VolumeStepsChangedCallback2(void*)
 void ServiceVolumeNetwork::HandleVolumeMilliDbPerStepChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::VolumeMilliDbPerStepChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     TUint step = iService.PropertyVolumeMilliDbPerStep();
     iNetwork.Schedule(() =>
@@ -454,7 +454,7 @@ void ServiceVolumeNetwork::VolumeMilliDbPerStepChangedCallback2(void*)
 void ServiceVolumeNetwork::HandleVolumeLimitChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::VolumeLimitChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     TUint limit = iService.PropertyVolumeLimit();
     iNetwork.Schedule(() =>
@@ -485,7 +485,7 @@ void ServiceVolumeNetwork::VolumeLimitChangedCallback2(void*)
 void ServiceVolumeNetwork::HandleVolumeChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::VolumeChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     TUint volume = iService.PropertyVolume();
     iNetwork.Schedule(() =>
@@ -517,7 +517,7 @@ void ServiceVolumeNetwork::VolumeChangedCallback2(void*)
 void ServiceVolumeNetwork::HandleMuteChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::MuteChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     TBool mute = iService.PropertyMute();
     iNetwork.Schedule(() =>
@@ -548,7 +548,7 @@ void ServiceVolumeNetwork::MuteChangedCallback2(void*)
 void ServiceVolumeNetwork::HandleFadeChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::FadeChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     TInt fade = iService.PropertyFade();
     iNetwork.Schedule(() =>
@@ -579,7 +579,7 @@ void ServiceVolumeNetwork::FadeChangedCallback2(void*)
 void ServiceVolumeNetwork::HandleBalanceChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::BalanceChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     TInt balance = iService.PropertyBalance();
     iNetwork.Schedule(() =>

@@ -207,7 +207,7 @@ void ServiceInfoNetwork::HandleDetailsChanged()
     });
 */
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleDetailsChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 }
 
 
@@ -260,7 +260,7 @@ void ServiceInfoNetwork::HandleMetadataChanged()
     });
 */
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleMetadataChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 
 }
 
@@ -299,7 +299,7 @@ void ServiceInfoNetwork::HandleMetatextChanged()
     });
 */
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleMetatextChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 }
 
 void ServiceInfoNetwork::HandleMetatextChangedCallback1(void*)

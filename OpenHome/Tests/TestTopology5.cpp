@@ -436,7 +436,7 @@ void SuiteTopology5::Test1()
     Functor f = MakeFunctor(*network, &Network::Wait);
 
     TBool test = runner->Run(f, iReader, *mocker);
-    OpenHome::Log::Print("test = %d\n", test);
+    //OpenHome::Log::Print("test = %d\n", test);
     TEST(test);
 
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology5::ExecuteCallback);

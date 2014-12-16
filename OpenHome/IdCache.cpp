@@ -21,6 +21,12 @@ IdCache::IdCache(TUint aMaxCacheEntries)
 }
 
 
+IdCache::~IdCache()
+{
+    delete iDisposeHandler;
+}
+
+
 void IdCache::Dispose()
 {
     if (iSessions.size() > 0)
@@ -33,7 +39,7 @@ void IdCache::Dispose()
     iLastAccessed.clear();
     iCacheEntries = 0;
 
-    delete iDisposeHandler;
+    //delete iDisposeHandler;
 }
 
 

@@ -859,7 +859,7 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
 void ServicePlaylistNetwork::HandleIdChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServicePlaylistNetwork::HandleIdChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     IList<TUint> idArray = ByteArray.Unpack(iService.PropertyIdArray());
     TUint id = iService.PropertyId();
@@ -899,7 +899,7 @@ void ServicePlaylistNetwork::HandleIdChangedCallback2(void*)
 void ServicePlaylistNetwork::HandleIdArrayChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServicePlaylistNetwork::HandleIdArrayChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     IList<TUint> idArray = ByteArray.Unpack(iService.PropertyIdArray());
     iNetwork.Schedule(() =>
@@ -939,8 +939,8 @@ void ServicePlaylistNetwork::HandleIdArrayChangedCallback2(void*)
 void ServicePlaylistNetwork::EvaluateInfoNext(TUint aId, vector<TUint>& aIdArray)
 {
     auto it = find(aIdArray.begin(), aIdArray.end(), aId);
-
     TUint index = it - aIdArray.begin();
+
     if ( (it!=aIdArray.end()) && (index < (aIdArray.size()-1)) )
     {
         auto readEntriesData = new ReadEntriesData();
@@ -980,7 +980,7 @@ void ServicePlaylistNetwork::EvaluateInfoNext(TUint aId, vector<TUint>& aIdArray
 void ServicePlaylistNetwork::EvaluateInfoNextCallback1(ReadEntriesData* aReadEntriesData)
 {
     auto f = MakeFunctorGeneric(*this, &ServicePlaylistNetwork::EvaluateInfoNextCallback2);
-    iNetwork.Schedule(f, aReadEntriesData);
+    Schedule(f, aReadEntriesData);
 }
 
 void ServicePlaylistNetwork::EvaluateInfoNextCallback2(void* aReadEntriesData)
@@ -1003,7 +1003,7 @@ void ServicePlaylistNetwork::EvaluateInfoNextCallback3(void* aReadEntriesData)
 void ServicePlaylistNetwork::HandleTransportStateChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServicePlaylistNetwork::HandleTransportStateChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     string transportState = iService.PropertyTransportState();
     iNetwork.Schedule(() =>
@@ -1035,7 +1035,7 @@ void ServicePlaylistNetwork::HandleTransportStateChangedCallback2(void*)
 void ServicePlaylistNetwork::HandleRepeatChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServicePlaylistNetwork::HandleRepeatChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     TBool repeat = iService.PropertyRepeat();
     iNetwork.Schedule(() =>
@@ -1066,7 +1066,7 @@ void ServicePlaylistNetwork::HandleRepeatChangedCallback2(void*)
 void ServicePlaylistNetwork::HandleShuffleChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServicePlaylistNetwork::HandleShuffleChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     TBool shuffle = iService.PropertyShuffle();
     iNetwork.Schedule(() =>

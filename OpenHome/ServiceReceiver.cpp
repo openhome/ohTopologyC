@@ -142,32 +142,12 @@ void ServiceReceiverNetwork::Play()
 {
     FunctorAsync f;;
     iService->BeginPlay(f);
-
-/*
-    iService->BeginPlay((ptr) =>
-    {
-        try
-        {
-            iService->EndPlay(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-*/
-
-    //jobDone->GetJob().ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
 }
-
-
-
 
 
 void ServiceReceiverNetwork::Play(ISenderMetadata& aMetadata)
 {
-    FunctorAsync f = MakeFunctorAsync(*this, &ServiceReceiverNetwork::BeginSetSenderCallback);
+    FunctorAsync f = MakeFunctorAsync(*this, &ServiceReceiverNetwork::BeginSetSenderCallback1);
     iService->BeginSetSender(aMetadata.Uri(), aMetadata.ToString(), f);
 
 /*
@@ -200,38 +180,30 @@ void ServiceReceiverNetwork::Play(ISenderMetadata& aMetadata)
 }
 
 
-void ServiceReceiverNetwork::BeginSetSenderCallback(IAsync& /*aAsync*/)
+void ServiceReceiverNetwork::BeginSetSenderCallback1(IAsync& /*aAsync*/)
+{
+    // We cannot call iService.Begin...(anything) directly within an AsyncCallback (potential deadlock)
+    // Execute it on the watchable thread and return immediately.
+    auto f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::BeginSetSenderCallback2);
+    Schedule(f, NULL);
+
+    //FunctorAsync f;
+    //iService->BeginPlay(f);
+}
+
+
+void ServiceReceiverNetwork::BeginSetSenderCallback2(void*)
 {
     FunctorAsync f;
     iService->BeginPlay(f);
 }
 
 
-
 void ServiceReceiverNetwork::Stop()
 {
     FunctorAsync f;
     iService->BeginStop(f);
-
-/*
-    iService->BeginStop((ptr) =>
-    {
-        try
-        {
-            iService->EndStop(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-*/
-    //jobDone->GetJob().ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    //return (jobDone->GetJob());
 }
-
-
 
 
 void ServiceReceiverNetwork::HandleMetadataChanged()
@@ -246,18 +218,8 @@ void ServiceReceiverNetwork::HandleMetadataChanged()
 
     IInfoMetadata* infoMetadata = new InfoMetadata(mediaMetadata, Brn(uri)); // FIXME: is it ok to new this here rather than in the functor below ???
 
-
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::MetadataChangedCallback1);
-    iNetwork.Schedule(f, infoMetadata);
-/*
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iMetadata->Update(new InfoMetadata(metadata, uri));
-        });
-    });
-*/
+    Schedule(f, infoMetadata);
 }
 
 
@@ -281,7 +243,7 @@ void ServiceReceiverNetwork::MetadataChangedCallback2(void* aInfoMetadata)
 void ServiceReceiverNetwork::HandleTransportStateChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::TransportChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 }
 
 
@@ -290,6 +252,7 @@ void ServiceReceiverNetwork::TransportChangedCallback1(void*)
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::TransportChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, NULL);
 }
+
 
 void ServiceReceiverNetwork::TransportChangedCallback2(void*)
 {
@@ -328,13 +291,19 @@ void ServiceReceiverMock::Play()
         iTransportState.Update(Brn("Playing"));
     });
 */
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverMock::PlayCallback);
+    Schedule(f, NULL);
+}
+
+
+void ServiceReceiverMock::PlayCallback(void*)
+{
     iTransportState->Update(Brn("Playing"));
 }
 
 
 void ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
 {
-    //return(0); // FIXME
 /*
     return Start(() =>
     {
@@ -343,10 +312,18 @@ void ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
     });
 */
 
-    iMetadata->Update(new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(aMetadata.ToString()), aMetadata.Uri()));
-    iTransportState->Update(Brn("Playing"));
-
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverMock::PlayMetaCallback);
+    Schedule(f, &aMetadata);
 }
+
+
+void ServiceReceiverMock::PlayMetaCallback(void* aMetadata)
+{
+    auto metadata = (ISenderMetadata*)aMetadata;
+    iMetadata->Update(new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(metadata->ToString()), metadata->Uri()));
+    iTransportState->Update(Brn("Playing"));
+}
+
 
 void ServiceReceiverMock::Stop()
 {

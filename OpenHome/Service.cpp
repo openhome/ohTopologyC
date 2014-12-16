@@ -14,7 +14,7 @@ Service::Service(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     //,iSubscribeTask(NULL)
     ,iDevice(aDevice)
     ,iRefCount(0)
-    ,iMutexJobs("SVJ")
+    //,iMutexJobs("SVJ")
     ,iMutexSubscribe("SVS")
     ,iMockSubscribe(false)
     ,iSubscribed(false)
@@ -58,7 +58,7 @@ void Service::Dispose()
     //iCancelSubscribe.Dispose();
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::DisposeCallback);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 }
 
 
@@ -180,7 +180,7 @@ void Service::Create(FunctorGeneric<ServiceCreateData*> aCallback, IDevice* aDev
 void Service::SubscribeCompleted()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::SubscribeCompletedCallback);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 }
 
 
@@ -239,7 +239,7 @@ void Service::Unsubscribe()
     iRefCount--;
     if (iRefCount == 0)
     {
-		iMockSubscribe = false;
+        iMockSubscribe = false;
         OnUnsubscribe();
 
 /*
@@ -252,7 +252,7 @@ void Service::Unsubscribe()
     }
 }
 
-
+/*
 Job* Service::Start(FunctorGeneric<void*> aAction)
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::StartCallback1);
@@ -261,8 +261,7 @@ Job* Service::Start(FunctorGeneric<void*> aAction)
     AutoMutex mutex(iMutexJobs);
     iJobs.push_back(job);
     return(job);
-
-
+*/
 /*
     var task = Task.Factory.StartNew(() =>
     {
@@ -280,21 +279,7 @@ Job* Service::Start(FunctorGeneric<void*> aAction)
 
     return (task);
 */
-}
-
-
-void Service::StartCallback1(void* aArg)
-{
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::StartCallback2);
-    iNetwork.Schedule(f, aArg);
-}
-
-
-void Service::StartCallback2(void* aArg)
-{
-    FunctorGeneric<void*> action = *((FunctorGeneric<void*>*)aArg);
-    action(NULL);
-}
+//}
 
 /*
 Task<T> Service::Start<T>(Func<T> aFunction)
@@ -324,6 +309,9 @@ Task<T> Service::Start<T>(Func<T> aFunction)
 
 TBool Service::Wait()
 {
+    return(true);
+
+/*
     iMutexJobs.Wait();
     vector<Job*> jobs(iJobs);
     iJobs.clear();
@@ -335,7 +323,7 @@ TBool Service::Wait()
     }
 
     return(jobs.size()==0);
-
+*/
 /*
     Task[] tasks;
 
@@ -358,15 +346,15 @@ void Service::Assert()
 }
 
 
-void Service::Schedule(FunctorGeneric<void*> aCallback, void* /*aObj*/)
+void Service::Schedule(FunctorGeneric<void*> aCallback, void* aObj)
 {
-    iNetwork.Schedule(aCallback, NULL);
+    iNetwork.Schedule(aCallback, aObj);
 }
 
 
-void Service::Execute(FunctorGeneric<void*> aCallback, void* /*aObj*/)
+void Service::Execute(FunctorGeneric<void*> aCallback, void* aObj)
 {
-    iNetwork.Execute(aCallback, NULL);
+    iNetwork.Execute(aCallback, aObj);
 }
 
 

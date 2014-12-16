@@ -121,12 +121,6 @@ TBool ServiceSenderNetwork::OnSubscribe()
 {
     iService->Subscribe();
     return(false); // false = not mock
-
-
-    //FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::OnSubscribeCallback);
-    //Job* job = iSubscribedSource->GetJob()->ContinueWith(f, NULL);
-    //return iSubscribedSource->GetJob()->ContinueWith((t) => { });
-    //return(job);
 }
 
 
@@ -174,11 +168,11 @@ void ServiceSenderNetwork::HandleAudioChanged()
 
     if (audio)
     {
-        iNetwork.Schedule(f, (void*)1);
+        Schedule(f, (void*)1);
     }
     else
     {
-        iNetwork.Schedule(f, (void*)0);
+        Schedule(f, (void*)0);
     }
 
 /*
@@ -213,7 +207,7 @@ void ServiceSenderNetwork::HandleMetadataChanged()
     ISenderMetadata* senderMetadata = new SenderMetadata(metadata);
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::MetadataChangedCallback1);
-    iNetwork.Schedule(f, senderMetadata);
+    Schedule(f, senderMetadata);
 /*
     Network.Schedule(() =>
     {
@@ -245,7 +239,7 @@ void ServiceSenderNetwork::MetadataChangedCallback2(void* aMetadata)
 void ServiceSenderNetwork::HandleStatusChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::StatusChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 }
 
 

@@ -6,6 +6,7 @@
 #include <OpenHome/Exception.h>
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/Media.h>
+#include <OpenHome/Job.h>
 #include <vector>
 #include <map>
 
@@ -15,7 +16,6 @@
 namespace std
 {
 
-
 template <> struct hash<Brn>
 {
     size_t operator()(const Brn& aX) const
@@ -23,7 +23,6 @@ template <> struct hash<Brn>
         return(aX.Bytes());  // FIXME: just return the byte count for now
     }
 };
-
 
 }
 
@@ -89,6 +88,7 @@ class IIdCache
 {
 public:
     virtual IdCacheSession* CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction) = 0;
+    virtual ~IIdCache() {}
 };
 
 //////////////////////////////////////////////////////
@@ -97,6 +97,7 @@ class IdCache : public IIdCache, public IDisposable
 {
 public:
     IdCache(TUint aMaxCacheEntries);
+    virtual ~IdCache();
 
     virtual IdCacheSession* CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction);
 

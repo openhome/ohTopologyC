@@ -427,13 +427,10 @@ void ServiceProductNetwork::SetStandby(TBool aValue)
 }
 
 
-
-
-
 void ServiceProductNetwork::HandleRoomChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::RoomChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 }
 
 
@@ -458,7 +455,7 @@ void ServiceProductNetwork::RoomChangedCallback2(void*)
 void ServiceProductNetwork::HandleNameChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::NameChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 }
 
 
@@ -486,7 +483,7 @@ void ServiceProductNetwork::NameChangedCallback2(void*)
 void ServiceProductNetwork::HandleSourceIndexChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceIndexChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 }
 
 void ServiceProductNetwork::SourceIndexChangedCallback1(void*)
@@ -507,7 +504,7 @@ void ServiceProductNetwork::SourceIndexChangedCallback2(void*)
 void ServiceProductNetwork::HandleSourceXmlChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::SourceXmlChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 }
 
 
@@ -535,7 +532,7 @@ void ServiceProductNetwork::SourceXmlChangedCallback2(void*)
 void ServiceProductNetwork::HandleStandbyChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceProductNetwork::StandbyChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 }
 
 void ServiceProductNetwork::StandbyChangedCallback1(void*)
@@ -706,7 +703,7 @@ void ServiceProductMock::SetSourceIndex(TUint aIndex)
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, & ServiceProductMock::SetSourceIndexCallback);
     auto u = new UintValue();
     u->iValue = aIndex;
-    iNetwork.Schedule(f, u);
+    Schedule(f, u);
 }
 
 
@@ -731,11 +728,11 @@ void ServiceProductMock::SetStandby(TBool aValue)
 
     if (aValue)
     {
-        iNetwork.Schedule(f, (void*)1);
+        Schedule(f, (void*)1);
     }
     else
     {
-        iNetwork.Schedule(f, (void*)0);
+        Schedule(f, (void*)0);
     }
 }
 

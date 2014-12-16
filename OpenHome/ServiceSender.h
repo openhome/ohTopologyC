@@ -7,7 +7,6 @@
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/Watchable.h>
 #include <OpenHome/Net/Core/CpDevice.h>
-//#include <OpenHome/Job.h>
 
 
 namespace OpenHome

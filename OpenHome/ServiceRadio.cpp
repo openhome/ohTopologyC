@@ -597,7 +597,7 @@ void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
 void ServiceRadioNetwork::HandleIdChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServiceRadioNetwork::HandleIdChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 
     /*
     iNetwork.Schedule(() =>
@@ -629,7 +629,7 @@ void ServiceRadioNetwork::HandleIdChangedCallback2(void*)
 void ServiceRadioNetwork::HandleIdArrayChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServiceRadioNetwork::HandleIdArrayChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 
 /*
     IList<TUint> idArray = ByteArray.Unpack(iService->PropertyIdArray());
@@ -671,7 +671,7 @@ void ServiceRadioNetwork::HandleIdArrayChangedCallback2(void*)
 void ServiceRadioNetwork::HandleMetadataChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServiceRadioNetwork::HandleMetadataChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 /*
     iNetwork.Schedule(() =>
     {
@@ -708,7 +708,7 @@ void ServiceRadioNetwork::HandleMetadataChangedCallback2(void*)
 void ServiceRadioNetwork::HandleTransportStateChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServiceRadioNetwork::HandleTransportStateChangedCallback1);
-    iNetwork.Schedule(f, NULL);
+    Schedule(f, NULL);
 
 /*
     iNetwork.Schedule(() =>

@@ -4,7 +4,7 @@
 #include <OpenHome/Network.h>
 #include <OpenHome/Private/Debug.h>
 #include <OpenHome/TagManager.h>
-#include <OpenHome/Job.h>
+#include <OpenHome/IdCache.h>
 
 
 using namespace OpenHome;
@@ -18,9 +18,9 @@ using namespace std;
 /**
 
  */
-Network::Network(TUint /*aMaxCacheEntries*/, ILog&/* aLog*/)
+Network::Network(TUint aMaxCacheEntries, ILog&/* aLog*/)
     :iDisposeHandler(new DisposeHandler())
-    //,iCache(new IdCache(aMaxCacheEntries))
+    ,iIdCache(new OpenHome::Av::IdCache(aMaxCacheEntries))
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread))
     ,iAsyncAdaptorManager(new AsyncAdaptorManager())
@@ -32,10 +32,10 @@ Network::Network(TUint /*aMaxCacheEntries*/, ILog&/* aLog*/)
 /**
 
  */
-Network::Network(IWatchableThread& aWatchableThread, TUint /*aMaxCacheEntries*/, ILog&)
+Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILog&)
     :iDisposeHandler(new DisposeHandler())
     ,iWatchableThread(&aWatchableThread)
-    //,iCache(new IdCache(aMaxCacheEntries))
+    ,iIdCache(new OpenHome::Av::IdCache(aMaxCacheEntries))
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread);)
     ,iAsyncAdaptorManager(new AsyncAdaptorManager())
@@ -46,6 +46,7 @@ Network::Network(IWatchableThread& aWatchableThread, TUint /*aMaxCacheEntries*/,
 Network::~Network()
 {
     delete iWatchableThread;
+    delete iIdCache;
     delete iTagManager;
     delete iAsyncAdaptorManager;
 
@@ -366,7 +367,6 @@ void Network::DisposeCallback(void*)
  */
 IIdCache& Network::IdCache()
 {
-    // IdCache not implemented yet
     ASSERTS();
     return(*iIdCache);
 }

@@ -11,6 +11,7 @@
 #include <OpenHome/Buffer.h>
 #include <OpenHome/TagManager.h>
 #include <OpenHome/AsyncAdaptor.h>
+#include <OpenHome/IdCache.h>
 #include <vector>
 #include <map>
 

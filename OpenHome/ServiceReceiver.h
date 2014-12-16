@@ -93,7 +93,8 @@ private:
     void TransportChangedCallback1(void* aTransportState);
     void TransportChangedCallback2(void* aTransportState);
 
-    void BeginSetSenderCallback(Net::IAsync& aAsync);
+    void BeginSetSenderCallback1(Net::IAsync& aAsync);
+    void BeginSetSenderCallback2(void*);
 
 private:
     Net::CpDevice& iCpDevice;
@@ -113,6 +114,10 @@ public:
     virtual void Play();
     virtual void Play(ISenderMetadata& aMetadata);
     virtual void Stop();
+
+private:
+    void PlayCallback(void*);
+    void PlayMetaCallback(void* aMetadata);
 };
 
 //////////////////////////////////////////////////////////////
