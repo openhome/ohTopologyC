@@ -294,7 +294,7 @@ void ServiceReceiverMock::Play()
 }
 
 
-void ServiceReceiverMock::PlayCallback(void* aArg)
+void ServiceReceiverMock::PlayCallback(void* /*aArg*/)
 {
     iTransportState->Update(Brn("Playing"));
 }
@@ -324,7 +324,6 @@ void ServiceReceiverMock::PlayMetaCallback(void* aMetadata)
 
 void ServiceReceiverMock::Stop()
 {
-    //return(0); // FIXME
 /*
     return Start(() =>
     {
