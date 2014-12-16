@@ -289,7 +289,7 @@ IWatchableUnordered<IDevice*>* Network::Create(EServiceType aServiceType)
 
 
 /**
-    Assert that we running on the watchable thread
+    Assert that we're running on the watchable thread
 
  */
 void Network::Assert()

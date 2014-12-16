@@ -366,7 +366,7 @@ public:
     virtual void UnorderedRemove(ITopology4Room* aItem);
 
 private:
-    void ScheduleCallback(void*);
+    void WatchT4Rooms(void*);
     void DisposeCallback(void*);
     void UnorderedAddCallback(void* aT3Room);
     void UnorderedRemoveCallback(void* aT3Room);

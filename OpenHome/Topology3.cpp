@@ -180,7 +180,6 @@ ReceiverWatcher::ReceiverWatcher(Topology3& aTopology3, Topology3Group& aGroup)
     for(TUint i=0; i<iGroup.Sources().size(); i++)
     {
         iGroup.Sources()[i]->AddWatcher(*this);
-
     }
 }
 
@@ -419,7 +418,7 @@ Topology3::Topology3(ITopology2* aTopology2, ILog& /*aLog*/)
     ,iGroups(new WatchableUnordered<ITopology3Group*>(iNetwork))
     ,iDisposed(false)
 {
-    iNetwork.Schedule(MakeFunctorGeneric(*this, &Topology3::ScheduleCallback), NULL);
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &Topology3::WatchT2Groups), NULL);
 }
 
 
@@ -446,7 +445,7 @@ Topology3::~Topology3()
 }
 
 
-void Topology3::ScheduleCallback(void*)
+void Topology3::WatchT2Groups(void*)
 {
     iTopology2->Groups().AddWatcher(*this);
 }

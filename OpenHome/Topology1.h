@@ -56,7 +56,7 @@ public:
     virtual void UnorderedRemove(IDevice* aItem);
 
 private:
-    void ExecuteCallback(void* aObj);
+    void WatchDevices(void* aObj);
     void UnorderedAddCallback(ServiceCreateData* aObj);
     void DisposeCallback(void*);
 

@@ -222,7 +222,7 @@ public:
     virtual void SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri);
 
 private:
-    void ScheduleCallback(void*);
+    void WatchT2Groups(void*);
     void DisposeCallback(void*);
 
 private:

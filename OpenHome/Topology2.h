@@ -148,8 +148,8 @@ public:
     virtual void UnorderedClose();
 
 private:
-    void ScheduleCallback(void*);
-    void ExecuteCallback(void*);
+    void WatchT1Products(void*);
+    void DisposeCallback(void*);
 
 
 private:

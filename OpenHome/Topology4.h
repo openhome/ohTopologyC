@@ -114,7 +114,7 @@ public:
     virtual void RemoveGroupFromRoom(ITopology3Group& aGroup, const Brx& aRoom);
 
 private:
-    void ScheduleCallback(void*);
+    void WatchT3Groups(void*);
     void DisposeCallback(void*);
 
 private:

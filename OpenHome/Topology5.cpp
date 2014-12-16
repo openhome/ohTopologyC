@@ -1107,7 +1107,7 @@ Topology5::Topology5(ITopology4* aTopology4, ILog& aLog)
     ,iDisposeHandler(new DisposeHandler())
     ,iRooms(new WatchableUnordered<ITopology5Room*>(iNetwork))
 {
-    iNetwork.Schedule(MakeFunctorGeneric(*this, &Topology5::ScheduleCallback), NULL);
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &Topology5::WatchT4Rooms), NULL);
 }
 
 Topology5::~Topology5()
@@ -1135,7 +1135,7 @@ Topology5* Topology5::CreateTopology5(INetwork* aNetwork, ILog& aLog)
     return(top5);
 }
 
-void Topology5::ScheduleCallback(void*)
+void Topology5::WatchT4Rooms(void*)
 {
      iTopology4->Rooms().AddWatcher(*this);
 }

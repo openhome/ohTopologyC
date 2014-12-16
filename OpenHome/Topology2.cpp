@@ -278,7 +278,7 @@ Topology2::Topology2(ITopology1* aTopology1, ILog& /*aLog*/)
     ,iGroups(new WatchableUnordered<ITopology2Group*>(iNetwork))
     ,iDisposed(false)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology2::ScheduleCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology2::WatchT1Products);
     iNetwork.Schedule(f, NULL);
 }
 
@@ -296,7 +296,7 @@ Topology2::~Topology2()
     iGroupLookup.clear();
 }
 
-void Topology2::ScheduleCallback(void*)
+void Topology2::WatchT1Products(void*)
 {
     iTopology1->Products().AddWatcher(*this);
 }
@@ -309,7 +309,7 @@ void Topology2::Dispose()
         //throw new ObjectDisposedException("Topology2.Dispose");
     }
 
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology2::ExecuteCallback);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology2::DisposeCallback);
     iNetwork.Execute(f, NULL);
     iGroups->Dispose();
     iTopology1->Dispose();
@@ -318,7 +318,7 @@ void Topology2::Dispose()
 }
 
 
-void Topology2::ExecuteCallback(void*)
+void Topology2::DisposeCallback(void*)
 {
     iTopology1->Products().RemoveWatcher(*this);
 

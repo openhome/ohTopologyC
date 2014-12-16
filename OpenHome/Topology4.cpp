@@ -113,7 +113,7 @@ Topology4::Topology4(ITopology3* aTopology3, ILog& /*aLog*/)
     ,iTopology3(aTopology3)
     ,iRooms(new WatchableUnordered<ITopology4Room*>(iNetwork))
 {
-    iNetwork.Schedule(MakeFunctorGeneric(*this, &Topology4::ScheduleCallback), NULL);
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &Topology4::WatchT3Groups), NULL);
 }
 
 
@@ -130,7 +130,7 @@ Topology4::~Topology4()
 }
 
 
-void Topology4::ScheduleCallback(void*)
+void Topology4::WatchT3Groups(void*)
 {
     iTopology3->Groups().AddWatcher(*this);
 }
