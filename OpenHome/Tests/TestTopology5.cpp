@@ -54,7 +54,7 @@ public:
         :iFactory(new ResultWatcherFactory(aRunner))
     {
         auto s = aRoot.Source().Value();
-        Log::Print("RootWatcher  ");
+        Log::Print("RootWatcher()  ");
         Log::Print(aRoot.Name());
         Log::Print(":\n");
 
@@ -179,6 +179,25 @@ public:
         :iRunner(aRunner)
         ,iRoom(aRoom)
     {
+        Log::Print("RoomWatcher()  ");
+        auto roots = iRoom.Roots().Value();
+        for(TUint i=0; i<roots->size(); i++)
+        {
+            Log::Print("Root ");
+            auto root = (*roots)[i];
+            Log::Print(root->Name());
+            Log::Print(":\n");
+
+            auto volumes = root->Source().Value()->Volumes();
+
+            for(TUint j=0; j<volumes.size(); j++)
+            {
+                Log::Print("Volume %d device UDN:", j);
+                Log::Print(volumes[j]->Device().Udn());
+                Log::Print("\n");
+            }
+        }
+
         iRoom.Roots().AddWatcher(*this);
     }
 
