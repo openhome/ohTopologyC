@@ -783,7 +783,7 @@ void RadioSnapshot::Read(/*CancellationToken aCancellationToken,*/TUint aIndex, 
 
     auto idList = new vector<TUint>();
     TUint limit = aIndex + aCount;
-    for (TUint i = aIndex; i < limit; ++i)
+    for (TUint i = aIndex; i < limit; i++)
     {
         TUint id = (*iIdArray)[i];
         if (id!=0)

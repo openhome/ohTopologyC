@@ -1125,7 +1125,7 @@ void PlaylistSnapshot::Read(/*CancellationToken aCancellationToken,*/ TUint aInd
     ASSERT((aIndex + aCount) <= Total());
 
     auto idList = new vector<TUint>();
-    for (TUint i = aIndex; i < aIndex + aCount; ++i)
+    for (TUint i = aIndex; i < aIndex + aCount; i++)
     {
         idList->push_back((*iIdArray)[i]);
     }

@@ -54,11 +54,13 @@ public:
         :iFactory(new ResultWatcherFactory(aRunner))
     {
         auto s = aRoot.Source().Value();
-        Log::Print("RootWatcher ");
+        Log::Print("RootWatcher  ");
+        Log::Print(aRoot.Name());
+        Log::Print(":\n");
 
         for(TUint i=0; i<s->Volumes().size(); i++)
         {
-            Log::Print(Brn(" "));
+            Log::Print("Volume %d device UDN:", i);
             Log::Print(s->Volumes()[i]->Device().Udn());
             Log::Print("\n");
         }
