@@ -53,6 +53,16 @@ public:
     RootWatcher(MockableScriptRunner& aRunner, ITopology5Root& aRoot)
         :iFactory(new ResultWatcherFactory(aRunner))
     {
+        auto s = aRoot.Source().Value();
+        Log::Print("RootWatcher ");
+
+        for(TUint i=0; i<s->Volumes().size(); i++)
+        {
+            Log::Print(Brn(" "));
+            Log::Print(s->Volumes()[i]->Device().Udn());
+            Log::Print("\n");
+        }
+
         iFactory->Create<ITopology5Source*>(aRoot.Name(), aRoot.Source(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback1));
         iFactory->Create<vector<ITopology5Group*>*>(aRoot.Name(), aRoot.Senders(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback2));
     }
