@@ -207,8 +207,8 @@ public:
 
             for(TUint j=0; j<volumes.size(); j++)
             {
-                Log::Print("Volume %d device UDN:", i);
-                Log::Print(volumes[i]->Device().Udn());
+                Log::Print("Volume %d device UDN:", j);
+                Log::Print(volumes[j]->Device().Udn());
                 Log::Print("\n");
             }
 
@@ -218,6 +218,8 @@ public:
 
     virtual void ItemUpdate(const Brx& /*aId*/, vector<ITopology5Root*>* aValue, vector<ITopology5Root*>* /*aPrevious*/)
     {
+        Log::Print("RoomWatcher  ItemUpdate...");
+
         for(TUint i=0; i<iWatchers.size(); i++)
         {
             iWatchers[i]->Dispose();
@@ -228,7 +230,20 @@ public:
 
         for(TUint i=0; i<aValue->size(); i++)
         {
-            iWatchers.push_back(new RootWatcher(iRunner, *(*aValue)[i]));
+            Log::Print("Root ");
+            auto root = (*aValue)[i];
+            Log::Print(root->Name());
+            Log::Print(":\n");
+
+            auto volumes = root->Source().Value()->Volumes();
+
+            for(TUint j=0; j<volumes.size(); j++)
+            {
+                Log::Print("Volume %d device UDN:", j);
+                Log::Print(volumes[j]->Device().Udn());
+                Log::Print("\n");
+            }
+            iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
     }
 
