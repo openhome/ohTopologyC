@@ -436,11 +436,28 @@ ITopology3Group& Topology5Group::Group()
 }
 
 
+void Topology5Group::LogVolumes(ITopology5Root& aRoot)
+{
+    Log::Print("Root ");
+    Log::Print(aRoot.Name());
+    Log::Print(":\n");
+
+    auto volumes = aRoot.Source().Value()->Volumes();
+
+    for(TUint j=0; j<volumes.size(); j++)
+    {
+        Log::Print("Volume %d device UDN:", j);
+        Log::Print(volumes[j]->Device().Udn());
+        Log::Print("\n");
+    }
+}
+
+
 void Topology5Group::EvaluateSources()
 {
 
-    TBool hasInfo = Ascii::Contains(iGroup->Attributes() ,Brn("Info"));
-    TBool hasTime = (Ascii::Contains(iGroup->Attributes() ,Brn("Time")) && hasInfo);
+    TBool hasInfo = Ascii::Contains(iGroup->Attributes(), Brn("Info"));
+    TBool hasTime = (Ascii::Contains(iGroup->Attributes(), Brn("Time")) && hasInfo);
 
     // get list of all volume groups
 

@@ -181,6 +181,10 @@ class Topology5Group : public ITopology5Root, public ITopology5Registration, pub
 public:
     Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopology3Group& aGroup, std::vector<ITopology2Source*> aSources, ILog& aLog);
     ~Topology5Group();
+
+    static void LogVolumes(ITopology5Root& aRoot);
+
+
     virtual void Dispose();
     virtual Brn Name();
     virtual IDevice& Device();

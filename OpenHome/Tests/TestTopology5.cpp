@@ -183,6 +183,9 @@ public:
         auto roots = iRoom.Roots().Value();
         for(TUint i=0; i<roots->size(); i++)
         {
+            auto root = (*roots)[i];
+            Topology5Group::LogVolumes(*root);
+            /*
             Log::Print("Root ");
             auto root = (*roots)[i];
             Log::Print(root->Name());
@@ -196,6 +199,7 @@ public:
                 Log::Print(volumes[j]->Device().Udn());
                 Log::Print("\n");
             }
+            */
         }
 
         iRoom.Roots().AddWatcher(*this);
@@ -217,6 +221,10 @@ public:
 
         for(TUint i=0; i<aValue->size(); i++)
         {
+            auto root = (*aValue)[i];
+            Topology5Group::LogVolumes(*root);
+
+            /*
             Log::Print("Root ");
             auto root = (*aValue)[i];
             Log::Print(root->Name());
@@ -230,6 +238,7 @@ public:
                 Log::Print(volumes[j]->Device().Udn());
                 Log::Print("\n");
             }
+            */
 
             iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
@@ -237,7 +246,8 @@ public:
 
     virtual void ItemUpdate(const Brx& /*aId*/, vector<ITopology5Root*>* aValue, vector<ITopology5Root*>* /*aPrevious*/)
     {
-        Log::Print("RoomWatcher  ItemUpdate...");
+        Log::Print("RoomWatcher  ItemUpdate...\n");
+        auto value = new vector<ITopology5Root*>(*aValue);
 
         for(TUint i=0; i<iWatchers.size(); i++)
         {
@@ -247,8 +257,11 @@ public:
 
         iWatchers.clear();
 
-        for(TUint i=0; i<aValue->size(); i++)
+        for(TUint i=0; i<value->size(); i++)
         {
+            auto root = (*value)[i];
+            Topology5Group::LogVolumes(*root);
+/*
             Log::Print("Root ");
             auto root = (*aValue)[i];
             Log::Print(root->Name());
@@ -262,6 +275,7 @@ public:
                 Log::Print(volumes[j]->Device().Udn());
                 Log::Print("\n");
             }
+*/
             iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
     }
