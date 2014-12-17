@@ -53,18 +53,7 @@ public:
     RootWatcher(MockableScriptRunner& aRunner, ITopology5Root& aRoot)
         :iFactory(new ResultWatcherFactory(aRunner))
     {
-        auto s = aRoot.Source().Value();
-        Log::Print("RootWatcher()  ");
-        Log::Print(aRoot.Name());
-        Log::Print(":\n");
-
-        for(TUint i=0; i<s->Volumes().size(); i++)
-        {
-            Log::Print("Volume %d device UDN:", i);
-            Log::Print(s->Volumes()[i]->Device().Udn());
-            Log::Print("\n");
-        }
-
+        Topology5Group::LogVolumes(aRoot);
         iFactory->Create<ITopology5Source*>(aRoot.Name(), aRoot.Source(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback1));
         iFactory->Create<vector<ITopology5Group*>*>(aRoot.Name(), aRoot.Senders(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback2));
     }
@@ -179,29 +168,17 @@ public:
         :iRunner(aRunner)
         ,iRoom(aRoom)
     {
-        Log::Print("RoomWatcher()  ");
+        Log::Print("RoomWatcher()  room = ");
+        Log::Print(aRoom.Name());
+
         auto roots = iRoom.Roots().Value();
         for(TUint i=0; i<roots->size(); i++)
         {
             auto root = (*roots)[i];
             Topology5Group::LogVolumes(*root);
-            /*
-            Log::Print("Root ");
-            auto root = (*roots)[i];
-            Log::Print(root->Name());
-            Log::Print(":\n");
-
-            auto volumes = root->Source().Value()->Volumes();
-
-            for(TUint j=0; j<volumes.size(); j++)
-            {
-                Log::Print("Volume %d device UDN:", j);
-                Log::Print(volumes[j]->Device().Udn());
-                Log::Print("\n");
-            }
-            */
         }
 
+        Thread::Sleep(100);
         iRoom.Roots().AddWatcher(*this);
     }
 
@@ -223,30 +200,15 @@ public:
         {
             auto root = (*aValue)[i];
             Topology5Group::LogVolumes(*root);
-
-            /*
-            Log::Print("Root ");
-            auto root = (*aValue)[i];
-            Log::Print(root->Name());
-            Log::Print(":\n");
-
-            auto volumes = root->Source().Value()->Volumes();
-
-            for(TUint j=0; j<volumes.size(); j++)
-            {
-                Log::Print("Volume %d device UDN:", j);
-                Log::Print(volumes[j]->Device().Udn());
-                Log::Print("\n");
-            }
-            */
-
             iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
     }
 
     virtual void ItemUpdate(const Brx& /*aId*/, vector<ITopology5Root*>* aValue, vector<ITopology5Root*>* /*aPrevious*/)
     {
-        Log::Print("RoomWatcher  ItemUpdate...\n");
+        Log::Print("RoomWatcher  ItemUpdate()  room = ");
+        Log::Print(iRoom.Name());
+        Log::Print("\n");
         auto value = new vector<ITopology5Root*>(*aValue);
 
         for(TUint i=0; i<iWatchers.size(); i++)
@@ -259,23 +221,10 @@ public:
 
         for(TUint i=0; i<value->size(); i++)
         {
+            Log::Print("RoomWatcher  ItemUpdate() creating watcher %d \n", i);
             auto root = (*value)[i];
             Topology5Group::LogVolumes(*root);
-/*
-            Log::Print("Root ");
-            auto root = (*aValue)[i];
-            Log::Print(root->Name());
-            Log::Print(":\n");
 
-            auto volumes = root->Source().Value()->Volumes();
-
-            for(TUint j=0; j<volumes.size(); j++)
-            {
-                Log::Print("Volume %d device UDN:", j);
-                Log::Print(volumes[j]->Device().Udn());
-                Log::Print("\n");
-            }
-*/
             iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
     }
@@ -322,6 +271,7 @@ public:
 
     virtual void UnorderedAdd(ITopology5Room* aItem)
     {
+
         Bwh* result = new Bwh(10000);
         result->Replace(Brn("Room Added "));
         result->Append(aItem->Name());
