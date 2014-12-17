@@ -194,9 +194,25 @@ public:
 
     virtual void ItemOpen(const Brx& /*aId*/, vector<ITopology5Root*>* aValue)
     {
+        Log::Print("RoomWatcher  ItemOpen...");
+
         for(TUint i=0; i<aValue->size(); i++)
         {
-            iWatchers.push_back(new RootWatcher(iRunner, *(*aValue)[i]));
+            Log::Print("Root ");
+            auto root = (*aValue)[i];
+            Log::Print(root->Name());
+            Log::Print(":\n");
+
+            auto volumes = root->Source().Value()->Volumes();
+
+            for(TUint j=0; j<volumes.size(); j++)
+            {
+                Log::Print("Volume %d device UDN:", i);
+                Log::Print(volumes[i]->Device().Udn());
+                Log::Print("\n");
+            }
+
+            iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
     }
 
