@@ -209,7 +209,7 @@ public:
         Log::Print("RoomWatcher  ItemUpdate()  room = ");
         Log::Print(iRoom.Name());
         Log::Print("\n");
-        auto value = new vector<ITopology5Root*>(*aValue);
+        //auto value = new vector<ITopology5Root*>(*aValue);
 
         for(TUint i=0; i<iWatchers.size(); i++)
         {
@@ -219,10 +219,10 @@ public:
 
         iWatchers.clear();
 
-        for(TUint i=0; i<value->size(); i++)
+        for(TUint i=0; i<aValue->size(); i++)
         {
             Log::Print("RoomWatcher  ItemUpdate() creating watcher %d \n", i);
-            auto root = (*value)[i];
+            auto root = (*aValue)[i];
             Topology5Group::LogVolumes(*root);
 
             iWatchers.push_back(new RootWatcher(iRunner, *root));
