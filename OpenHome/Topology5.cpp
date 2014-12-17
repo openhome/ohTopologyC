@@ -987,7 +987,11 @@ void Topology5Room::CreateTree()
         roots->push_back(group);
     }
 
-
+    Log::Print("CreateTree:\n");
+    for (TUint i=0; i<roots->size(); i++)
+    {
+        Topology5Group::LogVolumes(*((*roots)[i]));
+    }
     iWatchableRoots->Update(roots);
     iWatchableSources->Update(sources);
     iWatchableRegistrations->Update(registrations);
