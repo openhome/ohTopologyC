@@ -1017,7 +1017,7 @@ void Topology5Room::InsertIntoTree(Topology5Group& aGroup)
     // if group is the first group found
     if (iGroups.size() == 0)
     {
-        Log::Print("iGroups empty - inserting");
+        Log::Print("iGroups empty - inserting \n");
         iGroups.push_back(&aGroup);
         iRoots.push_back(&aGroup);
         return;
