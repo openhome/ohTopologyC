@@ -336,7 +336,8 @@ private:
     Watchable<std::vector<ITopology5Source*>*>* iWatchableSources;
     Watchable<std::vector<ITopology5Registration*>*>* iWatchableRegistrations;
 
-    std::unordered_map<ITopology3Group*, Topology5GroupWatcher*> iGroupWatcherLookup;
+    std::map<ITopology3Group*, Topology5GroupWatcher*> iGroupWatcherLookup;
+    std::vector<std::pair<ITopology3Group*, Topology5GroupWatcher*>> iGroupWatchers;
     std::vector<Topology5Group*> iGroups;
     std::vector<Topology5Group*> iRoots;
 };
