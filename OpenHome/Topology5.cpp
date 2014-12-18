@@ -970,7 +970,6 @@ void Topology5Room::CreateTree()
     {
         Topology5Group* group = iRoots[i];
         Log::Print("CreateTree: iRoots[%d]\n", i);
-        //Topology5Group::LogVolumes(*group);
 
         group->EvaluateSources();
         group->EvaluateSenders();
@@ -986,7 +985,7 @@ void Topology5Room::CreateTree()
     Log::Print("CreateTree:\n");
     for (TUint i=0; i<roots->size(); i++)
     {
-        //Topology5Group::LogVolumes(*((*roots)[i]));
+        Topology5Group::LogVolumes(*((*roots)[i]));
     }
 
     auto oldRoots = iCurrentRoots;
@@ -1022,8 +1021,10 @@ void Topology5Room::InsertIntoTree(Topology5Group& aGroup)
     //Topology5Group::LogVolumes(aGroup);
     if (iGroups.size() == 0)
     {
-        Log::Print("iGroups empty - inserting \n");
-        //Topology5Group::LogVolumes(aGroup);
+        Log::Print("iGroups empty - inserting  UDN: ");
+        Log::Print(aGroup.Device().Udn());
+        Log::Print("\n");
+
 
         iGroups.push_back(&aGroup);
         iRoots.push_back(&aGroup);
@@ -1053,6 +1054,10 @@ void Topology5Room::InsertIntoTree(Topology5Group& aGroup)
 
     iGroups.push_back(&aGroup);
     iRoots.push_back(&aGroup);
+
+    Log::Print("iGroups - Added  UDN: ");
+    Log::Print(aGroup.Device().Udn());
+    Log::Print("\n");
 
 }
 
