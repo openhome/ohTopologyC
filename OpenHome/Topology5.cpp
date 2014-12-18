@@ -966,11 +966,9 @@ void Topology5Room::CreateTree()
     auto roots = new vector<ITopology5Root*>();
     auto sources = new vector<ITopology5Source*>();
 
-    vector<Topology5Group*> rootsCopy(iRoots);
-
-    for(TUint i=0; i<rootsCopy.size(); i++)
+    for(TUint i=0; i<iRoots.size(); i++)
     {
-        Topology5Group* group = rootsCopy[i];
+        Topology5Group* group = iRoots[i];
         Log::Print("CreateTree: iRoots[%d]\n", i);
         //Topology5Group::LogVolumes(*group);
 
@@ -988,19 +986,25 @@ void Topology5Room::CreateTree()
     Log::Print("CreateTree:\n");
     for (TUint i=0; i<roots->size(); i++)
     {
-        Topology5Group::LogVolumes(*((*roots)[i]));
+        //Topology5Group::LogVolumes(*((*roots)[i]));
     }
-    iWatchableRoots->Update(roots);
-    iWatchableSources->Update(sources);
-    iWatchableRegistrations->Update(registrations);
 
-    delete iCurrentRoots;
-    delete iCurrentRegistrations;
-    delete iCurrentSources;
-
+    auto oldRoots = iCurrentRoots;
     iCurrentRoots = roots;
+
+    auto oldRegs = iCurrentRegistrations;
     iCurrentRegistrations = registrations;
+
+    auto oldSources = iCurrentSources;
     iCurrentSources = sources;
+
+    iWatchableRoots->Update(iCurrentRoots);
+    iWatchableSources->Update(iCurrentSources);
+    iWatchableRegistrations->Update(iCurrentRegistrations);
+
+    delete oldRoots;
+    delete oldRegs;
+    delete oldSources;
 
 
     for(TUint i=0; i<oldGroups.size(); i++)
@@ -1015,9 +1019,12 @@ void Topology5Room::CreateTree()
 void Topology5Room::InsertIntoTree(Topology5Group& aGroup)
 {
     // if group is the first group found
+    //Topology5Group::LogVolumes(aGroup);
     if (iGroups.size() == 0)
     {
         Log::Print("iGroups empty - inserting \n");
+        //Topology5Group::LogVolumes(aGroup);
+
         iGroups.push_back(&aGroup);
         iRoots.push_back(&aGroup);
         return;

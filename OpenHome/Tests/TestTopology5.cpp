@@ -202,7 +202,7 @@ public:
         for(TUint i=0; i<aValue->size(); i++)
         {
             auto root = (*aValue)[i];
-            Topology5Group::LogVolumes(*root);
+            //Topology5Group::LogVolumes(*root);
             iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
     }
@@ -226,7 +226,7 @@ public:
         {
             Log::Print("RoomWatcher  ItemUpdate() creating watcher %d \n", i);
             auto root = (*aValue)[i];
-            Topology5Group::LogVolumes(*root);
+            //Topology5Group::LogVolumes(*root);
 
             iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
