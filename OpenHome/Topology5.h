@@ -12,6 +12,7 @@
 #include <OpenHome/Media.h>
 #include <vector>
 #include <map>
+#include <unordered_map>
 
 
 namespace OpenHome
@@ -335,7 +336,7 @@ private:
     Watchable<std::vector<ITopology5Source*>*>* iWatchableSources;
     Watchable<std::vector<ITopology5Registration*>*>* iWatchableRegistrations;
 
-    std::map<ITopology3Group*, Topology5GroupWatcher*> iGroupWatcherLookup;
+    std::unordered_map<ITopology3Group*, Topology5GroupWatcher*> iGroupWatcherLookup;
     std::vector<Topology5Group*> iGroups;
     std::vector<Topology5Group*> iRoots;
 };
