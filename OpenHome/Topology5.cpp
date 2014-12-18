@@ -922,7 +922,19 @@ void Topology5Room::UnorderedClose()
 
 void Topology5Room::UnorderedAdd(ITopology3Group* aItem)
 {
+    Log::Print("Topology5Room::UnorderedAdd - ITopology3Group:UDN: ");
+    Log::Print(aItem->Device().Udn());
+    Log::Print("\n");
+
     iGroupWatcherLookup[aItem] = new Topology5GroupWatcher(*this, *aItem);
+
+    for(auto it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
+    {
+        Log::Print("iGroupWatcherLookup[]:UDN: ");
+        Log::Print(it->first->Device().Udn());
+        Log::Print("\n");
+    }
+
     aItem->Standby().AddWatcher(*this);
     CreateTree();
 }
