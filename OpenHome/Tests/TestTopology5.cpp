@@ -168,6 +168,7 @@ public:
         :iRunner(aRunner)
         ,iRoom(aRoom)
     {
+/*
         Log::Print("RoomWatcher()  room = ");
         Log::Print(aRoom.Name());
         Log::Print("\n");
@@ -180,6 +181,7 @@ public:
         }
 
         Thread::Sleep(100);
+*/
         iRoom.Roots().AddWatcher(*this);
     }
 
@@ -195,10 +197,11 @@ public:
 
     virtual void ItemOpen(const Brx& /*aId*/, vector<ITopology5Root*>* aValue)
     {
+/*
         Log::Print("RoomWatcher  ItemOpen()  room = ");
         Log::Print(iRoom.Name());
         Log::Print("\n");
-
+*/
         for(TUint i=0; i<aValue->size(); i++)
         {
             auto root = (*aValue)[i];
@@ -209,9 +212,11 @@ public:
 
     virtual void ItemUpdate(const Brx& /*aId*/, vector<ITopology5Root*>* aValue, vector<ITopology5Root*>* /*aPrevious*/)
     {
+/*
         Log::Print("RoomWatcher  ItemUpdate()  room = ");
         Log::Print(iRoom.Name());
         Log::Print("\n");
+*/
         //auto value = new vector<ITopology5Root*>(*aValue);
 
         for(TUint i=0; i<iWatchers.size(); i++)
@@ -224,7 +229,7 @@ public:
 
         for(TUint i=0; i<aValue->size(); i++)
         {
-            Log::Print("RoomWatcher  ItemUpdate() creating watcher %d \n", i);
+            //Log::Print("RoomWatcher  ItemUpdate() creating watcher %d \n", i);
             auto root = (*aValue)[i];
             //Topology5Group::LogVolumes(*root);
 

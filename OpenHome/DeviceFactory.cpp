@@ -19,9 +19,11 @@ using namespace std;
 
 IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, ILog& aLog)
 {
+/*
     Log::Print(Brn("DeviceFactory::CreateDs: "));
     Log::Print(aUdn);
     Log::Print(Brn("\n"));
+*/
     return CreateDs(aNetwork, aUdn, Brn("Main Room"), Brn("Mock DS"), Brn("Info Time Volume Sender"), aLog);
 }
 

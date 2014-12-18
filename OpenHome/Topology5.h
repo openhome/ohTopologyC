@@ -183,7 +183,7 @@ public:
     Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopology3Group& aGroup, std::vector<ITopology2Source*> aSources, ILog& aLog);
     ~Topology5Group();
 
-    static void LogVolumes(ITopology5Root& aRoot);
+    //static void LogVolumes(ITopology5Root& aRoot);
 
 
     virtual void Dispose();
