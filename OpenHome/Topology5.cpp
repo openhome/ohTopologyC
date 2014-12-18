@@ -971,12 +971,16 @@ void Topology5Room::CreateTree()
         }
     }
 
-    vector<ITopology5Root*>* roots = new vector<ITopology5Root*>();
-    vector<ITopology5Source*>* sources = new vector<ITopology5Source*>();
+    auto roots = new vector<ITopology5Root*>();
+    auto sources = new vector<ITopology5Source*>();
 
-    for(TUint i=0; i<iRoots.size(); i++)
+    vector<Topology5Group*> rootsCopy(iRoots);
+
+    for(TUint i=0; i<rootsCopy.size(); i++)
     {
-        Topology5Group* group = iRoots[i];
+        Topology5Group* group = rootsCopy[i];
+        Log::Print("CreateTree: iRoots[%d]\n", i);
+        //Topology5Group::LogVolumes(*group);
 
         group->EvaluateSources();
         group->EvaluateSenders();
@@ -984,6 +988,8 @@ void Topology5Room::CreateTree()
         auto gSources = group->Sources();
         sources->insert(sources->end(), gSources.begin(), gSources.end());
 
+        Log::Print("CreateTree: group\n", i);
+        Topology5Group::LogVolumes(*group);
         roots->push_back(group);
     }
 

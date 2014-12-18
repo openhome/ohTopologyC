@@ -53,7 +53,7 @@ public:
     RootWatcher(MockableScriptRunner& aRunner, ITopology5Root& aRoot)
         :iFactory(new ResultWatcherFactory(aRunner))
     {
-        Topology5Group::LogVolumes(aRoot);
+        //Topology5Group::LogVolumes(aRoot);
         iFactory->Create<ITopology5Source*>(aRoot.Name(), aRoot.Source(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback1));
         iFactory->Create<vector<ITopology5Group*>*>(aRoot.Name(), aRoot.Senders(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback2));
     }
@@ -170,6 +170,7 @@ public:
     {
         Log::Print("RoomWatcher()  room = ");
         Log::Print(aRoom.Name());
+        Log::Print("\n");
 
         auto roots = iRoom.Roots().Value();
         for(TUint i=0; i<roots->size(); i++)
@@ -194,7 +195,9 @@ public:
 
     virtual void ItemOpen(const Brx& /*aId*/, vector<ITopology5Root*>* aValue)
     {
-        Log::Print("RoomWatcher  ItemOpen...");
+        Log::Print("RoomWatcher  ItemOpen()  room = ");
+        Log::Print(iRoom.Name());
+        Log::Print("\n");
 
         for(TUint i=0; i<aValue->size(); i++)
         {
