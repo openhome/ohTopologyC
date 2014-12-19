@@ -53,7 +53,6 @@ public:
     RootWatcher(MockableScriptRunner& aRunner, ITopology5Root& aRoot)
         :iFactory(new ResultWatcherFactory(aRunner))
     {
-        //Topology5Group::LogVolumes(aRoot);
         iFactory->Create<ITopology5Source*>(aRoot.Name(), aRoot.Source(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback1));
         iFactory->Create<vector<ITopology5Group*>*>(aRoot.Name(), aRoot.Senders(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback2));
     }
@@ -104,7 +103,6 @@ public:
         {
             buf->Append(Brn("False "));
         }
-        //iBuf.Append(udn);
         buf->Append(s->Device().Udn());
 
         buf->Append(Brn(" Volume"));
@@ -151,7 +149,6 @@ public:
 
 private:
     ResultWatcherFactory* iFactory;
-    //Bws<6000> iBuf;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -168,20 +165,6 @@ public:
         :iRunner(aRunner)
         ,iRoom(aRoom)
     {
-/*
-        Log::Print("RoomWatcher()  room = ");
-        Log::Print(aRoom.Name());
-        Log::Print("\n");
-
-        auto roots = iRoom.Roots().Value();
-        for(TUint i=0; i<roots->size(); i++)
-        {
-            auto root = (*roots)[i];
-            Topology5Group::LogVolumes(*root);
-        }
-
-        Thread::Sleep(100);
-*/
         iRoom.Roots().AddWatcher(*this);
     }
 
@@ -197,28 +180,15 @@ public:
 
     virtual void ItemOpen(const Brx& /*aId*/, vector<ITopology5Root*>* aValue)
     {
-/*
-        Log::Print("RoomWatcher  ItemOpen()  room = ");
-        Log::Print(iRoom.Name());
-        Log::Print("\n");
-*/
         for(TUint i=0; i<aValue->size(); i++)
         {
             auto root = (*aValue)[i];
-            //Topology5Group::LogVolumes(*root);
             iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
     }
 
     virtual void ItemUpdate(const Brx& /*aId*/, vector<ITopology5Root*>* aValue, vector<ITopology5Root*>* /*aPrevious*/)
     {
-/*
-        Log::Print("RoomWatcher  ItemUpdate()  room = ");
-        Log::Print(iRoom.Name());
-        Log::Print("\n");
-*/
-        //auto value = new vector<ITopology5Root*>(*aValue);
-
         for(TUint i=0; i<iWatchers.size(); i++)
         {
             iWatchers[i]->Dispose();
@@ -229,10 +199,7 @@ public:
 
         for(TUint i=0; i<aValue->size(); i++)
         {
-            //Log::Print("RoomWatcher  ItemUpdate() creating watcher %d \n", i);
             auto root = (*aValue)[i];
-            //Topology5Group::LogVolumes(*root);
-
             iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
     }
@@ -415,7 +382,6 @@ private:
     MockableScriptRunner& iRunner;
     ResultWatcherFactory* iFactory;
     map<ITopology5Room*, RoomWatcher*> iWatcherLookup;
-    //Bws<6000> iBuf;
 };
 
 } // TestTopology5

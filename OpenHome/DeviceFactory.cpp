@@ -19,17 +19,13 @@ using namespace std;
 
 IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, ILog& aLog)
 {
-/*
-    Log::Print(Brn("DeviceFactory::CreateDs: "));
-    Log::Print(aUdn);
-    Log::Print(Brn("\n"));
-*/
+    LOG(kTrace, ">DeviceFactory::CreateDs \n");
     return CreateDs(aNetwork, aUdn, Brn("Main Room"), Brn("Mock DS"), Brn("Info Time Volume Sender"), aLog);
 }
 
 IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, const Brx& aRoom, const Brx& aName, const Brx& aAttributes, ILog& aLog)
 {
-    //LOG(kTrace, ">DeviceFactory::CreateDs \n");
+    LOG(kTrace, ">DeviceFactory::CreateDs \n");
     InjectorDevice* device = new InjectorDevice(aUdn);
     // add a factory for each type of watchable service
 

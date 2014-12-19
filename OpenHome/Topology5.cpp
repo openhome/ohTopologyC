@@ -435,23 +435,6 @@ ITopology3Group& Topology5Group::Group()
     return(*iGroup);
 }
 
-/*
-void Topology5Group::LogVolumes(ITopology5Root& aRoot)
-{
-    Log::Print("Root ");
-    Log::Print(aRoot.Name());
-    Log::Print(":\n");
-
-    auto volumes = aRoot.Source().Value()->Volumes();
-
-    for(TUint j=0; j<volumes.size(); j++)
-    {
-        Log::Print("Volume %d device UDN:", j);
-        Log::Print(volumes[j]->Device().Udn());
-        Log::Print("\n");
-    }
-}
-*/
 
 void Topology5Group::EvaluateSources()
 {
@@ -460,8 +443,6 @@ void Topology5Group::EvaluateSources()
     TBool hasTime = (Ascii::Contains(iGroup->Attributes(), Brn("Time")) && hasInfo);
 
     // get list of all volume groups
-
-
     auto volumes = new vector<ITopology5Group*>();
 
     Topology5Group* group = this;
@@ -629,12 +610,7 @@ void Topology5Group::ItemClose(const Brx& /*aId*/, TUint /*aValue*/)
 
 ITopology5Source* Topology5Group::EvaluateSource()
 {
-/*
-    if(iSources.Count <= iSourceIndex)
-    {
-        iLog.Write("EvaluateSource of {0}, iSources.Count={1}, iSourceIndex={2}", iName, iSources.Count(), iSourceIndex);
-    }
-*/
+
     // set the source for this group
     Topology5Source* source = iSources[iSourceIndex];
 
@@ -858,7 +834,6 @@ void Topology5Room::Dispose()
     for(TUint i=0; i<iGroups.size() ;i++)
     {
         iGroups[i]->Dispose();
-        //delete iGroups[i];
     }
 
     iWatchableStandby->Dispose();
@@ -922,23 +897,10 @@ void Topology5Room::UnorderedClose()
 
 void Topology5Room::UnorderedAdd(ITopology3Group* aItem)
 {
-/*
-    Log::Print("Topology5Room::UnorderedAdd - ITopology3Group:UDN: ");
-    Log::Print(aItem->Device().Udn());
-    Log::Print("\n");
-*/
     auto groupWatcher = new Topology5GroupWatcher(*this, *aItem);
     iGroupWatcherLookup[aItem] = groupWatcher;
     iGroupWatchers.push_back( pair<ITopology3Group*, Topology5GroupWatcher*>(aItem, groupWatcher) );
 
-/*
-    for(auto it=iGroupWatchers.begin(); it!=iGroupWatchers.end(); it++)
-    {
-        Log::Print("iGroupWatchers[]:UDN: ");
-        Log::Print(it->first->Device().Udn());
-        Log::Print("\n");
-    }
-*/
     aItem->Standby().AddWatcher(*this);
     CreateTree();
 }
@@ -957,16 +919,6 @@ void Topology5Room::UnorderedRemove(ITopology3Group* aItem)
     ASSERT(it!=iGroupWatchers.end());
     iGroupWatchers.erase(it);
 
-/*
-    for (auto it = iGroupWatchers.begin(); it!=iGroupWatchers.end(); it++)
-    {
-        if (it->first == aItem)
-        {
-            iGroupWatchers.erase(it);
-            break;
-        }
-    }
-*/
     delete watcher;
 
     if (iGroupWatcherLookup.size() > 0)
@@ -978,7 +930,6 @@ void Topology5Room::UnorderedRemove(ITopology3Group* aItem)
 
 void Topology5Room::CreateTree()
 {
-    //OpenHome::Log::Print("\n\nTopology5Room::CreateTree() \n");
     vector<ITopology5Registration*>* registrations = new vector<ITopology5Registration*>();
     vector<Topology5Group*> oldGroups(iGroups);
 
@@ -1003,28 +954,16 @@ void Topology5Room::CreateTree()
     for(TUint i=0; i<iRoots.size(); i++)
     {
         Topology5Group* group = iRoots[i];
-//        Log::Print("CreateTree: iRoots[%d]\n", i);
 
         group->EvaluateSources();
         group->EvaluateSenders();
 
         auto gSources = group->Sources();
         sources->insert(sources->end(), gSources.begin(), gSources.end());
-/*
-        Log::Print("CreateTree: group\n", i);
-        Topology5Group::LogVolumes(*group);
-*/
         roots->push_back(group);
 
     }
 
-//    Log::Print("CreateTree:\n");
-/*
-    for (TUint i=0; i<roots->size(); i++)
-    {
-        Topology5Group::LogVolumes(*((*roots)[i]));
-    }
-*/
     auto oldRoots = iCurrentRoots;
     iCurrentRoots = roots;
 
@@ -1055,14 +994,8 @@ void Topology5Room::CreateTree()
 void Topology5Room::InsertIntoTree(Topology5Group& aGroup)
 {
     // if group is the first group found
-    //Topology5Group::LogVolumes(aGroup);
     if (iGroups.size() == 0)
     {
-/*
-        Log::Print("iGroups empty - inserting  UDN: ");
-        Log::Print(aGroup.Device().Udn());
-        Log::Print("\n");
-*/
 
         iGroups.push_back(&aGroup);
         iRoots.push_back(&aGroup);
@@ -1092,11 +1025,6 @@ void Topology5Room::InsertIntoTree(Topology5Group& aGroup)
 
     iGroups.push_back(&aGroup);
     iRoots.push_back(&aGroup);
-/*
-    Log::Print("iGroups - Added  UDN: ");
-    Log::Print(aGroup.Device().Udn());
-    Log::Print("\n");
-*/
 }
 
 
