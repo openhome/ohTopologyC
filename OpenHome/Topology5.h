@@ -247,7 +247,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 
-class Topology5GroupWatcher : public IWatcher<Brn>, public IWatcher<ITopology2Source*>, public IDisposable, public INonCopyable
+class Topology5GroupWatcher : public ITopology3GroupWatcher,  public INonCopyable
 {
 public:
     Topology5GroupWatcher(Topology5Room& aRoom, ITopology3Group& aGroup);
@@ -336,8 +336,7 @@ private:
     Watchable<std::vector<ITopology5Source*>*>* iWatchableSources;
     Watchable<std::vector<ITopology5Registration*>*>* iWatchableRegistrations;
 
-    std::map<ITopology3Group*, Topology5GroupWatcher*> iGroupWatcherLookup;
-    std::vector<std::pair<ITopology3Group*, Topology5GroupWatcher*>> iGroupWatchers;
+    std::vector<ITopology3Group*> iGroupWatchers;
     std::vector<Topology5Group*> iGroups;
     std::vector<Topology5Group*> iRoots;
 };

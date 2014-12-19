@@ -57,12 +57,14 @@ Topology3Group::Topology3Group(INetwork& aNetwork, ITopology2Group& aGroup)
     ,iSender(new Watchable<ITopology3Sender*>(aNetwork, Brn("Sender"), Topology3Sender::Empty()))
     ,iDisposed(false)
     ,iCurrentSender(Topology3Sender::Empty())
+    ,iGroupWatcher(NULL)
 {
 }
 
 
 Topology3Group::~Topology3Group()
 {
+    delete iGroupWatcher;
     delete iSender;
 
     if (iCurrentSender!=Topology3Sender::Empty())
@@ -166,6 +168,18 @@ void Topology3Group::SetSender(ITopology3Sender* aSender)
     iCurrentSender = aSender;
 }
 
+
+ITopology3GroupWatcher* Topology3Group::GroupWatcher()
+{
+    return(iGroupWatcher);
+}
+
+
+void Topology3Group::SetGroupWatcher(ITopology3GroupWatcher* aGroupWatcher)
+{
+    delete iGroupWatcher;
+    iGroupWatcher = aGroupWatcher;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 

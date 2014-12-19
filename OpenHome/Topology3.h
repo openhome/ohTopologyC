@@ -62,6 +62,25 @@ private:
 
 /////////////////////////////////////////////////////////
 
+// Added in ohTopologyC to get rid of Topology5Room::iGroupWatcherLookup
+class ITopology3GroupWatcher : public IWatcher<Brn>, public IWatcher<ITopology2Source*>, public IDisposable
+{
+public:
+    virtual void Dispose() = 0;
+    virtual Brn Room() = 0;
+    virtual Brn Name() = 0;
+    virtual std::vector<ITopology2Source*>& Sources() = 0;
+
+    virtual void ItemOpen(const Brx& aId, Brn aValue) = 0;
+    virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious) = 0;
+    virtual void ItemClose(const Brx& aId, Brn aValue) = 0;
+    virtual void ItemOpen(const Brx& aId, ITopology2Source* aValue) = 0;
+    virtual void ItemUpdate(const Brx& aId, ITopology2Source* aValue, ITopology2Source* aPrevious) = 0;
+    virtual void ItemClose(const Brx& aId, ITopology2Source* aValue) = 0;
+};
+
+////////////////////////////////////////////////////////
+
 class ITopology3Group
 {
 public:
@@ -78,12 +97,14 @@ public:
     virtual IWatchable<Brn>& Name() = 0;
     virtual IWatchable<TBool>& Standby() = 0;
     virtual IWatchable<TUint>& SourceIndex() = 0;
-    //virtual IEnumerable<IWatchable<ITopology2Source*>*>& Sources() = 0;
     virtual std::vector<Watchable<ITopology2Source*>*>& Sources() = 0;
     virtual IWatchable<ITopology3Sender*>& Sender() = 0;
 
     virtual void SetStandby(TBool aValue) = 0;
     virtual void SetSourceIndex(TUint aValue) = 0;
+
+    virtual ITopology3GroupWatcher* GroupWatcher() = 0;
+    virtual void SetGroupWatcher(ITopology3GroupWatcher* aGroupWatcher) = 0;
 };
 
 /////////////////////////////////////////////////////////
@@ -110,19 +131,21 @@ public:
     virtual IWatchable<Brn>& Name();
     virtual IWatchable<TBool>& Standby();
     virtual IWatchable<TUint>& SourceIndex();
-    //virtual IEnumerable<IWatchable<ITopology2Source*>*> Sources();
     virtual std::vector<Watchable<ITopology2Source*>*>& Sources();
 
     virtual IWatchable<ITopology3Sender*>& Sender();
     virtual void SetStandby(TBool aValue);
     virtual void SetSourceIndex(TUint aValue);
 
+    virtual ITopology3GroupWatcher* GroupWatcher();
+    virtual void SetGroupWatcher(ITopology3GroupWatcher* aGroupWatcher);
 
 private:
     ITopology2Group& iGroup;
     Watchable<ITopology3Sender*>* iSender;
     TBool iDisposed;
     ITopology3Sender* iCurrentSender;
+    ITopology3GroupWatcher* iGroupWatcher;
 };
 
 /////////////////////////////////////////////////////////

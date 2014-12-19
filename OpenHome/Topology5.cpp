@@ -794,17 +794,11 @@ Topology5Room::Topology5Room(INetwork& aNetwork, ITopology4Room& aRoom, ILog& aL
 
 Topology5Room::~Topology5Room()
 {
-    for(auto it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
-    {
-        delete it->second;
-    }
-
     for(TUint i=0; i<iGroups.size() ;i++)
     {
         delete iGroups[i];
     }
     iGroups.clear();
-
 
     delete iCurrentRoots;
     delete iCurrentSources;
@@ -825,11 +819,13 @@ void Topology5Room::Dispose()
 {
     iRoom.Groups().RemoveWatcher(*this);
 
-    for(auto it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
+    for(auto it=iGroupWatchers.begin(); it!=iGroupWatchers.end(); it++)
     {
-        it->first->Standby().RemoveWatcher(*this);
-        it->second->Dispose();
+        auto t3Group = *it;
+        t3Group->Standby().RemoveWatcher(*this);
+        t3Group->GroupWatcher()->Dispose();
     }
+
 
     for(TUint i=0; i<iGroups.size() ;i++)
     {
@@ -898,8 +894,8 @@ void Topology5Room::UnorderedClose()
 void Topology5Room::UnorderedAdd(ITopology3Group* aItem)
 {
     auto groupWatcher = new Topology5GroupWatcher(*this, *aItem);
-    iGroupWatcherLookup[aItem] = groupWatcher;
-    iGroupWatchers.push_back( pair<ITopology3Group*, Topology5GroupWatcher*>(aItem, groupWatcher) );
+    aItem->SetGroupWatcher(groupWatcher);
+    iGroupWatchers.push_back(aItem);
 
     aItem->Standby().AddWatcher(*this);
     CreateTree();
@@ -908,20 +904,16 @@ void Topology5Room::UnorderedAdd(ITopology3Group* aItem)
 
 void Topology5Room::UnorderedRemove(ITopology3Group* aItem)
 {
-
-    auto watcher = iGroupWatcherLookup[aItem];
+    auto watcher = aItem->GroupWatcher();
     watcher->Dispose();
-    iGroupWatcherLookup.erase(aItem);
-    aItem->Standby().RemoveWatcher(*this);
+    aItem->SetGroupWatcher(NULL);
 
-    auto p = pair<ITopology3Group*, Topology5GroupWatcher*>(aItem, watcher);
-    auto it = find(iGroupWatchers.begin(), iGroupWatchers.end(), p);
+    auto it = find(iGroupWatchers.begin(), iGroupWatchers.end(), aItem);
     ASSERT(it!=iGroupWatchers.end());
     iGroupWatchers.erase(it);
+    aItem->Standby().RemoveWatcher(*this);
 
-    delete watcher;
-
-    if (iGroupWatcherLookup.size() > 0)
+    if (iGroupWatchers.size() > 0)
     {
         CreateTree();
     }
@@ -938,7 +930,10 @@ void Topology5Room::CreateTree()
 
     for(auto it=iGroupWatchers.begin(); it!=iGroupWatchers.end(); it++)
     {
-        Topology5Group* group = new Topology5Group(iNetwork, it->second->Room(), it->second->Name(), *it->first, it->second->Sources(), iLog);
+        auto t3Group = *it;
+        auto groupWatcher = t3Group->GroupWatcher();
+
+        Topology5Group* group = new Topology5Group(iNetwork, groupWatcher->Room(), groupWatcher->Name(), *t3Group, groupWatcher->Sources(), iLog);
 
         InsertIntoTree(*group);
 
@@ -1061,7 +1056,7 @@ void Topology5Room::ItemClose(const Brx& /*aId*/, TBool aValue)
         iStandbyCount--;
     }
 
-    EvaluateStandby(iGroupWatcherLookup.size() == 0);
+    EvaluateStandby(iGroupWatchers.size() == 0);
 }
 
 
@@ -1081,7 +1076,7 @@ void Topology5Room::EvaluateStandby(TBool aLastGroup)
         {
             standby = eMixed;
 
-            if (iStandbyCount == iGroupWatcherLookup.size())
+            if (iStandbyCount == iGroupWatchers.size())
             {
                 standby = eOn;
             }
