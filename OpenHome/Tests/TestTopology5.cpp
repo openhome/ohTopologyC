@@ -455,10 +455,6 @@ void SuiteTopology5::Test1()
 
     delete log;
     delete mocker;
-
-    Topology3Sender::DestroyStatics();
-    InfoMetadata::DestroyStatics();
-    SenderMetadata::DestroyStatics();
 }
 
 

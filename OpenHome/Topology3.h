@@ -29,36 +29,6 @@ class Topology3;
 
 /////////////////////////////////////////////////////////
 
-class ITopology3Sender
-{
-public:
-    virtual TBool Enabled() = 0;
-    virtual IDevice& Device() = 0;
-    virtual ~ITopology3Sender() {}
-};
-
-/////////////////////////////////////////////////////////
-
-class Topology3Sender : public ITopology3Sender
-{
-public:
-    static Topology3Sender* Empty();
-    static void DestroyStatics();
-
-    Topology3Sender(IDevice& aDevice);
-
-    // ITopology3Sender
-    virtual TBool Enabled();
-    virtual IDevice& Device();
-
-private:
-    Topology3Sender();
-
-private:
-    TBool iEnabled;
-    IDevice* iDevice;
-    static Topology3Sender* iEmpty;
-};
 
 /////////////////////////////////////////////////////////
 
@@ -81,28 +51,14 @@ public:
 
 ////////////////////////////////////////////////////////
 
-class ITopology3Group
+class ITopology3Group : public ITopology2Group
 {
 public:
     virtual ~ITopology3Group() {}
 
-    virtual Brn Id() = 0;
-    virtual Brn Attributes() = 0;
-    virtual Brn ModelName() = 0;
-    virtual Brn ManufacturerName() = 0;
-    virtual Brn ProductId() = 0;
-    virtual IDevice& Device() = 0;
-
-    virtual IWatchable<Brn>& Room() = 0;
-    virtual IWatchable<Brn>& Name() = 0;
-    virtual IWatchable<TBool>& Standby() = 0;
-    virtual IWatchable<TUint>& SourceIndex() = 0;
-    virtual std::vector<Watchable<ITopology2Source*>*>& Sources() = 0;
     virtual IWatchable<ITopology3Sender*>& Sender() = 0;
 
-    virtual void SetStandby(TBool aValue) = 0;
-    virtual void SetSourceIndex(TUint aValue) = 0;
-
+    // Added in ohTopologyC
     virtual ITopology3GroupWatcher* GroupWatcher() = 0;
     virtual void SetGroupWatcher(ITopology3GroupWatcher* aGroupWatcher) = 0;
 };
@@ -141,6 +97,7 @@ public:
     virtual void SetGroupWatcher(ITopology3GroupWatcher* aGroupWatcher);
 
 private:
+    INetwork& iNetwork;
     ITopology2Group& iGroup;
     Watchable<ITopology3Sender*>* iSender;
     TBool iDisposed;

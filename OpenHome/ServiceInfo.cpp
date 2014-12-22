@@ -68,7 +68,7 @@ TUint InfoDetails::SampleRate()
 ServiceInfo::ServiceInfo(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     :Service(aNetwork, aDevice, aLog)
     ,iDetails(new Watchable<IInfoDetails*>(aNetwork, Brn("Details"), new InfoDetails()))
-    ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), InfoMetadata::Empty()))
+    ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), iNetwork.InfoMetadataEmpty()))
     ,iMetatext(new Watchable<IInfoMetatext*>(aNetwork, Brn("Metatext"), new InfoMetatext()))
 {
 }

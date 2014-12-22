@@ -18,6 +18,36 @@ class CpProxyAvOpenhomeOrgSender1;
 namespace Av
 {
 
+
+class ITopology3Sender
+{
+public:
+    virtual TBool Enabled() = 0;
+    virtual IDevice& Device() = 0;
+    virtual ~ITopology3Sender() {}
+};
+
+/////////////////////////////////////////////////////////
+
+class Topology3Sender : public ITopology3Sender
+{
+friend class Network;
+
+public:
+    Topology3Sender(IDevice& aDevice);
+
+    // ITopology3Sender
+    virtual TBool Enabled();
+    virtual IDevice& Device();
+
+private:
+    Topology3Sender();
+
+private:
+    TBool iEnabled;
+    IDevice* iDevice;
+};
+
 ////////////////////////////////////////////////////////////////////
 
 class IProxySender : public IProxy

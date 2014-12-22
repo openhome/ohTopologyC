@@ -138,7 +138,7 @@ ServiceRadio::ServiceRadio(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& a
     :Service(aNetwork, aDevice, aLog)
     ,iId(new Watchable<TUint>(aNetwork, Brn("Id"), 0))
     ,iTransportState(new Watchable<Brn>(aNetwork, Brn("TransportState"), Brx::Empty()))
-    ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), InfoMetadata::Empty()))
+    ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), iNetwork.InfoMetadataEmpty()))
     ,iCurrentTransportState(NULL)
 {
 }

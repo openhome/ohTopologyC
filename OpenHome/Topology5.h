@@ -12,7 +12,7 @@
 #include <OpenHome/Media.h>
 #include <vector>
 #include <map>
-#include <unordered_map>
+//#include <unordered_map>
 
 
 namespace OpenHome
@@ -23,20 +23,6 @@ namespace Av
 
 class Topology5Group;
 class Topology5Room;
-
-/*
-class IMediaPreset : public IDisposable
-{
-public:
-    virtual TUint Index() = 0;
-    virtual IMediaMetadata& Metadata() = 0;
-    virtual IWatchable<TBool>& Buffering() = 0;
-    virtual IWatchable<TBool>& Playing() = 0;
-    virtual IWatchable<TBool>& Selected() = 0;
-    virtual void Play() = 0;
-    virtual ~IMediaPreset() {}
-};
-*/
 
 /////////////////////////////////////////////////////////////////////
 
@@ -296,21 +282,23 @@ public:
 
     virtual void Dispose();
     virtual Brn Name();
+    virtual void SetStandby(TBool aValue);
+
     virtual IWatchable<EStandby>& Standby();
     virtual IWatchable<std::vector<ITopology5Root*>*>& Roots();
     virtual IWatchable<std::vector<ITopology5Source*>*>& Sources();
     virtual IWatchable<std::vector<ITopology5Registration*>*>& Registrations();
-    virtual void SetStandby(TBool aValue);
+
     virtual void UnorderedOpen();
     virtual void UnorderedInitialised();
     virtual void UnorderedClose();
     virtual void UnorderedAdd(ITopology3Group* aItem);
     virtual void UnorderedRemove(ITopology3Group* aItem);
-    virtual void CreateTree();
     virtual void ItemOpen(const Brx& aId, TBool aValue);
     virtual void ItemUpdate(const Brx& aId, TBool aValue, TBool aPrevious);
     virtual void ItemClose(const Brx& aId, TBool aValue);
 
+    virtual void CreateTree();
 
 private:
     void EvaluateStandby();
@@ -361,8 +349,9 @@ public:
 
     static Topology5* CreateTopology5(INetwork* aNetwork, ILog& aLog);
 
-    virtual void Dispose();
     virtual IWatchableUnordered<ITopology5Room*>& Rooms();
+
+    virtual void Dispose();
     virtual INetwork& Network();
     virtual void UnorderedOpen();
     virtual void UnorderedInitialised();

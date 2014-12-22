@@ -16,7 +16,7 @@ using namespace OpenHome::Net;
 ServiceSender::ServiceSender(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     :Service(aNetwork, aDevice, aLog)
     ,iAudio(new Watchable<TBool>(aNetwork, Brn("Audio"), false))
-    ,iMetadata(new Watchable<ISenderMetadata*>(aNetwork, Brn("Metadata"), SenderMetadata::Empty()))
+    ,iMetadata(new Watchable<ISenderMetadata*>(aNetwork, Brn("Metadata"), aNetwork.SenderMetadataEmpty()))
     ,iStatus(new Watchable<Brn>(aNetwork, Brn("Status"), Brx::Empty()))
     ,iCurrentMetadata(NULL)
     ,iCurrentStatus(NULL)
@@ -29,7 +29,7 @@ ServiceSender::~ServiceSender()
     delete iAudio;
     delete iMetadata;
     delete iStatus;
-    if (iCurrentMetadata!= SenderMetadata::Empty())
+    if (iCurrentMetadata!= iNetwork.SenderMetadataEmpty())
     {
         delete iCurrentMetadata;
     }
@@ -358,4 +358,32 @@ void ProxySender::Dispose()
 IDevice& ProxySender::Device()
 {
     return(iDevice);
+}
+
+/////////////////////////////////////////////////////////////////
+
+Topology3Sender::Topology3Sender()
+    :iEnabled(false)
+    ,iDevice(NULL)
+{
+}
+
+
+Topology3Sender::Topology3Sender(IDevice& aDevice)
+    :iEnabled(true)
+    ,iDevice(&aDevice)
+{
+}
+
+
+TBool Topology3Sender::Enabled()
+{
+    return iEnabled;
+}
+
+
+IDevice& Topology3Sender::Device()
+{
+    ASSERT(iEnabled)
+    return *iDevice;
 }

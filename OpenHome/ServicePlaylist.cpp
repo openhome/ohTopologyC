@@ -131,7 +131,7 @@ void MediaPresetPlaylist::ItemClose(const Brx& /*aId*/, Brn /*aPrevious*/)
 ServicePlaylist::ServicePlaylist(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     :Service(aNetwork, aDevice, aLog)
     ,iId(new Watchable<TUint>(aNetwork, Brn("Id"), 0))
-    ,iInfoNext(new Watchable<IInfoMetadata*>(aNetwork, Brn("InfoNext"), InfoMetadata::Empty()))
+    ,iInfoNext(new Watchable<IInfoMetadata*>(aNetwork, Brn("InfoNext"), iNetwork.InfoMetadataEmpty()))
     ,iTransportState(new Watchable<Brn>(aNetwork, Brn("TransportState"), Brx::Empty()))
     ,iRepeat(new Watchable<TBool>(aNetwork, Brn("Repeat"), false))
     ,iShuffle(new Watchable<TBool>(aNetwork, Brn("Shuffle"), true))
@@ -951,7 +951,7 @@ void ServicePlaylistNetwork::EvaluateInfoNext(TUint aId, vector<TUint>& aIdArray
     }
     else
     {
-        iInfoNext->Update(InfoMetadata::Empty());
+        iInfoNext->Update(iNetwork.InfoMetadataEmpty());
     }
 
 /*

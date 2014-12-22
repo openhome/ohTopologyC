@@ -5,58 +5,14 @@ using namespace OpenHome;
 using namespace OpenHome::Av;
 using namespace std;
 
-Topology3Sender* Topology3Sender::iEmpty = NULL;
-
-Topology3Sender* Topology3Sender::Empty()
-{
-    if (iEmpty == NULL)
-    {
-        iEmpty = new Topology3Sender();
-    }
-
-    return(iEmpty);
-}
-
-void Topology3Sender::DestroyStatics()
-{
-    delete iEmpty;
-    iEmpty = NULL;
-}
-
-Topology3Sender::Topology3Sender()
-    :iEnabled(false)
-    ,iDevice(NULL)
-{
-}
-
-
-Topology3Sender::Topology3Sender(IDevice& aDevice)
-    :iEnabled(true)
-    ,iDevice(&aDevice)
-{
-}
-
-
-TBool Topology3Sender::Enabled()
-{
-    return iEnabled;
-}
-
-
-IDevice& Topology3Sender::Device()
-{
-    ASSERT(iEnabled)
-    return *iDevice;
-}
-
 ////////////////////////////////////////////
 
-
 Topology3Group::Topology3Group(INetwork& aNetwork, ITopology2Group& aGroup)
-    :iGroup(aGroup)
-    ,iSender(new Watchable<ITopology3Sender*>(aNetwork, Brn("Sender"), Topology3Sender::Empty()))
+    :iNetwork(aNetwork)
+    ,iGroup(aGroup)
+    ,iSender(new Watchable<ITopology3Sender*>(aNetwork, Brn("Sender"), aNetwork.Topology3SenderEmpty()))
     ,iDisposed(false)
-    ,iCurrentSender(Topology3Sender::Empty())
+    ,iCurrentSender(aNetwork.Topology3SenderEmpty())
     ,iGroupWatcher(NULL)
 {
 }
@@ -67,7 +23,7 @@ Topology3Group::~Topology3Group()
     delete iGroupWatcher;
     delete iSender;
 
-    if (iCurrentSender!=Topology3Sender::Empty())
+    if (iCurrentSender!=iNetwork.Topology3SenderEmpty())
     {
         delete iCurrentSender;
     }
@@ -160,7 +116,7 @@ void Topology3Group::SetSender(ITopology3Sender* aSender)
 {
     iSender->Update(aSender);
 
-    if (/*(iCurrentSender!=NULL)&&*/(iCurrentSender!=Topology3Sender::Empty()))
+    if (/*(iCurrentSender!=NULL)&&*/(iCurrentSender!=iNetwork.Topology3SenderEmpty()))
     {
         delete iCurrentSender;
     }
@@ -218,7 +174,7 @@ void ReceiverWatcher::Dispose()
         iReceiver->Dispose();
     }
 
-    SetSender(Topology3Sender::Empty());
+    SetSender(iTopology3.Network().Topology3SenderEmpty());
 
     //iGroup = null;
     //iTopology = null;
@@ -344,7 +300,7 @@ SenderWatcher::SenderWatcher(Topology3& aTopology3, ITopology2Group& aGroup)
     ,iDisposeHandler(new DisposeHandler())
     ,iDevice(aGroup.Device())
     ,iSender(NULL)
-    ,iMetadata(SenderMetadata::Empty())
+    ,iMetadata(aTopology3.Network().SenderMetadataEmpty())
     ,iDisposed(false)
 {
     FunctorGeneric<ServiceCreateData*> f = MakeFunctorGeneric(*this, &SenderWatcher::CreateCallback);
@@ -419,7 +375,7 @@ void SenderWatcher::ItemUpdate(const Brx& /*aId*/, ISenderMetadata* aValue, ISen
 
 void SenderWatcher::ItemClose(const Brx& /*aId*/, ISenderMetadata* /*aValue*/)
 {
-    iMetadata = SenderMetadata::Empty();
+    iMetadata = iTopology3.Network().SenderMetadataEmpty();
 }
 
 
@@ -576,7 +532,7 @@ void Topology3::ReceiverChanged(ReceiverWatcher& aReceiver)
 
         if (receiverUri.Equals(Brx::Empty()))
         {
-            aReceiver.SetSender(Topology3Sender::Empty());
+            aReceiver.SetSender(iNetwork.Topology3SenderEmpty());
         }
         else if(receiverUri.Equals(watcher->Uri()))
         {
@@ -594,7 +550,7 @@ void Topology3::SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPre
 
         if (aPreviousUri.Equals(watcher->ListeningToUri()))
         {
-            watcher->SetSender(Topology3Sender::Empty());
+            watcher->SetSender(iNetwork.Topology3SenderEmpty());
         }
         else if (aUri.Equals(watcher->ListeningToUri()) && (!aUri.Equals(Brx::Empty())))
         {

@@ -97,6 +97,9 @@ public:
     Topology4(ITopology3* aTopology3, ILog& aLog);
     ~Topology4();
 
+    virtual void AddGroupToRoom(ITopology3Group& aGroup, const Brx& aRoom);
+    virtual void RemoveGroupFromRoom(ITopology3Group& aGroup, const Brx& aRoom);
+
     // IDisposable
     virtual void Dispose();
 
@@ -110,8 +113,6 @@ public:
     virtual void UnorderedClose();
     virtual void UnorderedAdd(ITopology3Group* aItem);
     virtual void UnorderedRemove(ITopology3Group* aItem);
-    virtual void AddGroupToRoom(ITopology3Group& aGroup, const Brx& aRoom);
-    virtual void RemoveGroupFromRoom(ITopology3Group& aGroup, const Brx& aRoom);
 
 private:
     void WatchT3Groups(void*);

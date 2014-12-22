@@ -12,7 +12,7 @@ using namespace OpenHome::Net;
 
 ServiceReceiver::ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     :Service(aNetwork, aDevice, aLog)
-    ,iCurrentMetadata(InfoMetadata::Empty())
+    ,iCurrentMetadata(iNetwork.InfoMetadataEmpty())
     ,iCurrentTransportState(NULL)
     ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), iCurrentMetadata))
     ,iTransportState(new Watchable<Brn>(aNetwork, Brn("TransportState"), Brx::Empty()))
@@ -24,7 +24,7 @@ ServiceReceiver::~ServiceReceiver()
 {
     delete iMetadata;
     delete iTransportState;
-    if (iCurrentMetadata!=InfoMetadata::Empty())
+    if (iCurrentMetadata!=iNetwork.InfoMetadataEmpty())
     {
         delete iCurrentMetadata;
     }
@@ -378,7 +378,7 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
         iCurrentMetadata = new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(allButLastToken), lastToken);
         iMetadata->Update(iCurrentMetadata);
 
-        if (metadata!=InfoMetadata::Empty())
+        if (metadata!=iNetwork.InfoMetadataEmpty())
         {
             delete metadata;
         }

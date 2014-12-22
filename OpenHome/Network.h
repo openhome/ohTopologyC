@@ -12,6 +12,7 @@
 #include <OpenHome/TagManager.h>
 #include <OpenHome/AsyncAdaptor.h>
 #include <OpenHome/IdCache.h>
+#include <OpenHome/ServiceSender.h>
 #include <vector>
 #include <map>
 
@@ -57,6 +58,11 @@ public:
     virtual IEventSupervisor& EventSupervisor() = 0;
     virtual AsyncAdaptorManager& GetAsyncAdaptorManager() = 0;
     virtual IWatchableUnordered<IDevice*>* Create(EServiceType aServiceType) = 0;
+
+    virtual Topology3Sender* Topology3SenderEmpty() = 0;
+    virtual InfoMetadata* InfoMetadataEmpty() = 0;
+    virtual SenderMetadata* SenderMetadataEmpty() = 0;
+
     virtual ~INetwork() {}
 };
 
@@ -79,6 +85,10 @@ public:
     virtual IEventSupervisor& EventSupervisor();
     virtual IWatchableUnordered<IDevice*>* Create(EServiceType aServiceType);
     virtual AsyncAdaptorManager& GetAsyncAdaptorManager();
+
+    virtual Topology3Sender* Topology3SenderEmpty();
+    virtual InfoMetadata* InfoMetadataEmpty();
+    virtual SenderMetadata* SenderMetadataEmpty();
 
     // IWatchableThread
     virtual void Assert();
@@ -112,6 +122,11 @@ private:
     AsyncAdaptorManager* iAsyncAdaptorManager;
     std::map<Brn, Device*, BufferCmp> iDevices;
     std::map<EServiceType, WatchableUnordered<IDevice*>*> iDeviceLists;
+
+    Topology3Sender* iTopology3SenderEmpty;
+    InfoMetadata* iInfoMetadataEmpty;
+    SenderMetadata* iSenderMetadataEmpty;
+
 };
 
 

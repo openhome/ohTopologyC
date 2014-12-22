@@ -171,7 +171,6 @@ IWatchable<TUint>& Topology2Group::SourceIndex()
 }
 
 
-//IEnumerable<IWatchable<ITopology2Source>>& Topology2Group::Sources()
 std::vector<Watchable<ITopology2Source*>*>& Topology2Group::Sources()
 {
     return(iWatchableSources);
@@ -180,18 +179,12 @@ std::vector<Watchable<ITopology2Source*>*>& Topology2Group::Sources()
 
 void Topology2Group:: SetStandby(TBool aValue)
 {
-    //if (iProduct != NULL)
-    //{
-        iProduct.SetStandby(aValue);
-    //}
+    iProduct.SetStandby(aValue);
 }
 
 void Topology2Group::SetSourceIndex(TUint aValue)
 {
-    //if (iProduct != NULL)
-    //{
-        iProduct.SetSourceIndex(aValue);
-    //}
+    iProduct.SetSourceIndex(aValue);
 }
 
 

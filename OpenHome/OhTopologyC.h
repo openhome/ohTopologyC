@@ -100,6 +100,7 @@ public:
     virtual void Write(const Brx&) {}
 };
 
+
 } // OpenHome
 
 #endif // HEADER_OHTOPOLOGYC

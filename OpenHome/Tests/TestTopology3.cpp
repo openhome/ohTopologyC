@@ -182,10 +182,6 @@ void SuiteTopology3::Test1()
     delete iTopology3;
     delete mockInjector;
     delete network;
-
-    Topology3Sender::DestroyStatics();
-    InfoMetadata::DestroyStatics();
-    SenderMetadata::DestroyStatics();
 }
 
 

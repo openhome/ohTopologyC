@@ -270,9 +270,6 @@ void SuiteTopology2::Test1()
     delete iTopology2;
     delete mockInjector;
     delete network;
-
-    InfoMetadata::DestroyStatics();
-    SenderMetadata::DestroyStatics();
 }
 
 

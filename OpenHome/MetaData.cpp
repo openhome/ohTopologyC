@@ -29,19 +29,6 @@ IMediaMetadata& InfoMetatext::Metatext()
 
 //////////////////////////////////////////////////////////
 
-IInfoMetadata* InfoMetadata::iEmpty = NULL;
-
-IInfoMetadata* InfoMetadata::Empty()
-{
-
-    if(iEmpty == NULL)
-    {
-        iEmpty = new InfoMetadata();
-    }
-
-    return(iEmpty);
-}
-
 
 InfoMetadata::InfoMetadata()
     :iMetadata(NULL)
@@ -62,12 +49,6 @@ InfoMetadata::~InfoMetadata()
 }
 
 
-void InfoMetadata::DestroyStatics()
-{ // static
-    delete iEmpty;
-    iEmpty = NULL;
-}
-
 IMediaMetadata& InfoMetadata::Metadata()
 {
     return (*iMetadata);
@@ -80,24 +61,6 @@ const Brx& InfoMetadata::Uri()
 }
 
 ///////////////////////////////////////////////////////////////
-
-SenderMetadata* SenderMetadata::iEmpty = NULL;
-
-SenderMetadata* SenderMetadata::Empty()
-{
-    if(iEmpty == NULL)
-    {
-        iEmpty = new SenderMetadata();
-    }
-    return(iEmpty);
-}
-
-void SenderMetadata::DestroyStatics()
-{ // static
-    delete iEmpty;
-    iEmpty = NULL;
-}
-
 
 SenderMetadata::SenderMetadata()
 {

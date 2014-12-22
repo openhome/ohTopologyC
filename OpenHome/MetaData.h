@@ -53,10 +53,9 @@ private:
 
 class InfoMetadata : public IInfoMetadata, public INonCopyable
 {
-public:
-    static IInfoMetadata* Empty();
-    static void DestroyStatics();
+friend class Network;
 
+public:
     InfoMetadata(IMediaMetadata* aMetadata, const Brx& aUri);
     virtual IMediaMetadata& Metadata();
     virtual const Brx& Uri();
@@ -69,7 +68,6 @@ private:
 private:
     IMediaMetadata* iMetadata;
     Bws<500> iUri;
-    static IInfoMetadata* iEmpty;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -87,11 +85,10 @@ public:
 
 class SenderMetadata : public ISenderMetadata
 {
+friend class Network;
+
 public:
     SenderMetadata(const Brx& aMetadata);
-
-    static SenderMetadata* Empty();
-    static void DestroyStatics();
 
     virtual const Brx& Name();
     virtual const Brx& Uri();
@@ -106,7 +103,6 @@ private:
     Bws<100> iUri;
     Bws<100> iArtworkUri;
     Bws<1000> iMetadata;
-    static SenderMetadata* iEmpty;
 };
 
 
