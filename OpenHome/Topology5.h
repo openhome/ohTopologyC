@@ -336,7 +336,7 @@ private:
     Watchable<std::vector<ITopology5Source*>*>* iWatchableSources;
     Watchable<std::vector<ITopology5Registration*>*>* iWatchableRegistrations;
 
-    std::vector<ITopology3Group*> iGroupWatchers;
+    std::vector<ITopology3Group*> iT3Groups;
     std::vector<Topology5Group*> iGroups;
     std::vector<Topology5Group*> iRoots;
 };

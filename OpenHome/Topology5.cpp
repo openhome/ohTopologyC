@@ -819,13 +819,12 @@ void Topology5Room::Dispose()
 {
     iRoom.Groups().RemoveWatcher(*this);
 
-    for(auto it=iGroupWatchers.begin(); it!=iGroupWatchers.end(); it++)
+    for(auto it=iT3Groups.begin(); it!=iT3Groups.end(); it++)
     {
         auto t3Group = *it;
         t3Group->Standby().RemoveWatcher(*this);
         t3Group->GroupWatcher()->Dispose();
     }
-
 
     for(TUint i=0; i<iGroups.size() ;i++)
     {
@@ -895,7 +894,7 @@ void Topology5Room::UnorderedAdd(ITopology3Group* aItem)
 {
     auto groupWatcher = new Topology5GroupWatcher(*this, *aItem);
     aItem->SetGroupWatcher(groupWatcher);
-    iGroupWatchers.push_back(aItem);
+    iT3Groups.push_back(aItem);
 
     aItem->Standby().AddWatcher(*this);
     CreateTree();
@@ -908,12 +907,12 @@ void Topology5Room::UnorderedRemove(ITopology3Group* aItem)
     watcher->Dispose();
     aItem->SetGroupWatcher(NULL);
 
-    auto it = find(iGroupWatchers.begin(), iGroupWatchers.end(), aItem);
-    ASSERT(it!=iGroupWatchers.end());
-    iGroupWatchers.erase(it);
+    auto it = find(iT3Groups.begin(), iT3Groups.end(), aItem);
+    ASSERT(it!=iT3Groups.end());
+    iT3Groups.erase(it);
     aItem->Standby().RemoveWatcher(*this);
 
-    if (iGroupWatchers.size() > 0)
+    if (iT3Groups.size() > 0)
     {
         CreateTree();
     }
@@ -928,7 +927,7 @@ void Topology5Room::CreateTree()
     iGroups.clear();
     iRoots.clear();
 
-    for(auto it=iGroupWatchers.begin(); it!=iGroupWatchers.end(); it++)
+    for(auto it=iT3Groups.begin(); it!=iT3Groups.end(); it++)
     {
         auto t3Group = *it;
         auto groupWatcher = t3Group->GroupWatcher();
@@ -1056,7 +1055,7 @@ void Topology5Room::ItemClose(const Brx& /*aId*/, TBool aValue)
         iStandbyCount--;
     }
 
-    EvaluateStandby(iGroupWatchers.size() == 0);
+    EvaluateStandby(iT3Groups.size() == 0);
 }
 
 
@@ -1076,7 +1075,7 @@ void Topology5Room::EvaluateStandby(TBool aLastGroup)
         {
             standby = eMixed;
 
-            if (iStandbyCount == iGroupWatchers.size())
+            if (iStandbyCount == iT3Groups.size())
             {
                 standby = eOn;
             }
