@@ -1,16 +1,11 @@
 #ifndef HEADER_WATCHABLE_UNORDERED
 #define HEADER_WATCHABLE_UNORDERED
 
-
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/Watchable.h>
 #include <OpenHome/Private/Debug.h>
 #include <OpenHome/OhTopologyC.h>
 #include <vector>
-#include <algorithm>
-
-
-
 
 namespace OpenHome
 {
@@ -18,8 +13,6 @@ namespace OpenHome
 namespace Av
 {
 
-
-//class WatchableBase;
 
 /**
     \ingroup watchable

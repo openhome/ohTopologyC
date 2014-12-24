@@ -6,6 +6,10 @@
 #include <OpenHome/ServiceProduct.h>
 #include <OpenHome/ServiceSender.h>
 #include <OpenHome/ServiceReceiver.h>
+#include <OpenHome/ServiceVolume.h>
+#include <OpenHome/ServiceRadio.h>
+#include <OpenHome/ServicePlaylist.h>
+#include <OpenHome/ServiceInfo.h>
 #include <vector>
 #include <memory>
 
@@ -191,25 +195,24 @@ IInjectorDevice* DeviceFactory::Create(INetwork& aNetwork, CpDevice& aDevice, IL
 
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Product", value))
     {
-        //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
             device->Add(eProxyProduct, new ServiceProductNetwork(aNetwork, *device, aDevice, aLog));
         }
     }
 
-/*
+
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Info", value))
     {
-        //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
-            device->Add(eProxyInfo, new ServiceInfoNetwork(aNetwork, device, aDevice, aLog));
+            device->Add(eProxyInfo, new ServiceInfoNetwork(aNetwork, *device, aDevice, aLog));
         }
     }
+
+/*
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Time", value))
     {
-        //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
             device->Add(eProxyTime, new ServiceTimeNetwork(aNetwork, device, aDevice, aLog));
@@ -218,42 +221,37 @@ IInjectorDevice* DeviceFactory::Create(INetwork& aNetwork, CpDevice& aDevice, IL
 */
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Sender", value))
     {
-        //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
             device->Add(eProxySender, new ServiceSenderNetwork(aNetwork, *device, aDevice, aLog));
         }
     }
-/*
+
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Volume", value))
     {
-        //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
-            device->Add(eProxyVolume, new ServiceVolumeNetwork(aNetwork, device, aDevice, aLog));
+            device->Add(eProxyVolume, new ServiceVolumeNetwork(aNetwork, *device, aDevice, aLog));
         }
     }
 
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Playlist", value))
     {
-        //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
-            device->Add(eProxyPlaylist, new ServicePlaylistNetwork(aNetwork, device, aDevice, aLog));
+            device->Add(eProxyPlaylist, new ServicePlaylistNetwork(aNetwork, *device, aDevice, aLog));
         }
     }
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Radio", value))
     {
-        //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
-            device->Add(eProxyRadio, new ServiceRadioNetwork(aNetwork, device, aDevice, aLog));
+            device->Add(eProxyRadio, new ServiceRadioNetwork(aNetwork, *device, aDevice, aLog));
         }
     }
-*/
+
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Receiver", value))
     {
-        //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value)==1)
         {
             device->Add(eProxyReceiver, new ServiceReceiverNetwork(aNetwork, *device, aDevice, aLog));

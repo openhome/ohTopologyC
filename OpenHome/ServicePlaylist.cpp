@@ -1352,3 +1352,13 @@ IWatchable<IWatchableSnapshot<IMediaPreset*>*>& ProxyPlaylist::Snapshot()
     return iService.Snapshot();
 }
 
+void ProxyPlaylist::Dispose()
+{
+    iService.Unsubscribe();
+}
+
+
+IDevice& ProxyPlaylist::Device()
+{
+    return (iDevice);
+}

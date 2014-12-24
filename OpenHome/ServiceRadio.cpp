@@ -283,14 +283,12 @@ void ServiceRadioNetwork::OnUnsubscribe()
     if (iMediaSupervisor != NULL)
     {
         iMediaSupervisor->Dispose();
-        //iMediaSupervisor = NULL;
     }
 
 
     if (iCacheSession != NULL)
     {
         iCacheSession->Dispose();
-        //iCacheSession = NULL;
     }
 
     //iSubscribedSource = NULL;
@@ -757,17 +755,6 @@ TUint RadioSnapshot::Total()
     //return ((TUint)iIdArray.Where(v => v != 0).Count());
     auto idNonZeroItems = IdCache::NonZeroItems(*iIdArray);
     return(idNonZeroItems.size());
-/*
-    TUint count = 0;
-    for(TUint i=0; i<iIdArray->size(); i++)
-    {
-        if ((*iIdArray)[i]!=0)
-        {
-            count++;
-        }
-    }
-    return(count);
-*/
 }
 
 
@@ -953,3 +940,13 @@ IWatchable<IWatchableSnapshot<IMediaPreset*>*>& ProxyRadio::Snapshot()
     return iService.Snapshot();
 }
 
+void ProxyRadio::Dispose()
+{
+    iService.Unsubscribe();
+}
+
+
+IDevice& ProxyRadio::Device()
+{
+    return (iDevice);
+}

@@ -228,9 +228,6 @@ public:
     // IDisposable
     virtual void Dispose();
 
-//protected:
-//    Proxy(T aService, IDevice& aDevice);
-
 protected:
     ServiceProduct& iService;
 

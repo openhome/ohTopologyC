@@ -38,8 +38,6 @@ void IdCache::Dispose()
     iCache.clear();
     iLastAccessed.clear();
     iCacheEntries = 0;
-
-    //delete iDisposeHandler;
 }
 
 
@@ -90,8 +88,7 @@ TUint IdCache::Hash(const Brx& aPrefix, const Brx& aUdn)
 }
 
 
-//void NonZeroItems(vector<TUint>& aItems, vector<TUint>& aNonItems)
-vector<TUint> NonZeroItems(vector<TUint>& aItems)
+vector<TUint> IdCache::NonZeroItems(vector<TUint>& aItems)
 {
     vector<TUint> nonZero;
 
@@ -435,7 +432,6 @@ void IdCacheSession::SetValid(vector<TUint>& aValid)
     if (aValid.size() > 0)
     {
         iCache->SetValid(iSessionId, aValid);
-        //foreach (TUint id in aValid)
         for(TUint i=0; i<aValid.size(); i++)
         {
             TUint id = aValid[i];
