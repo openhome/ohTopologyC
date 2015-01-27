@@ -23,12 +23,7 @@ namespace OpenHome
 namespace Av
 {
 
-
 class Topology3;
-
-
-/////////////////////////////////////////////////////////
-
 
 /////////////////////////////////////////////////////////
 
@@ -37,13 +32,16 @@ class ITopology3GroupWatcher : public IWatcher<Brn>, public IWatcher<ITopology2S
 {
 public:
     virtual void Dispose() = 0;
-    virtual Brn Room() = 0;
+    virtual Brn RoomName() = 0;
     virtual Brn Name() = 0;
     virtual std::vector<ITopology2Source*>& Sources() = 0;
 
+    // IWatcher<Brn>
     virtual void ItemOpen(const Brx& aId, Brn aValue) = 0;
     virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious) = 0;
     virtual void ItemClose(const Brx& aId, Brn aValue) = 0;
+
+    // IWatcher<ITopology2Source*>
     virtual void ItemOpen(const Brx& aId, ITopology2Source* aValue) = 0;
     virtual void ItemUpdate(const Brx& aId, ITopology2Source* aValue, ITopology2Source* aPrevious) = 0;
     virtual void ItemClose(const Brx& aId, ITopology2Source* aValue) = 0;
@@ -71,7 +69,6 @@ public:
     Topology3Group(INetwork& aNetwork, ITopology2Group& aGroup);
     ~Topology3Group();
 
-    virtual void SetSender(ITopology3Sender* aSender);
 
     // IDisposable
     virtual void Dispose();
@@ -88,13 +85,14 @@ public:
     virtual IWatchable<TBool>& Standby();
     virtual IWatchable<TUint>& SourceIndex();
     virtual std::vector<Watchable<ITopology2Source*>*>& Sources();
-
-    virtual IWatchable<ITopology3Sender*>& Sender();
     virtual void SetStandby(TBool aValue);
     virtual void SetSourceIndex(TUint aValue);
 
-    virtual ITopology3GroupWatcher* GroupWatcher();
-    virtual void SetGroupWatcher(ITopology3GroupWatcher* aGroupWatcher);
+    virtual IWatchable<ITopology3Sender*>& Sender();
+    virtual void SetSender(ITopology3Sender* aSender);
+
+    virtual ITopology3GroupWatcher* GroupWatcher(); // Added in ohTopologyC
+    virtual void SetGroupWatcher(ITopology3GroupWatcher* aGroupWatcher); // Added in ohTopologyC
 
 private:
     INetwork& iNetwork;
@@ -118,14 +116,17 @@ public:
     virtual const Brx& ListeningToUri();
     virtual void SetSender(ITopology3Sender* aSender);
 
+    // IWatcher<Brn>
     virtual void ItemOpen(const Brx& aId, Brn aValue);
     virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious);
     virtual void ItemClose(const Brx& aId, Brn aValue);
 
+    // IWatcher<IInfoMetadata*>
     virtual void ItemOpen(const Brx& aId, IInfoMetadata* aValue);
     virtual void ItemUpdate(const Brx& aId, IInfoMetadata* aValue, IInfoMetadata* aPrevious);
     virtual void ItemClose(const Brx& aId, IInfoMetadata* aValue);
 
+    // IWatcher<ITopology2Source*>
     virtual void ItemOpen(const Brx& aId, ITopology2Source* aValue);
     virtual void ItemUpdate(const Brx& aId, ITopology2Source* aValue, ITopology2Source* aPrevious);
     virtual void ItemClose(const Brx& aId, ITopology2Source* aValue);
@@ -153,7 +154,8 @@ public:
     virtual void Dispose();
     virtual const Brx& Uri();
     virtual IDevice& Device();
-    // IWatcher
+
+    // IWatcher<ISenderMetadata*>
     virtual void ItemOpen(const Brx& aId, ISenderMetadata* aValue);
     virtual void ItemUpdate(const Brx& aId, ISenderMetadata* aValue, ISenderMetadata* aPrevious);
     virtual void ItemClose(const Brx& aId, ISenderMetadata* aValue);
@@ -193,13 +195,15 @@ public:
     virtual void Dispose();
     virtual IWatchableUnordered<ITopology3Group*>& Groups();
     virtual INetwork& Network();
+    virtual void ReceiverChanged(ReceiverWatcher& aReceiver);
+    virtual void SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri);
+
+    // IWatcherUnordered<ITopology2Group*>
     virtual void UnorderedOpen();
     virtual void UnorderedInitialised();
     virtual void UnorderedAdd(ITopology2Group* aItem);
     virtual void UnorderedRemove(ITopology2Group* aItem);
     virtual void UnorderedClose();
-    virtual void ReceiverChanged(ReceiverWatcher& aReceiver);
-    virtual void SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri);
 
 private:
     void WatchT2Groups(void*);

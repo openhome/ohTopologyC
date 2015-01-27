@@ -16,7 +16,7 @@ Topology1::Topology1(INetwork* aNetwork, ILog& /*aLog*/)
     ,iProducts(new WatchableUnordered<IProxyProduct*>(*iNetwork))
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::WatchDevices);
-    iNetwork->Execute(f, 0);
+    iNetwork->Execute(f, 0);  // this could be a schedule (changed in a later rev.)
 }
 
 

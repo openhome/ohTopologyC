@@ -19,7 +19,6 @@ MediaPresetExternal::MediaPresetExternal(IWatchableThread& aThread, Topology5Gro
     ,iPlaying(new Watchable<TBool>(aThread, Brn("Playing"), false))
     ,iSelected(new Watchable<TBool>(aThread, Brn("Selected"), false))
 {
-
     iGroup.Source().AddWatcher(*this);
 }
 
@@ -183,6 +182,9 @@ Topology5Source::Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITo
     ,iSource(aSource)
     ,iVolumes(NULL)
     ,iDevice(NULL)
+    ,iHasInfo(false)
+    ,iHasTime(false)
+
 {
 
 }
@@ -192,6 +194,7 @@ TUint Topology5Source::Index()
 {
     return iSource->Index();
 }
+
 
 Brn Topology5Source::Name()
 {
@@ -295,9 +298,9 @@ void Topology5Source::Select()
 
 //////////////////////////////////////////////////////////////////
 
-Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopology3Group& aGroup, std::vector<ITopology2Source*> aSources, ILog& /*aLog*/)
+Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoomName, const Brx& aName, ITopology3Group& aGroup, std::vector<ITopology2Source*> aSources, ILog& /*aLog*/)
     :iNetwork(aNetwork)
-    ,iRoom(aRoom)
+    ,iRoomName(aRoomName)
     ,iName(aName)
     ,iGroup(&aGroup)
     ,iCurrentSource(new Topology5SourceNull())
@@ -310,7 +313,6 @@ Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& 
     ,iCurrentVolumes(NULL)
     ,iWatchableSource(new Watchable<ITopology5Source*>(iNetwork, Brn("source"), iCurrentSource))
     ,iSenders(new Watchable<vector<ITopology5Group*>*>(iNetwork, Brn("senders"), iVectorSenders))
-
 {
 
     for(TUint i=0; i<aSources.size(); i++)
@@ -395,9 +397,9 @@ IDevice& Topology5Group::Device()
 }
 
 
-Brn Topology5Group::Room()
+Brn Topology5Group::RoomName()
 {
-    return iRoom;
+    return iRoomName;
 }
 
 
@@ -562,6 +564,12 @@ Topology5Group* Topology5Group::Parent()
 
 TBool Topology5Group::AddIfIsChild(Topology5Group& aGroup)
 {
+    // aGroup.Name = name of one of my sources
+
+    // If one of my sources has the same name as specified group:
+    // I am the parent of that group, that group is a child of mine
+    // My children are my sources
+
     for(TUint i=0; i<iSources.size(); i++)
     {
         Topology5Source* s = iSources[i];
@@ -692,13 +700,13 @@ Topology5GroupWatcher::Topology5GroupWatcher(Topology5Room& aRoom, ITopology3Gro
     ,iGroup(aGroup)
     ,iRoomName(iRoom.Name())
 {
-    iGroup.Name().AddWatcher(*this);
+    iGroup.Name().AddWatcher(*this); // watch group Name
 
     vector<Watchable<ITopology2Source*>*> s = iGroup.Sources();
 
     for(TUint i=0; i<s.size(); i++)
     {
-        s[i]->AddWatcher(*this);
+        s[i]->AddWatcher(*this); // watch each source
     }
 }
 
@@ -714,7 +722,7 @@ void Topology5GroupWatcher::Dispose()
 }
 
 
-Brn Topology5GroupWatcher::Room()
+Brn Topology5GroupWatcher::RoomName()
 {
     return iRoomName;
 }
@@ -732,41 +740,41 @@ std::vector<ITopology2Source*>& Topology5GroupWatcher::Sources()
 }
 
 
-void Topology5GroupWatcher::ItemOpen(const Brx& /*aId*/, Brn aValue)
+void Topology5GroupWatcher::ItemOpen(const Brx& /*aId*/, Brn aName)
 {
-   iName.Set(aValue);
+   iName.Set(aName);
 }
 
 
-void Topology5GroupWatcher::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn /*aPrevious*/)
+void Topology5GroupWatcher::ItemUpdate(const Brx& /*aId*/, Brn aName, Brn /*aPreviousName*/)
 {
-    iName.Set(aValue);
+    iName.Set(aName);
     iRoom.CreateTree();
 }
 
-void Topology5GroupWatcher::ItemClose(const Brx& /*aId*/, Brn /*aValue*/)
+void Topology5GroupWatcher::ItemClose(const Brx& /*aId*/, Brn /*aName*/)
 {
 }
 
 
-void Topology5GroupWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aValue)
+void Topology5GroupWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aSource)
 {
-    iSources.push_back(aValue);
+    iSources.push_back(aSource);
 }
 
 
-void Topology5GroupWatcher::ItemUpdate(const Brx& /*aId*/, ITopology2Source* aValue, ITopology2Source* aPrevious)
+void Topology5GroupWatcher::ItemUpdate(const Brx& /*aId*/, ITopology2Source* aSource, ITopology2Source* aPreviousSource)
 {
-    auto it = find(iSources.begin(), iSources.end(), aPrevious);
+    auto it = find(iSources.begin(), iSources.end(), aPreviousSource);
     if (it!=iSources.end())
     {
-        iSources[it-iSources.begin()] = aValue;
+        iSources[it-iSources.begin()] = aSource;
     }
 
     iRoom.CreateTree();
 }
 
-void Topology5GroupWatcher::ItemClose(const Brx& /*aId*/, ITopology2Source* /*aValue*/)
+void Topology5GroupWatcher::ItemClose(const Brx& /*aId*/, ITopology2Source* /*aSource*/)
 {
 }
 
@@ -789,7 +797,7 @@ Topology5Room::Topology5Room(INetwork& aNetwork, ITopology4Room& aRoom, ILog& aL
     ,iWatchableSources(new Watchable<vector<ITopology5Source*>*>(iNetwork, Brn("sources"), iCurrentSources))
     ,iWatchableRegistrations(new Watchable<vector<ITopology5Registration*>*>(iNetwork, Brn("registration"), iCurrentRegistrations))
 {
-    iRoom.Groups().AddWatcher(*this);
+    iRoom.Groups().AddWatcher(*this);  // T3Groups with matching room name
 }
 
 Topology5Room::~Topology5Room()
@@ -890,27 +898,27 @@ void Topology5Room::UnorderedClose()
 }
 
 
-void Topology5Room::UnorderedAdd(ITopology3Group* aItem)
+void Topology5Room::UnorderedAdd(ITopology3Group* aT3Group)
 {
-    auto groupWatcher = new Topology5GroupWatcher(*this, *aItem);
-    aItem->SetGroupWatcher(groupWatcher);
-    iT3Groups.push_back(aItem);
+    auto groupWatcher = new Topology5GroupWatcher(*this, *aT3Group);
+    aT3Group->SetGroupWatcher(groupWatcher);
+    iT3Groups.push_back(aT3Group);
 
-    aItem->Standby().AddWatcher(*this);
+    aT3Group->Standby().AddWatcher(*this);
     CreateTree();
 }
 
 
-void Topology5Room::UnorderedRemove(ITopology3Group* aItem)
+void Topology5Room::UnorderedRemove(ITopology3Group* aT3Group)
 {
-    auto watcher = aItem->GroupWatcher();
+    auto watcher = aT3Group->GroupWatcher();
     watcher->Dispose();
-    aItem->SetGroupWatcher(NULL);
+    aT3Group->SetGroupWatcher(NULL);
 
-    auto it = find(iT3Groups.begin(), iT3Groups.end(), aItem);
+    auto it = find(iT3Groups.begin(), iT3Groups.end(), aT3Group);
     ASSERT(it!=iT3Groups.end());
     iT3Groups.erase(it);
-    aItem->Standby().RemoveWatcher(*this);
+    aT3Group->Standby().RemoveWatcher(*this);
 
     if (iT3Groups.size() > 0)
     {
@@ -932,13 +940,13 @@ void Topology5Room::CreateTree()
         auto t3Group = *it;
         auto groupWatcher = t3Group->GroupWatcher();
 
-        Topology5Group* group = new Topology5Group(iNetwork, groupWatcher->Room(), groupWatcher->Name(), *t3Group, groupWatcher->Sources(), iLog);
+        Topology5Group* t5Group = new Topology5Group(iNetwork, groupWatcher->RoomName(), groupWatcher->Name(), *t3Group, groupWatcher->Sources(), iLog);
 
-        InsertIntoTree(*group);
+        InsertIntoTree(*t5Group);
 
-        if (!group->ProductId().Equals(Brx::Empty()))
+        if (!t5Group->ProductId().Equals(Brx::Empty()))
         {
-            registrations->push_back(group);
+            registrations->push_back(t5Group);
         }
     }
 
@@ -947,15 +955,16 @@ void Topology5Room::CreateTree()
 
     for(TUint i=0; i<iRoots.size(); i++)
     {
-        Topology5Group* group = iRoots[i];
+        Topology5Group* t5Group = iRoots[i];
 
-        group->EvaluateSources();
-        group->EvaluateSenders();
+        t5Group->EvaluateSources();
+        t5Group->EvaluateSenders();
 
-        auto gSources = group->Sources();
+        // Append all sources from this group to sources list
+        auto gSources = t5Group->Sources();
         sources->insert(sources->end(), gSources.begin(), gSources.end());
-        roots->push_back(group);
 
+        roots->push_back(t5Group);
     }
 
     auto oldRoots = iCurrentRoots;
@@ -990,13 +999,12 @@ void Topology5Room::InsertIntoTree(Topology5Group& aGroup)
     // if group is the first group found
     if (iGroups.size() == 0)
     {
-
-        iGroups.push_back(&aGroup);
-        iRoots.push_back(&aGroup);
+        iGroups.push_back(&aGroup); // add as a group
+        iRoots.push_back(&aGroup); // add as a root
         return;
     }
 
-    // check for an existing parent
+    // check for an existing parent (aGroup is a child(source) of another group)
     for(TUint i=0; i<iGroups.size(); i++)
     {
         if (iGroups[i]->AddIfIsChild(aGroup))
@@ -1006,7 +1014,7 @@ void Topology5Room::InsertIntoTree(Topology5Group& aGroup)
         }
     }
 
-    // check for parent of an existing root
+    // check for parent of an existing root (aGroup is a parent of another group(root))
     for(TUint i=0; i<iRoots.size(); i++)
     {
         Topology5Group* g = iRoots[i];
@@ -1022,9 +1030,9 @@ void Topology5Room::InsertIntoTree(Topology5Group& aGroup)
 }
 
 
-void Topology5Room::ItemOpen(const Brx& /*aId*/, TBool aValue)
+void Topology5Room::ItemOpen(const Brx& /*aId*/, TBool aStandby)
 {
-    if (aValue)
+    if (aStandby)
     {
         iStandbyCount++;
     }
@@ -1033,9 +1041,9 @@ void Topology5Room::ItemOpen(const Brx& /*aId*/, TBool aValue)
 }
 
 
-void Topology5Room::ItemUpdate(const Brx& /*aId*/, TBool aValue, TBool /*aPrevious*/)
+void Topology5Room::ItemUpdate(const Brx& /*aId*/, TBool aStandby, TBool /*aPreviousStandby*/)
 {
-    if (aValue)
+    if (aStandby)
     {
         iStandbyCount++;
     }
@@ -1048,9 +1056,9 @@ void Topology5Room::ItemUpdate(const Brx& /*aId*/, TBool aValue, TBool /*aPrevio
 }
 
 
-void Topology5Room::ItemClose(const Brx& /*aId*/, TBool aValue)
+void Topology5Room::ItemClose(const Brx& /*aId*/, TBool aStandby)
 {
-    if (aValue)
+    if (aStandby)
     {
         iStandbyCount--;
     }

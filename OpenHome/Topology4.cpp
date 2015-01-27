@@ -19,20 +19,20 @@ Topology4GroupWatcher::Topology4GroupWatcher(Topology4& aTopology4, ITopology3Gr
 
 // IWatcher<string>
 
-void Topology4GroupWatcher::ItemOpen(const Brx& /*aId*/, Brn aValue)
+void Topology4GroupWatcher::ItemOpen(const Brx& /*aId*/, Brn aRoom)
 {
-    iTopology4.AddGroupToRoom(iGroup, aValue);
+    iTopology4.AddGroupToRoom(iGroup, aRoom);
 }
 
-void Topology4GroupWatcher::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn aPrevious)
+void Topology4GroupWatcher::ItemUpdate(const Brx& /*aId*/, Brn aRoom, Brn aPreviousRoom)
 {
-    iTopology4.RemoveGroupFromRoom(iGroup, aPrevious);
-    iTopology4.AddGroupToRoom(iGroup, aValue);
+    iTopology4.RemoveGroupFromRoom(iGroup, aPreviousRoom);
+    iTopology4.AddGroupToRoom(iGroup, aRoom);
 }
 
-void Topology4GroupWatcher::ItemClose(const Brx& /*aId*/, Brn aValue)
+void Topology4GroupWatcher::ItemClose(const Brx& /*aId*/, Brn aRoom)
 {
-    iTopology4.RemoveGroupFromRoom(iGroup, aValue);
+    iTopology4.RemoveGroupFromRoom(iGroup, aRoom);
 }
 
 // IDisposable

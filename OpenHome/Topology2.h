@@ -95,7 +95,7 @@ public:
     virtual void SetSourceIndex(TUint aValue);
     virtual std::vector<Watchable<ITopology2Source*>*>& Sources();
 
-    // IWatcher
+    // IWatcher<Brn>
     virtual void ItemOpen(const Brx& aId, Brn aValue);
     virtual void ItemClose(const Brx& aId, Brn aValue);
     virtual void ItemUpdate(const Brx& aId, Brn, Brn aPrevious);
@@ -138,7 +138,7 @@ public:
     virtual IWatchableUnordered<ITopology2Group*>& Groups();
     virtual INetwork& Network();
 
-    // IWatcherUnordered
+    // IWatcherUnordered<IProxyProduct*>
     virtual void UnorderedOpen();
     virtual void UnorderedInitialised();
     virtual void UnorderedAdd(IProxyProduct* aItem);
