@@ -80,7 +80,7 @@ public:
     virtual Brn ManufacturerName();
     virtual Brn ProductId();
     virtual IDevice& Device();
-    virtual IWatchable<Brn>& Room();
+    virtual IWatchable<Brn>& RoomName();
     virtual IWatchable<Brn>& Name();
     virtual IWatchable<TBool>& Standby();
     virtual IWatchable<TUint>& SourceIndex();

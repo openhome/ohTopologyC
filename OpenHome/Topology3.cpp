@@ -70,9 +70,9 @@ IDevice& Topology3Group::Device()
     return iGroup.Device();
 }
 
-IWatchable<Brn>& Topology3Group::Room()
+IWatchable<Brn>& Topology3Group::RoomName()
 {
-    return iGroup.Room();
+    return iGroup.RoomName();
 }
 
 IWatchable<Brn>& Topology3Group::Name()

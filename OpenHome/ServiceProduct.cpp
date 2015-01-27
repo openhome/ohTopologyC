@@ -15,7 +15,7 @@ using namespace std;
 
 ServiceProduct::ServiceProduct(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
     :Service(aNetwork, aDevice, aLog)
-    ,iRoom(new Watchable<Brn>(aNetwork, Brn("Room"), Brx::Empty()))
+    ,iRoomName(new Watchable<Brn>(aNetwork, Brn("RoomName"), Brx::Empty()))
     ,iName(new Watchable<Brn>(aNetwork, Brn("Name"), Brx::Empty()))
     ,iSourceIndex(new Watchable<TUint>(aNetwork, Brn("SourceIndex"), 0))
     ,iSourceXml(new Watchable<Brn>(aNetwork, Brn("SourceXml"), Brx::Empty()))
@@ -32,7 +32,7 @@ ServiceProduct::~ServiceProduct()
     delete iCurrentRoom;
     delete iCurrentName;
     delete iCurrentSourceXml;
-    delete iRoom;
+    delete iRoomName;
     delete iName;
     delete iSourceIndex;
     delete iSourceXml;
@@ -44,7 +44,7 @@ ServiceProduct::~ServiceProduct()
 void ServiceProduct::Dispose()
 {
     Service::Dispose();
-    iRoom->Dispose();
+    iRoomName->Dispose();
     iName->Dispose();
     iSourceIndex->Dispose();
     iSourceXml->Dispose();
@@ -58,9 +58,9 @@ IProxy* ServiceProduct::OnCreate(IDevice& aDevice)
 }
 
 
-IWatchable<Brn>& ServiceProduct::Room()
+IWatchable<Brn>& ServiceProduct::RoomName()
 {
-    return(*iRoom);
+    return(*iRoomName);
 }
 
 
@@ -448,7 +448,7 @@ void ServiceProductNetwork::RoomChangedCallback2(void*)
 
     Bws<20>* oldRoom = iCurrentRoom;
     iCurrentRoom = new Bws<20>(room);
-    iRoom->Update(Brn(*iCurrentRoom));
+    iRoomName->Update(Brn(*iCurrentRoom));
     delete oldRoom;
 }
 
@@ -576,7 +576,7 @@ ServiceProductMock::ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDev
     iCurrentName = new Bws<50>(aName);
     iCurrentSourceXml = new Bws<2048>(iSourceXmlFactory->ToString());
 
-    iRoom->Update(Brn(*iCurrentRoom));
+    iRoomName->Update(Brn(*iCurrentRoom));
     iName->Update(Brn(*iCurrentName));
     iSourceXml->Update(Brn(*iCurrentSourceXml));
     iSourceIndex->Update(aSourceIndex);
@@ -644,7 +644,7 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
     {
         Bws<20>* oldRoom = iCurrentRoom;
         iCurrentRoom = new Bws<20>(aCommands.RemainingTrimmed());
-        iRoom->Update(Brn(*iCurrentRoom));
+        iRoomName->Update(Brn(*iCurrentRoom));
         delete oldRoom;
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("name")))
@@ -751,9 +751,9 @@ ProxyProduct::ProxyProduct(ServiceProduct& aService, IDevice& aDevice)
 }
 
 
-IWatchable<Brn>& ProxyProduct::Room()
+IWatchable<Brn>& ProxyProduct::RoomName()
 {
-    return iService.Room();
+    return iService.RoomName();
 }
 
 

@@ -60,7 +60,7 @@ public:
     virtual Brn ProductId() = 0;
     virtual IDevice& Device() = 0;
 
-    virtual IWatchable<Brn>& Room() = 0;
+    virtual IWatchable<Brn>& RoomName() = 0;
     virtual IWatchable<Brn>& Name() = 0;
     virtual IWatchable<TBool>& Standby() = 0;
     virtual IWatchable<TUint>& SourceIndex() = 0;
@@ -87,7 +87,7 @@ public:
     virtual Brn ManufacturerName();
     virtual Brn ProductId();
     virtual IDevice& Device();
-    virtual IWatchable<Brn>& Room();
+    virtual IWatchable<Brn>& RoomName();
     virtual IWatchable<Brn>& Name();
     virtual IWatchable<TBool>& Standby();
     virtual IWatchable<TUint>& SourceIndex();

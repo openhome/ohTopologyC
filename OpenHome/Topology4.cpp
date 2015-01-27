@@ -14,7 +14,7 @@ Topology4GroupWatcher::Topology4GroupWatcher(Topology4& aTopology4, ITopology3Gr
     :iTopology4(aTopology4)
     ,iGroup(aGroup)
 {
-    iGroup.Room().AddWatcher(*this);
+    iGroup.RoomName().AddWatcher(*this);
 }
 
 // IWatcher<string>
@@ -39,7 +39,7 @@ void Topology4GroupWatcher::ItemClose(const Brx& /*aId*/, Brn aRoom)
 
 void Topology4GroupWatcher::Dispose()
 {
-    iGroup.Room().RemoveWatcher(*this);
+    iGroup.RoomName().RemoveWatcher(*this);
 }
 
 ///////////////////////////////////////////////////////////////

@@ -100,7 +100,7 @@ public:
         FunctorGeneric<MockCbData<TUint>*> fSourceIndex = MakeFunctorGeneric(*this, &GroupWatcher::SourceIndexCallback);
         FunctorGeneric<MockCbData<TBool>*> fStandby = MakeFunctorGeneric(*this, &GroupWatcher::StandbyCallback);
 
-        iFactory->Create<Brn>(aItem->Device().Udn(), aItem->Room(), fRoom);
+        iFactory->Create<Brn>(aItem->Device().Udn(), aItem->RoomName(), fRoom);
         iFactory->Create<Brn>(aItem->Device().Udn(), aItem->Name(), fName);
         iFactory->Create<TUint>(aItem->Device().Udn(), aItem->SourceIndex(), fSourceIndex);
         iFactory->Create<TBool>(aItem->Device().Udn(), aItem->Standby(), fStandby);

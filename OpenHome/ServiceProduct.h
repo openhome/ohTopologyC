@@ -73,7 +73,7 @@ private:
 class IProxyProduct : public IProxy
 {
 public:
-    virtual IWatchable<Brn>& Room() = 0;
+    virtual IWatchable<Brn>& RoomName() = 0;
     virtual IWatchable<Brn>& Name() = 0;
     virtual IWatchable<TUint>& SourceIndex() = 0;
     virtual IWatchable<Brn>& SourceXml() = 0;
@@ -112,7 +112,7 @@ public:
     virtual IProxy* OnCreate(IDevice& aDevice);
 
     // IServiceProduct methods
-    virtual IWatchable<Brn>& Room();
+    virtual IWatchable<Brn>& RoomName();
     virtual IWatchable<Brn>& Name();
     virtual IWatchable<TUint>& SourceIndex();
     virtual IWatchable<Brn>& SourceXml();
@@ -154,7 +154,7 @@ protected:
     Bws<100> iProductInfo;
     Bws<100> iProductUrl;
     Bws<100> iProductId;
-    Watchable<Brn>* iRoom;
+    Watchable<Brn>* iRoomName;
     Watchable<Brn>* iName;
     Watchable<TUint>* iSourceIndex;
     Watchable<Brn>* iSourceXml;
@@ -197,7 +197,7 @@ public:
     ProxyProduct(ServiceProduct& aService, IDevice& aDevice);
 
     // IProduct
-    virtual IWatchable<Brn>& Room();
+    virtual IWatchable<Brn>& RoomName();
     virtual IWatchable<Brn>& Name();
     virtual IWatchable<TUint>& SourceIndex();
     virtual IWatchable<Brn>& SourceXml();

@@ -147,9 +147,9 @@ void Topology2Group::ItemUpdate(const Brx& /*aId*/, Brn aValue, Brn /*aPrevious*
 }
 
 
-IWatchable<Brn>& Topology2Group::Room()
+IWatchable<Brn>& Topology2Group::RoomName()
 {
-    return(iProduct.Room());
+    return(iProduct.RoomName());
 }
 
 
