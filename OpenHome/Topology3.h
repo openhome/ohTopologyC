@@ -32,7 +32,6 @@ class ITopology3GroupWatcher : public IWatcher<Brn>, public IWatcher<ITopology2S
 {
 public:
     virtual void Dispose() = 0;
-    virtual Brn RoomName() = 0;
     virtual Brn Name() = 0;
     virtual std::vector<ITopology2Source*>& Sources() = 0;
 

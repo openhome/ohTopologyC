@@ -239,7 +239,6 @@ class Topology5GroupWatcher : public ITopology3GroupWatcher,  public INonCopyabl
 public:
     Topology5GroupWatcher(Topology5Room& aRoom, ITopology3Group& aGroup);
     virtual void Dispose();
-    virtual Brn RoomName();
     virtual Brn Name();
     virtual std::vector<ITopology2Source*>& Sources();
 
@@ -254,7 +253,6 @@ public:
 private:
     Topology5Room& iRoom;
     ITopology3Group& iGroup;
-    Brn iRoomName;
     Brn iName;
     std::vector<ITopology2Source*> iSources;
 

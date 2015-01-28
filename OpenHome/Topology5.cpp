@@ -698,7 +698,6 @@ void Topology5Group::SetSourceIndex(TUint aValue)
 Topology5GroupWatcher::Topology5GroupWatcher(Topology5Room& aRoom, ITopology3Group& aGroup)
     :iRoom(aRoom)
     ,iGroup(aGroup)
-    ,iRoomName(iRoom.Name())
 {
     iGroup.Name().AddWatcher(*this); // watch group Name
 
@@ -719,12 +718,6 @@ void Topology5GroupWatcher::Dispose()
     {
         s[i]->RemoveWatcher(*this);
     }
-}
-
-
-Brn Topology5GroupWatcher::RoomName()
-{
-    return iRoomName;
 }
 
 
@@ -940,7 +933,7 @@ void Topology5Room::CreateTree()
         auto t3Group = *it;
         auto groupWatcher = t3Group->GroupWatcher();
 
-        Topology5Group* t5Group = new Topology5Group(iNetwork, groupWatcher->RoomName(), groupWatcher->Name(), *t3Group, groupWatcher->Sources(), iLog);
+        Topology5Group* t5Group = new Topology5Group(iNetwork, iName, groupWatcher->Name(), *t3Group, groupWatcher->Sources(), iLog);
 
         InsertIntoTree(*t5Group);
 
