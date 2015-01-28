@@ -101,70 +101,60 @@ void MediaPresetExternal::ItemClose(const Brx& /*aId*/, ITopology5Source* /*aVal
 ITopology5Group& Topology5SourceNull::Group()
 {
     THROW(NotImplementedException);
-    //throw new NotImplementedException();
 }
 
 
 TUint Topology5SourceNull::Index()
 {
     THROW(NotImplementedException);
-   // throw new NotImplementedException();
 }
 
 
 Brn Topology5SourceNull::Name()
 {
     THROW(NotImplementedException);
-    //throw new NotImplementedException();
 }
 
 
 Brn Topology5SourceNull::Type()
 {
     THROW(NotImplementedException);
-    //throw new NotImplementedException();
 }
 
 
 TBool Topology5SourceNull::Visible()
 {
     THROW(NotImplementedException);
-   // throw new NotImplementedException();
 }
 
 
 IMediaPreset& Topology5SourceNull::CreatePreset()
 {
     THROW(NotImplementedException);
-    //throw new NotImplementedException();
 }
 
 
 std::vector<ITopology5Group*>& Topology5SourceNull::Volumes()
 {
     THROW(NotImplementedException);
-    //throw new NotImplementedException();
 }
 
 
 IDevice& Topology5SourceNull::Device()
 {
     THROW(NotImplementedException);
-   // throw new NotImplementedException();
 }
 
 
 TBool Topology5SourceNull::HasInfo()
 {
     THROW(NotImplementedException);
-    //throw new NotImplementedException();
 }
 
 
 TBool Topology5SourceNull::HasTime()
 {
     THROW(NotImplementedException);
-    //throw new NotImplementedException();
 }
 
 
@@ -784,11 +774,9 @@ Topology5Room::Topology5Room(INetwork& aNetwork, ITopology4Room& aRoom, ILog& aL
     ,iStandby(eOff)
     ,iCurrentRoots(new vector<ITopology5Root*>())
     ,iCurrentSources(new vector<ITopology5Source*>())
-    ,iCurrentRegistrations(new vector<ITopology5Registration*>())
     ,iWatchableStandby(new Watchable<EStandby>(iNetwork, Brn("standby"), eOff))
     ,iWatchableRoots(new Watchable<vector<ITopology5Root*>*>(iNetwork, Brn("roots"), iCurrentRoots))
     ,iWatchableSources(new Watchable<vector<ITopology5Source*>*>(iNetwork, Brn("sources"), iCurrentSources))
-    ,iWatchableRegistrations(new Watchable<vector<ITopology5Registration*>*>(iNetwork, Brn("registration"), iCurrentRegistrations))
 {
     iRoom.Groups().AddWatcher(*this);  // T3Groups with matching room name
 }
@@ -803,17 +791,14 @@ Topology5Room::~Topology5Room()
 
     delete iCurrentRoots;
     delete iCurrentSources;
-    delete iCurrentRegistrations;
 
     delete iWatchableRoots;
     delete iWatchableSources;
-    delete iWatchableRegistrations;
     delete iWatchableStandby;
 
     iWatchableStandby = NULL;
     iWatchableRoots = NULL;
     iWatchableSources = NULL;
-    iWatchableRegistrations = NULL;
 }
 
 void Topology5Room::Dispose()
@@ -835,8 +820,6 @@ void Topology5Room::Dispose()
     iWatchableStandby->Dispose();
     iWatchableRoots->Dispose();
     iWatchableSources->Dispose();
-    iWatchableRegistrations->Dispose();
-
 }
 
 
@@ -861,12 +844,6 @@ IWatchable<std::vector<ITopology5Root*>*>& Topology5Room::Roots()
 IWatchable<std::vector<ITopology5Source*>*>& Topology5Room::Sources()
 {
     return *iWatchableSources;
-}
-
-
-IWatchable<std::vector<ITopology5Registration*>*>& Topology5Room::Registrations()
-{
-    return *iWatchableRegistrations;
 }
 
 
@@ -922,7 +899,6 @@ void Topology5Room::UnorderedRemove(ITopology3Group* aT3Group)
 
 void Topology5Room::CreateTree()
 {
-    vector<ITopology5Registration*>* registrations = new vector<ITopology5Registration*>();
     vector<Topology5Group*> oldGroups(iGroups);
 
     iGroups.clear();
@@ -936,11 +912,6 @@ void Topology5Room::CreateTree()
         Topology5Group* t5Group = new Topology5Group(iNetwork, iName, groupWatcher->Name(), *t3Group, groupWatcher->Sources(), iLog);
 
         InsertIntoTree(*t5Group);
-
-        if (!t5Group->ProductId().Equals(Brx::Empty()))
-        {
-            registrations->push_back(t5Group);
-        }
     }
 
     auto roots = new vector<ITopology5Root*>();
@@ -963,18 +934,13 @@ void Topology5Room::CreateTree()
     auto oldRoots = iCurrentRoots;
     iCurrentRoots = roots;
 
-    auto oldRegs = iCurrentRegistrations;
-    iCurrentRegistrations = registrations;
-
     auto oldSources = iCurrentSources;
     iCurrentSources = sources;
 
     iWatchableRoots->Update(iCurrentRoots);
     iWatchableSources->Update(iCurrentSources);
-    iWatchableRegistrations->Update(iCurrentRegistrations);
 
     delete oldRoots;
-    delete oldRegs;
     delete oldSources;
 
 

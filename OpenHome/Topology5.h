@@ -267,7 +267,6 @@ public:
     virtual IWatchable<EStandby>& Standby() = 0;
     virtual IWatchable<std::vector<ITopology5Root*>*>& Roots() = 0;
     virtual IWatchable<std::vector<ITopology5Source*>*>& Sources() = 0;
-    virtual IWatchable<std::vector<ITopology5Registration*>*>& Registrations() = 0;
     virtual void SetStandby(TBool aValue) = 0;
     virtual ~ITopology5Room() {}
 };
@@ -289,7 +288,6 @@ public:
     virtual IWatchable<EStandby>& Standby();
     virtual IWatchable<std::vector<ITopology5Root*>*>& Roots();
     virtual IWatchable<std::vector<ITopology5Source*>*>& Sources();
-    virtual IWatchable<std::vector<ITopology5Registration*>*>& Registrations();
 
     // IWatcherUnordered<ITopology3Group*>
     virtual void UnorderedOpen();
@@ -321,12 +319,10 @@ private:
 
     std::vector<ITopology5Root*>* iCurrentRoots; // added in ohTopologyC
     std::vector<ITopology5Source*>* iCurrentSources; // added in ohTopologyC
-    std::vector<ITopology5Registration*>* iCurrentRegistrations; // added in ohTopologyC
 
     Watchable<EStandby>* iWatchableStandby;
     Watchable<std::vector<ITopology5Root*>*>* iWatchableRoots;
     Watchable<std::vector<ITopology5Source*>*>* iWatchableSources;
-    Watchable<std::vector<ITopology5Registration*>*>* iWatchableRegistrations;
 
     std::vector<ITopology3Group*> iT3Groups;
     std::vector<Topology5Group*> iGroups;
