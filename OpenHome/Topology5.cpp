@@ -128,7 +128,7 @@ TBool Topology5SourceNull::Visible()
 }
 
 
-IMediaPreset& Topology5SourceNull::CreatePreset()
+IMediaPreset* Topology5SourceNull::CreatePreset()
 {
     THROW(NotImplementedException);
 }
@@ -166,15 +166,14 @@ void Topology5SourceNull::Select()
 
 ///////////////////////////////////////////////////
 
-Topology5Source::Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITopology2Source* aSource)
+Topology5Source::Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, IDevice& aDevice, ITopology2Source& aSource)
     :iNetwork(aNetwork)
     ,iGroup(aGroup)
     ,iSource(aSource)
     ,iVolumes(NULL)
-    ,iDevice(NULL)
+    ,iDevice(aDevice)
     ,iHasInfo(false)
     ,iHasTime(false)
-
 {
 
 }
@@ -182,13 +181,13 @@ Topology5Source::Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITo
 
 TUint Topology5Source::Index()
 {
-    return iSource->Index();
+    return iSource.Index();
 }
 
 
 Brn Topology5Source::Name()
 {
-    return iSource->Name();
+    return iSource.Name();
 }
 
 
@@ -200,24 +199,24 @@ ITopology5Group& Topology5Source::Group()
 
 Brn Topology5Source::Type()
 {
-    return iSource->Type();
+    return iSource.Type();
 }
 
 
 TBool Topology5Source::Visible()
 {
-    return iSource->Visible();
+    return iSource.Visible();
 }
 
 
-IMediaPreset& Topology5Source::CreatePreset()
+IMediaPreset* Topology5Source::CreatePreset()
 {
     MediaMetadata* metadata = new MediaMetadata();
-    metadata->Add(iNetwork.GetTagManager().Audio().Title(), iSource->Name());
+    metadata->Add(iNetwork.GetTagManager().Audio().Title(), iSource.Name());
 
     Bwh extSrcName;
     extSrcName.Replace(Brn("external://"));
-    extSrcName.Append(iSource->Name());
+    extSrcName.Append(iSource.Name());
 
     metadata->Add(iNetwork.GetTagManager().Audio().Artwork(), extSrcName);
 
@@ -228,7 +227,7 @@ IMediaPreset& Topology5Source::CreatePreset()
         group = group->Parent();
     }
 
-    return (*(new MediaPresetExternal(iNetwork, *group, iSource->Index(), metadata, *this)));
+    return (new MediaPresetExternal(iNetwork, *group, iSource.Index(), metadata, *this));
 }
 
 
@@ -246,14 +245,7 @@ void Topology5Source::SetVolumes(std::vector<ITopology5Group*>* aVolumes)
 
 IDevice& Topology5Source::Device()
 {
-    ASSERT(iDevice!=NULL);
-    return(*iDevice);
-}
-
-
-void Topology5Source::SetDevice(IDevice& aDevice)
-{
-    iDevice = &aDevice;
+    return(iDevice);
 }
 
 
@@ -283,7 +275,7 @@ void Topology5Source::SetHasTime(TBool aHasTime)
 
 void Topology5Source::Select()
 {
-    iGroup.SetSourceIndex(iSource->Index());
+    iGroup.SetSourceIndex(iSource.Index());
 }
 
 //////////////////////////////////////////////////////////////////
@@ -307,7 +299,7 @@ Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoomName, const B
 
     for(TUint i=0; i<aSources.size(); i++)
     {
-        auto source = new Topology5Source(aNetwork, *this, aSources[i]);
+        auto source = new Topology5Source(aNetwork, *this, iGroup->Device(), *(aSources[i]));
         iSources.push_back(source);
     }
 
@@ -434,9 +426,11 @@ void Topology5Group::EvaluateSources()
     TBool hasInfo = Ascii::Contains(iGroup->Attributes(), Brn("Info"));
     TBool hasTime = (Ascii::Contains(iGroup->Attributes(), Brn("Time")) && hasInfo);
 
-    // build list of all volume groups
+    // build list of all volume groups (groups with Volume service attribute)
     auto volumes = new vector<ITopology5Group*>();
 
+    // traverse up the tree adding(insert) any groups that have Volume
+    // starting with this group, then my parent group, then my parent's group etc
     Topology5Group* group = this;
 
     while (group != NULL)
@@ -454,7 +448,6 @@ void Topology5Group::EvaluateSources()
     {
         auto source = iSources[i];
         source->SetVolumes(volumes);
-        source->SetDevice(iGroup->Device());
         source->SetHasInfo(hasInfo);
         source->SetHasTime(hasTime);
     }
@@ -917,14 +910,15 @@ void Topology5Room::CreateTree()
         InsertIntoTree(*t5Group);
     }
 
-
-
+    // Copy roots list to new list of ITopology5Root
+    // and build single list of sources from all roots.
     auto newRoots = new vector<ITopology5Root*>();
     auto newSources = new vector<ITopology5Source*>();
 
     for(TUint i=0; i<iRoots.size(); i++)
     {
         Topology5Group* t5Group = iRoots[i];
+        newRoots->push_back(t5Group); // copy into ITopology5Root list
 
         t5Group->EvaluateSources();
         t5Group->EvaluateSenders();
@@ -932,8 +926,6 @@ void Topology5Room::CreateTree()
         // Append all sources from this group to sources list
         auto gSources = t5Group->Sources();
         newSources->insert(newSources->end(), gSources.begin(), gSources.end());
-
-        newRoots->push_back(t5Group);
     }
 
     auto oldRoots = iCurrentRoots;

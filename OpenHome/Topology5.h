@@ -44,7 +44,7 @@ public:
     virtual Brn Type() = 0;
     virtual TBool Visible() = 0;
     virtual ITopology5Group& Group() = 0;
-    virtual IMediaPreset& CreatePreset() = 0;
+    virtual IMediaPreset* CreatePreset() = 0;
     virtual std::vector<ITopology5Group*>& Volumes() = 0;
     virtual IDevice& Device() = 0;
     virtual TBool HasInfo() = 0;
@@ -64,7 +64,7 @@ public:
     virtual Brn Type();
     virtual TBool Visible();
     virtual ITopology5Group& Group();
-    virtual IMediaPreset& CreatePreset();
+    virtual IMediaPreset* CreatePreset();
     virtual std::vector<ITopology5Group*>& Volumes();
     virtual IDevice& Device();
     virtual TBool HasInfo();
@@ -77,7 +77,7 @@ public:
 class Topology5Source : public ITopology5Source, public INonCopyable
 {
 public:
-    Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITopology2Source* aSource);
+    Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, IDevice& aDevice, ITopology2Source& aSource);
 
     // ITopology5Source
     virtual TUint Index();
@@ -85,14 +85,13 @@ public:
     virtual Brn Type();
     virtual TBool Visible();
     virtual ITopology5Group& Group();
-    virtual IMediaPreset& CreatePreset();
+    virtual IMediaPreset* CreatePreset();
     virtual std::vector<ITopology5Group*>& Volumes();
     virtual IDevice& Device();
     virtual TBool HasInfo();
     virtual TBool HasTime();
     virtual void Select();
 
-    virtual void SetDevice(IDevice& aDevice);
     virtual void SetHasInfo(TBool aHasInfo);
     virtual void SetHasTime(TBool aHasTime);
     virtual void SetVolumes(std::vector<ITopology5Group*>* aVolumes);
@@ -101,9 +100,9 @@ public:
 private:
     INetwork& iNetwork;
     Topology5Group& iGroup;
-    ITopology2Source* iSource;
+    ITopology2Source& iSource;
     std::vector<ITopology5Group*>* iVolumes;
-    IDevice* iDevice;
+    IDevice& iDevice;
     TBool iHasInfo;
     TBool iHasTime;
 };
@@ -136,17 +135,6 @@ private:
     Watchable<TBool>* iSelected;
 };
 
-/////////////////////////////////////////////////////////////////////
-
-class ITopology5Registration
-{
-public:
-    virtual Brn RoomName() = 0;
-    virtual Brn ModelName() = 0;
-    virtual Brn ManufacturerName() = 0;
-    virtual Brn ProductId() = 0;
-    virtual ~ITopology5Registration() {}
-};
 
 /////////////////////////////////////////////////////////////////////
 
@@ -161,7 +149,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////
 
-class Topology5Group : public ITopology5Root, public ITopology5Registration, public IWatcher<TUint>, public IWatcher<Brn>, public IDisposable, public INonCopyable
+class Topology5Group : public ITopology5Root, public IWatcher<TUint>, public IWatcher<Brn>, public IDisposable, public INonCopyable
 {
 public:
     Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopology3Group& aGroup, std::vector<ITopology2Source*> aSources, ILog& aLog);
