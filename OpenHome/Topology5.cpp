@@ -434,7 +434,7 @@ void Topology5Group::EvaluateSources()
     TBool hasInfo = Ascii::Contains(iGroup->Attributes(), Brn("Info"));
     TBool hasTime = (Ascii::Contains(iGroup->Attributes(), Brn("Time")) && hasInfo);
 
-    // get list of all volume groups
+    // build list of all volume groups
     auto volumes = new vector<ITopology5Group*>();
 
     Topology5Group* group = this;
@@ -448,6 +448,7 @@ void Topology5Group::EvaluateSources()
 
         group = group->Parent();
     }
+
 
     for(TUint i=0; i<iSources.size(); i++)
     {
@@ -691,7 +692,7 @@ Topology5GroupWatcher::Topology5GroupWatcher(Topology5Room& aRoom, ITopology3Gro
 {
     iGroup.Name().AddWatcher(*this); // watch group Name
 
-    vector<Watchable<ITopology2Source*>*> s = iGroup.Sources();
+    vector<Watchable<ITopology2Source*>*>& s = iGroup.Sources();
 
     for(TUint i=0; i<s.size(); i++)
     {
@@ -701,8 +702,9 @@ Topology5GroupWatcher::Topology5GroupWatcher(Topology5Room& aRoom, ITopology3Gro
 
 void Topology5GroupWatcher::Dispose()
 {
+    // detach from all properties we are currently watching
     iGroup.Name().RemoveWatcher(*this);
-    vector<Watchable<ITopology2Source*>*> s = iGroup.Sources();
+    vector<Watchable<ITopology2Source*>*>& s = iGroup.Sources();
 
     for(TUint i=0; i<s.size(); i++)
     {
@@ -899,8 +901,9 @@ void Topology5Room::UnorderedRemove(ITopology3Group* aT3Group)
 
 void Topology5Room::CreateTree()
 {
-    vector<Topology5Group*> oldGroups(iGroups);
+    vector<Topology5Group*> oldGroups(iGroups); // take snapshot for deletion
 
+    // Rebuild iGroups and iRoots
     iGroups.clear();
     iRoots.clear();
 
@@ -914,8 +917,10 @@ void Topology5Room::CreateTree()
         InsertIntoTree(*t5Group);
     }
 
-    auto roots = new vector<ITopology5Root*>();
-    auto sources = new vector<ITopology5Source*>();
+
+
+    auto newRoots = new vector<ITopology5Root*>();
+    auto newSources = new vector<ITopology5Source*>();
 
     for(TUint i=0; i<iRoots.size(); i++)
     {
@@ -926,16 +931,16 @@ void Topology5Room::CreateTree()
 
         // Append all sources from this group to sources list
         auto gSources = t5Group->Sources();
-        sources->insert(sources->end(), gSources.begin(), gSources.end());
+        newSources->insert(newSources->end(), gSources.begin(), gSources.end());
 
-        roots->push_back(t5Group);
+        newRoots->push_back(t5Group);
     }
 
     auto oldRoots = iCurrentRoots;
-    iCurrentRoots = roots;
+    iCurrentRoots = newRoots;
 
     auto oldSources = iCurrentSources;
-    iCurrentSources = sources;
+    iCurrentSources = newSources;
 
     iWatchableRoots->Update(iCurrentRoots);
     iWatchableSources->Update(iCurrentSources);
@@ -973,7 +978,8 @@ void Topology5Room::InsertIntoTree(Topology5Group& aGroup)
         }
     }
 
-    // check for parent of an existing root (aGroup is a parent of another group(root))
+    // remove any roots that are children of mine
+    // (root = not a child of any other group)
     for(TUint i=0; i<iRoots.size(); i++)
     {
         Topology5Group* g = iRoots[i];
@@ -1022,39 +1028,32 @@ void Topology5Room::ItemClose(const Brx& /*aId*/, TBool aStandby)
         iStandbyCount--;
     }
 
-    EvaluateStandby(iT3Groups.size() == 0);
+    if (iT3Groups.size() > 0)
+    {
+        EvaluateStandby();
+    }
 }
 
 
 void Topology5Room::EvaluateStandby()
 {
-    EvaluateStandby(false);
-}
+    EStandby standby = eOff;
 
-
-void Topology5Room::EvaluateStandby(TBool aLastGroup)
-{
-    if (!aLastGroup)
+    if (iStandbyCount > 0)
     {
-        EStandby standby = eOff;
+        standby = eMixed;
 
-        if (iStandbyCount > 0)
+        if (iStandbyCount == iT3Groups.size())
         {
-            standby = eMixed;
-
-            if (iStandbyCount == iT3Groups.size())
-            {
-                standby = eOn;
-            }
-        }
-
-        if (standby != iStandby)
-        {
-            iStandby = standby;
-            iWatchableStandby->Update(standby);
+            standby = eOn;
         }
     }
 
+    if (standby != iStandby)
+    {
+        iStandby = standby;
+        iWatchableStandby->Update(standby);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -1081,7 +1080,6 @@ Topology5::~Topology5()
     }
 
     iRoomLookup.clear();
-
 }
 
 Topology5* Topology5::CreateTopology5(INetwork* aNetwork, ILog& aLog)

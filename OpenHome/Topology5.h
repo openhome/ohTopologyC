@@ -303,7 +303,6 @@ public:
 
 private:
     void EvaluateStandby();
-    void EvaluateStandby(TBool aLastGroup);
     void InsertIntoTree(Topology5Group& aGroup);
     void CreateTree();   // made private in ohTopologyC
 
