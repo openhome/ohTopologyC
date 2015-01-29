@@ -166,12 +166,11 @@ void Topology5SourceNull::Select()
 
 ///////////////////////////////////////////////////
 
-Topology5Source::Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, IDevice& aDevice, ITopology2Source& aSource)
+Topology5Source::Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITopology2Source& aSource)
     :iNetwork(aNetwork)
     ,iGroup(aGroup)
     ,iSource(aSource)
     ,iVolumes(NULL)
-    ,iDevice(aDevice)
     ,iHasInfo(false)
     ,iHasTime(false)
 {
@@ -245,7 +244,7 @@ void Topology5Source::SetVolumes(std::vector<ITopology5Group*>* aVolumes)
 
 IDevice& Topology5Source::Device()
 {
-    return(iDevice);
+    return(iGroup.Device());
 }
 
 
@@ -299,7 +298,7 @@ Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoomName, const B
 
     for(TUint i=0; i<aSources.size(); i++)
     {
-        auto source = new Topology5Source(aNetwork, *this, iGroup->Device(), *(aSources[i]));
+        auto source = new Topology5Source(aNetwork, *this, *(aSources[i]));
         iSources.push_back(source);
     }
 

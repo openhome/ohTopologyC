@@ -77,7 +77,7 @@ public:
 class Topology5Source : public ITopology5Source, public INonCopyable
 {
 public:
-    Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, IDevice& aDevice, ITopology2Source& aSource);
+    Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITopology2Source& aSource);
 
     // ITopology5Source
     virtual TUint Index();
@@ -102,7 +102,6 @@ private:
     Topology5Group& iGroup;
     ITopology2Source& iSource;
     std::vector<ITopology5Group*>* iVolumes;
-    IDevice& iDevice;
     TBool iHasInfo;
     TBool iHasTime;
 };
