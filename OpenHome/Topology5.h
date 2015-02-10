@@ -198,7 +198,7 @@ private:
     INetwork& iNetwork;
     Brn iRoomName;
     Brn iName;
-    ITopology3Group* iGroup;
+    ITopology3Group& iGroup;
     ITopology5Source* iCurrentSource;
     //ILog& iLog;
     TBool iDisposed;

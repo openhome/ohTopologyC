@@ -283,7 +283,7 @@ Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoomName, const B
     :iNetwork(aNetwork)
     ,iRoomName(aRoomName)
     ,iName(aName)
-    ,iGroup(&aGroup)
+    ,iGroup(aGroup)
     ,iCurrentSource(new Topology5SourceNull())
     //,iLog(aLog)
     ,iDisposed(false)
@@ -302,12 +302,12 @@ Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoomName, const B
         iSources.push_back(source);
     }
 
-    iGroup->SourceIndex().AddWatcher(*this);
+    iGroup.SourceIndex().AddWatcher(*this);
 
-    if (Ascii::Contains(iGroup->Attributes(), Brn("Sender")))
+    if (Ascii::Contains(iGroup.Attributes(), Brn("Sender")))
     {
         FunctorGeneric<ServiceCreateData*> f  = MakeFunctorGeneric(*this, &Topology5Group::CreateCallback);
-        iGroup->Device().Create(f, eProxySender);
+        iGroup.Device().Create(f, eProxySender);
     }
 
 }
@@ -348,7 +348,7 @@ void Topology5Group::CreateCallback(ServiceCreateData* aData)
 
 void Topology5Group::Dispose()
 {
-    iGroup->SourceIndex().RemoveWatcher(*this);
+    iGroup.SourceIndex().RemoveWatcher(*this);
 
     iWatchableSource->Dispose();
 
@@ -374,7 +374,7 @@ Brn Topology5Group::Name()
 
 IDevice& Topology5Group::Device()
 {
-    return iGroup->Device();
+    return iGroup.Device();
 }
 
 
@@ -386,25 +386,25 @@ Brn Topology5Group::RoomName()
 
 Brn Topology5Group::ModelName()
 {
-    return iGroup->ModelName();
+    return iGroup.ModelName();
 }
 
 
 Brn Topology5Group::ManufacturerName()
 {
-    return iGroup->ManufacturerName();
+    return iGroup.ManufacturerName();
 }
 
 
 Brn Topology5Group::ProductId()
 {
-    return iGroup->ProductId();
+    return iGroup.ProductId();
 }
 
 
 IWatchable<ITopology3Sender*>& Topology5Group::Sender()
 {
-    return iGroup->Sender();
+    return iGroup.Sender();
 }
 
 IWatchable<ITopology5Source*>& Topology5Group::Source()
@@ -415,20 +415,19 @@ IWatchable<ITopology5Source*>& Topology5Group::Source()
 
 ITopology3Group& Topology5Group::Group()
 {
-    return(*iGroup);
+    return(iGroup);
 }
 
 
 void Topology5Group::EvaluateSources()
 {
 
-    TBool hasInfo = Ascii::Contains(iGroup->Attributes(), Brn("Info"));
-    TBool hasTime = (Ascii::Contains(iGroup->Attributes(), Brn("Time")) && hasInfo);
+    TBool hasInfo = Ascii::Contains(iGroup.Attributes(), Brn("Info"));
+    TBool hasTime = (Ascii::Contains(iGroup.Attributes(), Brn("Time")) && hasInfo);
 
     // build list of all volume groups (groups with Volume service attribute)
     auto volumes = new vector<ITopology5Group*>();
-
-    // traverse up the tree adding(insert) any groups that have Volume
+    // traverse UP the tree adding(insert) any groups that have Volume
     // starting with this group, then my parent group, then my parent's group etc
     Topology5Group* group = this;
 
@@ -441,8 +440,13 @@ void Topology5Group::EvaluateSources()
 
         group = group->Parent();
     }
+    auto oldVolumes = iCurrentVolumes;
+    iCurrentVolumes = volumes;
+    delete oldVolumes;
 
 
+
+    // update all my sources with my Volume, Info and Time attribute status
     for(TUint i=0; i<iSources.size(); i++)
     {
         auto source = iSources[i];
@@ -451,25 +455,26 @@ void Topology5Group::EvaluateSources()
         source->SetHasTime(hasTime);
     }
 
-    auto oldVolumes = iCurrentVolumes;
-    iCurrentVolumes = volumes;
-    delete oldVolumes;
-
+    // trigger source evaluation on all my child groups
     for(TUint i=0; i<iChildren.size(); i++)
     {
         auto group = iChildren[i];
         group->EvaluateSources();
     }
 
-    for (TUint i= 0; i<iSources.size(); ++i)
+
+    // Build list of Visible sources:
+    // Expand sources to those of any child groups
+    // For non expanded sources: remove if not Visible
+    for (TUint i= 0; i<iSources.size(); i++)
     {
         Topology5Source* s = iSources[i];
 
         TBool expanded = false;
 
-        for(TUint i=0; i<iChildren.size(); i++)
+        for(TUint j=0; j<iChildren.size(); j++)
         {
-            auto g = iChildren[i];
+            auto g = iChildren[j];
 
             // if group is connected to source expand source to group sources
             if (s->Name() == g->Name())
@@ -664,15 +669,12 @@ void Topology5Group::EvaluateSendersFromChild()
 
 void Topology5Group::SetSourceIndex(TUint aValue)
 {
-    if (iGroup != NULL)
+    if (iParent != NULL)
     {
-        if (iParent != NULL)
-        {
-            iParent->SetSourceIndex(iParentSourceIndex);
-        }
-
-        iGroup->SetSourceIndex(aValue);
+        iParent->SetSourceIndex(iParentSourceIndex);
     }
+
+    iGroup.SetSourceIndex(aValue);
 }
 
 
@@ -919,8 +921,8 @@ void Topology5Room::CreateTree()
         Topology5Group* t5Group = iRoots[i];
         newRoots->push_back(t5Group); // copy into ITopology5Root list
 
-        t5Group->EvaluateSources();
-        t5Group->EvaluateSenders();
+        t5Group->EvaluateSources(); // refresh group's source list
+        t5Group->EvaluateSenders(); // refresh group's sender list
 
         // Append all sources from this group to sources list
         auto gSources = t5Group->Sources();
