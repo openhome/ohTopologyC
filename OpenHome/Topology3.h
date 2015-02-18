@@ -187,6 +187,9 @@ public:
 
 class Topology3 : public ITopology3, public IWatcherUnordered<ITopology2Group*>, public INonCopyable
 {
+    friend class ReceiverWatcher;
+    friend class SenderWatcher;
+
 public:
     Topology3(ITopology2* aTopology2, ILog& aLog);
     ~Topology3();
@@ -194,8 +197,6 @@ public:
     virtual void Dispose();
     virtual IWatchableUnordered<ITopology3Group*>& Groups();
     virtual INetwork& Network();
-    virtual void ReceiverChanged(ReceiverWatcher& aReceiver);
-    virtual void SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri);
 
     // IWatcherUnordered<ITopology2Group*>
     virtual void UnorderedOpen();
@@ -207,6 +208,8 @@ public:
 private:
     void WatchT2Groups(void*);
     void DisposeCallback(void*);
+    void ReceiverChanged(ReceiverWatcher& aReceiver);
+    void SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri);
 
 private:
     ITopology2* iTopology2;
