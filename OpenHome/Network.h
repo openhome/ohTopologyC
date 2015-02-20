@@ -57,7 +57,7 @@ public:
     virtual ITagManager& GetTagManager() = 0;
     virtual IEventSupervisor& EventSupervisor() = 0;
     virtual AsyncAdaptorManager& GetAsyncAdaptorManager() = 0;
-    virtual IWatchableUnordered<IDevice*>* Create(EServiceType aServiceType) = 0;
+    virtual IWatchableUnordered<IDevice*>& Create(EServiceType aServiceType) = 0;
 
     virtual Topology3Sender* Topology3SenderEmpty() = 0;
     virtual InfoMetadata* InfoMetadataEmpty() = 0;
@@ -83,7 +83,7 @@ public:
     virtual IIdCache& IdCache();
     virtual ITagManager& GetTagManager();
     virtual IEventSupervisor& EventSupervisor();
-    virtual IWatchableUnordered<IDevice*>* Create(EServiceType aServiceType);
+    virtual IWatchableUnordered<IDevice*>& Create(EServiceType aServiceType);
     virtual AsyncAdaptorManager& GetAsyncAdaptorManager();
 
     virtual Topology3Sender* Topology3SenderEmpty();

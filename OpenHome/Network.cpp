@@ -286,14 +286,14 @@ void Network::RemoveCallback(void* aObj)
 /**
 
  */
-IWatchableUnordered<IDevice*>* Network::Create(EServiceType aServiceType)
+IWatchableUnordered<IDevice*>& Network::Create(EServiceType aServiceType)
 {
     DisposeLock lock(*iDisposeHandler);
     Assert(); /// must be on watchable thread
 
     if (iDeviceLists.count(aServiceType)>0)
     {
-        return(iDeviceLists[aServiceType]);
+        return(*iDeviceLists[aServiceType]);
     }
     else
     {
@@ -310,7 +310,7 @@ IWatchableUnordered<IDevice*>* Network::Create(EServiceType aServiceType)
             }
         }
 
-        return(watchables);
+        return(*watchables);
     }
 }
 
