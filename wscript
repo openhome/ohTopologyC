@@ -57,7 +57,7 @@ def configure(conf):
 
     configure_toolchain(conf)
     guess_ohnet_location(conf)
-    guess_ohnetmon_location(conf)
+    guess_location(conf, 'ohNetmon')
 
     conf.env.dest_platform = conf.options.dest_platform
     conf.env.testharness_dir = os.path.abspath(conf.options.testharness_dir)
