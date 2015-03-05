@@ -19,29 +19,29 @@ namespace Av
 {
 
 
-class ITopology3Sender
+class ISender
 {
 public:
     virtual TBool Enabled() = 0;
     virtual IDevice& Device() = 0;
-    virtual ~ITopology3Sender() {}
+    virtual ~ISender() {}
 };
 
 /////////////////////////////////////////////////////////
 
-class Topology3Sender : public ITopology3Sender
+class Sender : public ISender
 {
 friend class Network;
 
 public:
-    Topology3Sender(IDevice& aDevice);
+    Sender(IDevice& aDevice);
 
-    // ITopology3Sender
+    // ISender
     virtual TBool Enabled();
     virtual IDevice& Device();
 
 private:
-    Topology3Sender();
+    Sender();
 
 private:
     TBool iEnabled;

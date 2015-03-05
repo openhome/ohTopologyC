@@ -361,27 +361,27 @@ IDevice& ProxySender::Device()
 
 /////////////////////////////////////////////////////////////////
 
-Topology3Sender::Topology3Sender()
+Sender::Sender()
     :iEnabled(false)
     ,iDevice(NULL)
 {
 }
 
 
-Topology3Sender::Topology3Sender(IDevice& aDevice)
+Sender::Sender(IDevice& aDevice)
     :iEnabled(true)
     ,iDevice(&aDevice)
 {
 }
 
 
-TBool Topology3Sender::Enabled()
+TBool Sender::Enabled()
 {
     return iEnabled;
 }
 
 
-IDevice& Topology3Sender::Device()
+IDevice& Sender::Device()
 {
     ASSERT(iEnabled)
     return *iDevice;

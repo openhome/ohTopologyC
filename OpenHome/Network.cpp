@@ -24,7 +24,7 @@ Network::Network(TUint aMaxCacheEntries, ILog&/* aLog*/)
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread))
     ,iAsyncAdaptorManager(new AsyncAdaptorManager())
-    ,iTopology3SenderEmpty(new Topology3Sender())
+    ,iSenderEmpty(new Sender())
     ,iInfoMetadataEmpty(new InfoMetadata())
     ,iSenderMetadataEmpty(new SenderMetadata())
 {
@@ -42,7 +42,7 @@ Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILo
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread);)
     ,iAsyncAdaptorManager(new AsyncAdaptorManager())
-    ,iTopology3SenderEmpty(new Topology3Sender())
+    ,iSenderEmpty(new Sender())
     ,iInfoMetadataEmpty(new InfoMetadata())
     ,iSenderMetadataEmpty(new SenderMetadata())
 {
@@ -68,7 +68,7 @@ Network::~Network()
 
     delete iDisposeHandler;
 
-    delete iTopology3SenderEmpty;
+    delete iSenderEmpty;
     delete iInfoMetadataEmpty;
     delete iSenderMetadataEmpty;
 }
@@ -87,9 +87,9 @@ AsyncAdaptorManager& Network::GetAsyncAdaptorManager()
 }
 
 
-Topology3Sender* Network::Topology3SenderEmpty()
+Sender* Network::SenderEmpty()
 {
-    return(iTopology3SenderEmpty);
+    return(iSenderEmpty);
 }
 
 

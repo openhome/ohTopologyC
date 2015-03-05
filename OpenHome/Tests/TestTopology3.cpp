@@ -63,7 +63,7 @@ public:
         result->Replace(aItem->Device().Udn());
         result->Append(" Group Added");
         iRunner.Result(result);
-        iFactory->Create<ITopology3Sender*>(aItem->Device().Udn(), aItem->Sender(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
+        iFactory->Create<ISender*>(aItem->Device().Udn(), aItem->Sender(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
     }
 
     virtual void UnorderedRemove(ITopology3Group* aItem)
@@ -84,9 +84,9 @@ public:
     }
 
 private:
-    void CreateCallback(MockCbData<ITopology3Sender*>* aArgs)
+    void CreateCallback(MockCbData<ISender*>* aArgs)
     {
-        ITopology3Sender* sender = aArgs->iData;
+        ISender* sender = aArgs->iData;
         FunctorGeneric<const Brx&> f = aArgs->iCallback;
 
         Bws<100> buf;

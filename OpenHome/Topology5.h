@@ -30,7 +30,7 @@ class ITopology5Group
 public:
     virtual Brn Name() = 0;
     virtual IDevice& Device() = 0;
-    virtual IWatchable<ITopology3Sender*>& Sender() = 0;
+    virtual IWatchable<ISender*>& Sender() = 0;
     virtual ~ITopology5Group() {}
 };
 
@@ -162,7 +162,7 @@ public:
     virtual Brn ManufacturerName();
     virtual Brn ProductId();
 
-    virtual IWatchable<ITopology3Sender*>& Sender();
+    virtual IWatchable<ISender*>& Sender();
     virtual IWatchable<std::vector<ITopology5Group*>*>& Senders();
 
     virtual IWatchable<ITopology5Source*>& Source();

@@ -402,7 +402,7 @@ Brn Topology5Group::ProductId()
 }
 
 
-IWatchable<ITopology3Sender*>& Topology5Group::Sender()
+IWatchable<ISender*>& Topology5Group::Sender()
 {
     return iGroup.Sender();
 }
