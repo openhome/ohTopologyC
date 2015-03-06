@@ -36,16 +36,19 @@ public:
 
 class Topology4GroupWatcher : public IWatcher<Brn>, public IDisposable, public INonCopyable
 {
+    friend class IWatcher<Brn>;
+
 public:
     Topology4GroupWatcher(Topology4& aTopology, ITopology3Group& aGroup);
 
+    // IDisposable
+    virtual void Dispose();
+
+private:
     // IWatcher<Brn>
     virtual void ItemOpen(const Brx& aId, Brn aRoom);
     virtual void ItemUpdate(const Brx& aId, Brn aRoom, Brn aPreviousRoom);
     virtual void ItemClose(const Brx& aId, Brn aRoom);
-
-    // IDisposable
-    virtual void Dispose();
 
 private:
     Topology4& iTopology4;
@@ -56,6 +59,8 @@ private:
 
 class Topology4Room : public ITopology4Room
 {
+    friend class Topology4;
+
 public:
     Topology4Room(IWatchableThread& aThread, const Brx& aName, ITopology3Group& aGroup);
     ~Topology4Room();
@@ -63,15 +68,14 @@ public:
     // IDisposable
     virtual void Dispose();
 
-    // Topology4Room
-    virtual void Add(ITopology3Group& aGroup);
-    virtual TBool Remove(ITopology3Group& aGroup);
-
     // ITopology4Room
     virtual const Brx& Name();
     virtual IWatchableUnordered<ITopology3Group*>& Groups();
     virtual void SetStandby(TBool aValue);
 
+private:
+    void Add(ITopology3Group& aGroup);
+    TBool Remove(ITopology3Group& aGroup);
 
 private:
     Bws<100> iName; // FIXME: random capacity

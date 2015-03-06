@@ -495,9 +495,7 @@ void Topology3::UnorderedRemove(ITopology2Group* aItem)
             iSenderLookup.erase(aItem);
         }
 
-        // schedule higher layer notification
         Topology3Group* group = iGroupLookup[aItem];
-
         iGroups->Remove(group);
         iGroupLookup.erase(aItem);
 

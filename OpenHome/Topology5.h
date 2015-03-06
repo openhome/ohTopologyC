@@ -110,6 +110,8 @@ private:
 
 class MediaPresetExternal : public IMediaPreset, public IWatcher<ITopology5Source*>, public INonCopyable
 {
+    friend class IWatcher<ITopology5Source*>;
+
 public:
     MediaPresetExternal(IWatchableThread& aThread, Topology5Group& aGroup, TUint aIndex, IMediaMetadata* aMetadata, Topology5Source& aSource);
 
@@ -120,6 +122,8 @@ public:
     virtual IWatchable<TBool>& Playing();
     virtual IWatchable<TBool>& Selected();
     virtual void Play();
+
+private:
     virtual void ItemOpen(const Brx& aId, ITopology5Source* aValue);
     virtual void ItemUpdate(const Brx& aId, ITopology5Source* aValue, ITopology5Source* aPrevious);
     virtual void ItemClose(const Brx& aId, ITopology5Source* aValue);
@@ -150,6 +154,9 @@ public:
 
 class Topology5Group : public ITopology5Root, public IWatcher<TUint>, public IWatcher<Brn>, public IDisposable, public INonCopyable
 {
+    friend class IWatcher<TUint>;
+    friend class IWatcher<Brn>;
+
 public:
     Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopology3Group& aGroup, std::vector<ITopology2Source*> aSources, ILog& aLog);
     ~Topology5Group();
@@ -168,13 +175,14 @@ public:
     virtual IWatchable<ITopology5Source*>& Source();
     virtual std::vector<ITopology5Source*>& Sources();
     virtual Topology5Group* Parent();
-    ITopology3Group& Group();
+    virtual ITopology3Group& Group();
 
     virtual void EvaluateSenders();
     virtual void EvaluateSources();
     virtual TBool AddIfIsChild(Topology5Group& aGroup);
     virtual void SetSourceIndex(TUint aValue);
 
+private:
     // IWatcher<TUint>
     virtual void ItemOpen(const Brx& aId, TUint aValue);
     virtual void ItemUpdate(const Brx& aId, TUint aValue, TUint aPrevious);
@@ -223,12 +231,15 @@ private:
 
 class Topology5GroupWatcher : public ITopology3GroupWatcher,  public INonCopyable
 {
+    friend class ITopology3GroupWatcher;
+
 public:
     Topology5GroupWatcher(Topology5Room& aRoom, ITopology3Group& aGroup);
     virtual void Dispose();
     virtual Brn Name();
     virtual std::vector<ITopology2Source*>& Sources();
 
+private:
     // ITopology3GroupWatcher
     virtual void ItemOpen(const Brx& aId, Brn aName);
     virtual void ItemUpdate(const Brx& aId, Brn aName, Brn aPreviousName);
@@ -262,7 +273,9 @@ public:
 
 class Topology5Room : public ITopology5Room, public IWatcherUnordered<ITopology3Group*>, public IWatcher<TBool>, public IDisposable, public INonCopyable
 {
-friend class Topology5GroupWatcher;
+    friend class Topology5GroupWatcher;
+    friend class IWatcherUnordered<ITopology3Group*>;
+    friend class IWatcher<TBool>;
 
 public:
     Topology5Room(INetwork& aNetwork, ITopology4Room& aRoom, ILog& aLog);
@@ -276,6 +289,7 @@ public:
     virtual IWatchable<std::vector<ITopology5Root*>*>& Roots();
     virtual IWatchable<std::vector<ITopology5Source*>*>& Sources();
 
+private:
     // IWatcherUnordered<ITopology3Group*>
     virtual void UnorderedOpen();
     virtual void UnorderedInitialised();
@@ -288,7 +302,6 @@ public:
     virtual void ItemUpdate(const Brx& aId, TBool aValue, TBool aPrevious);
     virtual void ItemClose(const Brx& aId, TBool aValue);
 
-private:
     void EvaluateStandby();
     void InsertIntoTree(Topology5Group& aGroup);
     void CreateTree();   // made private in ohTopologyC
@@ -329,17 +342,19 @@ public:
 
 class Topology5 : public ITopology5, public IWatcherUnordered<ITopology4Room*>, public IDisposable, public INonCopyable
 {
+    friend class IWatcherUnordered<ITopology4Room*>;
+
 public:
     Topology5(ITopology4* aTopology4, ILog& aLog);
     ~Topology5();
 
-    static Topology5* CreateTopology5(INetwork* aNetwork, ILog& aLog);
-
     virtual IWatchableUnordered<ITopology5Room*>& Rooms();
-
     virtual void Dispose();
     virtual INetwork& Network();
 
+    static Topology5* CreateTopology5(INetwork* aNetwork, ILog& aLog);
+
+private:
     // IWatcherUnordered<ITopology4Room*>
     virtual void UnorderedOpen();
     virtual void UnorderedInitialised();
@@ -347,7 +362,6 @@ public:
     virtual void UnorderedAdd(ITopology4Room* aT4Room);
     virtual void UnorderedRemove(ITopology4Room* aT4Room);
 
-private:
     void WatchT4Rooms(void*);
     void DisposeCallback(void*);
     void UnorderedAddCallback(void* aT4Room);
