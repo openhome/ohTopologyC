@@ -4,7 +4,7 @@
 
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 
 
 AsyncAdaptor::AsyncAdaptor(AsyncAdaptorManager& aMan)

@@ -9,7 +9,7 @@
 
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace OpenHome::TestFramework;
 
 
@@ -18,7 +18,7 @@ EXCEPTION(TestException);
 
 namespace OpenHome
 {
-namespace Av
+namespace Topology
 {
 namespace TestTopology2
 {
@@ -204,14 +204,14 @@ private:
 };
 
 } // namespace TestTopology2
-} // namespace Av
+} // namespace Topology
 } // namespace OpenHome
 
 
 /////////////////////////////////////////////////////////////////////
 
 
-using namespace OpenHome::Av::TestTopology2;
+using namespace OpenHome::Topology::TestTopology2;
 
 
 SuiteTopology2::SuiteTopology2(IReader& aReader)

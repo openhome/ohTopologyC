@@ -15,7 +15,7 @@
 namespace OpenHome
 {
 
-namespace Av
+namespace Topology
 {
 
 class IDevice : public IJoinable

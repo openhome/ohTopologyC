@@ -11,13 +11,13 @@
 
 using namespace std;
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace OpenHome::TestFramework;
 
 
 namespace OpenHome
 {
-namespace Av
+namespace Topology
 {
 namespace TestTopology5
 {
@@ -389,7 +389,7 @@ private:
 } // OpenHome
 
 
-using namespace OpenHome::Av::TestTopology5;
+using namespace OpenHome::Topology::TestTopology5;
 
 //////////////////////////////////////////////////////////////////////////
 

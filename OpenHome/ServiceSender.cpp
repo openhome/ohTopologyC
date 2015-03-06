@@ -6,7 +6,7 @@
 
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace OpenHome::Net;
 
 

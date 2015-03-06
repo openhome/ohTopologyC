@@ -2,7 +2,7 @@
 
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace std;
 
 
@@ -519,36 +519,43 @@ void Topology3::ReceiverChanged(ReceiverWatcher& aReceiver)
 {
     Brn receiverUri(aReceiver.ListeningToUri());
 
+    if (receiverUri.Equals(Brx::Empty()))  // ohTopC: moved this outside the iSenderLookup loop
+    {
+        aReceiver.SetSender(iNetwork.SenderEmpty()); // couldn't this be done by aReceiver itself?
+        return;
+    }
+
     for(auto it = iSenderLookup.begin(); it!=iSenderLookup.end(); it++)
     {
         SenderWatcher* watcher = it->second;
         Brn watcherUri(watcher->Uri());
 
-        if (receiverUri.Equals(Brx::Empty()))
+        if(receiverUri.Equals(watcher->Uri()))
         {
-            aReceiver.SetSender(iNetwork.SenderEmpty());
-        }
-        else if(receiverUri.Equals(watcher->Uri()))
-        {
-            // set Topology3Group sender
-            aReceiver.SetSender(new Sender(watcher->Device()));
+            // this sender's Uri matches the Uri our Receiver is listening to - assign it a new Sender
+            aReceiver.SetSender(new Sender(watcher->Device())); // Could this receiver be updated multiple times here?
+            // should we have a return/break here ?
         }
     }
 }
 
 void Topology3::SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri)
 {
+    // iterate through all receivers...
+    // assigning a new sender to any receiver that is listening to aUri
+    // removing the sender of any receiver that was listening to aPreviousUri
     for(auto it = iReceiverLookup.begin(); it!=iReceiverLookup.end(); it++)
     {
         ReceiverWatcher* watcher = it->second;
 
         if (aPreviousUri.Equals(watcher->ListeningToUri()))
         {
+            // this receiver was listening to our previous Uri - remove it's Sender
             watcher->SetSender(iNetwork.SenderEmpty());
         }
         else if (aUri.Equals(watcher->ListeningToUri()) && (!aUri.Equals(Brx::Empty())))
         {
-            // set Topology3Group sender
+            // this receiver is listening to our new Uri - assign it a new Sender
             watcher->SetSender(new Sender(aDevice));
         }
     }

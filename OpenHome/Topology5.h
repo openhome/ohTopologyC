@@ -17,7 +17,7 @@
 namespace OpenHome
 {
 
-namespace Av
+namespace Topology
 {
 
 class Topology5Group;

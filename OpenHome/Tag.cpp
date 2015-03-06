@@ -2,7 +2,7 @@
 
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 
 Tag::Tag(TUint aId, ETagRealm aRealm, const Brx& aName, TBool aKey, TBool aNumeric, TBool aSearchable, TBool aArticled)
     :iId(aId)

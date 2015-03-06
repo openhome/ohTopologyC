@@ -7,7 +7,7 @@
 
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 
 
 Job::Job(FunctorGeneric<void*> aAction, void* aObj)

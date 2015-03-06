@@ -9,7 +9,7 @@
 
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace OpenHome::Net;
 using namespace std;
 
@@ -208,7 +208,7 @@ void InjectorMock::ExecuteCallback(void* aObj)
         {
             InjectorDeviceMock* device = iMockDevices[udn];
             auto deviceOn = device->On();
-			iNetwork.Add(deviceOn);
+            iNetwork.Add(deviceOn);
             return;
         }
     }

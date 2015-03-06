@@ -17,7 +17,7 @@ namespace Net
 {
 class CpProxyAvOpenhomeOrgReceiver1;
 }
-namespace Av
+namespace Topology
 {
 
 static const Brn kTransportStatePlaying("Playing");

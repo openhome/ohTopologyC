@@ -8,7 +8,7 @@
 
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace std;
 
 
@@ -20,7 +20,7 @@ using namespace std;
  */
 Network::Network(TUint aMaxCacheEntries, ILog&/* aLog*/)
     :iDisposeHandler(new DisposeHandler())
-    ,iIdCache(new OpenHome::Av::IdCache(aMaxCacheEntries))
+    ,iIdCache(new OpenHome::Topology::IdCache(aMaxCacheEntries))
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread))
     ,iAsyncAdaptorManager(new AsyncAdaptorManager())
@@ -38,7 +38,7 @@ Network::Network(TUint aMaxCacheEntries, ILog&/* aLog*/)
 Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILog&)
     :iDisposeHandler(new DisposeHandler())
     ,iWatchableThread(&aWatchableThread)
-    ,iIdCache(new OpenHome::Av::IdCache(aMaxCacheEntries))
+    ,iIdCache(new OpenHome::Topology::IdCache(aMaxCacheEntries))
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread);)
     ,iAsyncAdaptorManager(new AsyncAdaptorManager())

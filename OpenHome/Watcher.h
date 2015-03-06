@@ -10,7 +10,7 @@
 namespace OpenHome
 {
 
-namespace Av
+namespace Topology
 {
 
 /**
@@ -118,7 +118,7 @@ public:
  */
 
 
-} // namespace Av
+} // namespace Topology
 
 } // namespace OpenHome
 

@@ -12,7 +12,7 @@
 
 namespace OpenHome
 {
-namespace Av
+namespace Topology
 {
 
 class Job

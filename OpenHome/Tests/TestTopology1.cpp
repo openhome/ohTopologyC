@@ -8,7 +8,7 @@
 
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace OpenHome::TestFramework;
 
 
@@ -17,7 +17,7 @@ EXCEPTION(TestException);
 
 namespace OpenHome
 {
-namespace Av
+namespace Topology
 {
 namespace TestTopology1
 {
@@ -78,13 +78,13 @@ private:
 };
 
 } // TestTopology1
-} // namespace Av
+} // namespace Topology
 } // namespace OpenHome
 
 
 /////////////////////////////////////////////////////////////////////
 
-using namespace OpenHome::Av::TestTopology1;
+using namespace OpenHome::Topology::TestTopology1;
 
 SuiteTopology1::SuiteTopology1(IReader& aReader)
     :SuiteUnitTest("SuiteTopology1")

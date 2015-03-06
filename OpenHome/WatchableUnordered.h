@@ -10,7 +10,7 @@
 namespace OpenHome
 {
 
-namespace Av
+namespace Topology
 {
 
 
@@ -195,7 +195,7 @@ void WatchableUnordered<T>::DisposeCallback(void*)
 
 
 
-} // namespace Av
+} // namespace Topology
 } // namespace OpenHome
 
 

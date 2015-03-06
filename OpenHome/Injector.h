@@ -18,7 +18,7 @@
 namespace OpenHome
 {
 
-namespace Av
+namespace Topology
 {
 
 
@@ -98,7 +98,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////
 
-} // namespace Av
+} // namespace Topology
 } // namespace OpenHome
 
 #endif

@@ -14,7 +14,7 @@
 
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace OpenHome::TestFramework;
 
 using namespace OpenHome;
@@ -27,7 +27,7 @@ EXCEPTION(TestException);
 
 namespace OpenHome {
 
-namespace Av {
+namespace Topology {
 
 
 class TestExceptionReporter;
@@ -53,7 +53,7 @@ private:
 /////////////////////////////////////////////////////////////////////
 
 
-} // namespace Av
+} // namespace Topology
 
 } // namespace OpenHome
 
