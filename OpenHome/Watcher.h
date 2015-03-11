@@ -23,7 +23,6 @@ class Watcher : public IWatcher<T>//, IDisposable
 {
 public:
     Watcher(IWatchable<T>& aWatchable, FunctorGeneric<void*> aAction);
-    //Watcher(IWatchable<T> aWatchable, Action aAction);
 
     // IWatcher<T>
     virtual void ItemOpen(const Brx& aId, T aValue);
@@ -101,16 +100,6 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-/*
-class WatcherExtensions
-{
-public:
-    static IDisposable CreateWatcher<T>(this IWatchable<T> aWatchable, Action<T> aAction);
-    static IDisposable CreateWatcher<T>(this IWatchable<T> aWatchable, Action<T, TBool> aAction);
-    static IDisposable CreateWatcher<T>(this IWatchableUnordered<T> aWatchable, Action<IEnumerable<T>> aAction);
-    static IDisposable CreateWatcher<T>(this IWatchableOrdered<T> aWatchable, Action<IEnumerable<T>> aAction);
-};
-*/
 
 
 /**
