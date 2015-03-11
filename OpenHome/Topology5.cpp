@@ -166,13 +166,13 @@ void Topology5SourceNull::Select()
 
 ///////////////////////////////////////////////////
 
-Topology5Source::Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITopology2Source& aSource)
+Topology5Source::Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITopology2Source& aSource, TBool aHasInfo, TBool aHasTime)
     :iNetwork(aNetwork)
     ,iGroup(aGroup)
     ,iSource(aSource)
     ,iVolumes(NULL)
-    ,iHasInfo(false)
-    ,iHasTime(false)
+    ,iHasInfo(aHasInfo)
+    ,iHasTime(aHasTime)
 {
 
 }
@@ -254,21 +254,9 @@ TBool Topology5Source::HasInfo()
 }
 
 
-void Topology5Source::SetHasInfo(TBool aHasInfo)
-{
-    iHasInfo = aHasInfo;
-}
-
-
 TBool Topology5Source::HasTime()
 {
     return iHasTime;
-}
-
-
-void Topology5Source::SetHasTime(TBool aHasTime)
-{
-    iHasTime = aHasTime;
 }
 
 
@@ -288,17 +276,19 @@ Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoomName, const B
     //,iLog(aLog)
     ,iDisposed(false)
     ,iParent(NULL)
-    ,iSender(NULL)
+    ,iSenderService(NULL)
     ,iHasSender(false)
     ,iVectorSenders(new vector<ITopology5Group*>())
     ,iCurrentVolumes(NULL)
     ,iWatchableSource(new Watchable<ITopology5Source*>(iNetwork, Brn("source"), iCurrentSource))
     ,iSenders(new Watchable<vector<ITopology5Group*>*>(iNetwork, Brn("senders"), iVectorSenders))
 {
+    TBool hasInfo = Ascii::Contains(iGroup.Attributes(), Brn("Info"));
+    TBool hasTime = (Ascii::Contains(iGroup.Attributes(), Brn("Time")) && hasInfo);
 
     for(TUint i=0; i<aSources.size(); i++)
     {
-        auto source = new Topology5Source(aNetwork, *this, *(aSources[i]));
+        auto source = new Topology5Source(aNetwork, *this, *(aSources[i]), hasInfo, hasTime);
         iSources.push_back(source);
     }
 
@@ -316,7 +306,7 @@ Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoomName, const B
 Topology5Group::~Topology5Group()
 {
     delete iWatchableSource;
-    delete iSender;
+    delete iSenderService;
     delete iSenders;
     for(TUint i=0; i<iSources.size(); i++)
     {
@@ -330,18 +320,18 @@ Topology5Group::~Topology5Group()
 
 void Topology5Group::CreateCallback(ServiceCreateData* aData)
 {
-    IProxySender* sender = (IProxySender*)aData->iProxy;
+    IProxySender* senderService = (IProxySender*)aData->iProxy;
     delete aData;
 
     if (!iDisposed)
     {
-        iSender = sender;
-        iSender->Status().AddWatcher(*this);
+        iSenderService = senderService;
+        iSenderService->Status().AddWatcher(*this);
     }
     else
     {
-        sender->Dispose();
-        delete sender;
+        senderService->Dispose();
+        delete senderService;
     }
 }
 
@@ -352,15 +342,14 @@ void Topology5Group::Dispose()
 
     iWatchableSource->Dispose();
 
-    if (iSender != NULL)
+    if (iSenderService != NULL)
     {
-        iSender->Status().RemoveWatcher(*this);
-        iSender->Dispose();
+        iSenderService->Status().RemoveWatcher(*this);
+        iSenderService->Dispose();
         iHasSender = false;
     }
 
     iSenders->Dispose();
-
 
     iDisposed = true;
 }
@@ -421,10 +410,6 @@ ITopology3Group& Topology5Group::Group()
 
 void Topology5Group::EvaluateSources()
 {
-
-    TBool hasInfo = Ascii::Contains(iGroup.Attributes(), Brn("Info"));
-    TBool hasTime = (Ascii::Contains(iGroup.Attributes(), Brn("Time")) && hasInfo);
-
     // build list of all volume groups (groups with Volume service attribute)
     auto volumes = new vector<ITopology5Group*>();
     // traverse UP the tree adding(insert) any groups that have Volume
@@ -445,16 +430,6 @@ void Topology5Group::EvaluateSources()
     delete oldVolumes;
 
 
-
-    // update all my sources with my Volume, Info and Time attribute status
-    for(TUint i=0; i<iSources.size(); i++)
-    {
-        auto source = iSources[i];
-        source->SetVolumes(volumes);
-        source->SetHasInfo(hasInfo);
-        source->SetHasTime(hasTime);
-    }
-
     // trigger source evaluation on all my child groups
     for(TUint i=0; i<iChildren.size(); i++)
     {
@@ -469,6 +444,7 @@ void Topology5Group::EvaluateSources()
     for (TUint i= 0; i<iSources.size(); i++)
     {
         Topology5Source* s = iSources[i];
+        s->SetVolumes(volumes); // update all my sources with my Volume attribute status
 
         TBool expanded = false;
 
@@ -606,11 +582,11 @@ void Topology5Group::ItemClose(const Brx& /*aId*/, TUint /*aValue*/)
 
 ITopology5Source* Topology5Group::EvaluateSource()
 {
+    // return the currently active source object.
 
-    // set the source for this group
     Topology5Source* source = iSources[iSourceIndex];
 
-    // check if the group's source is expanded by a child's group's sources
+    // if the source has a child get the child's active source instead
     for(TUint i=0; i<iChildren.size(); i++)
     {
         Topology5Group* g = iChildren[i];
@@ -631,7 +607,8 @@ void Topology5Group::EvaluateSourceFromChild()
         iParent->EvaluateSourceFromChild();
     }
 
-    iWatchableSource->Update(EvaluateSource());
+    ITopology5Source* source = EvaluateSource();
+    iWatchableSource->Update(source);
 }
 
 
@@ -961,18 +938,19 @@ void Topology5Room::InsertIntoTree(Topology5Group& aGroup)
         return;
     }
 
-    // check for an existing parent (aGroup is a child(source) of another group)
+    // check for an existing parent
+    //(aGroup is a child (source) of another group)
     for(TUint i=0; i<iGroups.size(); i++)
     {
         if (iGroups[i]->AddIfIsChild(aGroup))
         {
-            iGroups.push_back(&aGroup);
+            iGroups.push_back(&aGroup); // add as a group
             return;
         }
     }
 
     // remove any roots that are children of mine
-    // (root = not a child of any other group)
+    // (root = not a child (source) of any other group)
     for(TUint i=0; i<iRoots.size(); i++)
     {
         Topology5Group* g = iRoots[i];
@@ -983,8 +961,8 @@ void Topology5Room::InsertIntoTree(Topology5Group& aGroup)
         }
     }
 
-    iGroups.push_back(&aGroup);
-    iRoots.push_back(&aGroup);
+    iGroups.push_back(&aGroup); // add as a group
+    iRoots.push_back(&aGroup); // add as a root
 }
 
 

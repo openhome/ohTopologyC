@@ -77,7 +77,7 @@ public:
 class Topology5Source : public ITopology5Source, public INonCopyable
 {
 public:
-    Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITopology2Source& aSource);
+    Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITopology2Source& aSource, TBool aHasInfo, TBool aHasTime);
 
     // ITopology5Source
     virtual TUint Index();
@@ -92,8 +92,6 @@ public:
     virtual TBool HasTime();
     virtual void Select();
 
-    virtual void SetHasInfo(TBool aHasInfo);
-    virtual void SetHasTime(TBool aHasTime);
     virtual void SetVolumes(std::vector<ITopology5Group*>* aVolumes);
 
 
@@ -154,6 +152,7 @@ public:
 
 class Topology5Group : public ITopology5Root, public IWatcher<TUint>, public IWatcher<Brn>, public IDisposable, public INonCopyable
 {
+    friend class Topology5Room;
     friend class IWatcher<TUint>;
     friend class IWatcher<Brn>;
 
@@ -164,25 +163,34 @@ public:
     virtual void Dispose();
     virtual Brn Name();
     virtual IDevice& Device();
-    virtual Brn RoomName();
-    virtual Brn ModelName();
-    virtual Brn ManufacturerName();
-    virtual Brn ProductId();
-
     virtual IWatchable<ISender*>& Sender();
-    virtual IWatchable<std::vector<ITopology5Group*>*>& Senders();
 
+    virtual IWatchable<std::vector<ITopology5Group*>*>& Senders();
     virtual IWatchable<ITopology5Source*>& Source();
     virtual std::vector<ITopology5Source*>& Sources();
-    virtual Topology5Group* Parent();
-    virtual ITopology3Group& Group();
-
-    virtual void EvaluateSenders();
-    virtual void EvaluateSources();
-    virtual TBool AddIfIsChild(Topology5Group& aGroup);
     virtual void SetSourceIndex(TUint aValue);
 
+    virtual Topology5Group* Parent();
+
+
 private:
+    Brn RoomName();
+    Brn ModelName();
+    Brn ManufacturerName();
+    Brn ProductId();
+    void EvaluateSenders();
+    void EvaluateSources();
+    TBool AddIfIsChild(Topology5Group& aGroup);
+    ITopology3Group& Group();
+
+    void SetParent(Topology5Group& aGroup);
+    void SetParent(Topology5Group& aGroup, TUint aIndex);
+    ITopology5Source* EvaluateSource();
+    void EvaluateSourceFromChild();
+    void EvaluateSendersFromChild();
+    void CreateCallback(ServiceCreateData* aSender);
+
+
     // IWatcher<TUint>
     virtual void ItemOpen(const Brx& aId, TUint aValue);
     virtual void ItemUpdate(const Brx& aId, TUint aValue, TUint aPrevious);
@@ -195,27 +203,19 @@ private:
 
 
 private:
-    void SetParent(Topology5Group& aGroup);
-    void SetParent(Topology5Group& aGroup, TUint aIndex);
-    ITopology5Source* EvaluateSource();
-    void EvaluateSourceFromChild();
-    void EvaluateSendersFromChild();
-    void CreateCallback(ServiceCreateData* aSender);
-
-private:
     INetwork& iNetwork;
     Brn iRoomName;
     Brn iName;
     ITopology3Group& iGroup;
     ITopology5Source* iCurrentSource;
-    //ILog& iLog;
     TBool iDisposed;
 
     TUint iParentSourceIndex;
     Topology5Group* iParent;
-    IProxySender* iSender;
+    IProxySender* iSenderService;
     TBool iHasSender;
     TUint iSourceIndex;
+
 
     std::vector<Topology5Group*> iChildren;
     std::vector<Topology5Source*> iSources;
