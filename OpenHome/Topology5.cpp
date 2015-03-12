@@ -13,7 +13,7 @@ using namespace std;
 MediaPresetExternal::MediaPresetExternal(IWatchableThread& aThread, Topology5Group& aGroup, TUint aIndex, IMediaMetadata* aMetadata, Topology5Source& aSource)
     :iIndex(aIndex)
     ,iMetadata(aMetadata)
-    ,iSource(aSource)
+    ,iSource(&aSource)
     ,iGroup(aGroup)
     ,iBuffering(new Watchable<TBool>(aThread, Brn("Buffering"), false))
     ,iPlaying(new Watchable<TBool>(aThread, Brn("Playing"), false))
@@ -69,23 +69,23 @@ void MediaPresetExternal::Play()
     {
         iBuffering->Update(true);
     }
-    iSource.Select();
+    iSource->Select();
 }
 
 
 void MediaPresetExternal::ItemOpen(const Brx& /*aId*/, ITopology5Source* aValue)
 {
     iBuffering->Update(false);
-    iPlaying->Update(aValue == &iSource);
-    iSelected->Update(aValue == &iSource);
+    iPlaying->Update(aValue == iSource);
+    iSelected->Update(aValue == iSource);
 }
 
 
 void MediaPresetExternal::ItemUpdate(const Brx& /*aId*/, ITopology5Source* aValue, ITopology5Source* /*aPrevious*/)
 {
     iBuffering->Update(false);
-    iPlaying->Update(aValue == &iSource);
-    iSelected->Update(aValue == &iSource);
+    iPlaying->Update(aValue == iSource);
+    iSelected->Update(aValue == iSource);
 }
 
 
@@ -210,13 +210,15 @@ TBool Topology5Source::Visible()
 
 IMediaPreset* Topology5Source::CreatePreset()
 {
+    // create some metadata
     MediaMetadata* metadata = new MediaMetadata();
+    // add a tag whose title matches my source name
     metadata->Add(iNetwork.GetTagManager().Audio().Title(), iSource.Name());
 
+    // add a tag whose title matches my source name with an external:// prefix
     Bwh extSrcName;
     extSrcName.Replace(Brn("external://"));
     extSrcName.Append(iSource.Name());
-
     metadata->Add(iNetwork.GetTagManager().Audio().Artwork(), extSrcName);
 
     // get the root group of this group
@@ -273,7 +275,6 @@ Topology5Group::Topology5Group(INetwork& aNetwork, const Brx& aRoomName, const B
     ,iName(aName)
     ,iGroup(aGroup)
     ,iCurrentSource(new Topology5SourceNull())
-    //,iLog(aLog)
     ,iDisposed(false)
     ,iParent(NULL)
     ,iSenderService(NULL)

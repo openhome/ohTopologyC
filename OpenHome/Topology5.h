@@ -76,6 +76,8 @@ public:
 
 class Topology5Source : public ITopology5Source, public INonCopyable
 {
+    friend class Topology5Group;
+
 public:
     Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITopology2Source& aSource, TBool aHasInfo, TBool aHasTime);
 
@@ -85,15 +87,15 @@ public:
     virtual Brn Type();
     virtual TBool Visible();
     virtual ITopology5Group& Group();
-    virtual IMediaPreset* CreatePreset();
     virtual std::vector<ITopology5Group*>& Volumes();
     virtual IDevice& Device();
     virtual TBool HasInfo();
     virtual TBool HasTime();
     virtual void Select();
+    virtual IMediaPreset* CreatePreset();
 
+private:
     virtual void SetVolumes(std::vector<ITopology5Group*>* aVolumes);
-
 
 private:
     INetwork& iNetwork;
@@ -129,7 +131,7 @@ private:
 private:
     TUint iIndex;
     IMediaMetadata* iMetadata;
-    Topology5Source& iSource;
+    Topology5Source* iSource;
     Topology5Group& iGroup;
     Watchable<TBool>* iBuffering;
     Watchable<TBool>* iPlaying;
