@@ -9,7 +9,7 @@
 #include <exception>
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace OpenHome::TestFramework;
 
 
@@ -18,7 +18,7 @@ EXCEPTION(TestException);
 
 namespace OpenHome {
 
-namespace Av {
+namespace Topology {
 
 
 /////////////////////////////////////////////////////////////////////

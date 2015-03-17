@@ -8,7 +8,7 @@
 
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace std;
 
 
@@ -20,11 +20,11 @@ using namespace std;
  */
 Network::Network(TUint aMaxCacheEntries, ILog&/* aLog*/)
     :iDisposeHandler(new DisposeHandler())
-    ,iIdCache(new OpenHome::Av::IdCache(aMaxCacheEntries))
+    ,iIdCache(new OpenHome::Topology::IdCache(aMaxCacheEntries))
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread))
     ,iAsyncAdaptorManager(new AsyncAdaptorManager())
-    ,iTopology3SenderEmpty(new Topology3Sender())
+    ,iSenderEmpty(new Sender())
     ,iInfoMetadataEmpty(new InfoMetadata())
     ,iSenderMetadataEmpty(new SenderMetadata())
 {
@@ -38,11 +38,11 @@ Network::Network(TUint aMaxCacheEntries, ILog&/* aLog*/)
 Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILog&)
     :iDisposeHandler(new DisposeHandler())
     ,iWatchableThread(&aWatchableThread)
-    ,iIdCache(new OpenHome::Av::IdCache(aMaxCacheEntries))
+    ,iIdCache(new OpenHome::Topology::IdCache(aMaxCacheEntries))
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread);)
     ,iAsyncAdaptorManager(new AsyncAdaptorManager())
-    ,iTopology3SenderEmpty(new Topology3Sender())
+    ,iSenderEmpty(new Sender())
     ,iInfoMetadataEmpty(new InfoMetadata())
     ,iSenderMetadataEmpty(new SenderMetadata())
 {
@@ -68,7 +68,7 @@ Network::~Network()
 
     delete iDisposeHandler;
 
-    delete iTopology3SenderEmpty;
+    delete iSenderEmpty;
     delete iInfoMetadataEmpty;
     delete iSenderMetadataEmpty;
 }
@@ -87,9 +87,9 @@ AsyncAdaptorManager& Network::GetAsyncAdaptorManager()
 }
 
 
-Topology3Sender* Network::Topology3SenderEmpty()
+Sender* Network::SenderEmpty()
 {
-    return(iTopology3SenderEmpty);
+    return(iSenderEmpty);
 }
 
 

@@ -30,7 +30,7 @@ template <> struct hash<Brn>
 namespace OpenHome
 {
 
-namespace Av
+namespace Topology
 {
 
 
@@ -192,7 +192,7 @@ private:
     IIdCacheEntry* iCacheEntry;
 };
 
-} // namespace Av
+} // namespace Topology
 } // namespace OpenHome
 
 #endif // HEADER_OHTOPC_IDCACHE

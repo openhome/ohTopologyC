@@ -22,7 +22,7 @@ namespace Net
 class CpProxyAvOpenhomeOrgPlaylist1;
 }
 
-namespace Av
+namespace Topology
 {
 
 class ServicePlaylist;

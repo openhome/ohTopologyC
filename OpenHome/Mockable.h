@@ -16,7 +16,7 @@
 namespace OpenHome
 {
 
-namespace Av
+namespace Topology
 {
 
 
@@ -537,7 +537,7 @@ void ResultOrderedWatcher<T>::Dispose()
 //////////////////////////////////////////////////////////////////////////////////
 
 
-} // namespace Av
+} // namespace Topology
 
 } // namespace OpenHome
 

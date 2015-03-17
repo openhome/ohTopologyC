@@ -2,17 +2,21 @@
 
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace std;
+
+
+
+
 
 ////////////////////////////////////////////
 
 Topology3Group::Topology3Group(INetwork& aNetwork, ITopology2Group& aGroup)
     :iNetwork(aNetwork)
     ,iGroup(aGroup)
-    ,iSender(new Watchable<ITopology3Sender*>(aNetwork, Brn("Sender"), aNetwork.Topology3SenderEmpty()))
+    ,iCurrentSender(aNetwork.SenderEmpty())
+    ,iSender(new Watchable<ISender*>(aNetwork, Brn("Sender"), iCurrentSender))
     ,iDisposed(false)
-    ,iCurrentSender(aNetwork.Topology3SenderEmpty())
     ,iGroupWatcher(NULL)
 {
 }
@@ -23,7 +27,7 @@ Topology3Group::~Topology3Group()
     delete iGroupWatcher;
     delete iSender;
 
-    if (iCurrentSender!=iNetwork.Topology3SenderEmpty())
+    if (iCurrentSender!=iNetwork.SenderEmpty())
     {
         delete iCurrentSender;
     }
@@ -96,7 +100,7 @@ vector<Watchable<ITopology2Source*>*>& Topology3Group::Sources()
 }
 
 
-IWatchable<ITopology3Sender*>& Topology3Group::Sender()
+IWatchable<ISender*>& Topology3Group::Sender()
 {
     return *iSender;
 }
@@ -112,11 +116,11 @@ void Topology3Group::SetSourceIndex(TUint aValue)
 }
 
 
-void Topology3Group::SetSender(ITopology3Sender* aSender)
+void Topology3Group::SetSender(ISender* aSender)
 {
     iSender->Update(aSender);
 
-    if (/*(iCurrentSender!=NULL)&&*/(iCurrentSender!=iNetwork.Topology3SenderEmpty()))
+    if (iCurrentSender!=iNetwork.SenderEmpty())
     {
         delete iCurrentSender;
     }
@@ -174,39 +178,28 @@ void ReceiverWatcher::Dispose()
         iReceiver->Dispose();
     }
 
-    SetSender(iTopology3.Network().Topology3SenderEmpty());
-
-    //iGroup = null;
-    //iTopology = null;
+    SetSender(iTopology3.Network().SenderEmpty());
 
     iDisposed = true;
 }
 
 const Brx& ReceiverWatcher::ListeningToUri()
 {
-    //ASSERT(iMetadata!=NULL);
-
     if (iTransportState.Equals(Brx::Empty()) || iTransportState.Equals(Brn("Stopped")))
     {
         return(Brx::Empty());
     }
-/*
-    if (string.IsNullOrEmpty(iTransportState) || iTransportState == "Stopped")
-    {
-        return null;
-    }
-*/
+
     return iMetadata->Uri();
 }
 
-void ReceiverWatcher::SetSender(ITopology3Sender* aSender)
+void ReceiverWatcher::SetSender(ISender* aSender)
 {
     iGroup.SetSender(aSender);
 }
 
 void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, Brn aValue)
 {
-//    iTransportState = Brn(aValue);
     iTransportState.Replace(aValue);
 }
 
@@ -243,7 +236,7 @@ void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aValue)
     {
         FunctorGeneric<ServiceCreateData*> f = MakeFunctorGeneric(*this, &ReceiverWatcher::CreateCallback);
 
-        iGroup.Device().Create(f, eProxyReceiver);
+        iGroup.Device().Create(f, eProxyReceiver); // subscribe to Receiver Service
 /*
         iGroup.Device.Create<IProxyReceiver*>((receiver) =>
         {
@@ -266,6 +259,7 @@ void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aValue)
 
 void ReceiverWatcher::CreateCallback(ServiceCreateData* aData)
 {
+    // call back from Receiver Service subscribe
     IProxyReceiver* receiver = (IProxyReceiver*)aData->iProxy;
     delete aData;
 
@@ -501,9 +495,7 @@ void Topology3::UnorderedRemove(ITopology2Group* aItem)
             iSenderLookup.erase(aItem);
         }
 
-        // schedule higher layer notification
         Topology3Group* group = iGroupLookup[aItem];
-
         iGroups->Remove(group);
         iGroupLookup.erase(aItem);
 
@@ -525,37 +517,44 @@ void Topology3::ReceiverChanged(ReceiverWatcher& aReceiver)
 {
     Brn receiverUri(aReceiver.ListeningToUri());
 
+    if (receiverUri.Equals(Brx::Empty()))  // ohTopC: moved this outside the iSenderLookup loop
+    {
+        aReceiver.SetSender(iNetwork.SenderEmpty()); // couldn't this be done by aReceiver itself?
+        return;
+    }
+
     for(auto it = iSenderLookup.begin(); it!=iSenderLookup.end(); it++)
     {
         SenderWatcher* watcher = it->second;
         Brn watcherUri(watcher->Uri());
 
-        if (receiverUri.Equals(Brx::Empty()))
+        if(receiverUri.Equals(watcher->Uri()))
         {
-            aReceiver.SetSender(iNetwork.Topology3SenderEmpty());
-        }
-        else if(receiverUri.Equals(watcher->Uri()))
-        {
-            // set Topology3Group sender
-            aReceiver.SetSender(new Topology3Sender(watcher->Device()));
+            // this sender's Uri matches the Uri our Receiver is listening to - assign it a new Sender
+            aReceiver.SetSender(new Sender(watcher->Device())); // Could this receiver be updated multiple times here?
+            // should we have a return/break here ?
         }
     }
 }
 
 void Topology3::SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri)
 {
+    // iterate through all receivers...
+    // assigning a new sender to any receiver that is listening to aUri
+    // removing the sender of any receiver that was listening to aPreviousUri
     for(auto it = iReceiverLookup.begin(); it!=iReceiverLookup.end(); it++)
     {
         ReceiverWatcher* watcher = it->second;
 
         if (aPreviousUri.Equals(watcher->ListeningToUri()))
         {
-            watcher->SetSender(iNetwork.Topology3SenderEmpty());
+            // this receiver was listening to our previous Uri - remove it's Sender
+            watcher->SetSender(iNetwork.SenderEmpty());
         }
         else if (aUri.Equals(watcher->ListeningToUri()) && (!aUri.Equals(Brx::Empty())))
         {
-            // set Topology3Group sender
-            watcher->SetSender(new Topology3Sender(aDevice));
+            // this receiver is listening to our new Uri - assign it a new Sender
+            watcher->SetSender(new Sender(aDevice));
         }
     }
 }

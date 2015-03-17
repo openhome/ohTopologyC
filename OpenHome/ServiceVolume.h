@@ -20,7 +20,7 @@ namespace Net
 class CpProxyAvOpenhomeOrgVolume1;
 }
 
-namespace Av
+namespace Topology
 {
 
 class IProxyVolume : public IProxy

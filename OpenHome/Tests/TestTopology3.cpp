@@ -8,13 +8,13 @@
 #include <exception>
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace OpenHome::TestFramework;
 
 
 namespace OpenHome
 {
-namespace Av
+namespace Topology
 {
 namespace TestTopology3
 {
@@ -63,7 +63,7 @@ public:
         result->Replace(aItem->Device().Udn());
         result->Append(" Group Added");
         iRunner.Result(result);
-        iFactory->Create<ITopology3Sender*>(aItem->Device().Udn(), aItem->Sender(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
+        iFactory->Create<ISender*>(aItem->Device().Udn(), aItem->Sender(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
     }
 
     virtual void UnorderedRemove(ITopology3Group* aItem)
@@ -84,9 +84,9 @@ public:
     }
 
 private:
-    void CreateCallback(MockCbData<ITopology3Sender*>* aArgs)
+    void CreateCallback(MockCbData<ISender*>* aArgs)
     {
-        ITopology3Sender* sender = aArgs->iData;
+        ISender* sender = aArgs->iData;
         FunctorGeneric<const Brx&> f = aArgs->iCallback;
 
         Bws<100> buf;
@@ -123,7 +123,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 
-using namespace OpenHome::Av::TestTopology3;
+using namespace OpenHome::Topology::TestTopology3;
 
 
 SuiteTopology3::SuiteTopology3(ReaderUntil& aReader)

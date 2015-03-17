@@ -8,13 +8,13 @@
 #include <exception>
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace OpenHome::TestFramework;
 
 
 namespace OpenHome {
 
-namespace Av {
+namespace Topology {
 
 namespace TestTopology4 {
 
@@ -134,7 +134,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-using namespace OpenHome::Av::TestTopology4;
+using namespace OpenHome::Topology::TestTopology4;
 
 
 SuiteTopology4::SuiteTopology4(ReaderUntil& aReader)

@@ -20,7 +20,7 @@
 
 namespace OpenHome
 {
-namespace Av
+namespace Topology
 {
 
 class Topology3;
@@ -53,7 +53,7 @@ class ITopology3Group : public ITopology2Group
 public:
     virtual ~ITopology3Group() {}
 
-    virtual IWatchable<ITopology3Sender*>& Sender() = 0;
+    virtual IWatchable<ISender*>& Sender() = 0;
 
     // Added in ohTopologyC
     virtual ITopology3GroupWatcher* GroupWatcher() = 0;
@@ -64,6 +64,8 @@ public:
 
 class Topology3Group : public ITopology3Group, public INonCopyable
 {
+    friend class ReceiverWatcher;
+
 public:
     Topology3Group(INetwork& aNetwork, ITopology2Group& aGroup);
     ~Topology3Group();
@@ -87,18 +89,20 @@ public:
     virtual void SetStandby(TBool aValue);
     virtual void SetSourceIndex(TUint aValue);
 
-    virtual IWatchable<ITopology3Sender*>& Sender();
-    virtual void SetSender(ITopology3Sender* aSender);
+    virtual IWatchable<ISender*>& Sender();
 
     virtual ITopology3GroupWatcher* GroupWatcher(); // Added in ohTopologyC
     virtual void SetGroupWatcher(ITopology3GroupWatcher* aGroupWatcher); // Added in ohTopologyC
 
 private:
+    virtual void SetSender(ISender* aSender);
+
+private:
     INetwork& iNetwork;
     ITopology2Group& iGroup;
-    Watchable<ITopology3Sender*>* iSender;
+    ISender* iCurrentSender;
+    Watchable<ISender*>* iSender;
     TBool iDisposed;
-    ITopology3Sender* iCurrentSender;
     ITopology3GroupWatcher* iGroupWatcher;
 };
 
@@ -113,7 +117,7 @@ public:
     // IDisposable
     virtual void Dispose();
     virtual const Brx& ListeningToUri();
-    virtual void SetSender(ITopology3Sender* aSender);
+    virtual void SetSender(ISender* aSender);
 
     // IWatcher<Brn>
     virtual void ItemOpen(const Brx& aId, Brn aValue);

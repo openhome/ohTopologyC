@@ -14,7 +14,7 @@
 
 namespace OpenHome
 {
-namespace Av
+namespace Topology
 {
 
 
@@ -43,16 +43,8 @@ class ITagManager
 public:
     virtual TUint MaxSystemTagId() = 0;
     virtual ITag* Tag(TUint aId) = 0;
-    //ITagRealm this[TagRealm aRealm]) = 0;
     virtual ITagRealm& Realm(ETagRealm aRealm) = 0;
-
-    //virtual ITagRealmSystem System() = 0;
-    //virtual ITagRealmGlobal Global() = 0;
     virtual ITagRealmAudio& Audio() = 0;
-    //virtual ITagRealmVideo Video() = 0;
-    //virtual ITagRealmImage Image() = 0;
-    //virtual ITagRealmPlaylist Playlist() = 0;
-    //virtual ITagRealmContainer Container() = 0;
 
     virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata) = 0;
     virtual void ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf) = 0;
@@ -86,13 +78,8 @@ private:
     std::map<TUint, ITag*> iTags;
     std::map<ETagRealm, ITagRealm*> iRealms;
 
-    //ITagRealmSystem* iSystem;
     ITagRealmGlobal* iGlobal;
     ITagRealmAudio* iAudio;
-    //ITagRealmVideo* iVideo;
-    //ITagRealmImage* iImage;
-    //ITagRealmPlaylist* iPlaylist;
-    //ITagRealmContainer* iContainer;
 };
 
 
@@ -134,7 +121,7 @@ protected:
 
 ///////////////////////////////////////////////////
 
-class MediaMetadata : public MediaDictionary//, public IMediaMetadata
+class MediaMetadata : public MediaDictionary
 {
 public:
     MediaMetadata();

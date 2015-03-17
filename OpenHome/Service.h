@@ -13,7 +13,7 @@ EXCEPTION(ServiceNotFoundException)
 
 namespace OpenHome
 {
-namespace Av
+namespace Topology
 {
 
 class INetwork;

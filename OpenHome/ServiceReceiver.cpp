@@ -6,7 +6,7 @@
 #include <Generated/CpAvOpenhomeOrgReceiver1.h>
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 using namespace OpenHome::Net;
 
 

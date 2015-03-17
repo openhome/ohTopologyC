@@ -16,7 +16,7 @@
 namespace OpenHome
 {
 
-namespace Av
+namespace Topology
 {
 
 class ITopology2Source
@@ -159,7 +159,7 @@ private:
 };
 
 
-} // namespace Av
+} // namespace Topology
 } // namespace OpenHome
 
 #endif // HEADER_TOPOLOGY1

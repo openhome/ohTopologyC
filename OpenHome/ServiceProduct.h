@@ -22,7 +22,7 @@ namespace Net
 class CpProxyAvOpenhomeOrgProduct1;
 }
 
-namespace Av
+namespace Topology
 {
 
 class TopologySource

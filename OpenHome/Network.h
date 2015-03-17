@@ -20,7 +20,7 @@
 namespace OpenHome
 {
 
-namespace Av
+namespace Topology
 {
 
 
@@ -59,7 +59,7 @@ public:
     virtual AsyncAdaptorManager& GetAsyncAdaptorManager() = 0;
     virtual IWatchableUnordered<IDevice*>& Create(EServiceType aServiceType) = 0;
 
-    virtual Topology3Sender* Topology3SenderEmpty() = 0;
+    virtual Sender* SenderEmpty() = 0;
     virtual InfoMetadata* InfoMetadataEmpty() = 0;
     virtual SenderMetadata* SenderMetadataEmpty() = 0;
 
@@ -86,7 +86,7 @@ public:
     virtual IWatchableUnordered<IDevice*>& Create(EServiceType aServiceType);
     virtual AsyncAdaptorManager& GetAsyncAdaptorManager();
 
-    virtual Topology3Sender* Topology3SenderEmpty();
+    virtual Sender* SenderEmpty();
     virtual InfoMetadata* InfoMetadataEmpty();
     virtual SenderMetadata* SenderMetadataEmpty();
 
@@ -123,7 +123,7 @@ private:
     std::map<Brn, Device*, BufferCmp> iDevices;
     std::map<EServiceType, WatchableUnordered<IDevice*>*> iDeviceLists;
 
-    Topology3Sender* iTopology3SenderEmpty;
+    Sender* iSenderEmpty;
     InfoMetadata* iInfoMetadataEmpty;
     SenderMetadata* iSenderMetadataEmpty;
 

@@ -2,7 +2,7 @@
 
 
 using namespace OpenHome;
-using namespace OpenHome::Av;
+using namespace OpenHome::Topology;
 
 
 template<class T>
@@ -111,17 +111,6 @@ void WatcherUnordered<T>::UnorderedClose()
 {
 }
 
-/*
-template<class T>
-void WatcherUnordered<T>::Dispose()
-{
-    iWatchable.Execute(() =>
-    {
-        iWatchable.RemoveWatcher(this);
-    });
-}
-*/
-
 template<class T>
 void WatcherUnordered<T>::Dispose()
 {
@@ -217,34 +206,6 @@ void WatcherOrdered<T>::DisposeCallback(void* aObj)
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-/*
-template<class T>
-static IDisposable WatcherExtensions<T>::CreateWatcher<T>(this IWatchable<T> aWatchable, FunctorGeneric<void*><T> aAction)
-{
-    return (new Watcher<T>(aWatchable, aAction));
-}
-
-
-template<class T>
-static IDisposable WatcherExtensions<T>::CreateWatcher<T>(this IWatchable<T> aWatchable, Action<T, bool> aAction)
-{
-    return (new Watcher<T>(aWatchable, aAction));
-}
-
-
-template<class T>
-static IDisposable WatcherExtensions<T>::CreateWatcher<T>(this IWatchableUnordered<T> aWatchable, Action<IEnumerable<T>> aAction)
-{
-    return (new WatcherUnordered<T>(aWatchable, aAction));
-}
-
-
-template<class T>
-static IDisposable WatcherExtensions<T>::CreateWatcher<T>(this IWatchableOrdered<T> aWatchable, Action<IEnumerable<T>> aAction)
-{
-    return (new WatcherOrdered<T>(aWatchable, aAction));
-}
-*/
 
 
 

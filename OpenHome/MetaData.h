@@ -10,7 +10,7 @@
 
 namespace OpenHome
 {
-namespace Av
+namespace Topology
 {
 
 
@@ -109,7 +109,7 @@ private:
 
 } // namespace OpenHome
 
-} // namespace Av
+} // namespace Topology
 
 
 #endif // HEADER_OHTOPOLOGYC_META_DATA
