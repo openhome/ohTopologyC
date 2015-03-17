@@ -29,7 +29,7 @@ class TestExceptionReporter;
 class SuiteTopology1: public SuiteUnitTest, public INonCopyable
 {
 public:
-    SuiteTopology1(IReader& aReader);
+    SuiteTopology1(ReaderUntil& aReader);
 
 private:
     // from SuiteUnitTest
@@ -43,7 +43,7 @@ private:
 
 private:
     Topology1* iTopology1;
-    IReader& iReader;
+    ReaderUntil& iReader;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ private:
 
 using namespace OpenHome::Av::TestTopology1;
 
-SuiteTopology1::SuiteTopology1(IReader& aReader)
+SuiteTopology1::SuiteTopology1(ReaderUntil& aReader)
     :SuiteUnitTest("SuiteTopology1")
     ,iReader(aReader)
 {
@@ -176,10 +176,12 @@ void TestTopology1(Environment& aEnv, const std::vector<Brn>& aArgs)
 
 
     TestScriptHttpReader* reader = new TestScriptHttpReader(aEnv, args);
+    ReaderUntilS<1024>* readerUntil = new ReaderUntilS<1024>(*reader);
 
     Runner runner("Topology1 tests\n");
-    runner.Add(new SuiteTopology1(*reader));
+    runner.Add(new SuiteTopology1(*readerUntil));
     runner.Run();
 
+    delete readerUntil;
     delete reader;
 }

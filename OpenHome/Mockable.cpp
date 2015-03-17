@@ -50,7 +50,7 @@ MockableScriptRunner::MockableScriptRunner()
 /**
 
  */
-TBool MockableScriptRunner::Run(Functor aWait, IReader& aStream, IMockable& aMockable)
+TBool MockableScriptRunner::Run(Functor aWait, ReaderUntil& aStream, IMockable& aMockable)
 {
     LOG(kTrace, " MockableScriptRunner::Run \n");
 
