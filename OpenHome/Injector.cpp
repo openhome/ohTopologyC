@@ -88,7 +88,7 @@ TBool InjectorSender::FilterOut(CpDevice& aCpDevice)
 
 /////////////////////////////////////////////////////////////////
 
-InjectorMock::InjectorMock(Network& aNetwork, const Brx& aResourceRoot, ILog& aLog)
+InjectorMock::InjectorMock(Network& aNetwork, const Brx& /*aResourceRoot*/, ILog& aLog)
     :iNetwork(aNetwork)
     //,iResourceRoot(aResourceRoot)
     ,iLog(aLog)

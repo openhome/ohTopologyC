@@ -317,7 +317,7 @@ void Network::Remove(const Brx& aUdn)
 }
 
 
-IInjectorDevice* Network::Create(CpDevice* aDevice)
+IInjectorDevice* Network::Create(CpDevice* /*aDevice*/)
 {
 /*
     Brh value;
