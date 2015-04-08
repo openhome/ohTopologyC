@@ -50,7 +50,7 @@ public:
 
 ///////////////////////////////////
 
-class Topology4Source : public ITopology4Source, public IDisposable
+class Topology4Source : public ITopology4Source, public IDisposable, public INonCopyable
 {
 public:
     Topology4Source(IWatchableThread& aThread, IProxyCredentials& aProxy, ITopology2Source& aSource);
@@ -120,7 +120,7 @@ public:
 
 ///////////////////////////////////////////////////////
 
-class Topology4Group : public ITopology4Group, public IWatcher<ITopology2Source*>, public IDisposable
+class Topology4Group : public ITopology4Group, public IWatcher<ITopology2Source*>, public IDisposable, public INonCopyable
 {
     friend class IWatcher<ITopology2Source*>;
 
@@ -184,7 +184,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-class Topology4 : public ITopology4, public IWatcherUnordered<ITopology3Group*>
+class Topology4 : public ITopology4, public IWatcherUnordered<ITopology3Group*>, public INonCopyable
 {
 public:
     Topology4(ITopology3* aTopology3, ILog& aLog);

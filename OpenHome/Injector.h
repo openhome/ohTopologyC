@@ -48,7 +48,7 @@ protected:
 private:
     FunctorGeneric<Net::CpDevice*> iAdd;
     FunctorGeneric<Net::CpDevice*> iRemove;
-    ILog& iLog;
+    //ILog& iLog;
     //std::map<Brn, IInjectorDevice*, BufferCmp> iDeviceLookup;
 };
 

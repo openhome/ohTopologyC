@@ -37,7 +37,7 @@ TBool Topology4Source::Visible()
     return iSource.Visible();
 }
 
-void Topology4Source::Create(const Brx& aId, FunctorGeneric<ICredentialsSubscription*> aCallback)
+void Topology4Source::Create(const Brx& /*aId*/, FunctorGeneric<ICredentialsSubscription*> /*aCallback*/)
 {
 //    if (iProxy != NULL)
 //    {
@@ -104,12 +104,10 @@ Topology4Group::~Topology4Group()
 
 void Topology4Group::Dispose()
 {
-
     if (iProxy!=NULL)
     {
         iProxy->Dispose();
     }
-    //foreach (IWatchable<ITopology2Source> w in iGroup.Sources())
 
     auto t3GroupSources = iGroup.Sources();
     for (TUint i = 0; i<t3GroupSources.size(); i++)
@@ -117,6 +115,7 @@ void Topology4Group::Dispose()
         auto watchable = t3GroupSources[i];
         watchable->RemoveWatcher(*this);
     }
+
 /*
     for (TUint i = 0; i<iWatchableSources.size(); i++)
     {
@@ -214,7 +213,7 @@ void Topology4Group::ItemOpen(const Brx& aId, ITopology2Source* aValue)
     iSourceLookup[aValue] = w;
 }
 
-void Topology4Group::ItemUpdate(const Brx& aId, ITopology2Source* aValue, ITopology2Source* aPrevious)
+void Topology4Group::ItemUpdate(const Brx& /*aId*/, ITopology2Source* aValue, ITopology2Source* aPrevious)
 {
     auto w = iSourceLookup[aPrevious];
     ITopology4Source* newT4Source = new Topology4Source(iNetwork, *iProxy, *aValue);
@@ -232,7 +231,7 @@ void Topology4Group::ItemUpdate(const Brx& aId, ITopology2Source* aValue, ITopol
     iSourceLookup[aValue] = w;
 }
 
-void Topology4Group::ItemClose(const Brx& aId, ITopology2Source* aValue)
+void Topology4Group::ItemClose(const Brx& /*aId*/, ITopology2Source* aValue)
 {
     auto w = iSourceLookup[aValue];
 

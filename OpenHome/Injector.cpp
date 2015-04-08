@@ -14,10 +14,10 @@ using namespace OpenHome::Net;
 using namespace std;
 
 
-Injector::Injector(CpStack& aCpStack, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& aLog)
+Injector::Injector(CpStack& aCpStack, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& /*aLog*/)
     :iAdd(aAdd)
     ,iRemove(aRemove)
-    ,iLog(aLog)
+    //,iLog(aLog)
 {
     FunctorCpDevice fAdded = Net::MakeFunctorCpDevice(*this, &Injector::Added);
     FunctorCpDevice fRemoved = Net::MakeFunctorCpDevice(*this, &Injector::Removed);
@@ -88,7 +88,7 @@ TBool InjectorSender::FilterOut(CpDevice& aCpDevice)
 
 /////////////////////////////////////////////////////////////////
 
-InjectorMock::InjectorMock(Network& aNetwork, const Brx& aResourceRoot, ILog& aLog)
+InjectorMock::InjectorMock(Network& aNetwork, const Brx& /*aResourceRoot*/, ILog& aLog)
     :iNetwork(aNetwork)
     //,iResourceRoot(aResourceRoot)
     ,iLog(aLog)

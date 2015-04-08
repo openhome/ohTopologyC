@@ -9,6 +9,7 @@
 #include <OpenHome/Device.h>
 #include <OpenHome/Buffer.h>
 #include <OpenHome/Private/Ascii.h>
+#include <OpenHome/Private/Stream.h>
 #include <vector>
 #include <map>
 
@@ -66,7 +67,7 @@ private:
 
 public:
     MockableScriptRunner();
-    TBool Run(Functor aWait, ReaderUntil& aStream, IMockable& aMockable);
+    TBool Run(Functor aWait, OpenHome::ReaderUntil& aStream, IMockable& aMockable);
     void Result(Bwh* aValue);
 
 private:
