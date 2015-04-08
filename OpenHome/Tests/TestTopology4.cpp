@@ -26,7 +26,7 @@ namespace TestTopology4
 class SuiteTopology4: public SuiteUnitTest, public INonCopyable
 {
 public:
-    SuiteTopology4(IReader& aReader);
+    SuiteTopology4(ReaderUntil& aReader);
 
 private:
     // from SuiteUnitTest
@@ -39,8 +39,8 @@ private:
     void ScheduleCallback(void* aObj);
 
 private:
-    Topology6* iTopology6;
-    IReader& iReader;
+    Topology4* iTopology4;
+    ReaderUntil& iReader;
 };
 
 
@@ -393,7 +393,7 @@ using namespace OpenHome::Topology::TestTopology4;
 
 //////////////////////////////////////////////////////////////////////////
 
-SuiteTopology4::SuiteTopology4(IReader& aReader)
+SuiteTopology4::SuiteTopology4(ReaderUntil& aReader)
     :SuiteUnitTest("SuiteTopology4")
     ,iReader(aReader)
 {
@@ -488,16 +488,12 @@ void TestTopology4(Environment& aEnv, const std::vector<Brn>& aArgs)
     }
 
     TestScriptHttpReader* reader = new TestScriptHttpReader(aEnv, args);
+    ReaderUntilS<1024>* readerUntil = new ReaderUntilS<1024>(*reader);
 
     Runner runner("Topology4 tests\n");
-    runner.Add(new SuiteTopology4(*reader));
+    runner.Add(new SuiteTopology4(*readerUntil));
     runner.Run();
 
+    delete readerUntil;
     delete reader;
 }
-
-
-
-
-
-
