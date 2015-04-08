@@ -29,9 +29,10 @@ class ICredentialsSubscription
 };
 
 
-class IProxyCredentials
+class IProxyCredentials : public IDisposable
 {
-
+public:
+    virtual void Dispose() = 0;
 };
 
 //////////////////////////////
@@ -62,8 +63,8 @@ public:
     void Create(const Brx& aId, FunctorGeneric<ICredentialsSubscription*> aCallback);
 
 private:
-    IWatchableThread& iThread;
-    IProxyCredentials& iProxy;
+    //IWatchableThread& iThread;
+    //IProxyCredentials& iProxy;
     ITopology2Source& iSource;
 };
 

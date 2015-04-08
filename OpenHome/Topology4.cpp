@@ -6,10 +6,10 @@ using namespace OpenHome::Topology;
 using namespace std;
 
 
-Topology4Source::Topology4Source(IWatchableThread& aThread, IProxyCredentials& aProxy, ITopology2Source& aSource)
-    :iThread(aThread)
-    ,iProxy(aProxy)
-    ,iSource(aSource)
+Topology4Source::Topology4Source(IWatchableThread& /*aThread*/, IProxyCredentials& /*aProxy*/, ITopology2Source& aSource)
+    //:iThread(aThread)
+    //,iProxy(aProxy)
+    :iSource(aSource)
 {
 }
 
@@ -29,12 +29,12 @@ Brn Topology4Source::Name()
 
 Brn Topology4Source::Type()
 {
-        return iSource.Type();
+    return iSource.Type();
 }
 
 TBool Topology4Source::Visible()
 {
-        return iSource.Visible();
+    return iSource.Visible();
 }
 
 void Topology4Source::Create(const Brx& aId, FunctorGeneric<ICredentialsSubscription*> aCallback)
@@ -104,7 +104,11 @@ Topology4Group::~Topology4Group()
 
 void Topology4Group::Dispose()
 {
-    //iProxy->Dispose();
+
+    if (iProxy!=NULL)
+    {
+        iProxy->Dispose();
+    }
     //foreach (IWatchable<ITopology2Source> w in iGroup.Sources())
 
     auto t3GroupSources = iGroup.Sources();
@@ -113,13 +117,16 @@ void Topology4Group::Dispose()
         auto watchable = t3GroupSources[i];
         watchable->RemoveWatcher(*this);
     }
-
+/*
     for (TUint i = 0; i<iWatchableSources.size(); i++)
     {
         iWatchableSources[i]->Dispose();
     }
+*/
 
+    ASSERT(iWatchableSources.size() == 0);
     ASSERT(iSourceLookup.size() == 0);
+
 }
 
 Brn Topology4Group::Id()
@@ -300,9 +307,10 @@ void Topology4::Dispose()
 
     iNetwork.Execute(MakeFunctorGeneric(*this, &Topology4::DisposeCallback), NULL);
 
+    iGroups->Dispose();
+
     iTopology3->Dispose();
 
-    iGroups->Dispose();
 }
 
 
