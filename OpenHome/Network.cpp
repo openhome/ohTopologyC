@@ -5,10 +5,13 @@
 #include <OpenHome/Private/Debug.h>
 #include <OpenHome/TagManager.h>
 #include <OpenHome/IdCache.h>
+#include <OpenHome/Private/Ascii.h>
+#include <OpenHome/Net/Core/CpDevice.h>
 
 
 using namespace OpenHome;
 using namespace OpenHome::Topology;
+using namespace OpenHome::Net;
 using namespace std;
 
 
@@ -27,6 +30,8 @@ Network::Network(TUint aMaxCacheEntries, ILog&/* aLog*/)
     ,iSenderEmpty(new Sender())
     ,iInfoMetadataEmpty(new InfoMetadata())
     ,iSenderMetadataEmpty(new SenderMetadata())
+    ,iInfoDetailsEmpty(new InfoDetails())
+    ,iInfoMetatextEmpty(new InfoMetatext())
 {
     iWatchableThread = new WatchableThread(*this);
 }
@@ -45,6 +50,8 @@ Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILo
     ,iSenderEmpty(new Sender())
     ,iInfoMetadataEmpty(new InfoMetadata())
     ,iSenderMetadataEmpty(new SenderMetadata())
+    ,iInfoDetailsEmpty(new InfoDetails())
+    ,iInfoMetatextEmpty(new InfoMetatext())
 {
 }
 
@@ -71,6 +78,8 @@ Network::~Network()
     delete iSenderEmpty;
     delete iInfoMetadataEmpty;
     delete iSenderMetadataEmpty;
+    delete iInfoDetailsEmpty;
+    delete iInfoMetatextEmpty;
 }
 
 
@@ -103,6 +112,17 @@ SenderMetadata* Network::SenderMetadataEmpty()
     return(iSenderMetadataEmpty);
 }
 
+
+InfoDetails* Network::InfoDetailsEmpty()
+{
+    return(iInfoDetailsEmpty);
+}
+
+
+InfoMetatext* Network::InfoMetatextEmpty()
+{
+    return(iInfoMetatextEmpty);
+}
 
 /**
 
@@ -146,29 +166,16 @@ void Network::Report(std::exception& /*aException*/)
  */
 TBool Network::WaitDevices()
 {
-    //LOG(kTrace, "Network::WaitDevices \n");
     TBool complete = true;
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::WaitDevicesCallback);
-    Execute(f, &complete);
-    return (complete);
-}
-
-
-/**
-
- */
-void Network::WaitDevicesCallback(void* aObj)
-{
-    //LOG(kTrace, "Network::WaitDevicesCallback \n");
-    Assert(); /// must be on watchable thread
-    TBool* complete = (TBool*)aObj;
 
     for(auto it = iDevices.begin(); it!=iDevices.end(); it++)
     {
-        (*complete) &= it->second->Wait();
+        complete &= it->second->Wait();
     }
-}
 
+    return (complete);
+
+}
 
 
 /**
@@ -177,14 +184,16 @@ void Network::WaitDevicesCallback(void* aObj)
 void Network::Wait()
 {
     //LOG(kTrace, "Network::Wait \n");
-
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::DoNothing);
-
     for (;;)
     {
-        while (!WaitDevices()) ;
+        Execute();
 
-        Execute(f, NULL);
+        if (!WaitDevices())
+        {
+            continue;
+        }
+
+        Execute();
 
         if (WaitDevices())
         {
@@ -194,12 +203,42 @@ void Network::Wait()
 }
 
 
-/**
-
- */
-void Network::DoNothing(void*)
+void Network::Add(CpDevice* aDevice)
 {
-    //LOG(kTrace, "Network::DoNothing \n");
+    Log::Print("Network::Add()  \n");
+
+    Brh value;
+
+    if (aDevice->GetAttribute("Upnp.Service.schemas-upnp-org.ContentDirectory", value))
+    {
+        //if (uint.Parse(value) == 1)
+        if (Ascii::Uint(value) == 1)
+        {
+            //iInjectorMediaEndpoint.Add(aDevice);
+            return;
+        }
+    }
+
+    Add(Create(aDevice));
+}
+
+void Network::Remove(CpDevice* aDevice)
+{
+    Schedule(MakeFunctorGeneric(*this, &Network::RemoveCallback), aDevice);
+
+    //if (!iInjectorMediaEndpoint.Remove(udn))
+    //{
+        //Schedule(() =>
+        //{
+        //    Remove(udn);
+        //});
+    //}
+}
+
+void Network::RemoveCallback(void* aDevice)
+{
+    auto cpDevice = (CpDevice*)aDevice;
+    Remove(Brn(cpDevice->Udn()));
 }
 
 
@@ -249,38 +288,169 @@ void Network::AddCallback(void* aObj)
  */
 void Network::Remove(IInjectorDevice* aDevice)
 {
-    DisposeLock lock(*iDisposeHandler);
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Network::RemoveCallback);
-    Schedule(f, aDevice);
+    Remove(aDevice->Udn());
 }
 
-
-/**
-
- */
-void Network::RemoveCallback(void* aObj)
+void Network::Remove(const Brx& aUdn)
 {
-    IInjectorDevice* injDevice = (IInjectorDevice*)aObj;
+    Assert();
+    DisposeLock lock(*iDisposeHandler);
 
-    if (iDevices.count(injDevice->Udn())>0)
+    if (iDevices.count(Brn(aUdn))>0)
     {
-        Device* device = iDevices[injDevice->Udn()];
+        Device* device = iDevices[Brn(aUdn)];
 
         for(auto it = iDeviceLists.begin(); it!=iDeviceLists.end(); it++)
         {
-            if (injDevice->HasService(it->first))
+            if (device->HasService(it->first))
             {
                 it->second->Remove(device);
             }
         }
 
         iDevices.erase(device->Udn());
-        //iCache.Remove(handler->Udn());
         device->Dispose();
         delete device;
+        //iCache.Remove(string.Format(ServicePlaylist.kCacheIdFormat, aUdn));
+        //iCache.Remove(string.Format(ServiceRadio.kCacheIdFormat, aUdn));
+    }
+}
+
+
+IInjectorDevice* Network::Create(CpDevice* aDevice)
+{
+/*
+    Brh value;
+
+    InjectorDevice device = new InjectorDevice(*this, aDevice->Udn());
+
+    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Product"), value))
+    {
+        ICpProxyLinnCoUkVolkano1 service = null;
+        if (uint.Parse(value) == 1)
+        {
+            if (aDevice.GetAttribute(Brn("Upnp.Service.linn-co-uk.Volkano"), value))
+            {
+                if (uint.Parse(value) == 1)
+                {
+                    service = new CpProxyLinnCoUkVolkano1(aDevice);
+                }
+            }
+            device.Add<IProxyProduct>(new ServiceProductNetwork(device, new CpProxyAvOpenhomeOrgProduct1(aDevice), service, iLog));
+        }
     }
 
+    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Info"), value))
+    {
+        if (uint.Parse(value) == 1)
+        {
+            device.Add<IProxyInfo>(new ServiceInfoNetwork(device, new CpProxyAvOpenhomeOrgInfo1(aDevice), iLog));
+        }
+    }
+
+    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Time"), value))
+    {
+        if (uint.Parse(value) == 1)
+        {
+            device.Add<IProxyTime>(new ServiceTimeNetwork(device, new CpProxyAvOpenhomeOrgTime1(aDevice), iLog));
+        }
+    }
+
+    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Sender"), value))
+    {
+        if (uint.Parse(value) == 1)
+        {
+            device.Add<IProxySender>(new ServiceSenderNetwork(device, new CpProxyAvOpenhomeOrgSender1(aDevice), iLog));
+        }
+    }
+
+    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Volume"), value))
+    {
+        if (uint.Parse(value) == 1)
+        {
+            device.Add<IProxyVolume>(new ServiceVolumeNetwork(device, new CpProxyAvOpenhomeOrgVolume1(aDevice), iLog));
+        }
+    }
+
+    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Playlist"), value))
+    {
+        if (uint.Parse(value) == 1)
+        {
+            device.Add<IProxyPlaylist>(new ServicePlaylistNetwork(device, new CpProxyAvOpenhomeOrgPlaylist1(aDevice), iLog));
+        }
+    }
+
+    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Radio"), value))
+    {
+        if (uint.Parse(value) == 1)
+        {
+            device.Add<IProxyRadio>(new ServiceRadioNetwork(device, new CpProxyAvOpenhomeOrgRadio1(aDevice), iLog));
+        }
+    }
+
+    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Receiver"), value))
+    {
+        if (uint.Parse(value) == 1)
+        {
+            device.Add<IProxyReceiver>(new ServiceReceiverNetwork(device, new CpProxyAvOpenhomeOrgReceiver1(aDevice), iLog));
+        }
+    }
+
+    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Credentials"), value))
+    {
+        if (uint.Parse(value) == 1)
+        {
+            device.Add<IProxyCredentials>(new ServiceCredentialsNetwork(device, aDevice, iLog));
+        }
+    }
+
+    if (aDevice.GetAttribute(Brn("Upnp.Service.linn-co-uk.Sdp"), value))
+    {
+        if (uint.Parse(value) == 1)
+        {
+            device.Add<IProxySdp>(new ServiceSdpNetwork(device, new CpProxyLinnCoUkSdp1(aDevice), iLog));
+        }
+    }
+
+    if (aDevice.GetAttribute(Brn("Upnp.Service.linn-co-uk.Volkano"), value))
+    {
+        if (uint.Parse(value) == 1)
+        {
+            device.Add<IProxyVolkano>(new ServiceVolkanoNetwork(device, new CpProxyLinnCoUkVolkano1(aDevice), iLog));
+        }
+    }
+
+    return device;
+*/
+    return(NULL);
 }
+
+
+/*
+Brn Network::GetDeviceElementValue(IEnumerable<XElement> aElements, string aName)
+{
+    var children = aElements.Descendants(XName.Get(aName, "urn:schemas-upnp-org:device-1-0"));
+
+    if (children.Any())
+    {
+        return (children.First().Value);
+    }
+
+    return (null);
+}
+
+Brn Network::GetOpenHomeElementValue(IEnumerable<XElement> aElements, string aName)
+{
+    var children = aElements.Descendants(XName.Get(aName, "http://www.openhome.org"));
+
+    if (children.Any())
+    {
+        return (children.First().Value);
+    }
+
+    return (null);
+}
+*/
 
 
 /**
@@ -350,6 +520,12 @@ void Network::Execute(FunctorGeneric<void*> aCallback, void* aObj)
 }
 
 
+void Network::Execute()
+{
+    iWatchableThread->Execute();
+}
+
+
 /**
 
  */
@@ -366,6 +542,7 @@ void Network::Dispose()
     Execute(f, NULL);
 
     //iEventSupervisor.Dispose();
+    //iIdCache.Dispose();
     iDisposeHandler->Dispose();
 
     if (iExceptions.size() > 0)

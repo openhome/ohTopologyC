@@ -17,14 +17,12 @@ Topology3Group::Topology3Group(INetwork& aNetwork, ITopology2Group& aGroup)
     ,iCurrentSender(aNetwork.SenderEmpty())
     ,iSender(new Watchable<ISender*>(aNetwork, Brn("Sender"), iCurrentSender))
     ,iDisposed(false)
-    ,iGroupWatcher(NULL)
 {
 }
 
 
 Topology3Group::~Topology3Group()
 {
-    delete iGroupWatcher;
     delete iSender;
 
     if (iCurrentSender!=iNetwork.SenderEmpty())
@@ -68,6 +66,12 @@ Brn Topology3Group::ProductId()
 {
     return iGroup.ProductId();
 }
+
+Brn Topology3Group::ProductImageUri()
+{
+    return(iGroup.ProductImageUri());
+}
+
 
 IDevice& Topology3Group::Device()
 {
@@ -129,17 +133,8 @@ void Topology3Group::SetSender(ISender* aSender)
 }
 
 
-ITopology3GroupWatcher* Topology3Group::GroupWatcher()
-{
-    return(iGroupWatcher);
-}
 
 
-void Topology3Group::SetGroupWatcher(ITopology3GroupWatcher* aGroupWatcher)
-{
-    delete iGroupWatcher;
-    iGroupWatcher = aGroupWatcher;
-}
 ////////////////////////////////////////////////////////////////////////////
 
 
@@ -311,11 +306,11 @@ void SenderWatcher::CreateCallback(ServiceCreateData* aData)
     {
         iSender = sender;
         iSender->Metadata().AddWatcher(*this);
-        iTopology3.SenderChanged(iDevice, iMetadata->Uri(), Brx::Empty());
     }
     else
     {
         sender->Dispose();
+        delete sender;
     }
 }
 
@@ -330,16 +325,11 @@ void SenderWatcher::Dispose()
 {
     iDisposeHandler->Dispose();
 
-    ISenderMetadata* previous = iMetadata;
-
     if (iSender != NULL)
     {
         iSender->Metadata().RemoveWatcher(*this);
         iSender->Dispose();
-        //iSender = NULL;
     }
-
-    iTopology3.SenderChanged(iDevice, iMetadata->Uri(), previous->Uri());
 
     iDisposed = true;
 }
@@ -359,17 +349,19 @@ IDevice& SenderWatcher::Device()
 void SenderWatcher::ItemOpen(const Brx& /*aId*/, ISenderMetadata* aValue)
 {
     iMetadata = aValue;
+    iTopology3.SenderChanged(iDevice, *iMetadata, *iTopology3.Network().SenderMetadataEmpty());
 }
 
 void SenderWatcher::ItemUpdate(const Brx& /*aId*/, ISenderMetadata* aValue, ISenderMetadata* aPrevious)
 {
     iMetadata = aValue;
-    iTopology3.SenderChanged(iDevice, iMetadata->Uri(), aPrevious->Uri());
+    iTopology3.SenderChanged(iDevice, *iMetadata, *aPrevious);
 }
 
-void SenderWatcher::ItemClose(const Brx& /*aId*/, ISenderMetadata* /*aValue*/)
+void SenderWatcher::ItemClose(const Brx& /*aId*/, ISenderMetadata* aValue)
 {
     iMetadata = iTopology3.Network().SenderMetadataEmpty();
+    iTopology3.SenderChanged(iDevice, *iMetadata, *aValue);
 }
 
 
@@ -537,7 +529,9 @@ void Topology3::ReceiverChanged(ReceiverWatcher& aReceiver)
     }
 }
 
-void Topology3::SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri)
+
+void Topology3::SenderChanged(IDevice& aDevice, ISenderMetadata& aMetadata, ISenderMetadata& aPreviousMetadata)
+//void Topology3::SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri)
 {
     // iterate through all receivers...
     // assigning a new sender to any receiver that is listening to aUri
@@ -546,12 +540,14 @@ void Topology3::SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPre
     {
         ReceiverWatcher* watcher = it->second;
 
-        if (aPreviousUri.Equals(watcher->ListeningToUri()))
+        if ((aPreviousMetadata.Uri() != Brx::Empty()) && (aPreviousMetadata.Uri() == watcher->ListeningToUri()))
+        //if (aPreviousUri.Equals(watcher->ListeningToUri()))
         {
             // this receiver was listening to our previous Uri - remove it's Sender
             watcher->SetSender(iNetwork.SenderEmpty());
         }
-        else if (aUri.Equals(watcher->ListeningToUri()) && (!aUri.Equals(Brx::Empty())))
+        else if ((aMetadata.Uri() != Brx::Empty()) && (aMetadata.Uri() == watcher->ListeningToUri()))
+        //else if (aUri.Equals(watcher->ListeningToUri()) && (!aUri.Equals(Brx::Empty())))
         {
             // this receiver is listening to our new Uri - assign it a new Sender
             watcher->SetSender(new Sender(aDevice));

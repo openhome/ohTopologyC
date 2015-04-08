@@ -1,117 +1,272 @@
 #include <OpenHome/Topology4.h>
 
-#include <map>
-#include <algorithm>
-
 
 using namespace OpenHome;
 using namespace OpenHome::Topology;
 using namespace std;
 
 
+Topology4Source::Topology4Source(IWatchableThread& aThread, IProxyCredentials& aProxy, ITopology2Source& aSource)
+    :iThread(aThread)
+    ,iProxy(aProxy)
+    ,iSource(aSource)
+{
+}
 
-Topology4GroupWatcher::Topology4GroupWatcher(Topology4& aTopology4, ITopology3Group& aGroup)
-    :iTopology4(aTopology4)
+void Topology4Source::Dispose()
+{
+}
+
+TUint Topology4Source::Index()
+{
+    return iSource.Index();
+}
+
+Brn Topology4Source::Name()
+{
+    return iSource.Name();
+}
+
+Brn Topology4Source::Type()
+{
+        return iSource.Type();
+}
+
+TBool Topology4Source::Visible()
+{
+        return iSource.Visible();
+}
+
+void Topology4Source::Create(const Brx& aId, FunctorGeneric<ICredentialsSubscription*> aCallback)
+{
+//    if (iProxy != NULL)
+//    {
+//        iProxy.Create(aId, aCallback);
+//    }
+//    else
+//    {
+//        aCallback(new CredentialsSubscriptionNull(iThread));
+//    }
+}
+
+
+/////////////////////////////////////////////////////////////////////
+
+
+Topology4Group::Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, ILog& /*aLog*/)
+    :iNetwork(aNetwork)
     ,iGroup(aGroup)
+    ,iProxy(NULL)
+    //,iLog(aLog)
+    ,iGroupWatcher(NULL)
 {
-    iGroup.RoomName().AddWatcher(*this);
-}
-
-// IWatcher<string>
-
-void Topology4GroupWatcher::ItemOpen(const Brx& /*aId*/, Brn aRoom)
-{
-    iTopology4.AddGroupToRoom(iGroup, aRoom);
-}
-
-void Topology4GroupWatcher::ItemUpdate(const Brx& /*aId*/, Brn aRoom, Brn aPreviousRoom)
-{
-    iTopology4.RemoveGroupFromRoom(iGroup, aPreviousRoom);
-    iTopology4.AddGroupToRoom(iGroup, aRoom);
-}
-
-void Topology4GroupWatcher::ItemClose(const Brx& /*aId*/, Brn aRoom)
-{
-    iTopology4.RemoveGroupFromRoom(iGroup, aRoom);
-}
-
-// IDisposable
-
-void Topology4GroupWatcher::Dispose()
-{
-    iGroup.RoomName().RemoveWatcher(*this);
-}
-
-///////////////////////////////////////////////////////////////
-
-Topology4Room::Topology4Room(IWatchableThread& aThread, const Brx& aName, ITopology3Group& aGroup)
-    :iName(aName)
-    ,iWatchableGroups(new WatchableUnordered<ITopology3Group*>(aThread))
-{
-    Add(aGroup);
-}
-
-
-Topology4Room::~Topology4Room()
-{
-    delete iWatchableGroups;
-    iWatchableGroups = NULL;
-    iGroups.clear();
-}
-
-
-void Topology4Room::Dispose()
-{
-    iWatchableGroups->Dispose();
-}
-
-// ITopology4Room
-
-const Brx& Topology4Room::Name()
-{
-    return(iName);
-}
-
-IWatchableUnordered<ITopology3Group*>& Topology4Room::Groups()
-{
-    return(*iWatchableGroups);
-}
-
-void Topology4Room::SetStandby(TBool aValue)
-{
-    for(TUint i=0; i<iGroups.size(); i++)
+    auto v = iGroup.Sources();
+    for (TUint i = 0; i<v.size(); i++)
     {
-        iGroups[i]->SetStandby(aValue);
+        auto w = v[i];
+        w->AddWatcher(*this);
     }
 }
 
-// Topology4Room
-
-void Topology4Room::Add(ITopology3Group& aGroup)
+Topology4Group::Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, IProxyCredentials& aProxy, ILog& /*aLog*/)
+    :iNetwork(aNetwork)
+    ,iGroup(aGroup)
+    ,iProxy(&aProxy)
+    //,iLog(aLog)
+    ,iGroupWatcher(NULL)
 {
-    iWatchableGroups->Add(&aGroup);
-    iGroups.push_back(&aGroup);
+    auto v = iGroup.Sources();
+    for (TUint i = 0; i<v.size(); i++)
+    {
+        auto w = v[i];
+        w->AddWatcher(*this);
+    }
 }
 
-TBool Topology4Room::Remove(ITopology3Group& aGroup)
+
+Topology4Group::~Topology4Group()
 {
-    iWatchableGroups->Remove(&aGroup);
+    delete iGroupWatcher;
 
-    auto it =  find(iGroups.begin(), iGroups.end(), &aGroup);;
-    ASSERT(it!=iGroups.end());
+    for(auto it=iSourceLookup.begin(); it!=iSourceLookup.end(); it++)
+    {
+        delete it->second;
+    }
 
-    iGroups.erase(it);
+    for(auto it=iSources.begin(); it!=iSources.end(); it++)
+    {
+        delete *it;
+    }
 
-    return (iGroups.size() == 0);
+    iSourceLookup.clear();
 }
 
-///////////////////////////////////////////////////////
 
-Topology4::Topology4(ITopology3* aTopology3, ILog& /*aLog*/)
-    :iDisposed(false)
+void Topology4Group::Dispose()
+{
+    //iProxy->Dispose();
+    //foreach (IWatchable<ITopology2Source> w in iGroup.Sources())
+
+    auto t3GroupSources = iGroup.Sources();
+    for (TUint i = 0; i<t3GroupSources.size(); i++)
+    {
+        auto watchable = t3GroupSources[i];
+        watchable->RemoveWatcher(*this);
+    }
+
+    for (TUint i = 0; i<iWatchableSources.size(); i++)
+    {
+        iWatchableSources[i]->Dispose();
+    }
+
+    ASSERT(iSourceLookup.size() == 0);
+}
+
+Brn Topology4Group::Id()
+{
+    return iGroup.Id();
+}
+
+Brn Topology4Group::Attributes()
+{
+    return iGroup.Attributes();
+}
+
+Brn Topology4Group::ModelName()
+{
+    return iGroup.ModelName();
+}
+
+Brn Topology4Group::ManufacturerName()
+{
+    return iGroup.ManufacturerName();
+}
+
+Brn Topology4Group::ProductId()
+{
+    return iGroup.ProductId();
+}
+
+Brn Topology4Group::ProductImageUri()
+{
+    return iGroup.ProductImageUri();
+}
+
+IDevice& Topology4Group::Device()
+{
+    return iGroup.Device();
+}
+
+IWatchable<Brn>& Topology4Group::RoomName()
+{
+    return iGroup.RoomName();
+}
+
+IWatchable<Brn>& Topology4Group::Name()
+{
+    return iGroup.Name();
+}
+
+IWatchable<TBool>& Topology4Group::Standby()
+{
+    return iGroup.Standby();
+}
+
+IWatchable<TUint>& Topology4Group::SourceIndex()
+{
+    return iGroup.SourceIndex();
+}
+
+vector<Watchable<ITopology4Source*>*>& Topology4Group::Sources()
+{
+    return iWatchableSources;
+}
+
+IWatchable<ISender*>& Topology4Group::Sender()
+{
+    return iGroup.Sender();
+}
+
+void Topology4Group::SetStandby(TBool aValue)
+{
+    iGroup.SetStandby(aValue);
+}
+
+void Topology4Group::SetSourceIndex(TUint aValue)
+{
+    iGroup.SetSourceIndex(aValue);
+}
+
+void Topology4Group::ItemOpen(const Brx& aId, ITopology2Source* aValue)
+{
+    //auto w = new Watchable<ITopology4Source*>(iNetwork, string.Format("{0}({1})", Id, iWatchableSources.Count.ToString()), new Topology4Source(iNetwork, iProxy, aValue));
+    ITopology4Source* t4Source = new Topology4Source(iNetwork, *iProxy, *aValue);
+    auto w = new Watchable<ITopology4Source*>(iNetwork, aId, t4Source);
+    iWatchableSources.push_back(w);
+    iSources.push_back(t4Source);
+    iSourceLookup[aValue] = w;
+}
+
+void Topology4Group::ItemUpdate(const Brx& aId, ITopology2Source* aValue, ITopology2Source* aPrevious)
+{
+    auto w = iSourceLookup[aPrevious];
+    ITopology4Source* newT4Source = new Topology4Source(iNetwork, *iProxy, *aValue);
+    iSources.push_back(newT4Source);
+
+    auto source = w->Value();
+    w->Update(newT4Source);
+
+    auto it = find(iSources.begin(), iSources.end(), source);
+    ASSERT(it!=iSources.end());
+    iSources.erase(it);
+    delete source;
+
+    iSourceLookup.erase(aPrevious);
+    iSourceLookup[aValue] = w;
+}
+
+void Topology4Group::ItemClose(const Brx& aId, ITopology2Source* aValue)
+{
+    auto w = iSourceLookup[aValue];
+
+    auto it = find(iSources.begin(), iSources.end(), w->Value());
+    ASSERT(it!=iSources.end());
+    delete *it;
+    iSources.erase(it);
+
+
+    auto it2 = find(iWatchableSources.begin(), iWatchableSources.end(), w);
+    ASSERT(it2 != iWatchableSources.end());
+    iWatchableSources.erase(it2);
+
+    w->Dispose();
+    delete w;
+    iSourceLookup.erase(aValue);
+}
+
+
+ITopology4GroupWatcher* Topology4Group::GroupWatcher()
+{
+    return(iGroupWatcher);
+}
+
+
+void Topology4Group::SetGroupWatcher(ITopology4GroupWatcher* aGroupWatcher)
+{
+    delete iGroupWatcher;
+    iGroupWatcher = aGroupWatcher;
+}
+
+/////////////////////////////////////////////////////////////////////
+
+
+Topology4::Topology4(ITopology3* aTopology3, ILog& aLog)
+    :iTopology3(aTopology3)
+    ,iLog(aLog)
     ,iNetwork(aTopology3->Network())
-    ,iTopology3(aTopology3)
-    ,iRooms(new WatchableUnordered<ITopology4Room*>(iNetwork))
+    ,iDisposeHandler(new DisposeHandler())
+    ,iDisposed(false)
+    ,iGroups(new WatchableUnordered<ITopology4Group*>(iNetwork))
 {
     iNetwork.Schedule(MakeFunctorGeneric(*this, &Topology4::WatchT3Groups), NULL);
 }
@@ -119,36 +274,35 @@ Topology4::Topology4(ITopology3* aTopology3, ILog& /*aLog*/)
 
 Topology4::~Topology4()
 {
-    delete iTopology3;
-    delete iRooms;
+    delete iDisposeHandler;
+    delete iGroups;
 
-    for(auto it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
+    for(auto it=iGroupsLookup.begin(); it!=iGroupsLookup.end(); it++)
     {
         delete it->second;
     }
 
-}
+    iGroupsLookup.clear();
 
+    delete iTopology3;
+}
 
 void Topology4::WatchT3Groups(void*)
 {
     iTopology3->Groups().AddWatcher(*this);
 }
 
-
 void Topology4::Dispose()
 {
-    if (iDisposed)
-    {
-        //throw new ObjectDisposedException("Topology4.Dispose");
-    }
+    iDisposeHandler->Dispose();
+
+    iDisposed = true;
 
     iNetwork.Execute(MakeFunctorGeneric(*this, &Topology4::DisposeCallback), NULL);
 
-    iRooms->Dispose();
-
-    iDisposed = true;
     iTopology3->Dispose();
+
+    iGroups->Dispose();
 }
 
 
@@ -156,25 +310,24 @@ void Topology4::DisposeCallback(void*)
 {
     iTopology3->Groups().RemoveWatcher(*this);
 
-    // removing these watchers should cause all rooms to be detached and disposed
-    for(auto it=iGroupWatcherLookup.begin(); it!=iGroupWatcherLookup.end(); it++)
+    for(auto it=iGroupsLookup.begin(); it!=iGroupsLookup.end(); it++)
     {
         it->second->Dispose();
     }
 }
 
 
-IWatchableUnordered<ITopology4Room*>& Topology4::Rooms()
+IWatchableUnordered<ITopology4Group*>& Topology4::Groups()
 {
-    return(*iRooms);
+    DisposeLock lock(*iDisposeHandler);
+    return *iGroups;
 }
 
 INetwork& Topology4::Network()
 {
-    return(iNetwork);
+    DisposeLock lock(*iDisposeHandler);
+    return iNetwork;
 }
-
-// IWatcherUnordered<ITopology3Group>
 
 void Topology4::UnorderedOpen()
 {
@@ -190,55 +343,87 @@ void Topology4::UnorderedClose()
 
 void Topology4::UnorderedAdd(ITopology3Group* aItem)
 {
-    iGroupWatcherLookup[aItem] = new Topology4GroupWatcher(*this, *aItem);
+    iDisposeHandler->WhenNotDisposed(MakeFunctorGeneric(*this, &Topology4::UnorderedAddCallback), aItem);
+/*
+    iDisposeHandler.WhenNotDisposed(() =>
+    {
+        if (aItem.Attributes.Contains("Credentials"))
+        {
+            iPendingSubscriptions.Add(aItem);
+            aItem.Device.Create<IProxyCredentials>((p) =>
+            {
+                if (!iDisposed && iPendingSubscriptions.Contains(aItem))
+                {
+                    CreateGroup(aItem, new Topology4Group(iNetwork, aItem, p, iLog));
+                    iPendingSubscriptions.Remove(aItem);
+                }
+                else
+                {
+                    p.Dispose();
+                }
+            });
+        }
+        else
+        {
+            CreateGroup(aItem, new Topology4Group(iNetwork, aItem, iLog));
+        }
+    });
+*/
+}
+
+
+void Topology4::UnorderedAddCallback(void* aItem)
+{
+    auto item = (ITopology3Group*)aItem;
+    CreateGroup(*item, new Topology4Group(iNetwork, *item, iLog));
+}
+
+
+void Topology4::CreateGroup(ITopology3Group& aGroup3, Topology4Group* aGroup4)
+{
+    iGroups->Add(aGroup4);
+    iGroupsLookup[&aGroup3] = aGroup4;
 }
 
 void Topology4::UnorderedRemove(ITopology3Group* aItem)
 {
-    ASSERT(iGroupWatcherLookup.count(aItem)>0);
-    auto watcher = iGroupWatcherLookup[aItem];
-    watcher->Dispose();
-    delete watcher;
-    iGroupWatcherLookup.erase(aItem);
-}
+    iDisposeHandler->WhenNotDisposed(MakeFunctorGeneric(*this, &Topology4::UnorderedRemoveCallback), aItem);
 
-
-void Topology4::AddGroupToRoom(ITopology3Group& aGroup, const Brx& aRoomName)
-{
-    Brn roomName(aRoomName);
-
-    if(iRoomLookup.count(roomName)>0)
+/*
+    iDisposeHandler.WhenNotDisposed(() =>
     {
-        // room already exists
-        iRoomLookup[roomName]->Add(aGroup);
-    }
-    else
-    {
-        // need to create a new room
-        Topology4Room* room = new Topology4Room(iNetwork, aRoomName, aGroup);
-        iRoomLookup[roomName] = room;
-        iRooms->Add(room);
-    }
-}
-
-
-void Topology4::RemoveGroupFromRoom(ITopology3Group& aGroup, const Brx& aRoomName)
-{
-    Brn roomName(aRoomName);
-
-    if (iRoomLookup.count(roomName) > 0)
-    {
-        Topology4Room* room = iRoomLookup[roomName];
-
-        if (room->Remove(aGroup))
+        if (iPendingSubscriptions.Contains(aItem))
         {
-            // no more groups in room - remove it
-            iRooms->Remove(room);
-            iRoomLookup.erase(roomName);
-            room->Dispose();
-            delete room;
+            iPendingSubscriptions.Remove(aItem);
+            return;
         }
-    }
+
+        // schedule notification of L3 group removal
+        Topology4Group group = iGroupsLookup[aItem];
+        iGroups.Remove(group);
+        iGroupsLookup.Remove(aItem);
+
+        group.Dispose();
+    });
+*/
 }
 
+void Topology4::UnorderedRemoveCallback(void* aItem)
+{
+    auto item  = (ITopology3Group*)aItem;
+
+    auto it = find(iPendingSubscriptions.begin(), iPendingSubscriptions.end(), item);
+    if (it!=iPendingSubscriptions.end())
+    {
+        iPendingSubscriptions.erase(it);
+        return;
+    }
+
+    Topology4Group* group = iGroupsLookup[item];
+    iGroups->Remove(group);
+    iGroupsLookup.erase(item);
+
+    group->Dispose();
+    delete group;
+}
 

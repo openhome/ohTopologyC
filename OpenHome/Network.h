@@ -13,6 +13,8 @@
 #include <OpenHome/AsyncAdaptor.h>
 #include <OpenHome/IdCache.h>
 #include <OpenHome/ServiceSender.h>
+#include <OpenHome/ServiceInfo.h>
+#include <OpenHome/Net/Core/CpDevice.h>
 #include <vector>
 #include <map>
 
@@ -62,6 +64,8 @@ public:
     virtual Sender* SenderEmpty() = 0;
     virtual InfoMetadata* InfoMetadataEmpty() = 0;
     virtual SenderMetadata* SenderMetadataEmpty() = 0;
+    virtual InfoDetails* InfoDetailsEmpty() = 0;
+    virtual InfoMetatext* InfoMetatextEmpty() = 0;
 
     virtual ~INetwork() {}
 };
@@ -76,24 +80,33 @@ public:
     ~Network();
 
     void Wait();
+
     void Add(IInjectorDevice* aDevice);
+    void Add(Net::CpDevice* aDevice);
+
     void Remove(IInjectorDevice* aDevice);
+    void Remove(Net::CpDevice* aDevice);
+
 
     // INetwork
     virtual IIdCache& IdCache();
     virtual ITagManager& GetTagManager();
     virtual IEventSupervisor& EventSupervisor();
     virtual IWatchableUnordered<IDevice*>& Create(EServiceType aServiceType);
+    virtual IInjectorDevice* Create(Net::CpDevice* aDevice);
     virtual AsyncAdaptorManager& GetAsyncAdaptorManager();
 
     virtual Sender* SenderEmpty();
     virtual InfoMetadata* InfoMetadataEmpty();
     virtual SenderMetadata* SenderMetadataEmpty();
+    virtual InfoDetails* InfoDetailsEmpty();
+    virtual InfoMetatext* InfoMetatextEmpty();
 
     // IWatchableThread
     virtual void Assert();
     virtual void Schedule(FunctorGeneric<void*> aCallback, void* aObj);
     virtual void Execute(FunctorGeneric<void*> aCallback, void* aObj);
+    virtual void Execute();
 
     // IDisposable
     virtual void Dispose();
@@ -107,10 +120,9 @@ private:
     void ReportException(Exception& aException);
     TBool WaitDevices();
     void AddCallback(void*);
-    void RemoveCallback(void*);
-    void WaitDevicesCallback(void*);
-    void DoNothing(void*);
     void DisposeCallback(void*);
+    void RemoveCallback(void* aDevice);
+    void Remove(const Brx& aUdn);
 
 private:
     std::vector<Exception> iExceptions;
@@ -126,12 +138,14 @@ private:
     Sender* iSenderEmpty;
     InfoMetadata* iInfoMetadataEmpty;
     SenderMetadata* iSenderMetadataEmpty;
+    InfoDetails* iInfoDetailsEmpty;
+    InfoMetatext* iInfoMetatextEmpty;
 
 };
 
 
 
-} // Av
+} // Topology
 
 } // OpenHome
 

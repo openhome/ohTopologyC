@@ -6,7 +6,7 @@
 #include <OpenHome/Watchable.h>
 #include <OpenHome/Buffer.h>
 #include <OpenHome/MetaData.h>
-#include <OpenHome/Net/Core/CpDevice.h>
+//#include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
 
 
@@ -56,7 +56,7 @@ public:
     virtual void Stop() = 0;
 
 protected:
-    ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
+    ServiceReceiver(IInjectorDevice& aDevice, ILog& aLog);
 
 protected:
     Bws<100> iProtocolInfo; // FIXME: random capacity value
@@ -71,7 +71,7 @@ protected:
 class ServiceReceiverNetwork : public ServiceReceiver
 {
 public:
-    ServiceReceiverNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
+    ServiceReceiverNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgReceiver1* aService, ILog& aLog);
     ~ServiceReceiverNetwork();
 
     virtual void Dispose();
@@ -97,8 +97,8 @@ private:
     void BeginSetSenderCallback2(void*);
 
 private:
-    Net::CpDevice& iCpDevice;
     Net::CpProxyAvOpenhomeOrgReceiver1* iService;
+    TBool iSubscribed;
 };
 
 //////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ private:
 class ServiceReceiverMock : public ServiceReceiver
 {
 public:
-    ServiceReceiverMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aMetadata,
+    ServiceReceiverMock(IInjectorDevice& aDevice, const Brx& aMetadata,
                         const Brx& aProtocolInfo, const Brx& aTransportState, const Brx& aUri, ILog& aLog);
 
     virtual void Execute(ICommandTokens& aValue);
@@ -145,7 +145,7 @@ private:
     IDevice& iDevice;
 };
 
-} // Av
+} // Topology
 
 } // OpenHome
 

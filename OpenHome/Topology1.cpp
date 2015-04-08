@@ -16,7 +16,7 @@ Topology1::Topology1(INetwork* aNetwork, ILog& /*aLog*/)
     ,iProducts(new WatchableUnordered<IProxyProduct*>(*iNetwork))
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::WatchDevices);
-    iNetwork->Execute(f, 0);  // this could be a schedule (changed in a later rev.)
+    iNetwork->Schedule(f, 0);
 }
 
 
@@ -49,12 +49,6 @@ void Topology1::Dispose()
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::DisposeCallback);
     iNetwork->Execute(f, NULL);
 
-    // dispose of all products, which will in turn unsubscribe
-    for(auto it=iProductLookup.begin(); it!=iProductLookup.end(); it++)
-    {
-        it->second->Dispose();
-    }
-
     iProducts->Dispose();
     iDisposed = true;
 }
@@ -64,6 +58,12 @@ void Topology1::DisposeCallback(void*)
 {
     iDevices->RemoveWatcher(*this);
     iPendingSubscriptions.empty();
+
+    // dispose of all products, which will in turn unsubscribe
+    for(auto it=iProductLookup.begin(); it!=iProductLookup.end(); it++)
+    {
+        it->second->Dispose();
+    }
 }
 
 

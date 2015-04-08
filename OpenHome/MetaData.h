@@ -33,6 +33,7 @@ class IInfoMetatext
 {
 public:
     virtual IMediaMetadata& Metatext() = 0;
+    virtual ~IInfoMetatext(){}
 };
 
 /////////////////////////////////////////
@@ -41,7 +42,7 @@ class InfoMetatext : public IInfoMetatext
 {
 public:
     InfoMetatext();
-    InfoMetatext(IMediaMetadata& aMetatext);
+    InfoMetatext(IMediaMetadata* aMetatext);
 
     IMediaMetadata& Metatext();
 

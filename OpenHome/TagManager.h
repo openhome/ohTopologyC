@@ -23,6 +23,7 @@ class IMediaValue
 public:
     virtual Brn Value() = 0;
     virtual const std::vector<Brn>& Values() = 0;
+    virtual ~IMediaValue(){}
 };
 
 /////////////////////////////////////////
@@ -114,6 +115,7 @@ public:
 protected:
     MediaDictionary();
     MediaDictionary(IMediaMetadata& aMetadata);
+    ~MediaDictionary();
 
 protected:
     std::map<ITag*, IMediaValue*> iMetadata;
@@ -132,7 +134,7 @@ public:
 ///////////////////////////////////////////////////
 
 
-} // Av
+} // Topology
 } // OpenHome
 
 

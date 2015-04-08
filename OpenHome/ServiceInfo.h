@@ -17,6 +17,11 @@
 
 namespace OpenHome
 {
+namespace Net
+{
+class CpProxyAvOpenhomeOrgInfo1;
+}
+
 namespace Topology
 {
 
@@ -29,6 +34,7 @@ public:
     virtual TUint Duration() = 0;
     virtual TBool Lossless() = 0;
     virtual TUint SampleRate() = 0;
+    virtual ~IInfoDetails(){}
 };
 
 /////////////////////////////////////////
@@ -60,7 +66,7 @@ private:
 class ServiceInfo : public Service
 {
 protected:
-    ServiceInfo(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
+    ServiceInfo(IInjectorDevice& aDevice, ILog& aLog);
     ~ServiceInfo();
 
 public:
@@ -82,7 +88,7 @@ protected:
 class ServiceInfoNetwork : public ServiceInfo
 {
 public:
-    ServiceInfoNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
+    ServiceInfoNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgInfo1* aService, ILog& aLog);
     ~ServiceInfoNetwork();
 
     virtual void Dispose();
@@ -97,6 +103,7 @@ private:
     void HandleDetailsChanged();
     void HandleMetadataChanged();
     void HandleMetatextChanged();
+    void HandlePendingDetailsChanged();
 
     void HandleDetailsChangedCallback1(void*);
     void HandleDetailsChangedCallback2(void*);
@@ -106,8 +113,9 @@ private:
     void HandleMetatextChangedCallback2(void*);
 
 private:
-    Net::CpDevice& iCpDevice;
     Net::CpProxyAvOpenhomeOrgInfo1* iService;
+    TBool iSubscribed;
+    TBool iDetailsChanged;
 };
 
 ////////////////////////////////////////////////////////
@@ -146,7 +154,7 @@ private:
 };
 
 
-} // Av
+} // Topology
 } // OpenHome
 
 #endif

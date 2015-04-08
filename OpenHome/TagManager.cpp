@@ -73,6 +73,8 @@ void TagManager::Add(map<Brn, ITag*, BufferCmp>& aRealm, ITag* aTag)
 
 IMediaMetadata* TagManager::FromDidlLite(const Brx& aMetadata)
 {
+
+
     MediaMetadata* metadata = new MediaMetadata();
 
     try
@@ -80,13 +82,12 @@ IMediaMetadata* TagManager::FromDidlLite(const Brx& aMetadata)
         if (!aMetadata.Equals(Brx::Empty()))
         {
             Brn title = XmlParserBasic::Find(Brn("dc:title"), aMetadata);
-
             Brn res = XmlParserBasic::Find(Brn("didl:res"), aMetadata);
             Brn album = XmlParserBasic::Find(Brn("upnp:album"), aMetadata);
             Brn artist = XmlParserBasic::Find(Brn("upnp:artist"), aMetadata);
 
 
-            if(title != Brx::Empty())
+            if (title != Brx::Empty())
             {
                 metadata->Add(Audio().Title(), title);
             }
@@ -105,6 +106,71 @@ IMediaMetadata* TagManager::FromDidlLite(const Brx& aMetadata)
             {
                 metadata->Add(Audio().Artist(), artist);
             }
+
+
+            //<res channels="2" bitrate="0" duration="00:04:15" protocolInfo="http-get:*:audio/x-flac:*">http://10.2.10.154:4000/linn.co.uk.kazooserver/ms/audio/e6b8305a1f3ccddd3f0e619533b7d271</res>
+            //XmlNode protocolInfo = document.SelectSingleNode("//*/didl:res/@protocolInfo", nsManager);
+
+            Brn protocolInfo = XmlParserBasic::FindAttribute(Brn("res"), Brn("protocolInfo"), aMetadata);
+            if (protocolInfo != Brx::Empty())
+            {
+                if (Ascii::Contains(protocolInfo, Brn("flac")))
+                {
+                    metadata->Add(Audio().Codec(), Brn("flac"));
+                }
+                else if ( Ascii::Contains(protocolInfo, Brn("alac")) || Ascii::Contains(protocolInfo, Brn("m4a")) )
+                {
+                    metadata->Add(Audio().Codec(), Brn("alac"));
+                }
+                else if ( Ascii::Contains(protocolInfo, Brn("mpeg")) || Ascii::Contains(protocolInfo, Brn("mp1")) )
+                {
+                    metadata->Add(Audio().Codec(), Brn("mp3"));
+                }
+                else if (Ascii::Contains(protocolInfo, Brn("wma")))
+                {
+                    metadata->Add(Audio().Codec(), Brn("wma"));
+                }
+                else if (Ascii::Contains(protocolInfo, Brn("wav")))
+                {
+                    metadata->Add(Audio().Codec(), Brn("wav"));
+                }
+                else if (Ascii::Contains(protocolInfo, Brn("ogg")))
+                {
+                    metadata->Add(Audio().Codec(), Brn("ogg"));
+                }
+                else if (Ascii::Contains(protocolInfo, Brn("aac")))
+                {
+                    metadata->Add(Audio().Codec(), Brn("aac"));
+                }
+                else if (Ascii::Contains(protocolInfo, Brn("aiff")))
+                {
+                    metadata->Add(Audio().Codec(), Brn("aiff"));
+                }
+            }
+
+
+            Brn bitrate = XmlParserBasic::FindAttribute(Brn("res"), Brn("bitrate"), aMetadata);
+            if (bitrate != Brx::Empty())
+            {
+                // convert from bytes/s to bits/s
+                // convert string to int, multiply by 8, convert back to string
+                TUint bytesPerSec = Ascii::Uint(bitrate)*8;
+                Bws<20> bytesPerSecBuf;
+                Ascii::AppendDec(bytesPerSecBuf, bytesPerSec);
+
+                metadata->Add(Audio().Bitrate(), bytesPerSecBuf);
+            }
+            Brn sampleFrequency = XmlParserBasic::FindAttribute(Brn("res"), Brn("sampleFrequency"), aMetadata);
+            if (sampleFrequency != Brx::Empty())
+            {
+                metadata->Add(Audio().Samplerate(), sampleFrequency);
+            }
+            Brn bitsPerSample = XmlParserBasic::FindAttribute(Brn("res"), Brn("bitsPerSample"), aMetadata);
+            if (bitsPerSample != Brx::Empty())
+            {
+                metadata->Add(Audio().Bitdepth(), bitsPerSample);
+            }
+
 
             Brn remaining;
             Brn xmlElements(aMetadata);
@@ -153,8 +219,7 @@ IMediaMetadata* TagManager::FromDidlLite(const Brx& aMetadata)
             for(;;)
             {
                 Brn genre = XmlParserBasic::Find(Brn("upnp:genre"), aMetadata);;
-                if (genre!=Brx::Empty())
-                {
+                if (genre!=Brx::Empty())                {
                     metadata->Add(Audio().Genre(), genre);
                 }
                 else
@@ -166,113 +231,16 @@ IMediaMetadata* TagManager::FromDidlLite(const Brx& aMetadata)
     }
     catch(XmlError)
     {
+        metadata->Add(Audio().Title(), Brn("Invalid Metadata"));
+        metadata->Add(Audio().Description(), Brn("Xml error"));
         LOG(kTrace, Brn("\nInvalid aMetadata: \n"));
         LOG(kTrace, aMetadata);
         LOG(kTrace, "\n");
     }
 
 
+
     return metadata;
-
-
-    /*
-        XmlDocument document = new XmlDocument();
-        XmlNamespaceManager nsManager = new XmlNamespaceManager(document.NameTable);
-        nsManager.AddNamespace("didl", kNsDidl);
-        nsManager.AddNamespace("upnp", kNsUpnp);
-        nsManager.AddNamespace("dc", kNsDc);
-        nsManager.AddNamespace("ldl", "urn:linn-co-uk/DIDL-Lite");
-    */
-        //try
-        //{
-            //document.LoadXml(aMetadata);
-
-            //XmlNode title = document.SelectSingleNode("/didl:DIDL-Lite/*/dc:title", nsManager);
-
-/*
-            if(title != null)
-            {
-                if (title.FirstChild != null)
-                {
-                    metadata.Add(aTagManager.Audio.Title, title.FirstChild.Value);
-                }
-            }
-*/
-
-            //XmlNode res = document.SelectSingleNode("/didl:DIDL-Lite/*/didl:res", nsManager);
-/*
-
-            if (res != null)
-            {
-                if (res.FirstChild != null)
-                {
-                    metadata.Add(aTagManager.Audio.Uri, res.FirstChild.Value);
-                }
-            }
-*/
-
-            //XmlNodeList albumart = document.SelectNodes("/didl:DIDL-Lite/*/upnp:albumArtURI", nsManager);
-
-/*
-            foreach (XmlNode n in albumart)
-            {
-                if (n.FirstChild != null)
-                {
-                    metadata.Add(aTagManager.Audio.Artwork, n.FirstChild.Value);
-                }
-            }
-*/
-            //XmlNode album = document.SelectSingleNode("/didl:DIDL-Lite/*/upnp:album", nsManager);
-
-/*
-            if (album != null)
-            {
-                if (album.FirstChild != null)
-                {
-                    metadata.Add(aTagManager.Audio.Album, album.FirstChild.Value);
-                }
-            }
-*/
-
-            //XmlNode artist = document.SelectSingleNode("/didl:DIDL-Lite/*/upnp:artist", nsManager);
-
-    /*
-            if (artist != null)
-            {
-                if (artist.FirstChild != null)
-                {
-                    metadata.Add(aTagManager.Audio.Artist, artist.FirstChild.Value);
-                }
-            }
-      */
-
-            //XmlNodeList genre = document.SelectNodes("/didl:DIDL-Lite/*/upnp:genre", nsManager);
-
-/*
-            foreach (XmlNode n in genre)
-            {
-                if (n.FirstChild != null)
-                {
-                    metadata.Add(aTagManager.Audio.Genre, n.FirstChild.Value);
-                }
-            }
-*/
-            //XmlNode albumartist = document.SelectSingleNode("/didl:DIDL-Lite/*/upnp:artist[@role='AlbumArtist']", nsManager);
-
-/*
-            if (albumartist != null)
-            {
-                if (albumartist.FirstChild != null)
-                {
-                    metadata.Add(aTagManager.Audio.AlbumArtist, albumartist.FirstChild.Value);
-                }
-            }
-*/
-    //    }
-        //catch (XmlException) { }
-    //}
-
-    //metadata->Add(System().Folder(), aMetadata);
 }
 
 
@@ -300,20 +268,22 @@ void TagManager::ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf)
 </DIDL-Lite></Metadata></Entry></TrackList>
 */
 
-    auto metadata = aMetadata.Values();
-
+    auto metadata = aMetadata.Values();  // map
 
     aBuf.Replace(Brn("<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\">"));
     aBuf.Append(Brn("<item"));
-    aBuf.Append(Brn("<dc:title>"));
-    aBuf.Append(metadata[iAudio->Title()]->Value());
-    aBuf.Append(Brn("</dctitle>"));
+
+    if (metadata[iAudio->Title()] != NULL)
+    {
+        aBuf.Append(Brn("<dc:title>"));
+        aBuf.Append(metadata[iAudio->Title()]->Value());
+        aBuf.Append(Brn("</dctitle>"));
+    }
 
     aBuf.Append("<upnp:class xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">object.item.audioItem.musicTrack</upnp:class>");
 
 
-    //if (metadata[iAudio->Artwork()] != NULL)
-    if ( metadata.count((iAudio->Artwork())) > 0)
+    if (metadata[iAudio->Artwork()] != NULL)
     {
         // <upnp:albumArtURI dlna:profileID="JPEG_TN" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">http://10.2.10.154:4000/linn.co.uk.kazooserver/ms/artwork/e211a2ee99ce772e45bd836f00430534?size=0</upnp:albumArtURI>
         auto artworkValues = metadata[iAudio->Artwork()]->Values();
@@ -326,7 +296,7 @@ void TagManager::ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf)
     }
 
 
-    if (metadata.count(iAudio->AlbumTitle()) > 0)
+    if (metadata[iAudio->AlbumTitle()] != NULL)
     {
         // <upnp:album xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">Back in Black</upnp:album>
         aBuf.Append(Brn("<upnp:album xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
@@ -335,7 +305,8 @@ void TagManager::ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf)
     }
 
 
-    if (metadata.count(iAudio->Artist()) > 0)
+
+    if (metadata[iAudio->Artist()] != NULL)
     {
         // <upnp:artist xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">AC/DC</upnp:artist>
         auto artistValues = metadata[iAudio->Artist()]->Values();
@@ -347,13 +318,140 @@ void TagManager::ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf)
         }
     }
 
-    if (metadata.count(iAudio->AlbumArtist()) > 0)
+    if (metadata[iAudio->AlbumArtist()] != NULL)
     {
         // <upnp:artist role="albumartist" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">AC/DC</upnp:artist>
-        aBuf.Append(Brn("<upnp:artist role=\"albumartist\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
-        aBuf.Append(metadata[iAudio->AlbumArtist()]->Value());
-        aBuf.Append(Brn("</upnp:artist>"));
+        auto albumArtistValues = metadata[iAudio->AlbumArtist()]->Values();
+        for (TUint i=0; i<albumArtistValues.size(); i++)
+        {
+            aBuf.Append(Brn("<upnp:artist role=\"Albumartist\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
+            aBuf.Append(albumArtistValues[i]);
+            aBuf.Append(Brn("</upnp:artist>"));
+        }
     }
+
+    if (metadata[iAudio->Composer()] != NULL)
+    {
+        auto composerValues = metadata[iAudio->Composer()]->Values();
+        for (TUint i=0; i<composerValues.size(); i++)
+        {
+            /*
+            XmlElement composer = document.CreateElement("upnp", "artist", kNsUpnp);
+            composer.AppendChild(document.CreateTextNode(a));
+            XmlAttribute role = document.CreateAttribute("role");
+            role.AppendChild(document.CreateTextNode("Composer"));
+            composer.Attributes.Append(role);
+            container.AppendChild(composer);
+
+            */
+            aBuf.Append(Brn("<upnp:artist role=\"Composer\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
+            aBuf.Append(composerValues[i]);
+            aBuf.Append(Brn("</upnp:artist>"));
+        }
+    }
+
+    if (metadata[iAudio->Year()] != NULL)
+    {
+        /*
+        XmlElement date = document.CreateElement("dc", "date", kNsDc);
+        date.AppendChild(document.CreateTextNode(aMetadata[aTagManager.Audio.Year].Value));
+        container.AppendChild(date);
+        */
+        aBuf.Append(Brn("<dc:date xmlns:dc=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
+        aBuf.Append(metadata[iAudio->Year()]->Value());
+        aBuf.Append(Brn("</dc:date>"));
+    }
+
+
+    if (metadata[iAudio->Genre()] != NULL)
+    {
+        auto genreValues = metadata[iAudio->Genre()]->Values();
+        for (TUint i=0; i<genreValues.size(); i++)
+        {
+            /*
+            XmlElement genre = document.CreateElement("upnp", "genre", kNsUpnp);
+            genre.AppendChild(document.CreateTextNode(a));
+            container.AppendChild(genre);
+            */
+            aBuf.Append(Brn("<upnp:genre xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"));
+            aBuf.Append(genreValues[i]);
+            aBuf.Append(Brn("</upnp:genre>"));
+
+        }
+    }
+
+
+    if (metadata[iAudio->Uri()] != NULL)
+    {
+        // <res channels="2" bitrate="0" duration="00:04:15" protocolInfo="http-get:*:audio/x-flac:*">
+        // http://10.2.10.154:4000/linn.co.uk.kazooserver/ms/audio/e6b8305a1f3ccddd3f0e619533b7d271
+        // </res>
+        aBuf.Append("<res ");
+
+        if (metadata[iAudio->Samplerate()] != NULL)
+        {
+            aBuf.Append("sampleFrequency=\" ");
+            aBuf.Append(metadata[iAudio->Samplerate()]->Value());
+            aBuf.Append("\"");
+        }
+
+        if (metadata[iAudio->Bitdepth()] != NULL)
+        {
+            aBuf.Append("bitsPerSample=\" ");
+            aBuf.Append(metadata[iAudio->Bitdepth()]->Value());
+            aBuf.Append("\"");
+        }
+
+        if (metadata[iAudio->Bitrate()] != NULL)
+        {
+            aBuf.Append("bitrate=\"");
+            // convert from bits/s to bytes/s
+            // convert string to int, divide by 8, convert back to string
+            TUint bitsPerSec = Ascii::Uint(metadata[iAudio->Bitrate()]->Value());
+            TUint bytesPerSec = bitsPerSec/8;
+            Ascii::AppendDec(aBuf, bytesPerSec);
+            aBuf.Append("\"");
+        }
+
+        aBuf.Append(">");
+        aBuf.Append(metadata[iAudio->Uri()]->Value());
+        aBuf.Append("</res>");
+
+    }
+/*
+            if (aMetadata[aTagManager.Audio.Uri] != null)
+            {
+                XmlElement res = document.CreateElement("res", kNsDidl);
+                res.AppendChild(document.CreateTextNode(aMetadata[aTagManager.Audio.Uri].Value));
+
+                if (aMetadata[aTagManager.Audio.Samplerate] != null)
+                {
+                    XmlAttribute sampleFrequency = document.CreateAttribute("sampleFrequency");
+                    sampleFrequency.AppendChild(document.CreateTextNode(aMetadata[aTagManager.Audio.Samplerate].Value));
+                    res.Attributes.Append(sampleFrequency);
+                }
+                if (aMetadata[aTagManager.Audio.Bitdepth] != null)
+                {
+                    XmlAttribute bitdepth = document.CreateAttribute("bitsPerSample");
+                    bitdepth.AppendChild(document.CreateTextNode(aMetadata[aTagManager.Audio.Bitdepth].Value));
+                    res.Attributes.Append(bitdepth);
+                }
+                if (aMetadata[aTagManager.Audio.Bitrate] != null)
+                {
+                    uint parsedBitrate;
+                    if (uint.TryParse(aMetadata[aTagManager.Audio.Bitrate].Value, out parsedBitrate))
+                    {
+                        XmlAttribute bitrate = document.CreateAttribute("bitrate");
+                        // convert from bits/s to bytes/s
+                        bitrate.AppendChild(document.CreateTextNode((parsedBitrate / 8).ToString()));
+                        res.Attributes.Append(bitrate);
+                    }
+                }
+                container.AppendChild(res);
+            }
+
+
+*/
 
     aBuf.Append(Brn("</item>"));
     aBuf.Append(Brn("</DIDL-Lite>"));
@@ -501,6 +599,13 @@ MediaDictionary::MediaDictionary(IMediaMetadata& aMetadata)
 {
 }
 
+MediaDictionary::~MediaDictionary()
+{
+    for(auto it=iMetadata.begin(); it!=iMetadata.end(); it++)
+    {
+        delete it->second;
+    }
+}
 
 void MediaDictionary::Add(ITag* aTag, const Brx& aValue)
 {

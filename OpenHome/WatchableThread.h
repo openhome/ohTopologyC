@@ -27,6 +27,7 @@ public:
     virtual void Assert() = 0;
     virtual void Schedule(FunctorGeneric<void*> aCallback, void* aObj) = 0;
     virtual void Execute(FunctorGeneric<void*> aCallback, void* aObj) = 0;
+    virtual void Execute() = 0;
 };
 
 ///////////////////////////////////////////////
@@ -70,11 +71,14 @@ public:
     virtual void Assert();
     virtual void Schedule(FunctorGeneric<void*> aCallback, void* aObj);
     virtual void Execute(FunctorGeneric<void*> aCallback, void* aObj);
+    virtual void Execute();
+
 
 private:
     void Run();
     void Shutdown(void*);
     TBool IsWatchableThread();
+    void DoNothing(void*);
 
 private:
     IExceptionReporter& iExceptionReporter;

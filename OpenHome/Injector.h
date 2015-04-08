@@ -35,22 +35,21 @@ public:
     virtual void Dispose();
 
 protected:
-    Injector(Network& aNetwork, Net::CpStack& aCpStack, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& aLog);
+    Injector(Net::CpStack& aCpStack, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& aLog);
     ~Injector();
 
     void Added(/*Net::CpDeviceList& aList,*/ Net::CpDevice& aDevice);
     void Removed(/*Net::CpDeviceList& aList,*/ Net::CpDevice& aDevice);
-    virtual IInjectorDevice* Create(INetwork& aNetwork, Net::CpDevice& aDevice);
     virtual TBool FilterOut(Net::CpDevice& aCpDevice);
 
 protected:
-    DisposeHandler* iDisposeHandler;
     Net::CpDeviceListUpnpServiceType* iDeviceList;
 
 private:
-    Network& iNetwork;
+    FunctorGeneric<Net::CpDevice*> iAdd;
+    FunctorGeneric<Net::CpDevice*> iRemove;
     ILog& iLog;
-    std::map<Brn, IInjectorDevice*, BufferCmp> iDeviceLookup;
+    //std::map<Brn, IInjectorDevice*, BufferCmp> iDeviceLookup;
 };
 
 ///////////////////////////////////////////////////////////////
@@ -58,7 +57,7 @@ private:
 class InjectorProduct : public Injector
 {
 public:
-    InjectorProduct(Network& aNetwork, Net::CpStack& aCpStack, ILog& aLog);
+    InjectorProduct(Net::CpStack& aCpStack, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, ILog& aLog);
 };
 
 ///////////////////////////////////////////////////////////////
@@ -66,7 +65,7 @@ public:
 class InjectorSender : public Injector
 {
 public:
-    InjectorSender(Network& aNetwork, Net::CpStack& aCpStack, ILog& aLog);
+    InjectorSender(Net::CpStack& aCpStack, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, ILog& aLog);
 
 protected:
     virtual TBool FilterOut(Net::CpDevice& aCpDevice);

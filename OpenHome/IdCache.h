@@ -50,6 +50,8 @@ struct ReadEntriesData
     TUint iIndex;
 };
 
+///////////////////
+
 struct ReadListData
 {
     std::vector<TUint>* iMissingIds;
@@ -59,9 +61,7 @@ struct ReadListData
     FunctorGeneric<void*> iCallback;
 };
 
-
-
-/////////////////////////
+///////////////////
 
 class IIdCacheEntry
 {
@@ -70,7 +70,7 @@ public:
     virtual const Brx& Uri() = 0;
 };
 
-//////////////////////////////////////////////////////
+//////////////////////////////////////////
 
 class IIdCacheSession : public IDisposable
 {

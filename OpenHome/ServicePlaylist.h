@@ -65,6 +65,14 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 
+struct PlaylistItemData
+{
+    Brn iUri;
+    IMediaMetadata* iMetadata;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+
 class IProxyPlaylist : public IProxy
 {
 public:
@@ -102,13 +110,14 @@ public:
 class ServicePlaylist : public Service
 {
 protected:
-    ServicePlaylist(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
+    ServicePlaylist(IInjectorDevice& aDevice, ILog& aLog);
 
 public:
     void Dispose();
     IProxy* OnCreate(IDevice& aDevice);
     IWatchable<TUint>& Id();
     IWatchable<IInfoMetadata*>& InfoNext();
+    IWatchable<TInt>& InfoCurrentIndex();
     IWatchable<Brn>& TransportState();
     IWatchable<TBool>& Repeat();
     IWatchable<TBool>& Shuffle();
@@ -125,20 +134,24 @@ public:
     virtual void SeekSecondAbsolute(TUint aValue) = 0;
     virtual void SeekSecondRelative(TInt aValue) = 0;
     virtual void Insert(TUint aAfterId, const Brx& aUri, IMediaMetadata& aMetadata) = 0;
+    virtual void Insert(IMediaPreset& aMediaPreset, const Brx& aUri, IMediaMetadata& aMetadata);
     virtual void InsertNext(const Brx& aUri, IMediaMetadata& aMetadata) = 0;
     virtual void InsertEnd(const Brx& aUri, IMediaMetadata& aMetadata) = 0;
+    virtual void MakeRoomForInsert(TUint aCount) = 0;
     virtual void Delete(IMediaPreset& aValue) = 0;
     virtual void DeleteAll() = 0;
     virtual void SetRepeat(TBool aValue) = 0;
     virtual void SetShuffle(TBool aValue) = 0;
 
+
+
 protected:
     TUint iTracksMax;
     Bws<1000> iProtocolInfo;
 
-    //IWatchableThread& iThread;
     Watchable<TUint>* iId;
     Watchable<IInfoMetadata*>* iInfoNext;
+    Watchable<TInt>* iInfoCurrentIndex;
     Watchable<Brn>* iTransportState;
     Watchable<TBool>* iRepeat;
     Watchable<TBool>* iShuffle;
@@ -150,7 +163,7 @@ protected:
 class ServicePlaylistNetwork : public ServicePlaylist
 {
 public:
-    ServicePlaylistNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
+    ServicePlaylistNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgPlaylist1* aService, ILog& aLog);
     ~ServicePlaylistNetwork();
 
     void Dispose();
@@ -163,12 +176,14 @@ public:
     void SeekSecondAbsolute(TUint aValue);
     void SeekSecondRelative(TInt aValue);
     void Insert(TUint aAfterId, const Brx& aUri, IMediaMetadata& aMetadata);
+    void Insert(IMediaPreset& aMediaPreset, const Brx& aUri, IMediaMetadata& aMetadata);
     void InsertNext(const Brx& aUri, IMediaMetadata& aMetadata);
     void InsertEnd(const Brx& aUri, IMediaMetadata& aMetadata);
     void Delete(IMediaPreset& aValue);
     void DeleteAll();
     void SetRepeat(TBool aValue);
     void SetShuffle(TBool aValue);
+    void MakeRoomForInsert(TUint aCount);
 
 protected:
     TBool OnSubscribe();
@@ -202,11 +217,17 @@ protected:
 
 private:
     void ReadListCallback(AsyncCbArg* aArg);
+    void BeginIdArrayCallback(AsyncCbArg* aArg);
+    void Delete(std::vector<TUint>& aIds);
+    void Delete(TUint);
+    void IdArray(std::vector<TUint>& aIdArray);
+
+    void EvaluateInfoCurrentIndex(TUint aId, std::vector<TUint>& aIdArray);
 
 private:
-    Net::CpDevice& iCpDevice;
     Net::CpProxyAvOpenhomeOrgPlaylist1* iService;
     IIdCacheSession* iCacheSession;
+    TBool iSubscribed;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -239,6 +260,7 @@ public:
     ProxyPlaylist(ServicePlaylist& aService, IDevice& aDevice);
 
     IWatchable<TUint>& Id();
+    IWatchable<TInt>& InfoCurrentIndex();
     IWatchable<IInfoMetadata*>& InfoNext();
     IWatchable<Brn>& TransportState();
     IWatchable<TBool>& Repeat();
@@ -253,9 +275,11 @@ public:
     void SeekId(TUint aValue);
     void SeekSecondAbsolute(TUint aValue);
     void SeekSecondRelative(TInt aValue);
+    void Insert(IMediaPreset& aMediaPreset, const Brx& aUri, IMediaMetadata& aMetadata);
     void Insert(TUint aAfterId, const Brx& aUri, IMediaMetadata& aMetadata);
     void InsertNext(const Brx& aUri, IMediaMetadata& aMetadata);
     void InsertEnd(const Brx& aUri, IMediaMetadata& aMetadata);
+    void MakeRoomForInsert(TUint aCount);
     void Delete(IMediaPreset& aValue);
     void DeleteAll();
     void SetRepeat(TBool aValue);
@@ -271,7 +295,7 @@ private:
     IDevice& iDevice;
 };
 
-} // Av
+} // Topology
 } // OpenHome
 
 #endif // HEADER_OHTOPC_SERVICE_PLAYLIST

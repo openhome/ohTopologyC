@@ -29,8 +29,11 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, IL
 
 IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, const Brx& aRoom, const Brx& aName, const Brx& aAttributes, ILog& aLog)
 {
-    LOG(kTrace, ">DeviceFactory::CreateDs \n");
-    InjectorDevice* device = new InjectorDevice(aUdn);
+    //Log::Print(">DeviceFactory::CreateDs \n");
+    InjectorDevice* device = new InjectorDevice(aNetwork, aUdn);
+
+    //Log::Print("-DeviceFactory::CreateDs 1\n");
+
     // add a factory for each type of watchable service
 
     // product service
@@ -43,7 +46,8 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
     xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("Net Aux"), Brn("NetAux"), false)));
 
 
-    device->Add(eProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, move(xml), true, aAttributes, Brx::Empty(),
+
+    device->Add(eProxyProduct, new ServiceProductMock(*device, aRoom, aName, 0, move(xml), true, aAttributes, Brx::Empty(),
                                     Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brx::Empty(),
                                     Brn("Linn High Fidelity System Component"), Brn("Mock DS"), Brx::Empty(), Brx::Empty(),
                                     Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn, aLog) );
@@ -72,15 +76,29 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
 
 
     SenderMetadata* smd = new SenderMetadata(senderMeta);
-    ServiceSenderMock* ssm = new ServiceSenderMock(aNetwork, *device, aAttributes, Brx::Empty(), false, smd, Brn("Enabled"), aLog);
+    ServiceSenderMock* ssm = new ServiceSenderMock(*device, aAttributes, Brx::Empty(), false, smd, Brn("Enabled"), aLog);
     device->Add(eProxySender, ssm);
+
+
 
     // receiver service
 
-    ServiceReceiverMock* srm =  new ServiceReceiverMock(aNetwork, *device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty(), aLog);
+    ServiceReceiverMock* srm =  new ServiceReceiverMock(*device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty(), aLog);
     device->Add(eProxyReceiver, srm);
 
 
+            // credentials service
+/*
+    device.Add<IProxyCredentials>(new ServiceCredentialsMock(device, new Dictionary<string, Credentials>() { { "tidalhifi.com", new Credentials(string.Empty, false, false, string.Empty, string.Empty) } },
+        @"-----BEGIN RSA PUBLIC KEY-----
+MIIBCgKCAQEA336dWT5XiU1KyM9pQxIwFx9pJpeydHuvDTJbZur34z/iHhIA0At5
+Qzi81kJmF9DufcadxvyYXVr0gbQJUTwHoT2VVuMIrZ7Ym8V4wN35kUdCWwpj7knr
+NNvDiJlyp6hEefWqaaI90ZdSu5gLnDRjBWsqacTkEZZ5Y3sOVms5g7+UA9GcwBml
+Shg/RJJEoMJfbucyrmL7WKdu9LjfzViizgbTHdBNQTaDAd5d7AbtpR4T5zUesXe7
+ZtcOQ3yIShlE16qJyr3p2KRbvouZ9b/LxA0VJeRHhkBN3AxTYH5RRQR0V0MCAGnK
+bopVbIFC/mIOhN5NwirbGp23tm+4TQkNgQIDAQAB
+-----END RSA PUBLIC KEY-----", aLog));
+*/
 
     /*
     // radio service
@@ -99,7 +117,16 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
     // playlist service
     List<IMediaMetadata> tracks = new List<IMediaMetadata>();
     device->Add<IProxyPlaylist>(new ServicePlaylistMock(aNetwork, device, 0, tracks, false, false, "Stopped", Brx:Empty(), 1000, aLog));
+
+
+    // volkano service
+    device.Add<IProxyVolkano>(new ServiceVolkanoMock(device, "1234567", "00:26:0f:21:ff:89", "4.14.545", true, "4.14.549", aLog));
+
+
 */
+//    Log::Print("<DeviceFactory::CreateDs \n");
+
+
     return device;
 }
 
@@ -112,7 +139,7 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, I
 
 IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, const Brx& aRoom, const Brx& aName, const Brx& aAttributes, ILog& aLog)
 {
-    InjectorDevice* device = new InjectorDevice(aUdn);
+    InjectorDevice* device = new InjectorDevice(aNetwork, aUdn);
     // add a factory for each type of watchable service
 
     // product service
@@ -132,7 +159,7 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
 
 
 
-    device->Add(eProxyProduct, new ServiceProductMock(aNetwork, *device, aRoom, aName, 0, std::move(xml), true, aAttributes, Brx::Empty(),
+    device->Add(eProxyProduct, new ServiceProductMock(*device, aRoom, aName, 0, std::move(xml), true, aAttributes, Brx::Empty(),
                 Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brx::Empty(),
                 Brn("Linn High Fidelity System Component"), Brn("Mock DSM"), Brx::Empty(), Brx::Empty(),
                 Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn, aLog));
@@ -153,10 +180,25 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
     senderMeta.Append(aUdn);
     senderMeta.Append(Brn("</res><upnp:albumArtURI>http://10.2.10.27/images/Icon.png</upnp:albumArtURI><upnp:class>object.item.audioItem</upnp:class></item></DIDL-Lite>"));
 
-    device->Add(eProxySender, new ServiceSenderMock(aNetwork, *device, aAttributes, Brx::Empty(), false, new SenderMetadata(senderMeta), Brn("Enabled"), aLog));
+    device->Add(eProxySender, new ServiceSenderMock(*device, aAttributes, Brx::Empty(), false, new SenderMetadata(senderMeta), Brn("Enabled"), aLog));
 
     // receiver service
-    device->Add(eProxyReceiver, new ServiceReceiverMock(aNetwork, *device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty(), aLog));
+    device->Add(eProxyReceiver, new ServiceReceiverMock(*device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty(), aLog));
+
+
+/*
+    // credentials service
+    device.Add<IProxyCredentials>(new ServiceCredentialsMock(device, new Dictionary<string, Credentials>() { { "tidalhifi.com", new Credentials(string.Empty, false, false, string.Empty, string.Empty) } },
+@"-----BEGIN RSA PUBLIC KEY-----
+MIIBCgKCAQEA336dWT5XiU1KyM9pQxIwFx9pJpeydHuvDTJbZur34z/iHhIA0At5
+Qzi81kJmF9DufcadxvyYXVr0gbQJUTwHoT2VVuMIrZ7Ym8V4wN35kUdCWwpj7knr
+NNvDiJlyp6hEefWqaaI90ZdSu5gLnDRjBWsqacTkEZZ5Y3sOVms5g7+UA9GcwBml
+Shg/RJJEoMJfbucyrmL7WKdu9LjfzViizgbTHdBNQTaDAd5d7AbtpR4T5zUesXe7
+ZtcOQ3yIShlE16qJyr3p2KRbvouZ9b/LxA0VJeRHhkBN3AxTYH5RRQR0V0MCAGnK
+bopVbIFC/mIOhN5NwirbGp23tm+4TQkNgQIDAQAB
+-----END RSA PUBLIC KEY-----", aLog));
+
+*/
 
     /*
     // radio service
@@ -174,21 +216,17 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
     // playlist service
     List<IMediaMetadata> tracks = new List<IMediaMetadata>();
     device->Add<IProxyPlaylist>(new ServicePlaylistMock(aNetwork, device, 0, tracks, false, false, "Stopped", Brx:Empty(), 1000, aLog));
+
+    // volkano service
+    device.Add<IProxyVolkano>(new ServiceVolkanoMock(device, "1234567", "00:26:0f:21:ff:89", "4.14.545", true, "4.14.549", aLog));
 */
     return device;
 }
 
 /*
-IInjectorDevice* DeviceFactory::CreateMediaServer(INetwork aNetwork, const Brx& aUdn, const Brx& aResourceRoot, ILog aLog)
-{
-    return (new DeviceMediaEndpointMock(aNetwork, aUdn, aResourceRoot, aLog));
-}
-*/
-
-
 IInjectorDevice* DeviceFactory::Create(INetwork& aNetwork, CpDevice& aDevice, ILog& aLog)
 {
-    InjectorDevice* device = new InjectorDevice(aDevice.Udn());
+    InjectorDevice* device = new InjectorDevice(aNetwork, aDevice.Udn());
 
 
     Brh value;
@@ -210,15 +248,6 @@ IInjectorDevice* DeviceFactory::Create(INetwork& aNetwork, CpDevice& aDevice, IL
         }
     }
 
-/*
-    if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Time", value))
-    {
-        if (Ascii::Uint(value)==1)
-        {
-            device->Add(eProxyTime, new ServiceTimeNetwork(aNetwork, device, aDevice, aLog));
-        }
-    }
-*/
     if (aDevice.GetAttribute("Upnp.Service.av-openhome-org.Sender", value))
     {
         if (Ascii::Uint(value)==1)
@@ -257,19 +286,9 @@ IInjectorDevice* DeviceFactory::Create(INetwork& aNetwork, CpDevice& aDevice, IL
             device->Add(eProxyReceiver, new ServiceReceiverNetwork(aNetwork, *device, aDevice, aLog));
         }
     }
-/*
-    if (aDevice.GetAttribute("Upnp.Service.linn-co-uk.Sdp", value))
-    {
-        //if (uint.Parse(value) == 1)
-        if (Ascii::Uint(value)==1)
-        {
-            device->Add(eProxySdp, new ServiceSdpNetwork(aNetwork, device, aDevice, aLog));
-        }
-    }
-*/
     return device;
 }
-
+*/
 
 
 

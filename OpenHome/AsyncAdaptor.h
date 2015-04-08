@@ -61,7 +61,7 @@ private:
     AsyncCbArg* iCombinedArgs;
 };
 
-} // Av
+} // Topology
 } // OpenHome
 
 #endif // HEADER_OHTOPC_ASYNC_ADAPTOR

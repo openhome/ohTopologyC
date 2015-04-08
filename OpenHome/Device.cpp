@@ -104,6 +104,11 @@ Brn InjectorDeviceAdaptor::Udn()
 }
 
 
+INetwork& InjectorDeviceAdaptor::Network() const
+{
+    return iDevice.Network();
+}
+
 void InjectorDeviceAdaptor::Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType, IDevice& aDevice)
 {
     iDevice.Create(aCallback, aServiceType, aDevice);
@@ -197,8 +202,9 @@ ServiceNotFoundException::ServiceNotFoundException(const Brx& aMessage, Exceptio
 /////////////////////////////////////////////////////////////////////////////////////
 
 
-InjectorDevice::InjectorDevice(const Brx& aUdn)
-    :iUdn(aUdn)
+InjectorDevice::InjectorDevice(INetwork& aNetwork, const Brx& aUdn)
+    :iNetwork(aNetwork)
+    ,iUdn(aUdn)
     ,iDisposeHandler(new DisposeHandler())
 {
 
@@ -236,6 +242,11 @@ Brn InjectorDevice::Udn()
     return (Brn(iUdn));
 }
 
+
+INetwork& InjectorDevice::Network() const
+{
+    return iNetwork;
+}
 
 void InjectorDevice::Add(EServiceType aServiceType, Service* aService)
 {

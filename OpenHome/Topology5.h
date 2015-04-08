@@ -9,7 +9,6 @@
 #include <OpenHome/Device.h>
 #include <OpenHome/Buffer.h>
 #include <OpenHome/Topology4.h>
-#include <OpenHome/Media.h>
 #include <vector>
 #include <map>
 
@@ -20,367 +19,123 @@ namespace OpenHome
 namespace Topology
 {
 
-class Topology5Group;
-class Topology5Room;
 
-/////////////////////////////////////////////////////////////////////
+class Topology5;
 
-class ITopology5Group
-{
-public:
-    virtual Brn Name() = 0;
-    virtual IDevice& Device() = 0;
-    virtual IWatchable<ISender*>& Sender() = 0;
-    virtual ~ITopology5Group() {}
-};
-
-/////////////////////////////////////////////////////////////////////
-
-class  ITopology5Source
-{
-public:
-    virtual TUint Index() = 0;
-    virtual Brn Name() = 0;
-    virtual Brn Type() = 0;
-    virtual TBool Visible() = 0;
-    virtual ITopology5Group& Group() = 0;
-    virtual IMediaPreset* CreatePreset() = 0;
-    virtual std::vector<ITopology5Group*>& Volumes() = 0;
-    virtual IDevice& Device() = 0;
-    virtual TBool HasInfo() = 0;
-    virtual TBool HasTime() = 0;
-    virtual void Select() = 0;
-
-    virtual ~ITopology5Source() {}
-};
-
-/////////////////////////////////////////////////////////////////////
-
-class Topology5SourceNull : public ITopology5Source
-{
-public:
-    virtual TUint Index();
-    virtual Brn Name();
-    virtual Brn Type();
-    virtual TBool Visible();
-    virtual ITopology5Group& Group();
-    virtual IMediaPreset* CreatePreset();
-    virtual std::vector<ITopology5Group*>& Volumes();
-    virtual IDevice& Device();
-    virtual TBool HasInfo();
-    virtual TBool HasTime();
-    virtual void Select();
-};
-
-/////////////////////////////////////////////////////////////////////
-
-class Topology5Source : public ITopology5Source, public INonCopyable
-{
-    friend class Topology5Group;
-
-public:
-    Topology5Source(INetwork& aNetwork, Topology5Group& aGroup, ITopology2Source& aSource, TBool aHasInfo, TBool aHasTime);
-
-    // ITopology5Source
-    virtual TUint Index();
-    virtual Brn Name();
-    virtual Brn Type();
-    virtual TBool Visible();
-    virtual ITopology5Group& Group();
-    virtual std::vector<ITopology5Group*>& Volumes();
-    virtual IDevice& Device();
-    virtual TBool HasInfo();
-    virtual TBool HasTime();
-    virtual void Select();
-    virtual IMediaPreset* CreatePreset();
-
-private:
-    virtual void SetVolumes(std::vector<ITopology5Group*>* aVolumes);
-
-private:
-    INetwork& iNetwork;
-    Topology5Group& iGroup;
-    ITopology2Source& iSource;
-    std::vector<ITopology5Group*>* iVolumes;
-    TBool iHasInfo;
-    TBool iHasTime;
-};
-
-///////////////////////////////////////////////////////////////
-
-class MediaPresetExternal : public IMediaPreset, public IWatcher<ITopology5Source*>, public INonCopyable
-{
-    friend class IWatcher<ITopology5Source*>;
-
-public:
-    MediaPresetExternal(IWatchableThread& aThread, Topology5Group& aGroup, TUint aIndex, IMediaMetadata* aMetadata, Topology5Source& aSource);
-
-    virtual void Dispose();
-    virtual TUint Index();
-    virtual IMediaMetadata& Metadata();
-    virtual IWatchable<TBool>& Buffering();
-    virtual IWatchable<TBool>& Playing();
-    virtual IWatchable<TBool>& Selected();
-    virtual void Play();
-
-private:
-    virtual void ItemOpen(const Brx& aId, ITopology5Source* aValue);
-    virtual void ItemUpdate(const Brx& aId, ITopology5Source* aValue, ITopology5Source* aPrevious);
-    virtual void ItemClose(const Brx& aId, ITopology5Source* aValue);
-
-private:
-    TUint iIndex;
-    IMediaMetadata* iMetadata;
-    Topology5Source* iSource;
-    Topology5Group& iGroup;
-    Watchable<TBool>* iBuffering;
-    Watchable<TBool>* iPlaying;
-    Watchable<TBool>* iSelected;
-};
-
-
-/////////////////////////////////////////////////////////////////////
-
-class ITopology5Root : public ITopology5Group
-{
-public:
-    virtual IWatchable<ITopology5Source*>& Source() = 0;
-    virtual std::vector<ITopology5Source*>& Sources() = 0;
-    virtual IWatchable<std::vector<ITopology5Group*>*>& Senders() = 0;
-    virtual ~ITopology5Root() {}
-};
-
-/////////////////////////////////////////////////////////////////////
-
-class Topology5Group : public ITopology5Root, public IWatcher<TUint>, public IWatcher<Brn>, public IDisposable, public INonCopyable
-{
-    friend class Topology5Room;
-    friend class IWatcher<TUint>;
-    friend class IWatcher<Brn>;
-
-public:
-    Topology5Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopology3Group& aGroup, std::vector<ITopology2Source*> aSources, ILog& aLog);
-    ~Topology5Group();
-
-    virtual void Dispose();
-    virtual Brn Name();
-    virtual IDevice& Device();
-    virtual IWatchable<ISender*>& Sender();
-
-    virtual IWatchable<std::vector<ITopology5Group*>*>& Senders();
-    virtual IWatchable<ITopology5Source*>& Source();
-    virtual std::vector<ITopology5Source*>& Sources();
-    virtual void SetSourceIndex(TUint aValue);
-
-    virtual Topology5Group* Parent();
-
-
-private:
-    Brn RoomName();
-    Brn ModelName();
-    Brn ManufacturerName();
-    Brn ProductId();
-    void EvaluateSenders();
-    void EvaluateSources();
-    TBool AddIfIsChild(Topology5Group& aGroup);
-    ITopology3Group& Group();
-
-    void SetParent(Topology5Group& aGroup);
-    void SetParent(Topology5Group& aGroup, TUint aIndex);
-    ITopology5Source* EvaluateSource();
-    void EvaluateSourceFromChild();
-    void EvaluateSendersFromChild();
-    void CreateCallback(ServiceCreateData* aSender);
-
-
-    // IWatcher<TUint>
-    virtual void ItemOpen(const Brx& aId, TUint aValue);
-    virtual void ItemUpdate(const Brx& aId, TUint aValue, TUint aPrevious);
-    virtual void ItemClose(const Brx& aId, TUint aValue);
-
-    // IWatcher<Brn>
-    virtual void ItemOpen(const Brx& aId, Brn aValue);
-    virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious);
-    virtual void ItemClose(const Brx& aId, Brn aValue);
-
-
-private:
-    INetwork& iNetwork;
-    Brn iRoomName;
-    Brn iName;
-    ITopology3Group& iGroup;
-    ITopology5Source* iCurrentSource;
-    TBool iDisposed;
-
-    TUint iParentSourceIndex;
-    Topology5Group* iParent;
-    IProxySender* iSenderService;
-    TBool iHasSender;
-    TUint iSourceIndex;
-
-
-    std::vector<Topology5Group*> iChildren;
-    std::vector<Topology5Source*> iSources;
-    std::vector<ITopology5Source*> iVisibleSources;
-    std::vector<ITopology5Group*>* iVectorSenders; // added in ohTopologyC
-    std::vector<ITopology5Group*>* iCurrentVolumes;
-
-    Watchable<ITopology5Source*>* iWatchableSource;
-    Watchable<std::vector<ITopology5Group*>*>* iSenders;
-};
-
-/////////////////////////////////////////////////////////////////////
-
-class Topology5GroupWatcher : public ITopology3GroupWatcher,  public INonCopyable
-{
-    friend class ITopology3GroupWatcher;
-
-public:
-    Topology5GroupWatcher(Topology5Room& aRoom, ITopology3Group& aGroup);
-    virtual void Dispose();
-    virtual Brn Name();
-    virtual std::vector<ITopology2Source*>& Sources();
-
-private:
-    // ITopology3GroupWatcher
-    virtual void ItemOpen(const Brx& aId, Brn aName);
-    virtual void ItemUpdate(const Brx& aId, Brn aName, Brn aPreviousName);
-    virtual void ItemClose(const Brx& aId, Brn aName);
-    virtual void ItemOpen(const Brx& aId, ITopology2Source* aSource);
-    virtual void ItemUpdate(const Brx& aId, ITopology2Source* aSource, ITopology2Source* aPreviousSource);
-    virtual void ItemClose(const Brx& aId, ITopology2Source* aSource);
-
-private:
-    Topology5Room& iRoom;
-    ITopology3Group& iGroup;
-    Brn iName;
-    std::vector<ITopology2Source*> iSources;
-
-};
-
-/////////////////////////////////////////////////////////////////////
 
 class ITopology5Room
 {
 public:
-    virtual Brn Name() = 0;
-    virtual IWatchable<EStandby>& Standby() = 0;
-    virtual IWatchable<std::vector<ITopology5Root*>*>& Roots() = 0;
-    virtual IWatchable<std::vector<ITopology5Source*>*>& Sources() = 0;
+    virtual const Brx& Name() = 0;
+    virtual IWatchableUnordered<ITopology4Group*>& Groups() = 0;
     virtual void SetStandby(TBool aValue) = 0;
     virtual ~ITopology5Room() {}
 };
 
-/////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 
-class Topology5Room : public ITopology5Room, public IWatcherUnordered<ITopology3Group*>, public IWatcher<TBool>, public IDisposable, public INonCopyable
+class Topology5GroupWatcher : public IWatcher<Brn>, public IDisposable, public INonCopyable
 {
-    friend class Topology5GroupWatcher;
-    friend class IWatcherUnordered<ITopology3Group*>;
-    friend class IWatcher<TBool>;
+    friend class IWatcher<Brn>;
 
 public:
-    Topology5Room(INetwork& aNetwork, ITopology4Room& aRoom, ILog& aLog);
-    ~Topology5Room();
+    Topology5GroupWatcher(Topology5& aTopology, ITopology4Group& aGroup);
 
+    // IDisposable
     virtual void Dispose();
-    virtual Brn Name();
-    virtual void SetStandby(TBool aValue);
-
-    virtual IWatchable<EStandby>& Standby();
-    virtual IWatchable<std::vector<ITopology5Root*>*>& Roots();
-    virtual IWatchable<std::vector<ITopology5Source*>*>& Sources();
 
 private:
-    // IWatcherUnordered<ITopology3Group*>
-    virtual void UnorderedOpen();
-    virtual void UnorderedInitialised();
-    virtual void UnorderedClose();
-    virtual void UnorderedAdd(ITopology3Group* aItem);
-    virtual void UnorderedRemove(ITopology3Group* aItem);
-
-    // IWatcher<TBool>
-    virtual void ItemOpen(const Brx& aId, TBool aValue);
-    virtual void ItemUpdate(const Brx& aId, TBool aValue, TBool aPrevious);
-    virtual void ItemClose(const Brx& aId, TBool aValue);
-
-    void EvaluateStandby();
-    void InsertIntoTree(Topology5Group& aGroup);
-    void CreateTree();   // made private in ohTopologyC
+    // IWatcher<Brn>
+    virtual void ItemOpen(const Brx& aId, Brn aRoom);
+    virtual void ItemUpdate(const Brx& aId, Brn aRoom, Brn aPreviousRoom);
+    virtual void ItemClose(const Brx& aId, Brn aRoom);
 
 private:
-    INetwork& iNetwork;
-    ITopology4Room& iRoom;
-
-    ILog& iLog;
-
-    Brn iName;
-    TUint iStandbyCount;
-    EStandby iStandby;
-
-    std::vector<ITopology5Root*>* iCurrentRoots; // added in ohTopologyC
-    std::vector<ITopology5Source*>* iCurrentSources; // added in ohTopologyC
-
-    Watchable<EStandby>* iWatchableStandby;
-    Watchable<std::vector<ITopology5Root*>*>* iWatchableRoots;
-    Watchable<std::vector<ITopology5Source*>*>* iWatchableSources;
-
-    std::vector<ITopology3Group*> iT3Groups;
-    std::vector<Topology5Group*> iGroups;
-    std::vector<Topology5Group*> iRoots;
+    Topology5& iTopology5;
+    ITopology4Group& iGroup;
 };
 
-/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 
-class ITopology5
+class Topology5Room : public ITopology5Room
+{
+    friend class Topology5;
+public:
+    Topology5Room(IWatchableThread& aThread, const Brx& aName, ITopology4Group& aGroup);
+    ~Topology5Room();
+
+    // IDisposable
+    virtual void Dispose();
+
+    // ITopology5Room
+    virtual const Brx& Name();
+    virtual IWatchableUnordered<ITopology4Group*>& Groups();
+    virtual void SetStandby(TBool aValue);
+
+private:
+    void Add(ITopology4Group& aGroup);
+    TBool Remove(ITopology4Group& aGroup);
+
+private:
+    Bws<100> iName; // FIXME: random capacity
+    std::vector<ITopology4Group*> iGroups;
+    WatchableUnordered<ITopology4Group*>* iWatchableGroups;
+};
+
+/////////////////////////////////////////////////////////
+
+class ITopology5 : public IDisposable
 {
 public:
     virtual IWatchableUnordered<ITopology5Room*>& Rooms() = 0;
     virtual INetwork& Network() = 0;
+    virtual void Dispose() = 0;
     virtual ~ITopology5() {}
 };
 
-/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 
-class Topology5 : public ITopology5, public IWatcherUnordered<ITopology4Room*>, public IDisposable, public INonCopyable
+class Topology5 : public ITopology5, public IWatcherUnordered<ITopology4Group*>, public INonCopyable
 {
-    friend class IWatcherUnordered<ITopology4Room*>;
+friend class Topology5GroupWatcher;
 
 public:
     Topology5(ITopology4* aTopology4, ILog& aLog);
     ~Topology5();
 
-    virtual IWatchableUnordered<ITopology5Room*>& Rooms();
+    // IDisposable
     virtual void Dispose();
+
+    // ITopology4
+    virtual IWatchableUnordered<ITopology5Room*>& Rooms();
     virtual INetwork& Network();
 
-    static Topology5* CreateTopology5(INetwork* aNetwork, ILog& aLog);
-
-private:
-    // IWatcherUnordered<ITopology4Room*>
+    // IWatcherUnordered<ITopology3Group>
     virtual void UnorderedOpen();
     virtual void UnorderedInitialised();
     virtual void UnorderedClose();
-    virtual void UnorderedAdd(ITopology4Room* aT4Room);
-    virtual void UnorderedRemove(ITopology4Room* aT4Room);
-
-    void WatchT4Rooms(void*);
-    void DisposeCallback(void*);
-    void UnorderedAddCallback(void* aT4Room);
-    void UnorderedRemoveCallback(void* aT4Room);
-
+    virtual void UnorderedAdd(ITopology4Group* aItem);
+    virtual void UnorderedRemove(ITopology4Group* aItem);
 
 private:
-    ITopology4* iTopology4;
-    ILog& iLog;
+    void WatchT4Groups(void*);
+    void DisposeCallback(void*);
+    void AddGroupToRoom(ITopology4Group& aGroup, const Brx& aRoom);
+    void RemoveGroupFromRoom(ITopology4Group& aGroup, const Brx& aRoom);
+
+private:
+    TBool iDisposed;
     INetwork& iNetwork;
-    DisposeHandler* iDisposeHandler;
+    ITopology4* iTopology4;
     WatchableUnordered<ITopology5Room*>* iRooms;
-    std::map<ITopology4Room*, Topology5Room*> iRoomLookup;
+    std::map<ITopology4Group*, Topology5GroupWatcher*> iGroupWatcherLookup;
+    std::map<Brn, Topology5Room*, BufferCmp> iRoomLookup;
 };
 
-} // Av
+
+} // Topology
+
 } // OpenHome
 
-#endif // HEADER_TOPOLOGY5
+#endif //  HEADER_TOPOLOGY4
 

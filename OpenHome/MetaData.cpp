@@ -16,9 +16,10 @@ InfoMetatext::InfoMetatext()
 {
 }
 
-InfoMetatext::InfoMetatext(IMediaMetadata& aMetatext)
-    :iMetatext(&aMetatext)
+InfoMetatext::InfoMetatext(IMediaMetadata* aMetatext)
+    :iMetatext(aMetatext)
 {
+    ASSERT(aMetatext != NULL);
 }
 
 IMediaMetadata& InfoMetatext::Metatext()
@@ -40,6 +41,8 @@ InfoMetadata::InfoMetadata(IMediaMetadata* aMetadata, const Brx& aUri)
     :iMetadata(aMetadata)
     ,iUri(aUri)
 {
+    ASSERT(aMetadata != NULL);
+    //ASSERT(aUri != Brx::Empty());  // FIXME
 }
 
 

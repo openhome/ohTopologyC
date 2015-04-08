@@ -40,6 +40,7 @@ public:
     virtual void Assert();
     virtual void Schedule(FunctorGeneric<void*> aCallback, void* aObj);
     virtual void Execute(FunctorGeneric<void*> aCallback, void* aObj);
+    virtual void Execute();
 
 private:
     IWatchableThread& iWatchableThread;

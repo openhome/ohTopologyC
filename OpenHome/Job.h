@@ -46,7 +46,7 @@ private:
     TBool iCancelled;
 };
 
-} // Av
+} // Topology
 } // OpenHome
 
 #endif // HEADER_OHTOPC_JOB

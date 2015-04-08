@@ -31,6 +31,7 @@ class IInjectorDevice : public IJoinable, public IMockable, public IDisposable
 {
 public:
     virtual Brn Udn() = 0;
+    virtual INetwork& Network() const = 0;
     virtual void Create(FunctorGeneric<ServiceCreateData*>, EServiceType aServiceType, IDevice& aDevice) = 0;
     virtual TBool HasService(EServiceType aServiceType) = 0;
     virtual TBool Wait() = 0;
@@ -69,12 +70,13 @@ private:
 class InjectorDevice : public IInjectorDevice
 {
 public:
-    InjectorDevice(const Brx& aUdn);
+    InjectorDevice(INetwork& aNetwork, const Brx& aUdn);
     ~InjectorDevice();
 
     virtual void Join(Functor aAction);
     virtual void Unjoin(Functor aAction);
     virtual Brn Udn();
+    virtual INetwork& Network() const;
     virtual void Add(EServiceType aServiceType, Service* aService);
     virtual bool HasService(EServiceType aServiceType);
     virtual void Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType, IDevice& aDevice);
@@ -93,6 +95,7 @@ protected:
     std::map<EServiceType, Service*> iServices;
 
 private:
+    INetwork& iNetwork;
     Bws<100> iUdn;
     DisposeHandler* iDisposeHandler;
     std::vector<Functor> iJoiners;
@@ -107,6 +110,7 @@ public:
     virtual void Join(Functor aAction);
     virtual void Unjoin(Functor aAction);
     virtual Brn Udn();
+    virtual INetwork& Network() const;
     virtual void Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType, IDevice& aDevice);
     virtual TBool HasService(EServiceType aServiceType);
     virtual TBool Wait();
@@ -148,7 +152,7 @@ public:
 */
 
 
-} // Av
+} // Topology
 } // OpenHome
 
 #endif // HEADER_DEVICE

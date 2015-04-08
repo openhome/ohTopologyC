@@ -65,6 +65,7 @@ public:
     virtual void Assert();
     virtual void Schedule(FunctorGeneric<void*> aCallback, void* aObj);
     virtual void Execute(FunctorGeneric<void*> aCallback, void* aObj);
+    virtual void Execute();
 
     // IMockable
     virtual void Execute(ICommandTokens& aCommand);
@@ -73,7 +74,7 @@ public:
     virtual void Dispose();
 
 protected:
-    Service(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
+    Service(IInjectorDevice& aDevice, ILog& aLog);
 
     virtual TBool OnSubscribe();
     void Start(FunctorGeneric<void*> aCallback, void* aArg);
@@ -89,6 +90,7 @@ private:
     void DisposeCallback(void*);
     void SubscribeCompletedCallback(void* aArgs);
     void StartCallback(void* aArg);
+    void AddTask(Semaphore* sema);
 
 
 
@@ -108,10 +110,8 @@ protected:
 
 private:
     IInjectorDevice& iDevice;
-    //CancellationTokenSource iCancelSubscribe;
-    //std::vector<Job*> iJobs;
+    Brn iUdn;
     TUint iRefCount;
-    //mutable Mutex iMutexJobs;
     std::vector<ServiceCreateData*> iSubscriptionsData;
     mutable Mutex iMutexSubscribe;
     TBool iMockSubscribe;
@@ -124,7 +124,7 @@ private:
 /////////////////////////////////////////////////////
 
 
-} // Av
+} // Topology
 } // OpenHome
 
 

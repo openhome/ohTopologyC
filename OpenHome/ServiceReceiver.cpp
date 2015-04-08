@@ -10,12 +10,12 @@ using namespace OpenHome::Topology;
 using namespace OpenHome::Net;
 
 
-ServiceReceiver::ServiceReceiver(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aNetwork, aDevice, aLog)
+ServiceReceiver::ServiceReceiver(IInjectorDevice& aDevice, ILog& aLog)
+    :Service(aDevice, aLog)
     ,iCurrentMetadata(iNetwork.InfoMetadataEmpty())
     ,iCurrentTransportState(NULL)
-    ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), iCurrentMetadata))
-    ,iTransportState(new Watchable<Brn>(aNetwork, Brn("TransportState"), Brx::Empty()))
+    ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iCurrentMetadata))
+    ,iTransportState(new Watchable<Brn>(iNetwork, Brn("TransportState"), Brx::Empty()))
 {
 }
 
@@ -67,14 +67,11 @@ const Brx& ServiceReceiver::ProtocolInfo()
 ////////////////////////////////////////////////////////////////
 
 
-ServiceReceiverNetwork::ServiceReceiverNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
-    :ServiceReceiver(aNetwork, aDevice, aLog)
-    ,iCpDevice(aCpDevice)
+ServiceReceiverNetwork::ServiceReceiverNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgReceiver1* aService, ILog& aLog)
+    :ServiceReceiver(aDevice, aLog)
+    ,iService(aService)
+    ,iSubscribed(false)
 {
-    iCpDevice.AddRef();
-
-    iService = new CpProxyAvOpenhomeOrgReceiver1(aCpDevice);
-
     Functor f1 = MakeFunctor(*this, &ServiceReceiverNetwork::HandleMetadataChanged);
     iService->SetPropertyMetadataChanged(f1);
 
@@ -94,13 +91,13 @@ ServiceReceiverNetwork::~ServiceReceiverNetwork()
 void ServiceReceiverNetwork::Dispose()
 {
     ServiceReceiver::Dispose();
-    iCpDevice.RemoveRef();
 }
 
 
 TBool ServiceReceiverNetwork::OnSubscribe()
 {
     iService->Subscribe();
+    iSubscribed = true;
     return(false); // false = not mock
 }
 
@@ -135,7 +132,7 @@ void ServiceReceiverNetwork::OnUnsubscribe()
     {
         iService->Unsubscribe();
     }
-
+    iSubscribed = false;
 }
 
 void ServiceReceiverNetwork::Play()
@@ -232,10 +229,13 @@ void ServiceReceiverNetwork::MetadataChangedCallback1(void* aInfoMetadata)
 
 void ServiceReceiverNetwork::MetadataChangedCallback2(void* aInfoMetadata)
 {
-    IInfoMetadata* infoMetadata = (IInfoMetadata*)aInfoMetadata;
-    iMetadata->Update(infoMetadata);
-    delete iCurrentMetadata;
-    iCurrentMetadata = infoMetadata;
+    if (iSubscribed)
+    {
+        IInfoMetadata* infoMetadata = (IInfoMetadata*)aInfoMetadata;
+        iMetadata->Update(infoMetadata);
+        delete iCurrentMetadata;
+        iCurrentMetadata = infoMetadata;
+    }
 }
 
 
@@ -256,26 +256,28 @@ void ServiceReceiverNetwork::TransportChangedCallback1(void*)
 
 void ServiceReceiverNetwork::TransportChangedCallback2(void*)
 {
-    Brhz transportState;
-    iService->PropertyTransportState(transportState);
+    if (iSubscribed)
+    {
+        Brhz transportState;
+        iService->PropertyTransportState(transportState);
 
-    Bws<100>* oldTransportState = iCurrentTransportState;
-    Bws<100>* iCurrentTransportState = new Bws<100>(transportState);
+        Bws<100>* oldTransportState = iCurrentTransportState;
+        Bws<100>* iCurrentTransportState = new Bws<100>(transportState);
 
-    iTransportState->Update(Brn(*iCurrentTransportState));
-    delete oldTransportState;
+        iTransportState->Update(Brn(*iCurrentTransportState));
+        delete oldTransportState;
+    }
 }
 
 
 ////////////////////////////////////////////////////////////////
 
-ServiceReceiverMock::ServiceReceiverMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aMetadata, const Brx& aProtocolInfo,
+ServiceReceiverMock::ServiceReceiverMock(IInjectorDevice& aDevice, const Brx& aMetadata, const Brx& aProtocolInfo,
                                          const Brx& aTransportState, const Brx& aUri, ILog& aLog)
-    :ServiceReceiver(aNetwork, aDevice, aLog)
+    :ServiceReceiver(aDevice, aLog)
 {
     iProtocolInfo.Replace(aProtocolInfo);
-
-    iCurrentMetadata = new InfoMetadata(aNetwork.GetTagManager().FromDidlLite(aMetadata), aUri);
+    iCurrentMetadata = new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(aMetadata), aUri);
     iMetadata->Update(iCurrentMetadata);
     iTransportState->Update(Brn(aTransportState));
 }

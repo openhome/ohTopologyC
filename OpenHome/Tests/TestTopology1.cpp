@@ -148,7 +148,6 @@ void SuiteTopology1::Test1()
 
 void SuiteTopology1::ExecuteCallback(void* aObj)
 {
-    LOG(kTrace, "SuiteTopology1::ExecuteCallback() \n");
     ProductWatcher* watcher = (ProductWatcher*)aObj;
     iTopology1->Products().RemoveWatcher(*watcher);
 }
@@ -156,7 +155,6 @@ void SuiteTopology1::ExecuteCallback(void* aObj)
 
 void SuiteTopology1::ScheduleCallback(void* aObj)
 {
-    LOG(kTrace, "SuiteTopology1::ScheduleCallback() \n");
     ProductWatcher* watcher = (ProductWatcher*)aObj;
     iTopology1->Products().AddWatcher(*watcher);
 }
@@ -173,7 +171,6 @@ void TestTopology1(Environment& aEnv, const std::vector<Brn>& aArgs)
         args.push_back(Brn("--path"));
         args.push_back(Brn("~eamonnb/Topology1TestScript.txt"));
     }
-
 
     TestScriptHttpReader* reader = new TestScriptHttpReader(aEnv, args);
 

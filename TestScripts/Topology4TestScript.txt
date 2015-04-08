@@ -2,47 +2,48 @@
 mock network medium
 
 // test network is populated with 4 devices
-expect Room Added Kitchen
-expect Kitchen add 4c494e4e-0026-0f99-1111-ef000004013f
-expect Room Added Sitting Room
-expect Sitting Room add 4c494e4e-0026-0f99-1112-ef000004013f
-expect Room Added Bedroom
-expect Bedroom add 4c494e4e-0026-0f99-1113-ef000004013f
-expect Room Added Dining Room
-expect Dining Room add 4c494e4e-0026-0f99-1114-ef000004013f
+expect 4c494e4e-0026-0f99-1111-ef000004013f Group Added
+expect 4c494e4e-0026-0f99-1112-ef000004013f Group Added
+expect 4c494e4e-0026-0f99-1113-ef000004013f Group Added
+expect 4c494e4e-0026-0f99-1114-ef000004013f Group Added
 empty
 
-// test room and group is added when ds appears on network
+mock groupwatcher4 subscribe 4c494e4e-0026-0f99-1111-ef000004013f unknown.com
+expect 4c494e4e-0026-0f99-1111-ef000004013f open Credentials False False <empty> False <empty> <empty>
+empty
+
+mock groupwatcher4 subscribe 4c494e4e-0026-0f99-1111-ef000004013f tidalhifi.com
+expect 4c494e4e-0026-0f99-1111-ef000004013f open Credentials False False <empty> False <empty> <empty>
+expect 4c494e4e-0026-0f99-1111-ef000004013f update Credentials True False <empty> False <empty> <empty>
+empty
+
+mock network update 4c494e4e-0026-0f99-1111-ef000004013f credentials set tidalhifi.com linndevuk9 tidal GB
+expect 4c494e4e-0026-0f99-1111-ef000004013f update Credentials True True linndevuk9 True <empty> GB
+empty
+
+// check subscriptions are disposed correctly when ds is removed from network
 mock network create ds 67
 mock network add 67
-expect Room Added Main Room
-expect Main Room add 67
+expect 67 Group Added
 empty
 
-// test group moves room when room name changes
-mock network update 67 product room Bathroom
-expect Main Room remove 67
-expect Room Removed Main Room
-expect Room Added Bathroom
-expect Bathroom add 67
+mock groupwatcher4 subscribe 67 tidalhifi.com
+expect 67 open Credentials False False <empty> False <empty> <empty>
+expect 67 update Credentials True False <empty> False <empty> <empty>
 empty
 
-// test group is added to existing room and no new room is created
-mock network create ds 68
-mock network add 68
-expect Room Added Main Room
-expect Main Room add 68
-empty
-mock network update 68 product room Bathroom
-expect Main Room remove 68
-expect Room Removed Main Room
-expect Bathroom add 68
-empty
-
-// test room is remove when last group is removed
 mock network remove 67
-expect Bathroom remove 67
-mock network remove 68
-expect Bathroom remove 68
-expect Room Removed Bathroom
+expect 67 Group Removed
+empty
+
+// remove Credentials
+mock network update 67 product attributes Info Time Volume Sender
+empty
+
+mock network add 67
+expect 67 Group Added
+empty
+
+mock groupwatcher4 subscribe 67 tidalhifi.com
+expect 67 open Credentials False False <empty> False <empty> <empty>
 empty

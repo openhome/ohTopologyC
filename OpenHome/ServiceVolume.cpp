@@ -14,16 +14,16 @@ using namespace std;
 
 
 
-ServiceVolume::ServiceVolume(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aNetwork, aDevice, aLog)
-    ,iBalance(new Watchable<TInt>(aNetwork, Brn("Balance"), 0))
-    ,iFade(new Watchable<TInt>(aNetwork, Brn("Fade"), 0))
-    ,iMute(new Watchable<TBool>(aNetwork, Brn("Mute"), false))
-    ,iValue(new Watchable<TUint>(aNetwork, Brn("Value"), 0))
-    ,iVolumeLimit(new Watchable<TUint>(aNetwork, Brn("VolumeLimit"), 0))
-    ,iVolumeMilliDbPerStep(new Watchable<TUint>(aNetwork, Brn("VolumeMilliDbPerStep"), 0))
-    ,iVolumeSteps(new Watchable<TUint>(aNetwork, Brn("VolumeSteps"), 0))
-    ,iVolumeUnity(new Watchable<TUint>(aNetwork, Brn("VolumeUnity"), 0))
+ServiceVolume::ServiceVolume(IInjectorDevice& aDevice, ILog& aLog)
+    :Service(aDevice, aLog)
+    ,iBalance(new Watchable<TInt>(iNetwork, Brn("Balance"), 0))
+    ,iFade(new Watchable<TInt>(iNetwork, Brn("Fade"), 0))
+    ,iMute(new Watchable<TBool>(iNetwork, Brn("Mute"), false))
+    ,iValue(new Watchable<TUint>(iNetwork, Brn("Value"), 0))
+    ,iVolumeLimit(new Watchable<TUint>(iNetwork, Brn("VolumeLimit"), 0))
+    ,iVolumeMilliDbPerStep(new Watchable<TUint>(iNetwork, Brn("VolumeMilliDbPerStep"), 0))
+    ,iVolumeSteps(new Watchable<TUint>(iNetwork, Brn("VolumeSteps"), 0))
+    ,iVolumeUnity(new Watchable<TUint>(iNetwork, Brn("VolumeUnity"), 0))
 {
 }
 
@@ -114,14 +114,11 @@ IWatchable<TUint>& ServiceVolume::VolumeUnity()
 
 ////////////////////////////////////////////////////////
 
-ServiceVolumeNetwork::ServiceVolumeNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
-    :ServiceVolume(aNetwork, aDevice, aLog)
-    ,iCpDevice(aCpDevice)
+ServiceVolumeNetwork::ServiceVolumeNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgVolume1* aService, ILog& aLog)
+    :ServiceVolume(aDevice, aLog)
+    ,iService(aService)
+    ,iSubscribed(false)
 {
-    iCpDevice.AddRef();
-
-    iService = new CpProxyAvOpenhomeOrgVolume1(aCpDevice);
-
     Functor f1 = MakeFunctor(*this, &ServiceVolumeNetwork::HandleBalanceChanged);
     iService->SetPropertyBalanceChanged(f1);
 
@@ -160,13 +157,13 @@ ServiceVolumeNetwork::~ServiceVolumeNetwork()
 void ServiceVolumeNetwork::Dispose()
 {
     ServiceVolume::Dispose();
-    iCpDevice.RemoveRef();
 }
 
 
 TBool ServiceVolumeNetwork::OnSubscribe()
 {
     iService->Subscribe();
+    iSubscribed = true;
     return(false); // false = not mock
 /*
     ASSERT(iSubscribedSource == NULL);
@@ -205,6 +202,7 @@ void ServiceVolumeNetwork::OnUnsubscribe()
         iService->Unsubscribe();
     }
 
+    iSubscribed = false;
 }
 
 
@@ -380,9 +378,12 @@ void ServiceVolumeNetwork::VolumeUnityChangedCallback1(void*)
 
 void ServiceVolumeNetwork::VolumeUnityChangedCallback2(void*)
 {
-    TUint unity;
-    iService->PropertyVolumeUnity(unity);
-    iVolumeUnity->Update(unity);
+    if (iSubscribed)
+    {
+        TUint unity;
+        iService->PropertyVolumeUnity(unity);
+        iVolumeUnity->Update(unity);
+    }
 }
 
 
@@ -412,9 +413,12 @@ void ServiceVolumeNetwork::VolumeStepsChangedCallback1(void*)
 
 void ServiceVolumeNetwork::VolumeStepsChangedCallback2(void*)
 {
-    TUint steps;
-    iService->PropertyVolumeSteps(steps);
-    iVolumeSteps->Update(steps);
+    if (iSubscribed)
+    {
+        TUint steps;
+        iService->PropertyVolumeSteps(steps);
+        iVolumeSteps->Update(steps);
+    }
 }
 
 
@@ -445,9 +449,12 @@ void ServiceVolumeNetwork::VolumeMilliDbPerStepChangedCallback1(void*)
 
 void ServiceVolumeNetwork::VolumeMilliDbPerStepChangedCallback2(void*)
 {
-    TUint mdbs;
-    iService->PropertyVolumeMilliDbPerStep(mdbs);
-    iVolumeMilliDbPerStep->Update(mdbs);
+    if (iSubscribed)
+    {
+        TUint mdbs;
+        iService->PropertyVolumeMilliDbPerStep(mdbs);
+        iVolumeMilliDbPerStep->Update(mdbs);
+    }
 }
 
 
@@ -477,9 +484,12 @@ void ServiceVolumeNetwork::VolumeLimitChangedCallback1(void*)
 
 void ServiceVolumeNetwork::VolumeLimitChangedCallback2(void*)
 {
-    TUint limit;
-    iService->PropertyVolumeLimit(limit);
-    iVolumeLimit->Update(limit);
+    if (iSubscribed)
+    {
+        TUint limit;
+        iService->PropertyVolumeLimit(limit);
+        iVolumeLimit->Update(limit);
+    }
 }
 
 void ServiceVolumeNetwork::HandleVolumeChanged()
@@ -509,9 +519,12 @@ void ServiceVolumeNetwork::VolumeChangedCallback1(void*)
 
 void ServiceVolumeNetwork::VolumeChangedCallback2(void*)
 {
-    TUint volume;
-    iService->PropertyVolume(volume);
-    iValue->Update(volume);
+    if (iSubscribed)
+    {
+        TUint volume;
+        iService->PropertyVolume(volume);
+        iValue->Update(volume);
+    }
 }
 
 void ServiceVolumeNetwork::HandleMuteChanged()
@@ -540,9 +553,12 @@ void ServiceVolumeNetwork::MuteChangedCallback1(void*)
 
 void ServiceVolumeNetwork::MuteChangedCallback2(void*)
 {
-    TBool mute;
-    iService->PropertyMute(mute);
-    iMute->Update(mute);
+    if (iSubscribed)
+    {
+        TBool mute;
+        iService->PropertyMute(mute);
+        iMute->Update(mute);
+    }
 }
 
 void ServiceVolumeNetwork::HandleFadeChanged()
@@ -571,9 +587,12 @@ void ServiceVolumeNetwork::FadeChangedCallback1(void*)
 
 void ServiceVolumeNetwork::FadeChangedCallback2(void*)
 {
-    TInt fade;
-    iService->PropertyFade(fade);
-    iFade->Update(fade);
+    if (iSubscribed)
+    {
+        TInt fade;
+        iService->PropertyFade(fade);
+        iFade->Update(fade);
+    }
 }
 
 void ServiceVolumeNetwork::HandleBalanceChanged()
@@ -602,9 +621,12 @@ void ServiceVolumeNetwork::BalanceChangedCallback1(void*)
 
 void ServiceVolumeNetwork::BalanceChangedCallback2(void*)
 {
-    TInt balance;
-    iService->PropertyBalance(balance);
-    iBalance->Update(balance);
+    if (iSubscribed)
+    {
+        TInt balance;
+        iService->PropertyBalance(balance);
+        iBalance->Update(balance);
+    }
 }
 
 

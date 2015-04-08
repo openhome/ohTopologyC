@@ -181,6 +181,7 @@ def build(bld):
                 'OpenHome/Topology3.cpp',
                 'OpenHome/Topology4.cpp',
                 'OpenHome/Topology5.cpp',
+                'OpenHome/Topology6.cpp',
                 'OpenHome/WatchableThread.cpp',
                 'OpenHome/Watchable.cpp',
                 'Generated/CpAvOpenhomeOrgInfo1.cpp',
@@ -203,8 +204,9 @@ def build(bld):
                 'OpenHome/Tests/TestTopology1.cpp',
                 'OpenHome/Tests/TestTopology2.cpp',
                 'OpenHome/Tests/TestTopology3.cpp',
-                'OpenHome/Tests/TestTopology4.cpp',
+                #'OpenHome/Tests/TestTopology4.cpp',
                 'OpenHome/Tests/TestTopology5.cpp',
+                'OpenHome/Tests/TestTopology6.cpp',
                 'OpenHome/Tests/TestTopologyManual.cpp',
                 'OpenHome/Tests/TestShell.cpp',
             ],
@@ -236,15 +238,20 @@ def build(bld):
            use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
            target='TestTopology3')
 
-    bld.program(
-           source='OpenHome/Tests/TestTopology4Main.cpp',
-           use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
-           target='TestTopology4')
-
+#    bld.program(
+#           source='OpenHome/Tests/TestTopology4Main.cpp',
+#           use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
+#           target='TestTopology4')
+#
     bld.program(
            source='OpenHome/Tests/TestTopology5Main.cpp',
            use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
            target='TestTopology5')
+
+    bld.program(
+           source='OpenHome/Tests/TestTopology6Main.cpp',
+           use=['OHNET', 'ohTopologyC', 'ohTopologyCTestUtils'],
+           target='TestTopology6')
 
     bld.program(
            source='OpenHome/Tests/TestTopologyManualMain.cpp',

@@ -46,7 +46,7 @@ private:
 
 
 
-} // Av
+} // Topology
 } // OpenHome
 
 #endif // HEADER_OHTOPOLOGYC_DISPOSE_HANDLER

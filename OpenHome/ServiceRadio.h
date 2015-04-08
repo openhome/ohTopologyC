@@ -95,7 +95,7 @@ class IProxyRadio : public IProxy
 class ServiceRadio : public Service
 {
 protected:
-    ServiceRadio(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
+    ServiceRadio(IInjectorDevice& aDevice, ILog& aLog);
     ~ServiceRadio();
 
 public:
@@ -134,7 +134,7 @@ protected:
 class ServiceRadioNetwork : public ServiceRadio
 {
 public:
-    ServiceRadioNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
+    ServiceRadioNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgRadio1* aService, ILog& aLog);
     ~ServiceRadioNetwork();
 
     void Dispose();
@@ -171,9 +171,9 @@ private:
     void HandleTransportStateChangedCallback2(void*);
 
 private:
-    Net::CpDevice& iCpDevice;
     Net::CpProxyAvOpenhomeOrgRadio1* iService;
     IIdCacheSession* iCacheSession;
+    TBool iSubscribed;
 };
 
 //////////////////////////////////////////////////////////////////
@@ -236,7 +236,7 @@ private:
 };
 
 
-} // Av
+} // Topology
 } // OpenHome
 
 #endif

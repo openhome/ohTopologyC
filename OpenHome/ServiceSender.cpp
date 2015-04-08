@@ -12,11 +12,11 @@ using namespace OpenHome::Net;
 
 /////////////////////////////////////////////////////////
 
-ServiceSender::ServiceSender(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aNetwork, aDevice, aLog)
-    ,iAudio(new Watchable<TBool>(aNetwork, Brn("Audio"), false))
-    ,iMetadata(new Watchable<ISenderMetadata*>(aNetwork, Brn("Metadata"), aNetwork.SenderMetadataEmpty()))
-    ,iStatus(new Watchable<Brn>(aNetwork, Brn("Status"), Brx::Empty()))
+ServiceSender::ServiceSender(IInjectorDevice& aDevice, ILog& aLog)
+    :Service(aDevice, aLog)
+    ,iAudio(new Watchable<TBool>(iNetwork, Brn("Audio"), false))
+    ,iMetadata(new Watchable<ISenderMetadata*>(iNetwork, Brn("Metadata"), iNetwork.SenderMetadataEmpty()))
+    ,iStatus(new Watchable<Brn>(iNetwork, Brn("Status"), Brx::Empty()))
     ,iCurrentMetadata(NULL)
     ,iCurrentStatus(NULL)
 {
@@ -84,14 +84,11 @@ const Brx& ServiceSender::PresentationUrl()
 
 
 
-ServiceSenderNetwork::ServiceSenderNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
-    :ServiceSender(aNetwork, aDevice, aLog)
-    ,iCpDevice(aCpDevice)
+ServiceSenderNetwork::ServiceSenderNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgSender1* aService, ILog& aLog)
+    :ServiceSender(aDevice, aLog)
+    ,iService(aService)
+    ,iSubscribed(false)
 {
-    iCpDevice.AddRef();
-
-    iService = new CpProxyAvOpenhomeOrgSender1(aCpDevice);
-
     Functor f1 = MakeFunctor(*this, &ServiceSenderNetwork::HandleAudioChanged);
     iService->SetPropertyAudioChanged(f1);
 
@@ -105,20 +102,20 @@ ServiceSenderNetwork::ServiceSenderNetwork(INetwork& aNetwork, IInjectorDevice& 
     iService->SetPropertyInitialEvent(f4);
 }
 
+ServiceSenderNetwork::~ServiceSenderNetwork()
+{
+    delete iService;
+}
 
 void ServiceSenderNetwork::Dispose()
 {
     ServiceSender::Dispose();
-
-    delete iService;
-    iService = NULL;
-
-    iCpDevice.RemoveRef();
 }
 
 TBool ServiceSenderNetwork::OnSubscribe()
 {
     iService->Subscribe();
+    iSubscribed = true;
     return(false); // false = not mock
 }
 
@@ -156,7 +153,7 @@ void ServiceSenderNetwork::OnUnsubscribe()
     {
         iService->Unsubscribe();
     }
-
+    iSubscribed = false;
 }
 
 void ServiceSenderNetwork::HandleAudioChanged()
@@ -195,18 +192,24 @@ void ServiceSenderNetwork::AudioChangedCallback1(void* aAudio)
 
 void ServiceSenderNetwork::AudioChangedCallback2(void* aAudio)
 {
-    iAudio->Update(aAudio>0);
+    if (iSubscribed)
+    {
+        iAudio->Update(aAudio>0);
+    }
 }
 
 
 void ServiceSenderNetwork::HandleMetadataChanged()
 {
-    Brhz metadata;
-    iService->PropertyMetadata(metadata);
-    ISenderMetadata* senderMetadata = new SenderMetadata(metadata);
+    if (iSubscribed)
+    {
+        Brhz metadata;
+        iService->PropertyMetadata(metadata);
+        ISenderMetadata* senderMetadata = new SenderMetadata(metadata);
 
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::MetadataChangedCallback1);
-    Schedule(f, senderMetadata);
+        FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::MetadataChangedCallback1);
+        Schedule(f, senderMetadata);
+    }
 /*
     Network.Schedule(() =>
     {
@@ -228,10 +231,13 @@ void ServiceSenderNetwork::MetadataChangedCallback1(void* aMetadata)
 
 void ServiceSenderNetwork::MetadataChangedCallback2(void* aMetadata)
 {
-    ISenderMetadata* metadata = (ISenderMetadata*)aMetadata;
-    iMetadata->Update(metadata);
-    delete iCurrentMetadata;
-    iCurrentMetadata = metadata;
+    if (iSubscribed)
+    {
+        ISenderMetadata* metadata = (ISenderMetadata*)aMetadata;
+        iMetadata->Update(metadata);
+        delete iCurrentMetadata;
+        iCurrentMetadata = metadata;
+    }
 }
 
 
@@ -251,23 +257,26 @@ void ServiceSenderNetwork::StatusChangedCallback1(void* aStatus)
 
 void ServiceSenderNetwork::StatusChangedCallback2(void*)
 {
-    Brhz status;
-    iService->PropertyStatus(status);
+    if (iSubscribed)
+    {
+        Brhz status;
+        iService->PropertyStatus(status);
 
-    Bws<100>* oldStatus = iCurrentStatus;
-    Bws<100>* iCurrentStatus = new Bws<100>(status);
+        Bws<100>* oldStatus = iCurrentStatus;
+        Bws<100>* iCurrentStatus = new Bws<100>(status);
 
-    iStatus->Update(Brn(*iCurrentStatus));
-    delete oldStatus;
+        iStatus->Update(Brn(*iCurrentStatus));
+        delete oldStatus;
+    }
 }
 
 
 
 ///////////////////////////////////////////////////////////////////
 
-ServiceSenderMock::ServiceSenderMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aAttributes, const Brx& aPresentationUrl,
+ServiceSenderMock::ServiceSenderMock(IInjectorDevice& aDevice, const Brx& aAttributes, const Brx& aPresentationUrl,
                                      TBool aAudio, ISenderMetadata* aMetadata, const Brx& aStatus, ILog& aLog)
-    :ServiceSender(aNetwork, aDevice, aLog)
+    :ServiceSender(aDevice, aLog)
 {
     iAttributes.Replace(aAttributes);
     iPresentationUrl.Replace(aPresentationUrl);

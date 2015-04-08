@@ -58,6 +58,8 @@ public:
     virtual Brn ModelName() = 0;
     virtual Brn ManufacturerName() = 0;
     virtual Brn ProductId() = 0;
+    virtual Brn ProductImageUri() = 0;
+
     virtual IDevice& Device() = 0;
 
     virtual IWatchable<Brn>& RoomName() = 0;
@@ -86,6 +88,7 @@ public:
     virtual Brn ModelName();
     virtual Brn ManufacturerName();
     virtual Brn ProductId();
+    virtual Brn ProductImageUri();
     virtual IDevice& Device();
     virtual IWatchable<Brn>& RoomName();
     virtual IWatchable<Brn>& Name();

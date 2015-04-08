@@ -114,6 +114,10 @@ Brn Topology2Group::ProductId()
     return(iProduct.ProductId());
 }
 
+Brn Topology2Group::ProductImageUri()
+{
+    return(iProduct.ProductImageUri());
+}
 
 IDevice& Topology2Group::Device()
 {
@@ -222,6 +226,11 @@ void Topology2Group::ProcessSourceXml(const Brx& aSourceXml, TBool aInitial)
         else
         {
             visible = false;
+        }
+
+        if (type == Brn("Disc"))
+        {
+            name = iProduct.Name().Value();
         }
 
         ITopology2Source* source = new Topology2Source(index, name, type, visible);

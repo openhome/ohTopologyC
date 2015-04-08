@@ -288,8 +288,8 @@ void MockableScriptRunner::Assert(TBool aExpression)
 ////////////////////////////////////////////////////////////////////////
 
 
-ResultWatcherFactory::ResultWatcherFactory(MockableScriptRunner& aRunner)
-    :iRunner(aRunner)
+ResultWatcherFactory::ResultWatcherFactory(IResultAggregator& aResult)
+    :iResult(aResult)
 {
 }
 

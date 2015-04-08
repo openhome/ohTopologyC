@@ -65,11 +65,11 @@ TUint InfoDetails::SampleRate()
 
 //////////////////////////////////////////////////////////
 
-ServiceInfo::ServiceInfo(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aNetwork, aDevice, aLog)
-    ,iDetails(new Watchable<IInfoDetails*>(aNetwork, Brn("Details"), new InfoDetails()))
-    ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), iNetwork.InfoMetadataEmpty()))
-    ,iMetatext(new Watchable<IInfoMetatext*>(aNetwork, Brn("Metatext"), new InfoMetatext()))
+ServiceInfo::ServiceInfo(IInjectorDevice& aDevice, ILog& aLog)
+    :Service(aDevice, aLog)
+    ,iDetails(new Watchable<IInfoDetails*>(iNetwork, Brn("Details"), iNetwork.InfoDetailsEmpty()))
+    ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iNetwork.InfoMetadataEmpty()))
+    ,iMetatext(new Watchable<IInfoMetatext*>(iNetwork, Brn("Metatext"), iNetwork.InfoMetatextEmpty()))
 {
 }
 
@@ -110,26 +110,31 @@ IWatchable<IInfoMetatext*>& ServiceInfo::Metatext()
 
 //////////////////////////////////////////////////////////
 
-ServiceInfoNetwork::ServiceInfoNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
-    :ServiceInfo(aNetwork, aDevice, aLog)
-    ,iCpDevice(aCpDevice)
-
+ServiceInfoNetwork::ServiceInfoNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgInfo1* aService, ILog& aLog)
+    :ServiceInfo(aDevice, aLog)
+    ,iService(aService)
+    ,iSubscribed(false)
+    ,iDetailsChanged(false)
 {
-    iCpDevice.AddRef();
-
-    iService = new CpProxyAvOpenhomeOrgInfo1(aCpDevice);
-
-    Functor f1 = MakeFunctor(*this, &ServiceInfoNetwork::HandleDetailsChanged);
+    Functor f1 = MakeFunctor(*this, &ServiceInfoNetwork::HandlePendingDetailsChanged);
+    iService->SetPropertyBitRateChanged(f1);
+    iService->SetPropertyCodecNameChanged(f1);
+    iService->SetPropertyDurationChanged(f1);
+    iService->SetPropertyLosslessChanged(f1);
+    iService->SetPropertySampleRateChanged(f1);
     iService->SetPropertyBitDepthChanged(f1);
 
-    Functor f2 = MakeFunctor(*this, &ServiceInfoNetwork::HandleMetadataChanged);
-    iService->SetPropertyMetadataChanged(f2);
+    Functor f2 = MakeFunctor(*this, &ServiceInfoNetwork::HandleDetailsChanged);
+    iService->SetPropertyBitDepthChanged(f2);
 
-    Functor f3 = MakeFunctor(*this, &ServiceInfoNetwork::HandleMetatextChanged);
-    iService->SetPropertyMetatextChanged(f3);
+    Functor f3 = MakeFunctor(*this, &ServiceInfoNetwork::HandleMetadataChanged);
+    iService->SetPropertyMetadataChanged(f3);
 
-    Functor f4 = MakeFunctor(*this, &ServiceInfoNetwork::HandleInitialEvent);
-    iService->SetPropertyInitialEvent(f4);
+    Functor f4 = MakeFunctor(*this, &ServiceInfoNetwork::HandleMetatextChanged);
+    iService->SetPropertyMetatextChanged(f4);
+
+    Functor f5 = MakeFunctor(*this, &ServiceInfoNetwork::HandleInitialEvent);
+    iService->SetPropertyInitialEvent(f5);
 }
 
 ServiceInfoNetwork::~ServiceInfoNetwork()
@@ -140,12 +145,12 @@ ServiceInfoNetwork::~ServiceInfoNetwork()
 void ServiceInfoNetwork::Dispose()
 {
     ServiceInfo::Dispose();
-    iCpDevice.RemoveRef();
 }
 
 TBool ServiceInfoNetwork::OnSubscribe()
 {
     iService->Subscribe();
+    iSubscribed = true;
     return(false); // false = not mock
 }
 
@@ -175,8 +180,15 @@ void ServiceInfoNetwork::OnUnsubscribe()
     {
         iService->Unsubscribe();
     }
-
+    iSubscribed = false;
     //iSubscribedSource = NULL;
+}
+
+
+
+void ServiceInfoNetwork::HandlePendingDetailsChanged()
+{
+    iDetailsChanged = true;
 }
 
 void ServiceInfoNetwork::HandleDetailsChanged()
@@ -219,26 +231,31 @@ void ServiceInfoNetwork::HandleDetailsChangedCallback1(void*)
 
 void ServiceInfoNetwork::HandleDetailsChangedCallback2(void*)
 {
-    TUint bitDepth;
-    iService->PropertyBitDepth(bitDepth);
+    if((iDetailsChanged) && (iSubscribed))
+    {
+        TUint bitDepth;
+        iService->PropertyBitDepth(bitDepth);
 
-    TUint bitRate;
-    iService->PropertyBitRate(bitRate);
+        TUint bitRate;
+        iService->PropertyBitRate(bitRate);
 
-    Brhz codec;
-    iService->PropertyCodecName(codec);
+        Brhz codec;
+        iService->PropertyCodecName(codec);
 
-    TUint duration;
-    iService->PropertyDuration(duration);
+        TUint duration;
+        iService->PropertyDuration(duration);
 
-    TBool lossless;
-    iService->PropertyLossless(lossless);
+        TBool lossless;
+        iService->PropertyLossless(lossless);
 
-    TUint sampleRate;
-    iService->PropertySampleRate(sampleRate);
+        TUint sampleRate;
+        iService->PropertySampleRate(sampleRate);
 
-    InfoDetails* details = new InfoDetails(bitDepth, bitRate, codec, duration, lossless, sampleRate);
-    iDetails->Update(details);
+        InfoDetails* details = new InfoDetails(bitDepth, bitRate, codec, duration, lossless, sampleRate);
+        iDetails->Update(details);
+
+        iDetailsChanged = false;
+    }
 
 }
 
@@ -274,15 +291,18 @@ void ServiceInfoNetwork::HandleMetadataChangedCallback1(void*)
 
 void ServiceInfoNetwork::HandleMetadataChangedCallback2(void*)
 {
-    Brhz metadatastr;
-    iService->PropertyMetadata(metadatastr);
+    if (iSubscribed)
+    {
+        Brhz metadatastr;
+        iService->PropertyMetadata(metadatastr);
 
-    IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metadatastr);
-    Brhz uri;
-    iService->PropertyUri(uri);
+        IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metadatastr);
+        Brhz uri;
+        iService->PropertyUri(uri);
 
-    InfoMetadata* data = new InfoMetadata(metadata, uri);
-    iMetadata->Update(data);
+        InfoMetadata* data = new InfoMetadata(metadata, uri);
+        iMetadata->Update(data);
+    }
 }
 
 
@@ -311,10 +331,13 @@ void ServiceInfoNetwork::HandleMetatextChangedCallback1(void*)
 
 void ServiceInfoNetwork::HandleMetatextChangedCallback2(void*)
 {
-    Brhz metatextstr;
-    iService->PropertyMetatext(metatextstr);
-    IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metatextstr);
-    iMetatext->Update(new InfoMetatext(*metadata));
+    if (iSubscribed)
+    {
+        Brhz metatextstr;
+        iService->PropertyMetatext(metatextstr);
+        IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metatextstr);
+        iMetatext->Update(new InfoMetatext(metadata));
+    }
 }
 
 

@@ -98,6 +98,18 @@ void WatchableThread::Schedule(FunctorGeneric<void*> aCallback, void* aObj)
 }
 
 
+void WatchableThread::DoNothing(void*)
+{
+
+}
+
+
+void WatchableThread::Execute()
+{
+    Execute(MakeFunctorGeneric(*this, &WatchableThread::DoNothing), NULL);
+}
+
+
 void WatchableThread::Execute(FunctorGeneric<void*> aCallback, void* aObj)
 {
     // If calling function is on the WT - run the callback immediately.

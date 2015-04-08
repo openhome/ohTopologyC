@@ -77,7 +77,7 @@ public:
     virtual const Brx& PresentationUrl();
 
 protected:
-    ServiceSender(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
+    ServiceSender(IInjectorDevice& aDevice, ILog& aLog);
 
 protected:
     Bws<100> iAttributes;
@@ -95,7 +95,8 @@ protected:
 class ServiceSenderNetwork : public ServiceSender
 {
 public:
-    ServiceSenderNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
+    ServiceSenderNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgSender1* aService, ILog& aLog);
+    ~ServiceSenderNetwork();
 
     virtual void Dispose();
 
@@ -118,8 +119,8 @@ private:
     void StatusChangedCallback2(void* aStatus);
 
 private:
-    Net::CpDevice& iCpDevice;
     Net::CpProxyAvOpenhomeOrgSender1* iService;
+    TBool iSubscribed;
 };
 
 
@@ -128,7 +129,7 @@ private:
 class ServiceSenderMock : public ServiceSender
 {
 public:
-    ServiceSenderMock(INetwork& aNetwork, IInjectorDevice& aDevice,  const Brx& aAttributes, const Brx& aPresentationUrl,
+    ServiceSenderMock(IInjectorDevice& aDevice,  const Brx& aAttributes, const Brx& aPresentationUrl,
                       TBool aAudio, ISenderMetadata* aMetadata, const Brx& aStatus, ILog& aLog);
 
     virtual void Execute(ICommandTokens& aValue);
@@ -157,7 +158,7 @@ private:
 
 
 
-} // Av
+} // Topology
 } // OpenHome
 
 

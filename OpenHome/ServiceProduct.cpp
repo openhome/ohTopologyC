@@ -13,13 +13,13 @@ using namespace OpenHome::Net;
 using namespace std;
 
 
-ServiceProduct::ServiceProduct(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aNetwork, aDevice, aLog)
-    ,iRoomName(new Watchable<Brn>(aNetwork, Brn("RoomName"), Brx::Empty()))
-    ,iName(new Watchable<Brn>(aNetwork, Brn("Name"), Brx::Empty()))
-    ,iSourceIndex(new Watchable<TUint>(aNetwork, Brn("SourceIndex"), 0))
-    ,iSourceXml(new Watchable<Brn>(aNetwork, Brn("SourceXml"), Brx::Empty()))
-    ,iStandby(new Watchable<TBool>(aNetwork, Brn("Standby"), false))
+ServiceProduct::ServiceProduct(IInjectorDevice& aDevice, ILog& aLog)
+    :Service(aDevice, aLog)
+    ,iRoomName(new Watchable<Brn>(iNetwork, Brn("RoomName"), Brx::Empty()))
+    ,iName(new Watchable<Brn>(iNetwork, Brn("Name"), Brx::Empty()))
+    ,iSourceIndex(new Watchable<TUint>(iNetwork, Brn("SourceIndex"), 0))
+    ,iSourceXml(new Watchable<Brn>(iNetwork, Brn("SourceXml"), Brx::Empty()))
+    ,iStandby(new Watchable<TBool>(iNetwork, Brn("Standby"), false))
     ,iCurrentRoom(NULL)
     ,iCurrentName(NULL)
     ,iCurrentSourceXml(NULL)
@@ -280,13 +280,11 @@ void SrcXml::CreateSourceXml()
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
-ServiceProductNetwork::ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
-    :ServiceProduct(aNetwork, aDevice, aLog)
-    ,iCpDevice(aCpDevice)
+ServiceProductNetwork::ServiceProductNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgProduct1* aService, ILog& aLog)
+    :ServiceProduct(aDevice, aLog)
+    ,iService(aService)
+    ,iSubscribed(false)
 {
-    iCpDevice.AddRef();
-
-    iService = new CpProxyAvOpenhomeOrgProduct1(aCpDevice);
 
     Functor f1 = MakeFunctor(*this, &ServiceProductNetwork::HandleRoomChanged);
     iService->SetPropertyProductRoomChanged(f1);
@@ -317,7 +315,6 @@ ServiceProductNetwork::~ServiceProductNetwork()
 void ServiceProductNetwork::Dispose()
 {
     ServiceProduct::Dispose();
-    iCpDevice.RemoveRef();
 }
 
 TBool ServiceProductNetwork::OnSubscribe()
@@ -325,6 +322,7 @@ TBool ServiceProductNetwork::OnSubscribe()
     // Subscribe to (ohNet) Service and get informed later (on a separate thread) when its completed
     // Completion is signalled in HandleInitialEvent()
     iService->Subscribe();
+    iSubscribed = true;
     return(false); // false = not mock
 }
 
@@ -403,6 +401,7 @@ void ServiceProductNetwork::OnUnsubscribe()
     {
         iService->Unsubscribe();
     }
+    iSubscribed = false;
 }
 
 void ServiceProductNetwork::SetSourceIndex(TUint aValue)
@@ -443,13 +442,16 @@ void ServiceProductNetwork::RoomChangedCallback1(void*)
 
 void ServiceProductNetwork::RoomChangedCallback2(void*)
 {
-    Brhz room;
-    iService->PropertyProductRoom(room);
+    if (iSubscribed)
+    {
+        Brhz room;
+        iService->PropertyProductRoom(room);
 
-    Bws<20>* oldRoom = iCurrentRoom;
-    iCurrentRoom = new Bws<20>(room);
-    iRoomName->Update(Brn(*iCurrentRoom));
-    delete oldRoom;
+        Bws<20>* oldRoom = iCurrentRoom;
+        iCurrentRoom = new Bws<20>(room);
+        iRoomName->Update(Brn(*iCurrentRoom));
+        delete oldRoom;
+    }
 }
 
 void ServiceProductNetwork::HandleNameChanged()
@@ -468,14 +470,17 @@ void ServiceProductNetwork::NameChangedCallback1(void*)
 
 void ServiceProductNetwork::NameChangedCallback2(void*)
 {
-    Brhz name;
-    iService->PropertyProductName(name);
+    if (iSubscribed)
+    {
+        Brhz name;
+        iService->PropertyProductName(name);
 
-    Bws<50>* oldName = iCurrentName;
-    iCurrentName = new Bws<50>(name);
+        Bws<50>* oldName = iCurrentName;
+        iCurrentName = new Bws<50>(name);
 
-    iName->Update(Brn(*iCurrentName));
-    delete oldName;
+        iName->Update(Brn(*iCurrentName));
+        delete oldName;
+    }
 }
 
 
@@ -495,9 +500,12 @@ void ServiceProductNetwork::SourceIndexChangedCallback1(void*)
 
 void ServiceProductNetwork::SourceIndexChangedCallback2(void*)
 {
-    TUint sourceIndex;
-    iService->PropertySourceIndex(sourceIndex);
-    iSourceIndex->Update(sourceIndex);
+    if (iSubscribed)
+    {
+        TUint sourceIndex;
+        iService->PropertySourceIndex(sourceIndex);
+        iSourceIndex->Update(sourceIndex);
+    }
 }
 
 
@@ -516,17 +524,20 @@ void ServiceProductNetwork::SourceXmlChangedCallback1(void*)
 
 void ServiceProductNetwork::SourceXmlChangedCallback2(void*)
 {
-    Brhz sourceXml;
-    iService->PropertySourceXml(sourceXml);
+    if (iSubscribed)
+    {
+        Brhz sourceXml;
+        iService->PropertySourceXml(sourceXml);
 
-    Bws<2048>* oldSourceXml = iCurrentSourceXml;
-    iCurrentSourceXml = new Bws<2048>(sourceXml);
+        Bws<2048>* oldSourceXml = iCurrentSourceXml;
+        iCurrentSourceXml = new Bws<2048>(sourceXml);
 
-    Brn xml(*iCurrentSourceXml);
+        Brn xml(*iCurrentSourceXml);
 
-    iSourceXml->Update(xml);
+        iSourceXml->Update(xml);
 
-    delete oldSourceXml;
+        delete oldSourceXml;
+    }
 }
 
 void ServiceProductNetwork::HandleStandbyChanged()
@@ -543,17 +554,20 @@ void ServiceProductNetwork::StandbyChangedCallback1(void*)
 
 void ServiceProductNetwork::StandbyChangedCallback2(void*)
 {
-    TBool standby;
-    iService->PropertyStandby(standby);
-    iStandby->Update(standby);
+    if (iSubscribed)
+    {
+        TBool standby;
+        iService->PropertyStandby(standby);
+        iStandby->Update(standby);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ServiceProductMock::ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aRoom, const Brx& aName, TUint aSourceIndex, unique_ptr<SrcXml> aSourceXmlFactory, TBool aStandby,
+ServiceProductMock::ServiceProductMock(IInjectorDevice& aDevice, const Brx& aRoom, const Brx& aName, TUint aSourceIndex, unique_ptr<SrcXml> aSourceXmlFactory, TBool aStandby,
     const Brx& aAttributes, const Brx& aManufacturerImageUri, const Brx& aManufacturerInfo, const Brx& aManufacturerName, const Brx& aManufacturerUrl, const Brx& aModelImageUri, const Brx& aModelInfo, const Brx& aModelName,
     const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog& aLog)
-    : ServiceProduct(aNetwork, aDevice, aLog)
+    : ServiceProduct(aDevice, aLog)
     ,iSourceXmlFactory(move(aSourceXmlFactory))
 {
 //    Brn x(aSourceXmlFactory->ToString());

@@ -52,7 +52,7 @@ public:
 class ServiceVolume : public Service
 {
 protected :
-    ServiceVolume(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
+    ServiceVolume(IInjectorDevice& aDevice, ILog& aLog);
     ~ServiceVolume();
 
 public:
@@ -96,7 +96,7 @@ protected:
 class ServiceVolumeNetwork : public ServiceVolume
 {
 public:
-    ServiceVolumeNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
+    ServiceVolumeNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgVolume1* aService, ILog& aLog);
     ~ServiceVolumeNetwork();
 
     virtual void Dispose();
@@ -143,8 +143,8 @@ private:
 
 
 private:
-    Net::CpDevice& iCpDevice;
     Net::CpProxyAvOpenhomeOrgVolume1* iService;
+    TBool iSubscribed;
 };
 
 ////////////////////////////////////////////////////////////////////
@@ -348,7 +348,7 @@ class ServiceVolumeMock : ServiceVolume, IMockable
 }
 */
 
-} // Av
+} // Topology
 } // OpenHome
 
 #endif //HEADER_SERVICE_VOLUME

@@ -8,13 +8,14 @@ using namespace OpenHome::Net;
 using namespace std;
 
 
-Service::Service(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    :iNetwork(aNetwork)
+Service::Service(IInjectorDevice& aDevice, ILog& aLog)
+    :iNetwork(aDevice.Network())
     ,iLog(aLog)
     ,iDisposeHandler(new DisposeHandler())
     //,iCancelSubscribe(new CancellationTokenSource())
     //,iSubscribeTask(NULL)
     ,iDevice(aDevice)
+    ,iUdn(iDevice.Udn())
     ,iRefCount(0)
     ,iMutexSubscribe("SVS")
     ,iMockSubscribe(false)
@@ -253,15 +254,6 @@ void Service::Unsubscribe()
     }
 }
 
-void Service::StartCallback(void* aArg)
-{
-    auto data = (StartData*)aArg;
-    data->iCallback(data->iArg);
-    data->iSema->Signal();
-    delete data;
-}
-
-
 void Service::Start(FunctorGeneric<void*> aCallback, void* aArg)
 {
     Semaphore* sema = new Semaphore("SVCS", 0);
@@ -295,6 +287,31 @@ void Service::Start(FunctorGeneric<void*> aCallback, void* aArg)
     return (task);
 */
 }
+
+
+void Service::StartCallback(void* aArg)
+{
+    auto data = (StartData*)aArg;
+    data->iCallback(data->iArg);
+    data->iSema->Signal();
+    delete data;
+}
+
+
+void Service::AddTask(Semaphore* aSema)
+{
+    iMutexSemas.Wait();
+    iSemas.push_back(aSema);
+    iMutexSemas.Signal();
+
+/*
+    lock (iTasks)
+    {
+        iTasks.Add(aTask);
+    }
+*/
+}
+
 
 
 
@@ -370,6 +387,12 @@ void Service::Schedule(FunctorGeneric<void*> aCallback, void* aObj)
 void Service::Execute(FunctorGeneric<void*> aCallback, void* aObj)
 {
     iNetwork.Execute(aCallback, aObj);
+}
+
+
+void Service::Execute()
+{
+    iNetwork.Execute();
 }
 
 

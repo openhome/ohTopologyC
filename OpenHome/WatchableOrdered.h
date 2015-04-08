@@ -221,7 +221,7 @@ void WatchableOrdered<T>::DisposeCallback(void*)
  */
 
 
-}  // Av
+}  // Topology
 }  // OpenHome
 
 

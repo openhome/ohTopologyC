@@ -41,7 +41,16 @@ private:
 
 ///////////////////////////////////////////////
 
-class MockableScriptRunner
+class IResultAggregator
+{
+public:
+    virtual void Result(Bwh* aValue) = 0;
+    virtual ~IResultAggregator(){}
+};
+
+///////////////////////////////////////////////
+
+class MockableScriptRunner : public IResultAggregator
 {
 private:
     static const TUint kMaxFifoEntries = 1000;
@@ -82,7 +91,7 @@ struct MockCbData
 class ResultWatcherFactory : public IDisposable, public INonCopyable
 {
 public:
-    ResultWatcherFactory(MockableScriptRunner& aRunner);
+    ResultWatcherFactory(IResultAggregator& aResult);
 
     template <class T>
     void Create(const Brx& aId, IWatchable<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction);
@@ -102,7 +111,7 @@ public:
     void Dispose();
 
 private:
-    MockableScriptRunner& iRunner;
+    IResultAggregator& iResult;
     std::map<Brn, std::vector<IDisposable*>, BufferCmp> iWatchers;
 };
 
@@ -113,7 +122,7 @@ template <class T>
 class ResultWatcher : public IWatcher<T>, public IDisposable, public INonCopyable
 {
 public:
-    ResultWatcher(MockableScriptRunner& aRunner, const Brx& aId, IWatchable<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction);
+    ResultWatcher(IResultAggregator& aResult, const Brx& aId, IWatchable<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction);
 
     // IWatcher<T>
     void ItemOpen(const Brx& aId, T aValue);
@@ -129,7 +138,7 @@ private:
     void ItemCloseCallback(const Brx& aId);
 
 private:
-    MockableScriptRunner& iRunner;
+    IResultAggregator& iResult;
     Brn iId;
     IWatchable<T>& iWatchable;
     FunctorGeneric<MockCbData<T>*> iAction;
@@ -143,7 +152,7 @@ template <class T>
 class ResultUnorderedWatcher : public IWatcherUnordered<T>, public IDisposable, public INonCopyable
 {
 public:
-    ResultUnorderedWatcher(MockableScriptRunner& aRunner, const Brx& aId, IWatchableUnordered<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction);
+    ResultUnorderedWatcher(IResultAggregator& aResult, const Brx& aId, IWatchableUnordered<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction);
 
     // IUnorderedWatcher<T>
     void UnorderedOpen();
@@ -161,7 +170,7 @@ private:
 
 
 private:
-    MockableScriptRunner& iRunner;
+    IResultAggregator& iResult;
     Brn iId;
     IWatchableUnordered<T>& iWatchable;
     FunctorGeneric<MockCbData<T>*> iAction;
@@ -175,7 +184,7 @@ template <class T>
 class ResultOrderedWatcher : public IWatcherOrdered<T>, public IDisposable, public INonCopyable
 {
 public:
-    ResultOrderedWatcher(MockableScriptRunner& aRunner, const Brx& aId, IWatchableOrdered<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction);
+    ResultOrderedWatcher(IResultAggregator& aResult, const Brx& aId, IWatchableOrdered<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction);
 
     // IWatcherOrdered<T>
     void OrderedOpen();
@@ -195,7 +204,7 @@ private:
 
 
 private:
-    MockableScriptRunner& iRunner;
+    IResultAggregator& iResult;
     Brn iId;
     IWatchableOrdered<T>& iWatchable;
     FunctorGeneric<MockCbData<T>*> iAction;
@@ -217,7 +226,7 @@ void ResultWatcherFactory::Create(const Brx& aId, IWatchable<T>& aWatchable, Fun
         iWatchers[id] = watchers;
     }
 
-    iWatchers[id].push_back(new ResultWatcher<T>(iRunner, aId, aWatchable, aAction));
+    iWatchers[id].push_back(new ResultWatcher<T>(iResult, aId, aWatchable, aAction));
 }
 
 
@@ -232,7 +241,7 @@ void ResultWatcherFactory::Create(const Brx& aId, IWatchableUnordered<T>& aWatch
         iWatchers[id] = watchers;
     }
 
-    iWatchers[id].push_back(new ResultUnorderedWatcher<T>(iRunner, aId, aWatchable, aAction));
+    iWatchers[id].push_back(new ResultUnorderedWatcher<T>(iResult, aId, aWatchable, aAction));
 }
 
 
@@ -247,7 +256,7 @@ void ResultWatcherFactory::Create(const Brx& aId, IWatchableOrdered<T>& aWatchab
         iWatchers[id] = watchers;
     }
 
-    iWatchers[id].push_back(new ResultOrderedWatcher<T>(iRunner, aId, aWatchable, aAction));
+    iWatchers[id].push_back(new ResultOrderedWatcher<T>(iResult, aId, aWatchable, aAction));
 }
 
 
@@ -257,8 +266,8 @@ void ResultWatcherFactory::Create(const Brx& aId, IWatchableOrdered<T>& aWatchab
 
 
 template <class T>
-ResultWatcher<T>::ResultWatcher(MockableScriptRunner& aRunner, const Brx& aId, IWatchable<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction)
-    :iRunner(aRunner)
+ResultWatcher<T>::ResultWatcher(IResultAggregator& aResult, const Brx& aId, IWatchable<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction)
+    :iResult(aResult)
     ,iId(aId)
     ,iWatchable(aWatchable)
     ,iAction(aAction)
@@ -287,7 +296,7 @@ void ResultWatcher<T>::ItemOpenCallback(const Brx& aValue)
     result->Replace(iId);
     result->Append(Brn(" open "));
     result->Append(aValue);
-    iRunner.Result(result);
+    iResult.Result(result);
 }
 
 
@@ -311,7 +320,7 @@ void ResultWatcher<T>::ItemUpdateCallback(const Brx& aValue)
     result->Replace(iId);
     result->Append(Brn(" update "));
     result->Append(aValue);
-    iRunner.Result(result);
+    iResult.Result(result);
 }
 
 
@@ -346,8 +355,8 @@ void ResultWatcher<T>::Dispose()
 
 
 template <class T>
-ResultUnorderedWatcher<T>::ResultUnorderedWatcher(MockableScriptRunner& aRunner, const Brx& aId, IWatchableUnordered<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction)
-    :iRunner(aRunner)
+ResultUnorderedWatcher<T>::ResultUnorderedWatcher(IResultAggregator& aResult, const Brx& aId, IWatchableUnordered<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction)
+    :iResult(aResult)
     ,iId(aId)
     ,iWatchable(aWatchable)
     ,iAction(aAction)
@@ -386,7 +395,7 @@ void ResultUnorderedWatcher<T>::UnorderedAddCallback(const Brx& aValue)
     result->Replace(iId);
     result->Append(Brn(" add "));
     result->Append(aValue);
-    iRunner.Result(result);
+    iResult.Result(result);
 }
 
 
@@ -408,7 +417,7 @@ void ResultUnorderedWatcher<T>::UnorderedRemoveCallback(const Brx& aValue)
     result->Replace(iId);
     result->Append(Brn(" remove "));
     result->Append(aValue);
-    iRunner.Result(result);
+    iResult.Result(result);
 }
 
 
@@ -428,8 +437,8 @@ void ResultUnorderedWatcher<T>::Dispose()
 
 
 template <class T>
-ResultOrderedWatcher<T>::ResultOrderedWatcher(MockableScriptRunner& aRunner, const Brx& aId, IWatchableOrdered<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction)
-    :iRunner(aRunner)
+ResultOrderedWatcher<T>::ResultOrderedWatcher(IResultAggregator& aResult, const Brx& aId, IWatchableOrdered<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction)
+    :iResult(aResult)
     ,iId(aId)
     ,iWatchable(aWatchable)
     ,iAction(aAction)
@@ -468,7 +477,7 @@ void ResultOrderedWatcher<T>::OrderedAddCallback(const Brx& aValue)
     result->Replace(iId);
     result->Append(Brn(" add "));
     result->Append(aValue);
-    iRunner.Result(result);
+    iResult.Result(result);
 }
 
 
@@ -494,7 +503,7 @@ void ResultOrderedWatcher<T>::OrderedMoveCallback(const Brx& aValue)
 {
     iBuf.Append(aValue);
     Bwh* result = new Bwh(iBuf);
-    iRunner.Result(result);
+    iResult.Result(result);
 }
 
 
@@ -516,7 +525,7 @@ void ResultOrderedWatcher<T>::OrderedRemoveCallback(const Brx& aValue)
     result->Replace(iId);
     result->Append(Brn(" remove "));
     result->Append(aValue);
-    iRunner.Result(result);
+    iResult.Result(result);
 }
 
 

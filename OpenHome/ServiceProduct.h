@@ -104,7 +104,7 @@ public:
 class ServiceProduct : public Service
 {
 protected:
-    ServiceProduct(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog);
+    ServiceProduct(IInjectorDevice& aDevice, ILog& aLog);
     ~ServiceProduct();
 
 public:
@@ -170,7 +170,7 @@ protected:
 class ServiceProductMock : public ServiceProduct
 {
 public:
-    ServiceProductMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aRoom, const Brx& aName, TUint aSourceIndex, std::unique_ptr<SrcXml> aSourceXmlFactory, TBool aStandby,
+    ServiceProductMock(IInjectorDevice& aDevice, const Brx& aRoom, const Brx& aName, TUint aSourceIndex, std::unique_ptr<SrcXml> aSourceXmlFactory, TBool aStandby,
         const Brx& aAttributes, const Brx& aManufacturerImageUri, const Brx& aManufacturerInfo, const Brx& aManufacturerName, const Brx& aManufacturerUrl, const Brx& aModelImageUri,
         const Brx& aModelInfo, const Brx& aModelName, const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog& aLog);
 
@@ -240,7 +240,7 @@ private:
 class ServiceProductNetwork : public ServiceProduct
 {
 public:
-    ServiceProductNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, Net::CpDevice& aCpDevice, ILog& aLog);
+    ServiceProductNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgProduct1* aService, ILog& aLog);
     ~ServiceProductNetwork();
 
     virtual void Dispose();
@@ -278,14 +278,14 @@ private:
 
 
 private:
-    Net::CpDevice& iCpDevice;
     Net::CpProxyAvOpenhomeOrgProduct1* iService;
+    TBool iSubscribed;
 };
 
 
 
 
-} // Av
+} // Topology
 
 } // OpenHome
 

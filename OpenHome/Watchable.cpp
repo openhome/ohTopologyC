@@ -47,6 +47,11 @@ void WatchableBase::Execute(FunctorGeneric<void*> aCallback, void* aObj)
 }
 
 
+void WatchableBase::Execute()
+{
+    iWatchableThread.Execute();
+}
+
 
 
 

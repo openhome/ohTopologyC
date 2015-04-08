@@ -82,6 +82,7 @@ void SuiteTopologyManual::TearDown()
 
 void SuiteTopologyManual::Test1()
 {
+/*
     ILog* log = new LogDummy();
     Network* network = new Network(50, *log);
 
@@ -89,9 +90,11 @@ void SuiteTopologyManual::Test1()
     TIpAddress subnetAddress = (*list)[0]->Subnet();
     iLib.DestroySubnetList(list);
     Net::CpStack& cpStack = *iLib.StartCp(subnetAddress);
-    /*InjectorProduct* injector = */new InjectorProduct(*network, cpStack, *log);
+*/
 
-    /*Topology5* topology5 =*/ Topology5::CreateTopology5(network, *log);
+   ///*InjectorProduct* injector = */new InjectorProduct(cpStack, *log);
+
+ //Topology5::CreateTopology5(network, *log);
 
 
     for (;;)

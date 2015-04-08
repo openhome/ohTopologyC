@@ -27,37 +27,13 @@ class Topology3;
 
 /////////////////////////////////////////////////////////
 
-// Added in ohTopologyC to get rid of Topology5Room::iGroupWatcherLookup
-class ITopology3GroupWatcher : public IWatcher<Brn>, public IWatcher<ITopology2Source*>, public IDisposable
-{
-public:
-    virtual void Dispose() = 0;
-    virtual Brn Name() = 0;
-    virtual std::vector<ITopology2Source*>& Sources() = 0;
-
-    // IWatcher<Brn>
-    virtual void ItemOpen(const Brx& aId, Brn aValue) = 0;
-    virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious) = 0;
-    virtual void ItemClose(const Brx& aId, Brn aValue) = 0;
-
-    // IWatcher<ITopology2Source*>
-    virtual void ItemOpen(const Brx& aId, ITopology2Source* aValue) = 0;
-    virtual void ItemUpdate(const Brx& aId, ITopology2Source* aValue, ITopology2Source* aPrevious) = 0;
-    virtual void ItemClose(const Brx& aId, ITopology2Source* aValue) = 0;
-};
-
 ////////////////////////////////////////////////////////
 
 class ITopology3Group : public ITopology2Group
 {
 public:
     virtual ~ITopology3Group() {}
-
     virtual IWatchable<ISender*>& Sender() = 0;
-
-    // Added in ohTopologyC
-    virtual ITopology3GroupWatcher* GroupWatcher() = 0;
-    virtual void SetGroupWatcher(ITopology3GroupWatcher* aGroupWatcher) = 0;
 };
 
 /////////////////////////////////////////////////////////
@@ -80,6 +56,7 @@ public:
     virtual Brn ModelName();
     virtual Brn ManufacturerName();
     virtual Brn ProductId();
+    virtual Brn ProductImageUri();
     virtual IDevice& Device();
     virtual IWatchable<Brn>& RoomName();
     virtual IWatchable<Brn>& Name();
@@ -91,9 +68,6 @@ public:
 
     virtual IWatchable<ISender*>& Sender();
 
-    virtual ITopology3GroupWatcher* GroupWatcher(); // Added in ohTopologyC
-    virtual void SetGroupWatcher(ITopology3GroupWatcher* aGroupWatcher); // Added in ohTopologyC
-
 private:
     virtual void SetSender(ISender* aSender);
 
@@ -103,7 +77,6 @@ private:
     ISender* iCurrentSender;
     Watchable<ISender*>* iSender;
     TBool iDisposed;
-    ITopology3GroupWatcher* iGroupWatcher;
 };
 
 /////////////////////////////////////////////////////////
@@ -213,7 +186,7 @@ private:
     void WatchT2Groups(void*);
     void DisposeCallback(void*);
     void ReceiverChanged(ReceiverWatcher& aReceiver);
-    void SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri);
+    void SenderChanged(IDevice& aDevice, ISenderMetadata& aMetadata, ISenderMetadata& aPreviousMetadata);
 
 private:
     ITopology2* iTopology2;
@@ -225,7 +198,7 @@ private:
     TBool iDisposed;
 };
 
-} // Av
+} // Topology
 } // OpenHome
 
 

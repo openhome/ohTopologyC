@@ -1,6 +1,7 @@
 #ifndef HEADER_TOPOLOGY4
 #define HEADER_TOPOLOGY4
 
+#include <OpenHome/OhNetTypes.h>
 #include <OpenHome/IWatcher.h>
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/OhTopologyC.h>
@@ -9,134 +10,221 @@
 #include <OpenHome/Device.h>
 #include <OpenHome/Buffer.h>
 #include <OpenHome/Topology3.h>
+#include <OpenHome/ServiceReceiver.h>
+#include <OpenHome/ServiceSender.h>
+#include <OpenHome/Private/Ascii.h>
 #include <vector>
 #include <map>
 
 
 namespace OpenHome
 {
-
 namespace Topology
 {
 
 
-class Topology4;
-
-
-class ITopology4Room
+class ICredentialsSubscription
 {
-public:
-    virtual const Brx& Name() = 0;
-    virtual IWatchableUnordered<ITopology3Group*>& Groups() = 0;
-    virtual void SetStandby(TBool aValue) = 0;
-    virtual ~ITopology4Room() {}
+
 };
 
-////////////////////////////////////////////////////////
 
-class Topology4GroupWatcher : public IWatcher<Brn>, public IDisposable, public INonCopyable
+class IProxyCredentials
 {
-    friend class IWatcher<Brn>;
 
+};
+
+//////////////////////////////
+
+class ITopology4Source
+{
 public:
-    Topology4GroupWatcher(Topology4& aTopology, ITopology3Group& aGroup);
+    virtual TUint Index() = 0;
+    virtual Brn Name() = 0;
+    virtual Brn Type() = 0;
+    virtual TBool Visible() = 0;
+    virtual void Create(const Brx& aId, FunctorGeneric<ICredentialsSubscription*> aCallback) = 0;
+    virtual ~ITopology4Source(){}
+};
 
-    // IDisposable
-    virtual void Dispose();
+///////////////////////////////////
+
+class Topology4Source : public ITopology4Source, public IDisposable
+{
+public:
+    Topology4Source(IWatchableThread& aThread, IProxyCredentials& aProxy, ITopology2Source& aSource);
+
+    void Dispose();
+    TUint Index();
+    Brn Name();
+    Brn Type();
+    TBool Visible();
+    void Create(const Brx& aId, FunctorGeneric<ICredentialsSubscription*> aCallback);
 
 private:
+    IWatchableThread& iThread;
+    IProxyCredentials& iProxy;
+    ITopology2Source& iSource;
+};
+
+/////////////////////////////////////////////////////////////////////
+
+class ITopology4GroupWatcher : public IWatcher<Brn>, public IWatcher<ITopology4Source*>, public IDisposable
+{
+public:
+    virtual void Dispose() = 0;
+    virtual Brn Name() = 0;
+    virtual std::vector<ITopology4Source*>& Sources() = 0;
+
     // IWatcher<Brn>
-    virtual void ItemOpen(const Brx& aId, Brn aRoom);
-    virtual void ItemUpdate(const Brx& aId, Brn aRoom, Brn aPreviousRoom);
-    virtual void ItemClose(const Brx& aId, Brn aRoom);
+    virtual void ItemOpen(const Brx& aId, Brn aValue) = 0;
+    virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious) = 0;
+    virtual void ItemClose(const Brx& aId, Brn aValue) = 0;
 
-private:
-    Topology4& iTopology4;
-    ITopology3Group& iGroup;
+    // IWatcher<ITopology4Source*>
+    virtual void ItemOpen(const Brx& aId, ITopology4Source* aValue) = 0;
+    virtual void ItemUpdate(const Brx& aId, ITopology4Source* aValue, ITopology4Source* aPrevious) = 0;
+    virtual void ItemClose(const Brx& aId, ITopology4Source* aValue) = 0;
 };
 
-/////////////////////////////////////////////////////////
 
-class Topology4Room : public ITopology4Room
+///////////////////////////////////////////////////////
+
+class ITopology4Group
 {
-    friend class Topology4;
+public:
+    virtual Brn Id() = 0;
+    virtual Brn Attributes() = 0;
+    virtual Brn ModelName() = 0;
+    virtual Brn ManufacturerName() = 0;
+    virtual Brn ProductId() = 0;
+    virtual Brn ProductImageUri() = 0;
+    virtual IDevice& Device() = 0;
+
+    virtual IWatchable<Brn>& RoomName() = 0;
+    virtual IWatchable<Brn>& Name() = 0;
+    virtual IWatchable<TBool>& Standby() = 0;
+    virtual IWatchable<TUint>& SourceIndex() = 0;
+    virtual std::vector<Watchable<ITopology4Source*>*>& Sources() = 0;
+    virtual IWatchable<ISender*>& Sender() = 0;
+
+    virtual void SetStandby(TBool aValue) = 0;
+    virtual void SetSourceIndex(TUint aValue) = 0;
+
+    // Added in ohTopologyC
+    virtual ITopology4GroupWatcher* GroupWatcher() = 0;
+    virtual void SetGroupWatcher(ITopology4GroupWatcher* aGroupWatcher) = 0;
+
+};
+
+///////////////////////////////////////////////////////
+
+class Topology4Group : public ITopology4Group, public IWatcher<ITopology2Source*>, public IDisposable
+{
+    friend class IWatcher<ITopology2Source*>;
 
 public:
-    Topology4Room(IWatchableThread& aThread, const Brx& aName, ITopology3Group& aGroup);
-    ~Topology4Room();
+    Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, ILog& aLog);
+    Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, IProxyCredentials& aProxy, ILog& aLog);
+    ~Topology4Group();
 
-    // IDisposable
-    virtual void Dispose();
+    void Dispose();
 
-    // ITopology4Room
-    virtual const Brx& Name();
-    virtual IWatchableUnordered<ITopology3Group*>& Groups();
-    virtual void SetStandby(TBool aValue);
+    Brn Id();
+    Brn Attributes();
+    Brn ModelName();
+    Brn ManufacturerName();
+    Brn ProductId();
+    Brn ProductImageUri();
+    IDevice& Device();
+
+    IWatchable<Brn>& RoomName();
+    IWatchable<Brn>& Name();
+    IWatchable<TBool>& Standby();
+    IWatchable<TUint>& SourceIndex();
+
+    std::vector<Watchable<ITopology4Source*>*>& Sources();
+    IWatchable<ISender*>& Sender();
+
+    void SetStandby(TBool aValue);
+    void SetSourceIndex(TUint aValue);
+
+    // Added in ohTopologyC
+    virtual ITopology4GroupWatcher* GroupWatcher();
+    virtual void SetGroupWatcher(ITopology4GroupWatcher* aGroupWatcher);
+
 
 private:
-    void Add(ITopology3Group& aGroup);
-    TBool Remove(ITopology3Group& aGroup);
+    virtual void ItemOpen(const Brx& aId, ITopology2Source* aValue);
+    virtual void ItemUpdate(const Brx& aId, ITopology2Source* aValue, ITopology2Source* aPrevious);
+    virtual void ItemClose(const Brx& aId, ITopology2Source* aValue);
 
 private:
-    Bws<100> iName; // FIXME: random capacity
-    std::vector<ITopology3Group*> iGroups;
-    WatchableUnordered<ITopology3Group*>* iWatchableGroups;
+    INetwork& iNetwork;
+    ITopology3Group& iGroup;
+    std::vector<Watchable<ITopology4Source*>*> iWatchableSources;
+    std::vector<ITopology4Source*> iSources;
+    std::map<ITopology2Source*, Watchable<ITopology4Source*>*> iSourceLookup;
+    IProxyCredentials* iProxy;
+
+    ITopology4GroupWatcher* iGroupWatcher;
 };
 
-/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 
 class ITopology4 : public IDisposable
 {
 public:
-    virtual IWatchableUnordered<ITopology4Room*>& Rooms() = 0;
+    virtual IWatchableUnordered<ITopology4Group*>& Groups() = 0;
     virtual INetwork& Network() = 0;
     virtual void Dispose() = 0;
-    virtual ~ITopology4() {}
+    virtual ~ITopology4(){}
 };
 
-/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 
-class Topology4 : public ITopology4, public IWatcherUnordered<ITopology3Group*>, public INonCopyable
+class Topology4 : public ITopology4, public IWatcherUnordered<ITopology3Group*>
 {
-friend class Topology4GroupWatcher;
-
 public:
     Topology4(ITopology3* aTopology3, ILog& aLog);
     ~Topology4();
 
     // IDisposable
-    virtual void Dispose();
-
-    // ITopology4
-    virtual IWatchableUnordered<ITopology4Room*>& Rooms();
-    virtual INetwork& Network();
-
-    // IWatcherUnordered<ITopology3Group>
-    virtual void UnorderedOpen();
-    virtual void UnorderedInitialised();
-    virtual void UnorderedClose();
-    virtual void UnorderedAdd(ITopology3Group* aItem);
-    virtual void UnorderedRemove(ITopology3Group* aItem);
+    void Dispose();
+    IWatchableUnordered<ITopology4Group*>& Groups();
+    INetwork& Network();
 
 private:
+    // IUnorderedWatcher<ITopology3Group*>
+    void UnorderedOpen();
+    void UnorderedInitialised();
+    void UnorderedClose();
+    void UnorderedAdd(ITopology3Group* aItem);
+    void UnorderedRemove(ITopology3Group* aItem);
+    void UnorderedAddCallback(void* aItem);
+    void UnorderedRemoveCallback(void* aItem);
+
+    void CreateGroup(ITopology3Group& aGroup3, Topology4Group* aGroup4);
     void WatchT3Groups(void*);
     void DisposeCallback(void*);
-    void AddGroupToRoom(ITopology3Group& aGroup, const Brx& aRoom);
-    void RemoveGroupFromRoom(ITopology3Group& aGroup, const Brx& aRoom);
+
 
 private:
-    TBool iDisposed;
-    INetwork& iNetwork;
     ITopology3* iTopology3;
-    WatchableUnordered<ITopology4Room*>* iRooms;
-    std::map<ITopology3Group*, Topology4GroupWatcher*> iGroupWatcherLookup;
-    std::map<Brn, Topology4Room*, BufferCmp> iRoomLookup;
+    ILog& iLog;
+    INetwork& iNetwork;
+    DisposeHandler* iDisposeHandler;
+    TBool iDisposed;
+
+    WatchableUnordered<ITopology4Group*>* iGroups;
+    std::map<ITopology3Group*, Topology4Group*> iGroupsLookup;
+    std::vector<ITopology3Group*> iPendingSubscriptions;
 };
 
+}
 
-} // Av
+}
 
-} // OpenHome
 
-#endif //  HEADER_TOPOLOGY4
+#endif // HEADER_TOPOLOGY4
 

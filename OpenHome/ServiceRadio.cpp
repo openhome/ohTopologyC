@@ -134,11 +134,11 @@ void MediaPresetRadio::ItemClose(const Brx& /*aId*/, Brn aValue)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-ServiceRadio::ServiceRadio(INetwork& aNetwork, IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aNetwork, aDevice, aLog)
-    ,iId(new Watchable<TUint>(aNetwork, Brn("Id"), 0))
-    ,iTransportState(new Watchable<Brn>(aNetwork, Brn("TransportState"), Brx::Empty()))
-    ,iMetadata(new Watchable<IInfoMetadata*>(aNetwork, Brn("Metadata"), iNetwork.InfoMetadataEmpty()))
+ServiceRadio::ServiceRadio(IInjectorDevice& aDevice, ILog& aLog)
+    :Service(aDevice, aLog)
+    ,iId(new Watchable<TUint>(iNetwork, Brn("Id"), 0))
+    ,iTransportState(new Watchable<Brn>(iNetwork, Brn("TransportState"), Brx::Empty()))
+    ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iNetwork.InfoMetadataEmpty()))
     ,iCurrentTransportState(NULL)
 {
 }
@@ -198,13 +198,11 @@ const Brx& ServiceRadio::ProtocolInfo()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ServiceRadioNetwork::ServiceRadioNetwork(INetwork& aNetwork, IInjectorDevice& aDevice, CpDevice& aCpDevice, ILog& aLog)
-    :ServiceRadio(aNetwork, aDevice, aLog)
-    ,iCpDevice(aCpDevice)
-    ,iService(new CpProxyAvOpenhomeOrgRadio1(aCpDevice))
+ServiceRadioNetwork::ServiceRadioNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgRadio1* aService, ILog& aLog)
+    :ServiceRadio(aDevice, aLog)
+    ,iService(aService)
+    ,iSubscribed(false)
 {
-    iCpDevice.AddRef();
-
     Functor f1 = MakeFunctor(*this, &ServiceRadioNetwork::HandleIdChanged);
     iService->SetPropertyIdChanged(f1);
 
@@ -228,12 +226,7 @@ ServiceRadioNetwork::~ServiceRadioNetwork()
 void ServiceRadioNetwork::Dispose()
 {
     ServiceRadio::Dispose();
-
     ASSERT(iCacheSession == NULL);
-
-    //iService->Dispose();
-
-    iCpDevice.RemoveRef();
 }
 
 TBool ServiceRadioNetwork::OnSubscribe()
@@ -244,6 +237,7 @@ TBool ServiceRadioNetwork::OnSubscribe()
     auto snapshot = new RadioSnapshot(iNetwork, *iCacheSession, new vector<TUint>(), *this);
     iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, snapshot);
     iService->Subscribe();
+    iSubscribed = true;
     return(false); // false = not mock
 }
 
@@ -291,6 +285,7 @@ void ServiceRadioNetwork::OnUnsubscribe()
         iCacheSession->Dispose();
     }
 
+    iSubscribed = false;
     //iSubscribedSource = NULL;
 }
 
@@ -618,9 +613,12 @@ void ServiceRadioNetwork::HandleIdChangedCallback1(void*)
 
 void ServiceRadioNetwork::HandleIdChangedCallback2(void*)
 {
-    TUint id;
-    iService->PropertyId(id);
-    iId->Update(id);
+    if (iSubscribed)
+    {
+        TUint id;
+        iService->PropertyId(id);
+        iId->Update(id);
+    }
 }
 
 
@@ -651,17 +649,19 @@ void ServiceRadioNetwork::HandleIdArrayChangedCallback1(void*)
 
 void ServiceRadioNetwork::HandleIdArrayChangedCallback2(void*)
 {
-    Brh idArrayStr;
-    iService->PropertyIdArray(idArrayStr);
+    if (iSubscribed)
+    {
+        Brh idArrayStr;
+        iService->PropertyIdArray(idArrayStr);
 
-    auto idArray = new vector<TUint>();
-    IdCache::UnpackIdArray(idArrayStr, *idArray);
+        auto idArray = new vector<TUint>();
+        IdCache::UnpackIdArray(idArrayStr, *idArray);
 
-    //iCacheSession.SetValid(idArray.Where(v => v != 0).ToList());
-    auto idNonZeroItems = IdCache::NonZeroItems(*idArray);
-    iCacheSession->SetValid(idNonZeroItems);
-    iMediaSupervisor->Update(new RadioSnapshot(iNetwork, *iCacheSession, idArray, *this));
-
+        //iCacheSession.SetValid(idArray.Where(v => v != 0).ToList());
+        auto idNonZeroItems = IdCache::NonZeroItems(*idArray);
+        iCacheSession->SetValid(idNonZeroItems);
+        iMediaSupervisor->Update(new RadioSnapshot(iNetwork, *iCacheSession, idArray, *this));
+    }
 }
 
 
@@ -691,15 +691,18 @@ void ServiceRadioNetwork::HandleMetadataChangedCallback1(void*)
 
 void ServiceRadioNetwork::HandleMetadataChangedCallback2(void*)
 {
-    Brhz metaDataStr;
-    iService->PropertyMetadata(metaDataStr);
+    if (iSubscribed)
+    {
+        Brhz metaDataStr;
+        iService->PropertyMetadata(metaDataStr);
 
-    IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metaDataStr);
+        IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metaDataStr);
 
-    Brhz uri;
-    iService->PropertyUri(uri);
+        Brhz uri;
+        iService->PropertyUri(uri);
 
-    iMetadata->Update(new InfoMetadata(metadata, Brn(uri)));
+        iMetadata->Update(new InfoMetadata(metadata, Brn(uri)));
+    }
 }
 
 
@@ -728,13 +731,16 @@ void ServiceRadioNetwork::HandleTransportStateChangedCallback1(void*)
 
 void ServiceRadioNetwork::HandleTransportStateChangedCallback2(void*)
 {
-    Brhz transportState;
-    iService->PropertyTransportState(transportState);
+    if (iSubscribed)
+    {
+        Brhz transportState;
+        iService->PropertyTransportState(transportState);
 
-    Bws<100>* oldTransportState = iCurrentTransportState;
-    iCurrentTransportState = new Bws<100>(transportState);
-    iTransportState->Update(Brn(*iCurrentTransportState));
-    delete oldTransportState;
+        Bws<100>* oldTransportState = iCurrentTransportState;
+        iCurrentTransportState = new Bws<100>(transportState);
+        iTransportState->Update(Brn(*iCurrentTransportState));
+        delete oldTransportState;
+    }
 }
 
 
@@ -836,35 +842,44 @@ void RadioSnapshot::ReadCallback2(void* aObj)
 
     TUint index = data->iIndex;
     auto callback = data->iPresetsCallback;
-    auto entries = new vector<IIdCacheEntry*>();
+    auto entries = data->iRetrievedEntries;
+    delete data;
 
-    auto presets = new vector<IMediaPreset*>();
 
-    vector<TUint> idArray;
-    for (TUint x=0; x<iIdArray->size(); x++)
+    if (entries == NULL)
     {
-        TUint id = (*iIdArray)[x];
-        if(id!=0)
+        callback(NULL);
+    }
+    else
+    {
+        auto presets = new vector<IMediaPreset*>();
+
+        vector<TUint> idArray;
+        for (TUint x=0; x<iIdArray->size(); x++)
         {
-            idArray.push_back(id);
+            TUint id = (*iIdArray)[x];
+            if(id!=0)
+            {
+                idArray.push_back(id);
+            }
         }
+
+        for (TUint i=0; i<entries->size(); i++)
+        {
+            IIdCacheEntry* e = (*entries)[i];
+
+            TUint id = idArray[index];
+
+            auto it = find(iIdArray->begin(), iIdArray->end(), id);
+            ASSERT(it!=iIdArray->end());
+            TUint idIndex = it-iIdArray->begin();
+
+            presets->push_back(new MediaPresetRadio(iNetwork, (idIndex + 1), id, e->Metadata(), e->Uri(), iRadio));
+            index++;
+        }
+
+        callback(presets);
     }
-
-    for (TUint i=0; i<entries->size(); i++)
-    {
-        IIdCacheEntry* e = (*entries)[i];
-
-        TUint id = idArray[index];
-
-        auto it = find(iIdArray->begin(), iIdArray->end(), id);
-        ASSERT(it!=iIdArray->end());
-        TUint idIndex = it-iIdArray->begin();
-
-        presets->push_back(new MediaPresetRadio(iNetwork, (idIndex + 1), id, e->Metadata(), e->Uri(), iRadio));
-        index++;
-    }
-
-    callback(presets);
 }
 
 //////////////////////////////////////////////////////////////////////////////////

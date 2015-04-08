@@ -6,22 +6,17 @@
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/MetaData.h>
 #include <exception>
-#include <vector>
 
-
-using namespace std;
 using namespace OpenHome;
 using namespace OpenHome::Topology;
 using namespace OpenHome::TestFramework;
 
 
-namespace OpenHome
-{
-namespace Topology
-{
-namespace TestTopology5
-{
+namespace OpenHome {
 
+namespace Topology {
+
+namespace TestTopology5 {
 
 class SuiteTopology5: public SuiteUnitTest, public INonCopyable
 {
@@ -43,355 +38,104 @@ private:
     IReader& iReader;
 };
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////
 
-class RootWatcher : public IDisposable, public INonCopyable
+class RoomWatcher : public IWatcherUnordered<ITopology5Room*>, public IDisposable, public INonCopyable
 {
 public:
-    RootWatcher(MockableScriptRunner& aRunner, ITopology5Root& aRoot)
-        :iFactory(new ResultWatcherFactory(aRunner))
-    {
-        iFactory->Create<ITopology5Source*>(aRoot.Name(), aRoot.Source(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback1));
-        iFactory->Create<vector<ITopology5Group*>*>(aRoot.Name(), aRoot.Senders(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback2));
-    }
-
-    void CreateCallback1(MockCbData<ITopology5Source*>* aArgs)
-    {
-        ITopology5Source* s = aArgs->iData;
-        auto f = aArgs->iCallback;
-
-        Bwh* buf = new Bwh(6000);
-
-        buf->Replace(Brn("Source "));
-
-        Ascii::AppendDec(*buf, s->Index());
-
-        buf->Append(Brn(" "));
-        buf->Append(s->Group().Name());
-        buf->Append(Brn(" "));
-        buf->Append(s->Name());
-        buf->Append(Brn(" "));
-        buf->Append(s->Type());
-        buf->Append(Brn(" "));
-
-        if (s->Visible())
-        {
-            buf->Append(Brn("True "));
-        }
-        else
-        {
-            buf->Append(Brn("False "));
-        }
-
-
-        if (s->HasInfo())
-        {
-            buf->Append(Brn("True "));
-        }
-        else
-        {
-            buf->Append(Brn("False "));
-        }
-
-        if (s->HasTime())
-        {
-            buf->Append(Brn("True "));
-        }
-        else
-        {
-            buf->Append(Brn("False "));
-        }
-        buf->Append(s->Device().Udn());
-
-        buf->Append(Brn(" Volume"));
-
-        for(TUint i=0; i<s->Volumes().size(); i++)
-        {
-            buf->Append(Brn(" "));
-            buf->Append(s->Volumes()[i]->Device().Udn());
-        }
-
-
-        f(*buf);
-        delete aArgs;
-        delete buf;
-    }
-
-    void CreateCallback2(MockCbData<vector<ITopology5Group*>*>* aArgs)
-    {
-        vector<ITopology5Group*>* v = aArgs->iData;
-        FunctorGeneric<const Brx&> f = aArgs->iCallback;
-
-        Bwh* buf = new Bwh(6000);
-        buf->Replace(Brn("\nSenders begin\n"));
-
-        for(TUint i=0; i<v->size(); i++)
-        {
-            buf->Append(Brn("Sender "));
-            buf->Append((*v)[i]->Name());
-            buf->Append(Brn("\n"));
-        }
-
-        buf->Append(Brn("Senders end"));
-        f(*buf);
-        delete aArgs;
-        delete buf;
-    }
-
-
-    virtual void Dispose()
-    {
-        iFactory->Dispose();
-        delete iFactory;
-    }
+    RoomWatcher(MockableScriptRunner& aRunner);
+    ~RoomWatcher();
+    virtual void UnorderedOpen();
+    virtual void UnorderedInitialised();
+    virtual void UnorderedClose() {}
+    virtual void UnorderedAdd(ITopology5Room* aItem);
+    virtual void UnorderedRemove(ITopology5Room* aItem);
+    virtual void Dispose();
 
 private:
-    ResultWatcherFactory* iFactory;
-};
+    void CreateCallback(MockCbData<ITopology4Group*>* aArgs);
 
-//////////////////////////////////////////////////////////////////////
 
-class RoomWatcher : public IWatcher<vector<ITopology5Root*>*>, public IDisposable, public INonCopyable
-{
 private:
     MockableScriptRunner& iRunner;
-    ITopology5Room& iRoom;
-    vector<RootWatcher*> iWatchers;
+    ResultWatcherFactory* iFactory;
 
-public:
-    RoomWatcher(MockableScriptRunner& aRunner, ITopology5Room& aRoom)
-        :iRunner(aRunner)
-        ,iRoom(aRoom)
-    {
-        iRoom.Roots().AddWatcher(*this);
-    }
-
-    virtual void Dispose()
-    {
-        iRoom.Roots().RemoveWatcher(*this);
-        for(TUint i=0; i<iWatchers.size(); i++)
-        {
-            iWatchers[i]->Dispose();
-            delete iWatchers[i];
-        }
-    }
-
-    virtual void ItemOpen(const Brx& /*aId*/, vector<ITopology5Root*>* aValue)
-    {
-        for(TUint i=0; i<aValue->size(); i++)
-        {
-            auto root = (*aValue)[i];
-            iWatchers.push_back(new RootWatcher(iRunner, *root));
-        }
-    }
-
-    virtual void ItemUpdate(const Brx& /*aId*/, vector<ITopology5Root*>* aValue, vector<ITopology5Root*>* /*aPrevious*/)
-    {
-        for(TUint i=0; i<iWatchers.size(); i++)
-        {
-            iWatchers[i]->Dispose();
-            delete iWatchers[i];
-        }
-
-        iWatchers.clear();
-
-        for(TUint i=0; i<aValue->size(); i++)
-        {
-            auto root = (*aValue)[i];
-            iWatchers.push_back(new RootWatcher(iRunner, *root));
-        }
-    }
-
-    virtual void ItemClose(const Brx& /*aId*/, vector<ITopology5Root*>* /*aValue*/)
-    {
-    }
 };
 
-///////////////////////////////////////////////////////////////////
 
-class HouseWatcher : public IWatcherUnordered<ITopology5Room*>, public IDisposable, public INonCopyable
-{
-public:
-    HouseWatcher(MockableScriptRunner& aRunner)
+    RoomWatcher::RoomWatcher(MockableScriptRunner& aRunner)
         :iRunner(aRunner)
-        ,iFactory(new ResultWatcherFactory(aRunner))
+        ,iFactory(new ResultWatcherFactory(iRunner))
     {
+        //Log::Print("RoomWatcher::RoomWatcher() adr=%lx\n", this);
     }
 
-    virtual void Dispose()
+    RoomWatcher::~RoomWatcher()
     {
-        iFactory->Dispose();
-        delete iFactory;
+        //Log::Print("RoomWatcher::~RoomWatcher()  DESTRUCTION \n");
+    }
 
-        for(auto it=iWatcherLookup.begin(); it!=iWatcherLookup.end(); it++)
+    void RoomWatcher::UnorderedOpen()
+    {
+        //Log::Print("RoomWatcher::UnorderedOpen() \n");
+    }
+
+    void RoomWatcher::UnorderedInitialised()
+    {
+        //Log::Print("RoomWatcher::UnorderedInitialised() \n");
+    }
+
+    void RoomWatcher::UnorderedAdd(ITopology5Room* aItem)
+    {
+        //Log::Print("RoomWatcher::UnorderedAdd() \n");
+        if (aItem!=NULL)
         {
-            it->second->Dispose();
-            delete it->second;
+            Bwh* result = new Bwh(1000);
+            result->Replace("Room Added ");
+            result->Append(aItem->Name());
+
+            iRunner.Result(result);
+            iFactory->Create<ITopology4Group*>(aItem->Name(), aItem->Groups(), MakeFunctorGeneric(*this, &RoomWatcher::CreateCallback));
         }
     }
 
-    virtual void UnorderedOpen()
+    void RoomWatcher::UnorderedRemove(ITopology5Room* aItem)
     {
-    }
-
-    virtual void UnorderedInitialised()
-    {
-    }
-
-    virtual void UnorderedClose()
-    {
-    }
-
-    virtual void UnorderedAdd(ITopology5Room* aItem)
-    {
-
-        Bwh* result = new Bwh(10000);
-        result->Replace(Brn("Room Added "));
+        //Log::Print("RoomWatcher::UnorderedRemove() \n");
+        Bwh* result = new Bwh(1000);
+        result->Replace("Room Removed ");
         result->Append(aItem->Name());
-        iRunner.Result(result);
-
-        iFactory->Create<EStandby>(aItem->Name(), aItem->Standby(), MakeFunctorGeneric(*this, &HouseWatcher::CreateCallback1));
-        iFactory->Create<vector<ITopology5Source*>*>(aItem->Name(), aItem->Sources(), MakeFunctorGeneric(*this, &HouseWatcher::CreateCallback2));
-        iWatcherLookup[aItem] = new RoomWatcher(iRunner, *aItem);
-    }
-
-    virtual void UnorderedRemove(ITopology5Room* aItem)
-    {
-        Bwh* result = new Bwh(6000);
-        result->Replace(Brn("Room Removed "));
-        result->Append(aItem->Name());
-
-        iRunner.Result(result);
 
         iFactory->Destroy(aItem->Name());
-        iWatcherLookup[aItem]->Dispose();
-        delete iWatcherLookup[aItem];
-        iWatcherLookup.erase(aItem);
+        iRunner.Result(result);
     }
 
-    void CreateCallback1(MockCbData<EStandby>* aArgs)
+    void RoomWatcher::Dispose()
     {
-        // (v, w) => w("Standby " + v)
-        EStandby arg1 = aArgs->iData;
-        FunctorGeneric<const Brx&> f = aArgs->iCallback;
-
-        Bwh* buf = new Bwh(6000);
-
-        buf->Replace(Brn("Standby "));
-
-        if (arg1==eOff)
-        {
-            buf->Append(Brn("eOff"));
-        }
-        else if (arg1==eOn)
-        {
-            buf->Append(Brn("eOn"));
-        }
-        else if (arg1==eMixed)
-        {
-            buf->Append(Brn("eMixed"));
-        }
-        else
-        {
-            ASSERTS();
-        }
-
-        f(*buf);
-        delete aArgs;
-        delete buf;
+        //Log::Print("RoomWatcher::Dispose() \n");
+        iFactory->Dispose();
+        delete iFactory;
     }
 
-    void CreateCallback2(MockCbData<vector<ITopology5Source*>*>* aArgs)
+    void RoomWatcher::CreateCallback(MockCbData<ITopology4Group*>* aArgs)
     {
-        vector<ITopology5Source*>* v = aArgs->iData;
+        //Log::Print("RoomWatcher::CreateCallback() \n");
+        ITopology4Group* group = aArgs->iData;
         FunctorGeneric<const Brx&> f = aArgs->iCallback;
-
-        Bwh* buf = new Bwh(6000);
-
-        buf->Replace(Brn("\nSources begin\n"));
-
-        for(TUint i=0; i<v->size(); i++)
-        {
-            ITopology5Source* s = (*v)[i];
-
-            buf->Append(Brn("Source "));
-
-            Ascii::AppendDec(*buf, s->Index());
-
-            buf->Append(Brn(" "));
-            buf->Append(s->Group().Name());
-            buf->Append(Brn(" "));
-            buf->Append(s->Name());
-            buf->Append(Brn(" "));
-            buf->Append(s->Type());
-            buf->Append(Brn(" "));
-
-            if (s->Visible())
-            {
-                buf->Append(Brn("True "));
-            }
-            else
-            {
-                buf->Append(Brn("False "));
-            }
-
-            Brn udn(s->Device().Udn());
-
-            if (s->HasInfo())
-            {
-                buf->Append(Brn("True "));
-            }
-            else
-            {
-                buf->Append(Brn("False "));
-            }
-
-            if (s->HasTime())
-            {
-                buf->Append(Brn("True "));
-            }
-            else
-            {
-                buf->Append(Brn("False "));
-            }
-
-
-            buf->Append(udn);
-            buf->Append(Brn(" Volume"));
-
-
-            for(TUint i=0; i<s->Volumes().size(); i++)
-            {
-                buf->Append(Brn(" "));
-                buf->Append(s->Volumes()[i]->Device().Udn());
-            }
-
-            buf->Append(Brn("\n"));
-
-        }
-        buf->Append(Brn("Sources end"));
-
-        f(*buf);
         delete aArgs;
-        delete buf;
+        f(group->Id());
     }
 
-private:
-    MockableScriptRunner& iRunner;
-    ResultWatcherFactory* iFactory;
-    map<ITopology5Room*, RoomWatcher*> iWatcherLookup;
-};
 
 } // TestTopology5
 } // Av
 } // OpenHome
 
 
+//////////////////////////////////////////////////////////////////////////
+
 using namespace OpenHome::Topology::TestTopology5;
 
-//////////////////////////////////////////////////////////////////////////
 
 SuiteTopology5::SuiteTopology5(IReader& aReader)
     :SuiteUnitTest("SuiteTopology5")
@@ -420,7 +164,6 @@ void SuiteTopology5::Test1()
     InjectorMock* mockInjector = new InjectorMock(*network, Brx::Empty(), *log);
     mocker->Add(Brn("network"), *mockInjector);
 
-
     Topology1* topology1 = new Topology1(network, *log);
     Topology2* topology2 = new Topology2(topology1, *log);
     Topology3* topology3 = new Topology3(topology2, *log);
@@ -428,39 +171,38 @@ void SuiteTopology5::Test1()
     iTopology5 = new Topology5(topology4, *log);
 
     MockableScriptRunner* runner = new MockableScriptRunner();
-    HouseWatcher* watcher = new HouseWatcher(*runner);
+    RoomWatcher* watcher = new RoomWatcher(*runner);
 
     FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopology5::ScheduleCallback);
     network->Schedule(fs, watcher);
 
     Functor f = MakeFunctor(*network, &Network::Wait);
 
-    TBool test = runner->Run(f, iReader, *mocker);
-    //OpenHome::Log::Print("test = %d\n", test);
-    TEST(test);
-
+    TEST(runner->Run(f, iReader, *mocker));
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology5::ExecuteCallback);
     network->Execute(fe, watcher);
+
 
     iTopology5->Dispose();
     mockInjector->Dispose();
     network->Dispose();
 
     delete watcher;
+    delete mocker;
     delete runner;
+    delete log;
 
     delete iTopology5;
     delete mockInjector;
     delete network;
 
-    delete log;
-    delete mocker;
 }
 
 
 void SuiteTopology5::ExecuteCallback(void* aObj)
 {
-    HouseWatcher* watcher = (HouseWatcher*)aObj;
+    //Log::Print("SuiteTopology5::ExecuteCallback() \n");
+    RoomWatcher* watcher = (RoomWatcher*)aObj;
     iTopology5->Rooms().RemoveWatcher(*watcher);
     watcher->Dispose();
 }
@@ -468,11 +210,11 @@ void SuiteTopology5::ExecuteCallback(void* aObj)
 
 void SuiteTopology5::ScheduleCallback(void* aObj)
 {
-    HouseWatcher* watcher = (HouseWatcher*)aObj;
+    auto watcher = (IWatcherUnordered<ITopology5Room*>*)aObj;
+    //Log::Print("SuiteTopology5::ScheduleCallback()  watcher=%lx\n", watcher);
     iTopology5->Rooms().AddWatcher(*watcher);
 }
 
-//////////////////////////////////////////////////////////////
 
 void TestTopology5(Environment& aEnv, const std::vector<Brn>& aArgs)
 {

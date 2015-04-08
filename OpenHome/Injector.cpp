@@ -14,13 +14,14 @@ using namespace OpenHome::Net;
 using namespace std;
 
 
-Injector::Injector(Network& aNetwork, CpStack& aCpStack, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& aLog)
-    :iDisposeHandler(new DisposeHandler())
-    ,iNetwork(aNetwork)
+Injector::Injector(CpStack& aCpStack, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& aLog)
+    :iAdd(aAdd)
+    ,iRemove(aRemove)
     ,iLog(aLog)
 {
     FunctorCpDevice fAdded = Net::MakeFunctorCpDevice(*this, &Injector::Added);
     FunctorCpDevice fRemoved = Net::MakeFunctorCpDevice(*this, &Injector::Removed);
+
 
     iDeviceList = new CpDeviceListUpnpServiceType(aCpStack, aDomain, aType, aVersion, fAdded, fRemoved);
 }
@@ -29,44 +30,21 @@ Injector::Injector(Network& aNetwork, CpStack& aCpStack, const Brx& aDomain, con
 Injector::~Injector()
 {
     delete iDeviceList;
-    delete iDisposeHandler;
 }
 
-void Injector::Added(/*CpDeviceList& aList, */CpDevice& aDevice)
-{
-    Brn udn(aDevice.Udn());
 
+void Injector::Added(/*CpDeviceList& aList,*/ CpDevice& aDevice)
+{
     if (!FilterOut(aDevice))
     {
-        IInjectorDevice* device = Create(iNetwork, aDevice);
-
-
-        iDeviceLookup[Brn("udn")] = device;
-
-
-        iNetwork.Add(device);
+        iAdd(&aDevice);
     }
 }
 
 
-void Injector::Removed(/*CpDeviceList& aList, */CpDevice& aDevice)
+void Injector::Removed(/*CpDeviceList& aList,*/CpDevice& aDevice)
 {
-    Brn udn(aDevice.Udn());
-
-    if (iDeviceLookup.count(udn)>0)
-    {
-        IInjectorDevice* device = iDeviceLookup[udn];
-        iNetwork.Remove(device);
-        iDeviceLookup.erase(udn);
-    }
-
-}
-
-
-IInjectorDevice* Injector::Create(INetwork& aNetwork, CpDevice& aDevice)
-{
-    DisposeLock lock(*iDisposeHandler);
-    return (DeviceFactory::Create(aNetwork, aDevice, iLog));
+    iRemove(&aDevice);
 }
 
 
@@ -78,28 +56,25 @@ TBool Injector::FilterOut(CpDevice& /*aCpDevice*/)
 
 void Injector::Refresh()
 {
-    DisposeLock lock(*iDisposeHandler);
     iDeviceList->Refresh();
 }
 
 
 void Injector::Dispose()
 {
-    //iDeviceList->Dispose();  // this object doesn't have a dispose method (C# ???)
-    iDisposeHandler->Dispose();
 }
 
 /////////////////////////////////////////////////////////////////
 
-InjectorProduct::InjectorProduct(Network& aNetwork, CpStack& aCpStack, ILog& aLog)
-    : Injector(aNetwork, aCpStack, Brn("av.openhome.org"), Brn("Product"), 1, aLog)
+InjectorProduct::InjectorProduct(CpStack& aCpStack, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove, ILog& aLog)
+    : Injector(aCpStack, aAdd, aRemove, Brn("av.openhome.org"), Brn("Product"), 1, aLog)
 {
 }
 
 /////////////////////////////////////////////////////////////////
 
-InjectorSender::InjectorSender(Network& aNetwork, CpStack& aCpStack, ILog& aLog)
-    : Injector(aNetwork, aCpStack, Brn("av.openhome.org"), Brn("Sender"), 1, aLog)
+InjectorSender::InjectorSender(CpStack& aCpStack, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove, ILog& aLog)
+    : Injector(aCpStack, aAdd, aRemove, Brn("av.openhome.org"), Brn("Sender"), 1, aLog)
 {
 }
 
@@ -113,7 +88,7 @@ TBool InjectorSender::FilterOut(CpDevice& aCpDevice)
 
 /////////////////////////////////////////////////////////////////
 
-InjectorMock::InjectorMock(Network& aNetwork, const Brx& /*aResourceRoot*/, ILog& aLog)
+InjectorMock::InjectorMock(Network& aNetwork, const Brx& aResourceRoot, ILog& aLog)
     :iNetwork(aNetwork)
     //,iResourceRoot(aResourceRoot)
     ,iLog(aLog)
