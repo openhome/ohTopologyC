@@ -1,5 +1,5 @@
 #include <OpenHome/Private/SuiteUnitTest.h>
-#include <OpenHome/Topology5.h>
+#include <OpenHome/Topology6.h>
 #include <OpenHome/Mockable.h>
 #include <OpenHome/Injector.h>
 #include <OpenHome/Tests/TestScriptHttpReader.h>
@@ -82,19 +82,18 @@ void SuiteTopologyManual::TearDown()
 
 void SuiteTopologyManual::Test1()
 {
-/*
+
     ILog* log = new LogDummy();
     Network* network = new Network(50, *log);
 
     std::vector<NetworkAdapter*>* list = iLib.CreateSubnetList();
-    TIpAddress subnetAddress = (*list)[0]->Subnet();
+    //TIpAddress subnetAddress = (*list)[0]->Subnet();
     iLib.DestroySubnetList(list);
-    Net::CpStack& cpStack = *iLib.StartCp(subnetAddress);
-*/
+    //Net::CpStack& cpStack = *iLib.StartCp(subnetAddress);
 
-   ///*InjectorProduct* injector = */new InjectorProduct(cpStack, *log);
+    //InjectorProduct* injector = new InjectorProduct(cpStack, *log);
 
- //Topology5::CreateTopology5(network, *log);
+    Topology6::CreateTopology(network, *log);
 
 
     for (;;)
