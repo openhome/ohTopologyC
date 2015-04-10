@@ -75,18 +75,10 @@ void MediaPresetRadio::Play()
 {
     iBuffering->Update(iCurrentTransportState == Brn("Buffering"));
 
-
     if (iId > 0)
     {
         iRadio.SetId(iId, iUri);
         iRadio.Play();
-
-/*
-        iRadio.SetId(iId, iUri).ContinueWith((t) =>
-        {
-            iRadio.Play();
-        });
-*/
     }
 }
 
@@ -294,141 +286,36 @@ void ServiceRadioNetwork::Play()
     FunctorAsync f;
     iService->BeginPlay(f);
 
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginPlay((ptr) =>
-    {
-        try
-        {
-            iService.EndPlay(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 void ServiceRadioNetwork::Pause()
 {
     FunctorAsync f;
     iService->BeginPause(f);
-
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginPause((ptr) =>
-    {
-        try
-        {
-            iService.EndPause(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 void ServiceRadioNetwork::Stop()
 {
     FunctorAsync f;
     iService->BeginStop(f);
-
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginStop((ptr) =>
-    {
-        try
-        {
-            iService.EndStop(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 void ServiceRadioNetwork::SeekSecondAbsolute(TUint aValue)
 {
     FunctorAsync f;
     iService->BeginSeekSecondAbsolute(aValue, f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginSeekSecondAbsolute(aValue, (ptr) =>
-    {
-        try
-        {
-            iService.EndSeekSecondAbsolute(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 void ServiceRadioNetwork::SeekSecondRelative(TInt aValue)
 {
     FunctorAsync f;
     iService->BeginSeekSecondRelative(aValue, f);
-
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginSeekSecondRelative(aValue, (ptr) =>
-    {
-        try
-        {
-            iService.EndSeekSecondRelative(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 void ServiceRadioNetwork::SetId(TUint aId, const Brx& aUri)
 {
     FunctorAsync f;
     iService->BeginSetId(aId, aUri, f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginSetId(aId, aUri, (ptr) =>
-    {
-        try
-        {
-            iService.EndSetId(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 void ServiceRadioNetwork::SetChannel(const Brx& aUri, IMediaMetadata& aMetadata)
@@ -437,23 +324,6 @@ void ServiceRadioNetwork::SetChannel(const Brx& aUri, IMediaMetadata& aMetadata)
     iNetwork.GetTagManager().ToDidlLite(aMetadata, didlLite);
     FunctorAsync f;
     iService->BeginSetChannel(aUri, didlLite, f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginSetChannel(aUri, iNetwork.TagManager.ToDidlLite(aMetadata), (ptr) =>
-    {
-        try
-        {
-            iService.EndSetChannel(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -480,53 +350,6 @@ void ServiceRadioNetwork::ReadList(ReadListData* aReadListData)
     FunctorAsync fa = asyncAdaptor.AsyncCb();
 
     iService->BeginReadList(idList, fa);
-
-
-
-/*
-    TaskCompletionSource<IEnumerable<IIdCacheEntry>> taskSource = new TaskCompletionSource<IEnumerable<IIdCacheEntry>>();
-
-    string idList = string.Empty;
-    foreach(TUint id in aIdList)
-    {
-        idList += string.Format("{0} ", id);
-    }
-    idList.Trim(' ');
-
-    iService.BeginReadList(idList, (ptr) =>
-    {
-        try
-        {
-            string channelList;
-            iService.EndReadList(ptr, out channelList);
-
-            List<IIdCacheEntry> entries = new List<IIdCacheEntry>();
-
-            XmlDocument document = new XmlDocument();
-            document.LoadXml(channelList);
-
-            foreach (TUint id in aIdList)
-            {
-                if (id > 0)
-                {
-                    XmlNode n = document.SelectSingleNode(string.Format("/ChannelList/Entry[Id={0}]/Metadata", id));
-                    IMediaMetadata metadata = iNetwork.TagManager.FromDidlLite(n.InnerText);
-                    string uri = metadata[iNetwork.TagManager.Audio.Uri].Value;
-                    entries.Add(new IdCacheEntry(metadata, uri));
-                }
-            }
-
-            taskSource.SetResult(entries);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -540,10 +363,6 @@ void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
     auto entries = new vector<IIdCacheEntry*>();
 
     // Parse XML here and populate entries
-/*
-    XmlDocument document = new XmlDocument();
-    document.LoadXml(channelList);
-*/
     auto requiredIds = readListData->iMissingIds;
     for(TUint i=0; i<requiredIds->size(); i++)
     {
@@ -569,19 +388,6 @@ void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
         }
     }
 
-/*
-    foreach (TUint id in aIdList)
-    {
-        if (id > 0)
-        {
-            XmlNode n = document.SelectSingleNode(string.Format("/ChannelList/Entry[Id={0}]/Metadata", id));
-            IMediaMetadata metadata = iNetwork.TagManager.FromDidlLite(n.InnerText);
-            string uri = metadata[iNetwork.TagManager.Audio.Uri].Value;
-            entries.Add(new IdCacheEntry(metadata, uri));
-        }
-    }
-*/
-
     readListData->iEntries = entries;
     readListData->iCallback(readListData);
 }
@@ -591,16 +397,6 @@ void ServiceRadioNetwork::HandleIdChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServiceRadioNetwork::HandleIdChangedCallback1);
     Schedule(f, NULL);
-
-    /*
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iId.Update(id);
-        });
-    });
-*/
 }
 
 
@@ -626,19 +422,6 @@ void ServiceRadioNetwork::HandleIdArrayChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServiceRadioNetwork::HandleIdArrayChangedCallback1);
     Schedule(f, NULL);
-
-/*
-    IList<TUint> idArray = ByteArray.Unpack(iService->PropertyIdArray());
-
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iCacheSession.SetValid(idArray.Where(v => v != 0).ToList());
-            iMediaSupervisor.Update(new RadioSnapshot(iNetwork, iCacheSession, idArray, this));
-        });
-    });
-*/
 }
 
 void ServiceRadioNetwork::HandleIdArrayChangedCallback1(void*)
@@ -657,7 +440,6 @@ void ServiceRadioNetwork::HandleIdArrayChangedCallback2(void*)
         auto idArray = new vector<TUint>();
         IdCache::UnpackIdArray(idArrayStr, *idArray);
 
-        //iCacheSession.SetValid(idArray.Where(v => v != 0).ToList());
         auto idNonZeroItems = IdCache::NonZeroItems(*idArray);
         iCacheSession->SetValid(idNonZeroItems);
         iMediaSupervisor->Update(new RadioSnapshot(iNetwork, *iCacheSession, idArray, *this));
@@ -670,15 +452,6 @@ void ServiceRadioNetwork::HandleMetadataChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServiceRadioNetwork::HandleMetadataChangedCallback1);
     Schedule(f, NULL);
-/*
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iMetadata.Update(new InfoMetadata(metadata, uri));
-        });
-    });
-*/
 }
 
 
@@ -710,16 +483,6 @@ void ServiceRadioNetwork::HandleTransportStateChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServiceRadioNetwork::HandleTransportStateChangedCallback1);
     Schedule(f, NULL);
-
-/*
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iTransportState.Update(transportState);
-        });
-    });
-*/
 }
 
 
@@ -792,41 +555,6 @@ void RadioSnapshot::Read(/*CancellationToken aCancellationToken,*/TUint aIndex, 
     readEntriesdata->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &RadioSnapshot::ReadCallback1);
 
     iCacheSession.Entries(readEntriesdata);
-
-
-/*
-    List<TUint> idList = new List<TUint>();
-    for (TUint i = aIndex; i < aIndex + aCount; ++i)
-    {
-        idList.Add(iIdArray.Where(v => v != 0).ElementAt((TInt)i));
-    }
-
-    List<IMediaPreset> presets = new List<IMediaPreset>();
-    IEnumerable<IIdCacheEntry> entries = new List<IIdCacheEntry>();
-    try
-    {
-        entries = iCacheSession.Entries(idList).Result;
-    }
-    catch
-    {
-    }
-
-    iNetwork.Schedule(() =>
-    {
-        if (!aCancellationToken.IsCancellationRequested)
-        {
-            TUint index = aIndex;
-            foreach (IIdCacheEntry e in entries)
-            {
-                TUint id = iIdArray.Where(v => v != 0).ElementAt((TInt)index);
-                presets.Add(new MediaPresetRadio(iNetwork, (TUint)(iIdArray.IndexOf(id) + 1), id, e.Metadata, e.Uri, iRadio));
-                ++index;
-            }
-
-            aCallback(presets);
-        }
-    });
-*/
 }
 
 

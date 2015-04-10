@@ -570,8 +570,6 @@ ServiceProductMock::ServiceProductMock(IInjectorDevice& aDevice, const Brx& aRoo
     : ServiceProduct(aDevice, aLog)
     ,iSourceXmlFactory(move(aSourceXmlFactory))
 {
-//    Brn x(aSourceXmlFactory->ToString());
-
     iAttributes.Replace(aAttributes);
     iManufacturerImageUri.Replace(aManufacturerImageUri);
     iManufacturerInfo.Replace(aManufacturerInfo);
@@ -706,8 +704,6 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
     {
         THROW(NotSupportedException);
     }
-
-
 }
 
 

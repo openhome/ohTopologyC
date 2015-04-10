@@ -146,34 +146,6 @@ void ServiceReceiverNetwork::Play(ISenderMetadata& aMetadata)
 {
     FunctorAsync f = MakeFunctorAsync(*this, &ServiceReceiverNetwork::BeginSetSenderCallback1);
     iService->BeginSetSender(aMetadata.Uri(), aMetadata.ToString(), f);
-
-/*
-    iService->BeginSetSender(aMetadata.Uri, aMetadata.ToString(), (ptr1) =>
-    {
-        try
-        {
-            iService->EndSetSender(ptr1);
-            iService->BeginPlay((ptr2) =>
-            {
-                try
-                {
-                    iService->EndPlay(ptr2);
-                    taskSource.SetResult(true);
-                }
-                catch (Exception e)
-                {
-                    taskSource.SetException(e);
-                }
-            });
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-*/
-    //jobDone->GetJob()->ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    //return (jobDone->GetJob());
 }
 
 
@@ -183,9 +155,6 @@ void ServiceReceiverNetwork::BeginSetSenderCallback1(IAsync& /*aAsync*/)
     // Execute it on the watchable thread and return immediately.
     auto f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::BeginSetSenderCallback2);
     Schedule(f, NULL);
-
-    //FunctorAsync f;
-    //iService->BeginPlay(f);
 }
 
 
@@ -287,12 +256,6 @@ void ServiceReceiverMock::Play()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverMock::PlayCallback);
     Start(f, NULL);
-/*
-    return Start(() =>
-    {
-        iTransportState.Update(Brn("Playing"));
-    });
-*/
 }
 
 
@@ -306,13 +269,6 @@ void ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverMock::PlayMetaCallback);
     Start(f, &aMetadata);
-/*
-    return Start(() =>
-    {
-        iMetadata.Update(new InfoMetadata(iNetwork.TagManager.FromDidlLite(aMetadata.ToString()), aMetadata.Uri));
-        iTransportState.Update(Brn("Playing"));
-    });
-*/
 }
 
 
@@ -328,12 +284,6 @@ void ServiceReceiverMock::Stop()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverMock::StopCallback);
     Start(f, NULL);
-/*
-    return Start(() =>
-    {
-        iTransportState.Update(Brn("Stopped"));
-    });
-*/
 }
 
 
@@ -437,19 +387,16 @@ IWatchable<Brn>& ProxyReceiver::TransportState()
 void ProxyReceiver::Play()
 {
     iService.Play();
-    //return (iService.Play());
 }
 
 void ProxyReceiver::Play(ISenderMetadata& aMetadata)
 {
     iService.Play(aMetadata);
-//    return (iService.Play(aMetadata));
 }
 
 void ProxyReceiver::Stop()
 {
     iService.Stop();
-//    return (iService.Stop());
 }
 
 

@@ -210,15 +210,6 @@ void ServiceSenderNetwork::HandleMetadataChanged()
         FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceSenderNetwork::MetadataChangedCallback1);
         Schedule(f, senderMetadata);
     }
-/*
-    Network.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iMetadata->Update(new SenderMetadata(metadata));
-        });
-    });
-*/
 }
 
 

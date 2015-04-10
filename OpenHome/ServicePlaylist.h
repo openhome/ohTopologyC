@@ -125,6 +125,7 @@ public:
     TUint TracksMax();
     const Brx& ProtocolInfo();
 
+
     virtual void Play() = 0;
     virtual void Pause() = 0;
     virtual void Stop() = 0;
@@ -134,7 +135,7 @@ public:
     virtual void SeekSecondAbsolute(TUint aValue) = 0;
     virtual void SeekSecondRelative(TInt aValue) = 0;
     virtual void Insert(TUint aAfterId, const Brx& aUri, IMediaMetadata& aMetadata) = 0;
-    virtual void Insert(IMediaPreset& aMediaPreset, const Brx& aUri, IMediaMetadata& aMetadata);
+    virtual void Insert(IMediaPreset& aMediaPreset, const Brx& aUri, IMediaMetadata& aMetadata) = 0;
     virtual void InsertNext(const Brx& aUri, IMediaMetadata& aMetadata) = 0;
     virtual void InsertEnd(const Brx& aUri, IMediaMetadata& aMetadata) = 0;
     virtual void MakeRoomForInsert(TUint aCount) = 0;

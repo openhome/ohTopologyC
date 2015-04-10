@@ -193,31 +193,6 @@ void ServiceInfoNetwork::HandlePendingDetailsChanged()
 
 void ServiceInfoNetwork::HandleDetailsChanged()
 {
-/*
-    TUint bitDepth = iService.PropertyBitDepth();
-    TUint bitRate = iService.PropertyBitRate();
-    string codec = iService.PropertyCodecName();
-    TUint duration = iService.PropertyDuration();
-    TBool lossless = iService.PropertyLossless();
-    TUint sampleRate = iService.PropertySampleRate();
-
-
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iDetails.Update(
-                new InfoDetails(
-                    bitDepth,
-                    bitRate,
-                    codec,
-                    duration,
-                    lossless,
-                    sampleRate
-                ));
-        });
-    });
-*/
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleDetailsChangedCallback1);
     Schedule(f, NULL);
 }
@@ -261,21 +236,6 @@ void ServiceInfoNetwork::HandleDetailsChangedCallback2(void*)
 
 void ServiceInfoNetwork::HandleMetadataChanged()
 {
-/*
-    IMediaMetadata metadata = iNetwork.TagManager.FromDidlLite(iService.PropertyMetadata());
-    string uri = iService.PropertyUri();
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iMetadata.Update(
-                new InfoMetadata(
-                    metadata,
-                    uri
-                ));
-        });
-    });
-*/
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleMetadataChangedCallback1);
     Schedule(f, NULL);
 
@@ -308,16 +268,6 @@ void ServiceInfoNetwork::HandleMetadataChangedCallback2(void*)
 
 void ServiceInfoNetwork::HandleMetatextChanged()
 {
-/*
-    IMediaMetadata metadata = iNetwork.TagManager.FromDidlLite(iService.PropertyMetatext());
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iMetatext.Update(new InfoMetatext(metadata));
-        });
-    });
-*/
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceInfoNetwork::HandleMetatextChangedCallback1);
     Schedule(f, NULL);
 }

@@ -7,6 +7,18 @@
 #include <OpenHome/IdCache.h>
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/Net/Core/CpDevice.h>
+#include <OpenHome/ServiceProduct.h>
+#include <OpenHome/ServicePlaylist.h>
+#include <OpenHome/ServiceVolume.h>
+#include <OpenHome/ServiceRadio.h>
+#include <OpenHome/ServiceReceiver.h>
+#include <OpenHome/ServiceSender.h>
+#include <Generated/CpAvOpenhomeOrgProduct1.h>
+#include <Generated/CpAvOpenhomeOrgVolume1.h>
+#include <Generated/CpAvOpenhomeOrgSender1.h>
+#include <Generated/CpAvOpenhomeOrgPlaylist1.h>
+#include <Generated/CpAvOpenhomeOrgRadio1.h>
+#include <Generated/CpAvOpenhomeOrgReceiver1.h>
 
 
 using namespace OpenHome;
@@ -21,8 +33,9 @@ using namespace std;
 /**
 
  */
-Network::Network(TUint aMaxCacheEntries, ILog&/* aLog*/)
-    :iDisposeHandler(new DisposeHandler())
+Network::Network(TUint aMaxCacheEntries, ILog& aLog)
+    :iLog(aLog)
+    ,iDisposeHandler(new DisposeHandler())
     ,iIdCache(new OpenHome::Topology::IdCache(aMaxCacheEntries))
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread))
@@ -40,8 +53,9 @@ Network::Network(TUint aMaxCacheEntries, ILog&/* aLog*/)
 /**
 
  */
-Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILog&)
-    :iDisposeHandler(new DisposeHandler())
+Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILog& aLog)
+    :iLog(aLog)
+    ,iDisposeHandler(new DisposeHandler())
     ,iWatchableThread(&aWatchableThread)
     ,iIdCache(new OpenHome::Topology::IdCache(aMaxCacheEntries))
     ,iTagManager(new TagManager())
@@ -211,7 +225,6 @@ void Network::Add(CpDevice* aDevice)
 
     if (aDevice->GetAttribute("Upnp.Service.schemas-upnp-org.ContentDirectory", value))
     {
-        //if (uint.Parse(value) == 1)
         if (Ascii::Uint(value) == 1)
         {
             //iInjectorMediaEndpoint.Add(aDevice);
@@ -317,112 +330,106 @@ void Network::Remove(const Brx& aUdn)
 }
 
 
-IInjectorDevice* Network::Create(CpDevice* /*aDevice*/)
+IInjectorDevice* Network::Create(CpDevice* aDevice)
 {
-/*
+
     Brh value;
 
-    InjectorDevice device = new InjectorDevice(*this, aDevice->Udn());
+    InjectorDevice* device = new InjectorDevice(*this, aDevice->Udn());
 
-    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Product"), value))
+    if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Product", value))
     {
-        ICpProxyLinnCoUkVolkano1 service = null;
-        if (uint.Parse(value) == 1)
+
+        if(Ascii::Uint(value) == 1)
         {
-            if (aDevice.GetAttribute(Brn("Upnp.Service.linn-co-uk.Volkano"), value))
-            {
-                if (uint.Parse(value) == 1)
-                {
-                    service = new CpProxyLinnCoUkVolkano1(aDevice);
-                }
-            }
-            device.Add<IProxyProduct>(new ServiceProductNetwork(device, new CpProxyAvOpenhomeOrgProduct1(aDevice), service, iLog));
+            device->Add(eProxyProduct, new ServiceProductNetwork(*device, new CpProxyAvOpenhomeOrgProduct1(*aDevice), iLog));
         }
     }
 
-    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Info"), value))
+
+    if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Info", value))
     {
-        if (uint.Parse(value) == 1)
+        if (Ascii::Uint(value) == 1)
         {
-            device.Add<IProxyInfo>(new ServiceInfoNetwork(device, new CpProxyAvOpenhomeOrgInfo1(aDevice), iLog));
+            device->Add(eProxyInfo, new ServiceInfoNetwork(*device, new CpProxyAvOpenhomeOrgInfo1(*aDevice), iLog));
         }
     }
 
-    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Time"), value))
+/*
+    if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Time", value))
     {
-        if (uint.Parse(value) == 1)
+        if (Ascii::Uint(value) == 1)
         {
-            device.Add<IProxyTime>(new ServiceTimeNetwork(device, new CpProxyAvOpenhomeOrgTime1(aDevice), iLog));
+            device->Add(eProxyTime, new ServiceTimeNetwork(*device, new CpProxyAvOpenhomeOrgTime1(*aDevice), iLog));
         }
     }
-
-    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Sender"), value))
-    {
-        if (uint.Parse(value) == 1)
-        {
-            device.Add<IProxySender>(new ServiceSenderNetwork(device, new CpProxyAvOpenhomeOrgSender1(aDevice), iLog));
-        }
-    }
-
-    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Volume"), value))
-    {
-        if (uint.Parse(value) == 1)
-        {
-            device.Add<IProxyVolume>(new ServiceVolumeNetwork(device, new CpProxyAvOpenhomeOrgVolume1(aDevice), iLog));
-        }
-    }
-
-    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Playlist"), value))
-    {
-        if (uint.Parse(value) == 1)
-        {
-            device.Add<IProxyPlaylist>(new ServicePlaylistNetwork(device, new CpProxyAvOpenhomeOrgPlaylist1(aDevice), iLog));
-        }
-    }
-
-    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Radio"), value))
-    {
-        if (uint.Parse(value) == 1)
-        {
-            device.Add<IProxyRadio>(new ServiceRadioNetwork(device, new CpProxyAvOpenhomeOrgRadio1(aDevice), iLog));
-        }
-    }
-
-    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Receiver"), value))
-    {
-        if (uint.Parse(value) == 1)
-        {
-            device.Add<IProxyReceiver>(new ServiceReceiverNetwork(device, new CpProxyAvOpenhomeOrgReceiver1(aDevice), iLog));
-        }
-    }
-
-    if (aDevice.GetAttribute(Brn("Upnp.Service.av-openhome-org.Credentials"), value))
-    {
-        if (uint.Parse(value) == 1)
-        {
-            device.Add<IProxyCredentials>(new ServiceCredentialsNetwork(device, aDevice, iLog));
-        }
-    }
-
-    if (aDevice.GetAttribute(Brn("Upnp.Service.linn-co-uk.Sdp"), value))
-    {
-        if (uint.Parse(value) == 1)
-        {
-            device.Add<IProxySdp>(new ServiceSdpNetwork(device, new CpProxyLinnCoUkSdp1(aDevice), iLog));
-        }
-    }
-
-    if (aDevice.GetAttribute(Brn("Upnp.Service.linn-co-uk.Volkano"), value))
-    {
-        if (uint.Parse(value) == 1)
-        {
-            device.Add<IProxyVolkano>(new ServiceVolkanoNetwork(device, new CpProxyLinnCoUkVolkano1(aDevice), iLog));
-        }
-    }
-
-    return device;
 */
-    return(NULL);
+    if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Sender", value))
+    {
+        if (Ascii::Uint(value) == 1)
+        {
+            device->Add(eProxySender, new ServiceSenderNetwork(*device, new CpProxyAvOpenhomeOrgSender1(*aDevice), iLog));
+        }
+    }
+
+    if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Volume", value))
+    {
+        if (Ascii::Uint(value) == 1)
+        {
+            device->Add(eProxyVolume, new ServiceVolumeNetwork(*device, new CpProxyAvOpenhomeOrgVolume1(*aDevice), iLog));
+        }
+    }
+
+    if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Playlist", value))
+    {
+        if (Ascii::Uint(value) == 1)
+        {
+            device->Add(eProxyPlaylist, new ServicePlaylistNetwork(*device, new CpProxyAvOpenhomeOrgPlaylist1(*aDevice), iLog));
+        }
+    }
+
+    if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Radio", value))
+    {
+        if (Ascii::Uint(value) == 1)
+        {
+            device->Add(eProxyRadio, new ServiceRadioNetwork(*device, new CpProxyAvOpenhomeOrgRadio1(*aDevice), iLog));
+        }
+    }
+
+    if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Receiver", value))
+    {
+        if (Ascii::Uint(value) == 1)
+        {
+            device->Add(eProxyReceiver, new ServiceReceiverNetwork(*device, new CpProxyAvOpenhomeOrgReceiver1(*aDevice), iLog));
+        }
+    }
+
+/*
+    if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Credentials", value))
+    {
+        if (Ascii::Uint(value) == 1)
+        {
+            device->Add(eProxyCredentials, new ServiceCredentialsNetwork(*device, aDevice, iLog));
+        }
+    }
+
+    if (aDevice->GetAttribute("Upnp.Service.linn-co-uk.Sdp", value))
+    {
+        if (Ascii::Uint(value) == 1)
+        {
+            device->Add(eProxySdp, new ServiceSdpNetwork(*device, new CpProxyLinnCoUkSdp1(*aDevice), iLog));
+        }
+    }
+
+    if (aDevice->GetAttribute("Upnp.Service.linn-co-uk.Volkano", value))
+    {
+        if (Ascii::Uint(value) == 1)
+        {
+            device->Add(eProxyVolkano, new ServiceVolkanoNetwork(*device, new CpProxyLinnCoUkVolkano1(*aDevice), iLog));
+        }
+    }
+*/
+    return device;
 }
 
 

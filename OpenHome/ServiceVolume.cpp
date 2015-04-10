@@ -210,24 +210,6 @@ void ServiceVolumeNetwork::SetBalance(TInt aValue)
 {
     FunctorAsync f;
     iService->BeginSetBalance(aValue, f);
-
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginSetBalance(aValue, (ptr) =>
-    {
-        try
-        {
-            iService.EndSetBalance(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -235,24 +217,6 @@ void ServiceVolumeNetwork::SetFade(TInt aValue)
 {
     FunctorAsync f;
     iService->BeginSetFade(aValue, f);
-
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginSetFade(aValue, (ptr) =>
-    {
-        try
-        {
-            iService.EndSetFade(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -260,23 +224,6 @@ void ServiceVolumeNetwork::SetMute(TBool aValue)
 {
     FunctorAsync f;
     iService->BeginSetMute(aValue, f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginSetMute(aValue, (ptr) =>
-    {
-        try
-        {
-            iService.EndSetMute(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -284,23 +231,6 @@ void ServiceVolumeNetwork::SetVolume(TUint aValue)
 {
     FunctorAsync f;
     iService->BeginSetVolume(aValue, f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginSetVolume(aValue, (ptr) =>
-    {
-        try
-        {
-            iService.EndSetVolume(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -308,23 +238,6 @@ void ServiceVolumeNetwork::VolumeDec()
 {
     FunctorAsync f;
     iService->BeginVolumeDec(f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginVolumeDec((ptr) =>
-    {
-        try
-        {
-            iService.EndVolumeDec(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -332,23 +245,6 @@ void ServiceVolumeNetwork::VolumeInc()
 {
     FunctorAsync f;
     iService->BeginVolumeInc(f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginVolumeInc((ptr) =>
-    {
-        try
-        {
-            iService.EndVolumeInc(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -356,16 +252,6 @@ void ServiceVolumeNetwork::HandleVolumeUnityChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::VolumeUnityChangedCallback1);
     Schedule(f, NULL);
-/*
-    TUint unity = iService.PropertyVolumeUnity();
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iVolumeUnity.Update(unity);
-        });
-    });
-*/
 }
 
 
@@ -391,16 +277,6 @@ void ServiceVolumeNetwork::HandleVolumeStepsChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::VolumeStepsChangedCallback1);
     Schedule(f, NULL);
-/*
-    TUint steps = iService.PropertyVolumeSteps();
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iVolumeSteps.Update(steps);
-        });
-    });
-*/
 }
 
 
@@ -427,16 +303,6 @@ void ServiceVolumeNetwork::HandleVolumeMilliDbPerStepChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::VolumeMilliDbPerStepChangedCallback1);
     Schedule(f, NULL);
-/*
-    TUint step = iService.PropertyVolumeMilliDbPerStep();
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iVolumeMilliDbPerStep.Update(step);
-        });
-    });
-*/
 }
 
 
@@ -462,16 +328,6 @@ void ServiceVolumeNetwork::HandleVolumeLimitChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::VolumeLimitChangedCallback1);
     Schedule(f, NULL);
-/*
-    TUint limit = iService.PropertyVolumeLimit();
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iVolumeLimit.Update(limit);
-        });
-    });
-*/
 }
 
 
@@ -496,17 +352,6 @@ void ServiceVolumeNetwork::HandleVolumeChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::VolumeChangedCallback1);
     Schedule(f, NULL);
-/*
-    TUint volume = iService.PropertyVolume();
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            //Console.WriteLine("VolumeChanged: " + Device.Udn + " " + iService.PropertyVolume());
-            iValue.Update(volume);
-        });
-    });
-*/
 }
 
 
@@ -531,16 +376,6 @@ void ServiceVolumeNetwork::HandleMuteChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::MuteChangedCallback1);
     Schedule(f, NULL);
-/*
-    TBool mute = iService.PropertyMute();
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iMute.Update(mute);
-        });
-    });
-*/
 }
 
 
@@ -565,16 +400,6 @@ void ServiceVolumeNetwork::HandleFadeChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::FadeChangedCallback1);
     Schedule(f, NULL);
-/*
-    TInt fade = iService.PropertyFade();
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iFade.Update(fade);
-        });
-    });
-*/
 }
 
 
@@ -599,16 +424,6 @@ void ServiceVolumeNetwork::HandleBalanceChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::BalanceChangedCallback1);
     Schedule(f, NULL);
-/*
-    TInt balance = iService.PropertyBalance();
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iBalance.Update(balance);
-        });
-    });
-*/
 }
 
 

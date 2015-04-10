@@ -125,6 +125,7 @@ private:
     void Remove(const Brx& aUdn);
 
 private:
+    ILog& iLog;
     std::vector<Exception> iExceptions;
     DisposeHandler* iDisposeHandler;
     IWatchableThread* iWatchableThread;

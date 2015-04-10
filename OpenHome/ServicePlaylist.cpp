@@ -312,23 +312,6 @@ void ServicePlaylistNetwork::Play()
 {
     FunctorAsync f;  // null functor (won't get called)
     iService->BeginPlay(f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService->BeginPlay((ptr) =>
-    {
-        try
-        {
-            iService.EndPlay(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -336,23 +319,6 @@ void ServicePlaylistNetwork::Pause()
 {
     FunctorAsync f;  // null functor (won't get called)
     iService->BeginPause(f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService->BeginPause((ptr) =>
-    {
-        try
-        {
-            iService->EndPause(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -360,23 +326,6 @@ void ServicePlaylistNetwork::Stop()
 {
     FunctorAsync f;  // null functor (won't get called)
     iService->BeginStop(f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService->BeginStop((ptr) =>
-    {
-        try
-        {
-            iService.EndStop(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -384,23 +333,7 @@ void ServicePlaylistNetwork::Previous()
 {
     FunctorAsync f;  // null functor (won't get called)
     iService->BeginPrevious(f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService->BeginPrevious((ptr) =>
-    {
-        try
-        {
-            iService.EndPrevious(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
+
 }
 
 
@@ -408,23 +341,6 @@ void ServicePlaylistNetwork::Next()
 {
     FunctorAsync f;  // null functor (won't get called)
     iService->BeginNext(f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService.BeginNext((ptr) =>
-    {
-        try
-        {
-            iService.EndNext(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -432,23 +348,6 @@ void ServicePlaylistNetwork::SeekId(TUint aValue)
 {
     FunctorAsync f;  // null functor (won't get called)
     iService->BeginSeekId(aValue, f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService->BeginSeekId(aValue, (ptr) =>
-    {
-        try
-        {
-            iService.EndSeekId(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -456,23 +355,6 @@ void ServicePlaylistNetwork::SeekSecondAbsolute(TUint aValue)
 {
     FunctorAsync f;  // null functor (won't get called)
     iService->BeginSeekSecondAbsolute(aValue, f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService->BeginSeekSecondAbsolute(aValue, (ptr) =>
-    {
-        try
-        {
-            iService.EndSeekSecondAbsolute(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -480,24 +362,6 @@ void ServicePlaylistNetwork::SeekSecondRelative(TInt aValue)
 {
     FunctorAsync f;  // null functor (won't get called)
     iService->BeginSeekSecondRelative(aValue, f);
-
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService->BeginSeekSecondRelative(aValue, (ptr) =>
-    {
-        try
-        {
-            iService.EndSeekSecondRelative(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -508,34 +372,16 @@ void ServicePlaylistNetwork::Insert(TUint aAfterId, const Brx& aUri, IMediaMetad
 
     FunctorAsync f;
     iService->BeginInsert(aAfterId, aUri, metadataDidlLite, f);
-
-/*
-    TaskCompletionSource<TUint> taskSource = new TaskCompletionSource<TUint>();
-    iService->BeginInsert(aAfterId, aUri, iNetwork.TagManager.ToDidlLite(aMetadata), (ptr) =>
-    {
-        try
-        {
-            TUint newId;
-            iService.EndInsert(ptr, out newId);
-            taskSource.SetResult(newId);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
+
 
 void ServicePlaylistNetwork::Insert(IMediaPreset& aMediaPreset, const Brx& aUri, IMediaMetadata& aMetadata)
 {
-    //Do.Assert(aMediaPreset is MediaPresetPlaylist);
     MediaPresetPlaylist& preset = (MediaPresetPlaylist&)aMediaPreset;
     TUint id = preset.Id();
     Insert(id, aUri, aMetadata);
 }
+
 
 void ServicePlaylistNetwork::InsertNext(const Brx& aUri, IMediaMetadata& aMetadata)
 {
@@ -545,30 +391,8 @@ void ServicePlaylistNetwork::InsertNext(const Brx& aUri, IMediaMetadata& aMetada
     Bwh metadataDidlLite;
     iNetwork.GetTagManager().ToDidlLite(aMetadata, metadataDidlLite);
 
-
     FunctorAsync f;
     iService->BeginInsert(id, aUri, metadataDidlLite, f);
-
-/*
-    TUint id = iService.PropertyId();
-
-    TaskCompletionSource<TUint> taskSource = new TaskCompletionSource<TUint>();
-    iService->BeginInsert(id, aUri, iNetwork.TagManager.ToDidlLite(aMetadata), (ptr) =>
-    {
-        try
-        {
-            TUint newId;
-            iService.EndInsert(ptr, out newId);
-            taskSource.SetResult(newId);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -584,118 +408,6 @@ void ServicePlaylistNetwork::InsertEnd(const Brx& aUri, IMediaMetadata& aMetadat
     FunctorAsync fa = asyncAdaptor.AsyncCb();
     iService->BeginIdArray(fa);
 
-    // in the callback (BeginIdArrayCallback)
-
-
-
-
-    //
-
-
-
-
-/*
-    ohTop v2
-
-    iService.BeginIdArray((ptr1) =>
-    {
-    try
-    {
-        uint token;
-        byte[] array;
-        iService.EndIdArray(ptr1, out token, out array);
-
-        uint id = 0;
-
-        IList<uint> idArray = ByteArray.Unpack(array);
-
-        if (idArray.Count > 0)
-        {
-            id = idArray.Last();
-        }
-
-        iService.BeginInsert(id, aUri, Device.Network.TagManager.ToDidlLite(aMetadata, (s) => iLog.Write(s)), (ptr2) =>
-        {
-            try
-            {
-                uint newId;
-                iService.EndInsert(ptr2, out newId);
-                taskSource.SetResult(newId);
-            }
-            catch (ProxyError e)
-            {
-                if (e.Code == 801)
-                {
-                    taskSource.SetException(new PlaylistFullException());
-                    return;
-                }
-                taskSource.SetException(new ServiceException(e));
-            }
-            catch (Exception e)
-            {
-                taskSource.SetException(new ServiceException(e));
-            }
-        });
-
-    }
-    catch (Exception e)
-    {
-        taskSource.SetException(e);
-    }
-});
-
-
-*/
-
-
-/*
-    C++ v1
-
-    TUint id = 0;
-
-    Brh idArrayBuf;
-    iService->PropertyIdArray(idArrayBuf);
-
-    vector<TUint> idArray;
-    IdCache::UnpackIdArray(idArrayBuf, idArray);
-
-    if (idArray.size() > 0)
-    {
-        id = idArray[idArray.size()-1]; // last element
-    }
-
-    Bwh metadataDidlLite;
-    iNetwork.GetTagManager().ToDidlLite(aMetadata, metadataDidlLite);
-
-    FunctorAsync f;
-    iService->BeginInsert(id, aUri, metadataDidlLite, f);
-*/
-/*
-    c# V1
-
-    IList<TUint> idArray = ByteArray.Unpack(iService.PropertyIdArray());
-    if (idArray.Count > 0)
-    {
-        id = idArray.Last();
-    }
-
-    TaskCompletionSource<TUint> taskSource = new TaskCompletionSource<TUint>();
-    iService->BeginInsert(id, aUri, iNetwork.TagManager.ToDidlLite(aMetadata), (ptr) =>
-    {
-        try
-        {
-            TUint newId;
-            iService.EndInsert(ptr, out newId);
-            taskSource.SetResult(newId);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -732,61 +444,24 @@ void ServicePlaylistNetwork::MakeRoomForInsert(TUint aCount)
     vector<TUint> idArray;
     IdArray(idArray);
 
-    //IEnumerable<uint> ids = idArray.Take((int)aCount);
     vector<TUint> ids(idArray.begin(), idArray.begin()+aCount);
     Delete(ids);
-
-/*
-    IList<uint> idArray = ByteArray.Unpack(iService.PropertyIdArray());
-    IEnumerable<uint> ids = idArray.Take((int)aCount);
-
-    if (ids.Count() > 0)
-    {
-        return Task.Factory.ContinueWhenAll(Delete(ids).ToArray(), (tasks) => { Task.WaitAll(tasks); });
-    }
-
-    return Task.Factory.StartNew(() => { });
-*/
 }
 
 
 void ServicePlaylistNetwork::Delete(vector<TUint>& aIds)
 {
-    //vector<Semaphore*>* tasks = new vector<Semaphore*>();
-
     for(TUint i=0; i<aIds.size(); i++)
     {
         TUint id = aIds[i];
         Delete(id);
     }
-
-    //return tasks;
-
-/*
-    IList<Task> tasks = new List<Task>();
-
-    foreach (uint id in aIds)
-    {
-        tasks.Add(Delete(id));
-    }
-
-    return tasks;
-*/
-
 }
 
 void ServicePlaylistNetwork::Delete(IMediaPreset& aValue)
 {
-//    ASSERT(aValue is MediaPresetPlaylist);
     TUint id = ((MediaPresetPlaylist&)aValue).Id();
     Delete(id);
-
-/*
-    Do.Assert(aValue is MediaPresetPlaylist);
-    uint id = (aValue as MediaPresetPlaylist).Id;
-    return Delete(id);
-
-*/
 }
 
 
@@ -794,34 +469,6 @@ void ServicePlaylistNetwork::Delete(TUint aId)
 {
     FunctorAsync f;  // no callback
     iService->BeginDeleteId(aId, f);
-
-/*
-    iService.BeginDeleteId(aId, (ptr) =>
-    {
-        try
-        {
-            iService.EndDeleteId(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (ProxyError e)
-        {
-            if (e.Code == 800)      // id not found (silently handle)
-            {
-                taskSource.SetResult(true);
-                return;
-            }
-            taskSource.SetException(new ServiceException(e));
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(new ServiceException(e));
-        }
-    });
-
-    taskSource.Task.ContinueWith(t => { this.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-
-    return taskSource.Task;
-*/
 }
 
 
@@ -829,23 +476,6 @@ void ServicePlaylistNetwork::DeleteAll()
 {
     FunctorAsync f;  // null functor (won't get called)
     iService->BeginDeleteAll(f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService->BeginDeleteAll((ptr) =>
-    {
-        try
-        {
-            iService.EndDeleteAll(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -853,23 +483,6 @@ void ServicePlaylistNetwork::SetRepeat(TBool aValue)
 {
     FunctorAsync f;  // null functor (won't get called)
     iService->BeginSetRepeat(aValue, f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService->BeginSetRepeat(aValue, (ptr) =>
-    {
-        try
-        {
-            iService.EndSetRepeat(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -877,30 +490,12 @@ void ServicePlaylistNetwork::SetShuffle(TBool aValue)
 {
     FunctorAsync f;  // null functor (won't get called)
     iService->BeginSetShuffle(aValue, f);
-/*
-    TaskCompletionSource<TBool> taskSource = new TaskCompletionSource<TBool>();
-    iService->BeginSetShuffle(aValue, (ptr) =>
-    {
-        try
-        {
-            iService.EndSetShuffle(ptr);
-            taskSource.SetResult(true);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
 void ServicePlaylistNetwork::ReadList(ReadListData* aReadListData)
 {
     // called by IdCacheSession::CreateJobCallback - iFunction(payload);
-
     auto requiredIds = aReadListData->iMissingIds;
 
     Bwh idList;
@@ -921,47 +516,6 @@ void ServicePlaylistNetwork::ReadList(ReadListData* aReadListData)
 
     iService->BeginReadList(idList, fa);
 
-/*
-    TaskCompletionSource<IEnumerable<IIdCacheEntry>> taskSource = new TaskCompletionSource<IEnumerable<IIdCacheEntry>>();
-
-    string idList = string.Empty;
-    foreach (TUint id in aIdList)
-    {
-        idList += string.Format("{0} ", id);
-    }
-    idList.Trim(' ');
-
-    iService.BeginReadList(idList, (ptr) =>
-    {
-        try
-        {
-            string trackList;
-            iService.EndReadList(ptr, out trackList);
-
-            List<IIdCacheEntry> entries = new List<IIdCacheEntry>();
-
-            XmlDocument document = new XmlDocument();
-            document.LoadXml(trackList);
-
-            XmlNodeList list = document.SelectNodes("/TrackList/Entry");
-            foreach (XmlNode n in list)
-            {
-                IMediaMetadata metadata = iNetwork.TagManager.FromDidlLite(n["Metadata"].InnerText);
-                string uri = n["Uri"].InnerText;
-                entries.Add(new IdCacheEntry(metadata, uri));
-            }
-
-            taskSource.SetResult(entries);
-        }
-        catch (Exception e)
-        {
-            taskSource.SetException(e);
-        }
-    });
-
-    taskSource.Task.ContinueWith(t => { iLog.Write("Unobserved exception: {0}\n", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
-    return taskSource.Task;
-*/
 }
 
 
@@ -997,47 +551,6 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
 
     readListData->iCallback(readListData);
 
-/*
-    XmlDocument document = new XmlDocument();
-    document.LoadXml(trackList);
-
-    XmlNodeList list = document.SelectNodes("/TrackList/Entry");
-    foreach (XmlNode n in list)
-    {
-        IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(n["Metadata"].InnerText);
-        string uri = n["Uri"].InnerText;
-        entries.Add(new IdCacheEntry(metadata, uri));
-    }
-
-
-    taskSource.SetResult(entries);
-*/
-
-
-
-
-/*
-    iService.BeginReadList(idList, (ptr) =>
-    {
-        string trackList;
-        iService.EndReadList(ptr, out trackList);
-
-        List<IIdCacheEntry> entries = new List<IIdCacheEntry>();
-
-        XmlDocument document = new XmlDocument();
-        document.LoadXml(trackList);
-
-        XmlNodeList list = document.SelectNodes("/TrackList/Entry");
-        foreach (XmlNode n in list)
-        {
-            IMediaMetadata metadata = iNetwork.TagManager.FromDidlLite(n["Metadata"].InnerText);
-            string uri = n["Uri"].InnerText;
-            entries.Add(new IdCacheEntry(metadata, uri));
-        }
-
-        taskSource.SetResult(entries);
-    });
-*/
 }
 
 
@@ -1045,18 +558,6 @@ void ServicePlaylistNetwork::HandleIdChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServicePlaylistNetwork::HandleIdChangedCallback1);
     Schedule(f, NULL);
-/*
-    IList<TUint> idArray = ByteArray.Unpack(iService.PropertyIdArray());
-    TUint id = iService.PropertyId();
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iId.Update(id);
-            EvaluateInfoNext(id, idArray);
-        });
-    });
-*/
 }
 
 
@@ -1086,18 +587,6 @@ void ServicePlaylistNetwork::HandleIdArrayChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServicePlaylistNetwork::HandleIdArrayChangedCallback1);
     Schedule(f, NULL);
-/*
-    IList<TUint> idArray = ByteArray.Unpack(iService.PropertyIdArray());
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iCacheSession.SetValid(idArray);
-            iMediaSupervisor.Update(new PlaylistSnapshot(iNetwork, iCacheSession, idArray, this));
-            EvaluateInfoNext(iId.Value, idArray);
-        });
-    });
-*/
 }
 
 void ServicePlaylistNetwork::HandleIdArrayChangedCallback1(void*)
@@ -1158,27 +647,6 @@ void ServicePlaylistNetwork::EvaluateInfoNext(TUint aId, vector<TUint>& aIdArray
         iInfoNext->Update(iNetwork.InfoMetadataEmpty());
     }
 
-/*
-            int index = aIdArray.IndexOf(aId);
-            if ((index > -1) && (index < aIdArray.Count - 1) && (aIdArray.Count > 1))
-            {
-                iCacheSession.Entries(new uint[] { aIdArray.ElementAt(index + 1) }).ContinueWith((t) =>
-                {
-                    iNetwork.Schedule(() =>
-                    {
-                        iDisposeHandler.WhenNotDisposed(() =>
-                        {
-                            IIdCacheEntry entry = t.Result.ElementAt(0);
-                            iInfoNext.Update(new InfoMetadata(entry.Metadata, entry.Uri));
-                        });
-                    });
-                });
-            }
-            else
-            {
-                iInfoNext.Update(InfoMetadata.Empty);
-            }
-*/
 }
 
 void ServicePlaylistNetwork::EvaluateInfoNextCallback1(ReadEntriesData* aReadEntriesData)
@@ -1197,7 +665,6 @@ void ServicePlaylistNetwork::EvaluateInfoNextCallback3(void* aReadEntriesData)
 {
     auto readEntriesData = (ReadEntriesData*)aReadEntriesData;
 
-    //IIdCacheEntry entry = t.Result.ElementAt(0);
     try
     {
         IIdCacheEntry* entry = (*readEntriesData->iRetrievedEntries)[0];
@@ -1214,16 +681,6 @@ void ServicePlaylistNetwork::HandleTransportStateChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServicePlaylistNetwork::HandleTransportStateChangedCallback1);
     Schedule(f, NULL);
-/*
-    string transportState = iService.PropertyTransportState();
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iTransportState.Update(transportState);
-        });
-    });
-*/
 }
 
 
@@ -1249,16 +706,6 @@ void ServicePlaylistNetwork::HandleRepeatChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServicePlaylistNetwork::HandleRepeatChangedCallback1);
     Schedule(f, NULL);
-/*
-    TBool repeat = iService.PropertyRepeat();
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iRepeat.Update(repeat);
-        });
-    });
-*/
 }
 
 
@@ -1296,16 +743,6 @@ void ServicePlaylistNetwork::HandleShuffleChanged()
 {
     auto f = MakeFunctorGeneric(*this, &ServicePlaylistNetwork::HandleShuffleChangedCallback1);
     Schedule(f, NULL);
-/*
-    TBool shuffle = iService.PropertyShuffle();
-    iNetwork.Schedule(() =>
-    {
-        iDisposeHandler.WhenNotDisposed(() =>
-        {
-            iShuffle.Update(shuffle);
-        });
-    });
-*/
 }
 
 void ServicePlaylistNetwork::HandleShuffleChangedCallback1(void*)
@@ -1372,24 +809,6 @@ void PlaylistSnapshot::Read(/*CancellationToken aCancellationToken,*/ TUint aInd
     readEntriesdata->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &PlaylistSnapshot::ReadCallback1);
 
     iCacheSession.Entries(readEntriesdata);
-
-/*
-    iNetwork.Schedule(() =>
-    {
-        if (!aCancellationToken.IsCancellationRequested)
-        {
-            TUint index = aIndex;
-            foreach (IIdCacheEntry e in entries)
-            {
-                TUint id = iIdArray.ElementAt((TInt)index);
-                tracks.Add(new MediaPresetPlaylist(iNetwork, (TUint)(iIdArray.IndexOf(id) + 1), id, e.Metadata, iPlaylist));
-                ++index;
-            }
-
-            aCallback(tracks);
-        }
-    });
-*/
 }
 
 
@@ -1432,21 +851,6 @@ void PlaylistSnapshot::ReadCallback2(void* aObj)
 
         callback(tracks);
     }
-
-
-/*
-    uint index = aIndex;
-    foreach (IIdCacheEntry e in entries)
-    {
-        uint id = iIdArray.ElementAt((int)index);
-        tracks.Add(new MediaPresetPlaylist(iNetwork, (uint)(iIdArray.IndexOf(id) + 1), id, e.Metadata, iPlaylist));
-        ++index;
-    }
-
-    aCallback(tracks);
-*/
-
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
