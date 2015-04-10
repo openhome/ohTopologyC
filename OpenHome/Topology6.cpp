@@ -97,7 +97,7 @@ void MediaPresetExternal::ItemClose(const Brx& /*aId*/, ITopologySource* /*aValu
 }
 
 ///////////////////////////////////////////////////////
-
+/*
 ITopologyGroup& Topology6SourceNull::Group()
 {
     THROW(NotImplementedException);
@@ -162,7 +162,7 @@ void Topology6SourceNull::Select()
 {
     THROW(NotImplementedException);
 }
-
+*/
 
 ///////////////////////////////////////////////////
 
@@ -834,16 +834,11 @@ void Topology6Room::Dispose()
 {
     iRoom.Groups().RemoveWatcher(*this);
 
-    for(TUint i=0; i<iGroupWatchers.size(); i++)
-    {
-        iGroupWatchers[i]->Dispose();
-    }
-
     for(auto it=iT4Groups.begin(); it!=iT4Groups.end(); it++)
     {
         auto t4Group = *it;
         t4Group->Standby().RemoveWatcher(*this);
-        //t4Group->GroupWatcher()->Dispose();
+        t4Group->GroupWatcher()->Dispose();
     }
 
     for(TUint i=0; i<iGroups.size() ;i++)
@@ -922,7 +917,7 @@ void Topology6Room::UnorderedRemove(ITopology4Group* aT4Group)
 {
     auto watcher = aT4Group->GroupWatcher();
     watcher->Dispose();
-    aT4Group->SetGroupWatcher(NULL);
+    aT4Group->SetGroupWatcher(NULL);  // this will delete the watcher
 
     auto it = find(iT4Groups.begin(), iT4Groups.end(), aT4Group);
     ASSERT(it!=iT4Groups.end());

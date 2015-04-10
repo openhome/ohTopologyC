@@ -55,7 +55,7 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////
-
+/*
 class Topology6SourceNull : public ITopologySource
 {
 public:
@@ -71,7 +71,7 @@ public:
     virtual TBool HasTime();
     virtual void Select();
 };
-
+*/
 /////////////////////////////////////////////////////////////////////
 
 class Topology6Source : public ITopologySource, public INonCopyable
@@ -247,7 +247,7 @@ private:
 
 class Topology6GroupWatcher : public ITopology4GroupWatcher,  public INonCopyable
 {
-    friend class ITopology3GroupWatcher;
+    //friend class ITopology4GroupWatcher;
 
 public:
     Topology6GroupWatcher(Topology6Room& aRoom, ITopology4Group& aGroup);
@@ -256,7 +256,7 @@ public:
     virtual std::vector<ITopology4Source*>& Sources();
 
 private:
-    // ITopology3GroupWatcher
+    // ITopology4GroupWatcher
     virtual void ItemOpen(const Brx& aId, Brn aName);
     virtual void ItemUpdate(const Brx& aId, Brn aName, Brn aPreviousName);
     virtual void ItemClose(const Brx& aId, Brn aName);
@@ -347,7 +347,7 @@ private:
     std::vector<Topology6Group*> iGroups;
     std::vector<Topology6Group*> iRoots;
 
-    std::vector<ITopology4GroupWatcher*> iGroupWatchers;
+    //std::vector<ITopology4GroupWatcher*> iGroupWatchers;
 };
 
 /////////////////////////////////////////////////////////////////////

@@ -87,23 +87,14 @@ Topology4Group::Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, IPro
 Topology4Group::~Topology4Group()
 {
     delete iGroupWatcher;
-
-    for(auto it=iSourceLookup.begin(); it!=iSourceLookup.end(); it++)
-    {
-        delete it->second;
-    }
-
-    for(auto it=iSources.begin(); it!=iSources.end(); it++)
-    {
-        delete *it;
-    }
-
-    iSourceLookup.clear();
+    ASSERT(iSourceLookup.size()==0);
+    ASSERT(iSources.size()==0);
 }
 
 
 void Topology4Group::Dispose()
 {
+
     if (iProxy!=NULL)
     {
         iProxy->Dispose();
@@ -115,13 +106,6 @@ void Topology4Group::Dispose()
         auto watchable = t3GroupSources[i];
         watchable->RemoveWatcher(*this);
     }
-
-/*
-    for (TUint i = 0; i<iWatchableSources.size(); i++)
-    {
-        iWatchableSources[i]->Dispose();
-    }
-*/
 
     ASSERT(iWatchableSources.size() == 0);
     ASSERT(iSourceLookup.size() == 0);
@@ -240,7 +224,6 @@ void Topology4Group::ItemClose(const Brx& /*aId*/, ITopology2Source* aValue)
     delete *it;
     iSources.erase(it);
 
-
     auto it2 = find(iWatchableSources.begin(), iWatchableSources.end(), w);
     ASSERT(it2 != iWatchableSources.end());
     iWatchableSources.erase(it2);
@@ -350,6 +333,7 @@ void Topology4::UnorderedClose()
 
 void Topology4::UnorderedAdd(ITopology3Group* aItem)
 {
+
     iDisposeHandler->WhenNotDisposed(MakeFunctorGeneric(*this, &Topology4::UnorderedAddCallback), aItem);
 /*
     iDisposeHandler.WhenNotDisposed(() =>
@@ -382,6 +366,7 @@ void Topology4::UnorderedAdd(ITopology3Group* aItem)
 void Topology4::UnorderedAddCallback(void* aItem)
 {
     auto item = (ITopology3Group*)aItem;
+
     CreateGroup(*item, new Topology4Group(iNetwork, *item, iLog));
 }
 
@@ -394,6 +379,7 @@ void Topology4::CreateGroup(ITopology3Group& aGroup3, Topology4Group* aGroup4)
 
 void Topology4::UnorderedRemove(ITopology3Group* aItem)
 {
+
     iDisposeHandler->WhenNotDisposed(MakeFunctorGeneric(*this, &Topology4::UnorderedRemoveCallback), aItem);
 
 /*
