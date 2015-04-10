@@ -817,6 +817,11 @@ Topology6Room::~Topology6Room()
     }
     iGroups.clear();
 
+    for(auto it=iGroupWatchers.begin(); it!=iGroupWatchers.end(); it++)
+    {
+        delete *it;
+    }
+
     delete iCurrentRoots;
     delete iCurrentSources;
     delete iCurrentGroups;
