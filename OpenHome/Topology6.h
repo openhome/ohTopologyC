@@ -243,16 +243,37 @@ private:
     Watchable<std::vector<ITopologyGroup*>*>* iSenders;
 };
 
+/////////////////////////////////////////////////////////////////////
+
+class ITopology4GroupWatcher : public IWatcher<Brn>, public IWatcher<ITopology4Source*>, public IDisposable
+{
+public:
+    virtual void Dispose() = 0;
+    virtual Brn Name() = 0;
+    virtual ITopology4Group& Group() = 0;
+
+    virtual std::vector<ITopology4Source*>& Sources() = 0;
+
+    // IWatcher<Brn>
+    virtual void ItemOpen(const Brx& aId, Brn aValue) = 0;
+    virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious) = 0;
+    virtual void ItemClose(const Brx& aId, Brn aValue) = 0;
+
+    // IWatcher<ITopology4Source*>
+    virtual void ItemOpen(const Brx& aId, ITopology4Source* aValue) = 0;
+    virtual void ItemUpdate(const Brx& aId, ITopology4Source* aValue, ITopology4Source* aPrevious) = 0;
+    virtual void ItemClose(const Brx& aId, ITopology4Source* aValue) = 0;
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Topology6GroupWatcher : public ITopology4GroupWatcher,  public INonCopyable
 {
-    //friend class ITopology4GroupWatcher;
-
 public:
     Topology6GroupWatcher(Topology6Room& aRoom, ITopology4Group& aGroup);
     virtual void Dispose();
     virtual Brn Name();
+    virtual ITopology4Group& Group();
     virtual std::vector<ITopology4Source*>& Sources();
 
 private:
@@ -343,11 +364,10 @@ private:
     Watchable<std::vector<ITopologySource*>*>* iWatchableSources;
     Watchable<std::vector<ITopologyGroup*>*>* iWatchableGroups;
 
-    std::vector<ITopology4Group*> iT4Groups;
     std::vector<Topology6Group*> iGroups;
     std::vector<Topology6Group*> iRoots;
 
-    //std::vector<ITopology4GroupWatcher*> iGroupWatchers;
+    std::vector<ITopology4GroupWatcher*> iGroupWatchers;
 };
 
 /////////////////////////////////////////////////////////////////////

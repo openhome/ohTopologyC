@@ -274,8 +274,6 @@ Topology6Group::Topology6Group(INetwork& aNetwork, const Brx& aRoomName, const B
     ,iRoomName(aRoomName)
     ,iName(aName)
     ,iGroup(aGroup)
-    //,iCurrentSource(new Topology6SourceNull())
-    //,iCurrentGroupSource(new Topology6SourceNull())
     ,iCurrentSource(NULL)
     ,iCurrentGroupSource(NULL)
     ,iDisposed(false)
@@ -325,8 +323,7 @@ Topology6Group::~Topology6Group()
 
     delete iVectorSenders;
     delete iCurrentVolumes;
-    //delete iCurrentSource;
-    //delete iCurrentGroupSource;
+
 }
 
 
@@ -739,6 +736,11 @@ Brn Topology6GroupWatcher::Name()
     return iName;
 }
 
+ITopology4Group& Topology6GroupWatcher::Group()
+{
+    return(iGroup);
+}
+
 
 std::vector<ITopology4Source*>& Topology6GroupWatcher::Sources()
 {
@@ -834,11 +836,13 @@ void Topology6Room::Dispose()
 {
     iRoom.Groups().RemoveWatcher(*this);
 
-    for(auto it=iT4Groups.begin(); it!=iT4Groups.end(); it++)
+    for(auto it=iGroupWatchers.begin(); it!=iGroupWatchers.end(); it++)
     {
-        auto t4Group = *it;
-        t4Group->Standby().RemoveWatcher(*this);
-        t4Group->GroupWatcher()->Dispose();
+        auto groupWatcher = *it;
+        ITopology4Group& t4Group = groupWatcher->Group();
+        t4Group.Standby().RemoveWatcher(*this);
+        groupWatcher->Dispose();
+
     }
 
     for(TUint i=0; i<iGroups.size() ;i++)
@@ -905,26 +909,36 @@ void Topology6Room::UnorderedClose()
 void Topology6Room::UnorderedAdd(ITopology4Group* aT4Group)
 {
     auto groupWatcher = new Topology6GroupWatcher(*this, *aT4Group);
-    aT4Group->SetGroupWatcher(groupWatcher);
-    iT4Groups.push_back(aT4Group);
-
+    iGroupWatchers.push_back(groupWatcher);
     aT4Group->Standby().AddWatcher(*this);
+
     CreateTree();
 }
 
 
 void Topology6Room::UnorderedRemove(ITopology4Group* aT4Group)
 {
-    auto watcher = aT4Group->GroupWatcher();
-    watcher->Dispose();
-    aT4Group->SetGroupWatcher(NULL);  // this will delete the watcher
+    TBool groupFound = false;
 
-    auto it = find(iT4Groups.begin(), iT4Groups.end(), aT4Group);
-    ASSERT(it!=iT4Groups.end());
-    iT4Groups.erase(it);
-    aT4Group->Standby().RemoveWatcher(*this);
+    auto it = iGroupWatchers.begin();
+    for(it = iGroupWatchers.begin(); it != iGroupWatchers.end(); it++)
+    {
+        auto groupWatcher = *it;
+        ITopology4Group& t4Group = groupWatcher->Group();
+        if (&t4Group == aT4Group)
+        {
+            iGroupWatchers.erase(it);
+            groupWatcher->Dispose();
+            delete groupWatcher;
+            t4Group.Standby().RemoveWatcher(*this);
+            groupFound = true;
+            break;
+        }
+    }
 
-    if (iT4Groups.size() > 0)
+    ASSERT(groupFound);
+
+    if (iGroupWatchers.size() > 0)
     {
         CreateTree();
     }
@@ -940,12 +954,10 @@ void Topology6Room::CreateTree()
     iGroups.clear();
     iRoots.clear();
 
-    for(auto it=iT4Groups.begin(); it!=iT4Groups.end(); it++)
+    for(auto it=iGroupWatchers.begin(); it!=iGroupWatchers.end(); it++)
     {
-        auto t4Group = *it;
-        auto groupWatcher = t4Group->GroupWatcher();
-
-        Topology6Group* t6Group = new Topology6Group(iNetwork, iName, groupWatcher->Name(), *t4Group, groupWatcher->Sources(), iLog);
+        auto groupWatcher = *it;
+        Topology6Group* t6Group = new Topology6Group(iNetwork, iName, groupWatcher->Name(), groupWatcher->Group(), groupWatcher->Sources(), iLog);
 
         InsertIntoTree(*t6Group);
         if (t6Group->ProductId() != Brx::Empty())
@@ -1070,7 +1082,7 @@ void Topology6Room::ItemClose(const Brx& /*aId*/, TBool aStandby)
         iStandbyCount--;
     }
 
-    if (iT4Groups.size() > 0)
+    if (iGroupWatchers.size() > 0)
     {
         EvaluateStandby();
     }
@@ -1085,7 +1097,7 @@ void Topology6Room::EvaluateStandby()
     {
         standby = eMixed;
 
-        if (iStandbyCount == iT4Groups.size())
+        if (iStandbyCount == iGroupWatchers.size())
         {
             standby = eOn;
         }

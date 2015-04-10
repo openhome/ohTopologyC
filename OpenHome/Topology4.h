@@ -68,27 +68,6 @@ private:
     ITopology2Source& iSource;
 };
 
-/////////////////////////////////////////////////////////////////////
-
-class ITopology4GroupWatcher : public IWatcher<Brn>, public IWatcher<ITopology4Source*>, public IDisposable
-{
-public:
-    virtual void Dispose() = 0;
-    virtual Brn Name() = 0;
-    virtual std::vector<ITopology4Source*>& Sources() = 0;
-
-    // IWatcher<Brn>
-    virtual void ItemOpen(const Brx& aId, Brn aValue) = 0;
-    virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious) = 0;
-    virtual void ItemClose(const Brx& aId, Brn aValue) = 0;
-
-    // IWatcher<ITopology4Source*>
-    virtual void ItemOpen(const Brx& aId, ITopology4Source* aValue) = 0;
-    virtual void ItemUpdate(const Brx& aId, ITopology4Source* aValue, ITopology4Source* aPrevious) = 0;
-    virtual void ItemClose(const Brx& aId, ITopology4Source* aValue) = 0;
-};
-
-
 ///////////////////////////////////////////////////////
 
 class ITopology4Group
@@ -111,11 +90,6 @@ public:
 
     virtual void SetStandby(TBool aValue) = 0;
     virtual void SetSourceIndex(TUint aValue) = 0;
-
-    // Added in ohTopologyC
-    virtual ITopology4GroupWatcher* GroupWatcher() = 0;
-    virtual void SetGroupWatcher(ITopology4GroupWatcher* aGroupWatcher) = 0;
-
 };
 
 ///////////////////////////////////////////////////////
@@ -150,10 +124,6 @@ public:
     void SetStandby(TBool aValue);
     void SetSourceIndex(TUint aValue);
 
-    // Added in ohTopologyC
-    virtual ITopology4GroupWatcher* GroupWatcher();
-    virtual void SetGroupWatcher(ITopology4GroupWatcher* aGroupWatcher);
-
 
 private:
     virtual void ItemOpen(const Brx& aId, ITopology2Source* aValue);
@@ -167,8 +137,6 @@ private:
     std::vector<ITopology4Source*> iSources;
     std::map<ITopology2Source*, Watchable<ITopology4Source*>*> iSourceLookup;
     IProxyCredentials* iProxy;
-
-    ITopology4GroupWatcher* iGroupWatcher;
 };
 
 ///////////////////////////////////////////////////////////////////////

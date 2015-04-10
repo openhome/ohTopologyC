@@ -58,7 +58,6 @@ Topology4Group::Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, ILog
     ,iGroup(aGroup)
     ,iProxy(NULL)
     //,iLog(aLog)
-    ,iGroupWatcher(NULL)
 {
     auto v = iGroup.Sources();
     for (TUint i = 0; i<v.size(); i++)
@@ -73,7 +72,6 @@ Topology4Group::Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, IPro
     ,iGroup(aGroup)
     ,iProxy(&aProxy)
     //,iLog(aLog)
-    ,iGroupWatcher(NULL)
 {
     auto v = iGroup.Sources();
     for (TUint i = 0; i<v.size(); i++)
@@ -86,7 +84,6 @@ Topology4Group::Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, IPro
 
 Topology4Group::~Topology4Group()
 {
-    delete iGroupWatcher;
     ASSERT(iSourceLookup.size()==0);
     ASSERT(iSources.size()==0);
 }
@@ -94,7 +91,6 @@ Topology4Group::~Topology4Group()
 
 void Topology4Group::Dispose()
 {
-
     if (iProxy!=NULL)
     {
         iProxy->Dispose();
@@ -233,21 +229,7 @@ void Topology4Group::ItemClose(const Brx& /*aId*/, ITopology2Source* aValue)
     iSourceLookup.erase(aValue);
 }
 
-
-ITopology4GroupWatcher* Topology4Group::GroupWatcher()
-{
-    return(iGroupWatcher);
-}
-
-
-void Topology4Group::SetGroupWatcher(ITopology4GroupWatcher* aGroupWatcher)
-{
-    delete iGroupWatcher;
-    iGroupWatcher = aGroupWatcher;
-}
-
 /////////////////////////////////////////////////////////////////////
-
 
 Topology4::Topology4(ITopology3* aTopology3, ILog& aLog)
     :iTopology3(aTopology3)
