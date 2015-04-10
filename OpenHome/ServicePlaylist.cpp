@@ -407,7 +407,6 @@ void ServicePlaylistNetwork::InsertEnd(const Brx& aUri, IMediaMetadata& aMetadat
     asyncAdaptor.SetCallback(f, playlistItemData);
     FunctorAsync fa = asyncAdaptor.AsyncCb();
     iService->BeginIdArray(fa);
-
 }
 
 

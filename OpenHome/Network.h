@@ -72,7 +72,7 @@ public:
 
 //////////////////////////////////////////////////////////////////
 
-class Network : public INetwork, public IExceptionReporter
+class Network : public INetwork, public IExceptionReporter, public INonCopyable
 {
 public:
     Network(TUint aMaxCacheEntries, ILog& aLog);
@@ -141,7 +141,6 @@ private:
     SenderMetadata* iSenderMetadataEmpty;
     InfoDetails* iInfoDetailsEmpty;
     InfoMetatext* iInfoMetatextEmpty;
-
 };
 
 

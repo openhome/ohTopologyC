@@ -346,7 +346,6 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
         }
     }
 
-
     if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Info", value))
     {
         if (Ascii::Uint(value) == 1)
@@ -355,15 +354,6 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
         }
     }
 
-/*
-    if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Time", value))
-    {
-        if (Ascii::Uint(value) == 1)
-        {
-            device->Add(eProxyTime, new ServiceTimeNetwork(*device, new CpProxyAvOpenhomeOrgTime1(*aDevice), iLog));
-        }
-    }
-*/
     if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Sender", value))
     {
         if (Ascii::Uint(value) == 1)
@@ -405,6 +395,14 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
     }
 
 /*
+    if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Time", value))
+    {
+        if (Ascii::Uint(value) == 1)
+        {
+            device->Add(eProxyTime, new ServiceTimeNetwork(*device, new CpProxyAvOpenhomeOrgTime1(*aDevice), iLog));
+        }
+    }
+
     if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Credentials", value))
     {
         if (Ascii::Uint(value) == 1)
@@ -549,7 +547,7 @@ void Network::Dispose()
     Execute(f, NULL);
 
     //iEventSupervisor.Dispose();
-    //iIdCache.Dispose();
+    //iIdCache->Dispose();
     iDisposeHandler->Dispose();
 
     if (iExceptions.size() > 0)
