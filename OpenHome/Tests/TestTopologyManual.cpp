@@ -45,12 +45,24 @@ private:
     void TearDown();
     void Test1();
 
+    void ScheduleCallback(void* aWatcher);
 
 private:
     Net::Library& iLib;
+    Topology6* iTopology;
 };
 
 /////////////////////////////////////////////////////////////////////
+
+class HouseWatcher : public IWatcherUnordered<ITopologyRoom*>
+{
+
+    virtual void UnorderedOpen() {    Log::Print("HouseWatcher::UnorderedOpen()  \n"); };
+    virtual void UnorderedInitialised() {};
+    virtual void UnorderedAdd(ITopologyRoom* aItem) {    Log::Print("HouseWatcher::UnorderedAdd()  \n"); };
+    virtual void UnorderedRemove(ITopologyRoom* aItem) {};
+    virtual void UnorderedClose() {};
+};
 
 
 } // namespace Topology
@@ -87,13 +99,22 @@ void SuiteTopologyManual::Test1()
     Network* network = new Network(50, *log);
 
     std::vector<NetworkAdapter*>* list = iLib.CreateSubnetList();
-    //TIpAddress subnetAddress = (*list)[0]->Subnet();
+    TIpAddress subnetAddress = (*list)[0]->Subnet();
     iLib.DestroySubnetList(list);
-    //Net::CpStack& cpStack = *iLib.StartCp(subnetAddress);
+    Net::CpStack& cpStack = *iLib.StartCp(subnetAddress);
 
-    //InjectorProduct* injector = new InjectorProduct(cpStack, *log);
+    auto fAdd = MakeFunctorGeneric<Net::CpDevice*>(*network, &Network::Add);
+    auto fRem = MakeFunctorGeneric<Net::CpDevice*>(*network, &Network::Remove);
 
-    Topology6::CreateTopology(network, *log);
+    InjectorProduct* injector = new InjectorProduct(cpStack, fAdd, fRem, *log);
+
+    auto watcher = new HouseWatcher();
+
+
+    iTopology = Topology6::CreateTopology(network, *log);
+
+    FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopologyManual::ScheduleCallback);
+    network->Schedule(fs, watcher);
 
 
     for (;;)
@@ -101,15 +122,22 @@ void SuiteTopologyManual::Test1()
         // forever
     }
 
-/*
-    topology5->Dispose();
+
+    iTopology->Dispose();
     network->Dispose();
     injector->Dispose();
 
-    delete topology5;
+    delete iTopology;
     delete network;
     delete injector;
-*/
+
+}
+
+
+void SuiteTopologyManual::ScheduleCallback(void* aWatcher)
+{
+    HouseWatcher* watcher = (HouseWatcher*)aWatcher;
+    iTopology->Rooms().AddWatcher(*watcher);
 }
 
 ////////////////////////////////////////////
