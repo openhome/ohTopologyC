@@ -216,11 +216,13 @@ void Network::Wait()
     }
 }
 
+void Network::AddCpDevice(CpDevice* aDevice)
+{
+    Add(aDevice);
+}
 
 void Network::Add(CpDevice* aDevice)
 {
-    Log::Print("Network::Add()  \n");
-
     Brh value;
 
     if (aDevice->GetAttribute("Upnp.Service.schemas-upnp-org.ContentDirectory", value))
@@ -235,9 +237,17 @@ void Network::Add(CpDevice* aDevice)
     Add(Create(aDevice));
 }
 
+
+void Network::RemoveCpDevice(CpDevice* aDevice)
+{
+   Remove(aDevice);
+}
+
+
 void Network::Remove(CpDevice* aDevice)
 {
-    Schedule(MakeFunctorGeneric(*this, &Network::RemoveCallback), aDevice);
+    Brh* udn = new Brh(aDevice->Udn());
+    Schedule(MakeFunctorGeneric(*this, &Network::RemoveCallback), udn);
 
     //if (!iInjectorMediaEndpoint.Remove(udn))
     //{
@@ -248,10 +258,11 @@ void Network::Remove(CpDevice* aDevice)
     //}
 }
 
-void Network::RemoveCallback(void* aDevice)
+void Network::RemoveCallback(void* aUdn)
 {
-    auto cpDevice = (CpDevice*)aDevice;
-    Remove(Brn(cpDevice->Udn()));
+    auto udn = (Brh*)aUdn;
+    Remove(Brn(*udn));
+    delete udn;
 }
 
 
@@ -323,10 +334,19 @@ void Network::Remove(const Brx& aUdn)
 
         iDevices.erase(device->Udn());
         device->Dispose();
-        delete device;
+
+        Schedule(MakeFunctorGeneric(*this, &Network::DeleteDevice), device);
+        //delete device;
         //iCache.Remove(string.Format(ServicePlaylist.kCacheIdFormat, aUdn));
         //iCache.Remove(string.Format(ServiceRadio.kCacheIdFormat, aUdn));
     }
+}
+
+
+void Network::DeleteDevice(void* aDevice)
+{
+    auto device = (Device*)aDevice;
+    delete device;
 }
 
 

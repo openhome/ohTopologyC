@@ -131,6 +131,7 @@ ServiceRadio::ServiceRadio(IInjectorDevice& aDevice, ILog& aLog)
     ,iId(new Watchable<TUint>(iNetwork, Brn("Id"), 0))
     ,iTransportState(new Watchable<Brn>(iNetwork, Brn("TransportState"), Brx::Empty()))
     ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iNetwork.InfoMetadataEmpty()))
+    ,iMediaSupervisor(NULL)
     ,iCurrentTransportState(NULL)
 {
 }
@@ -193,6 +194,7 @@ const Brx& ServiceRadio::ProtocolInfo()
 ServiceRadioNetwork::ServiceRadioNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgRadio1* aService, ILog& aLog)
     :ServiceRadio(aDevice, aLog)
     ,iService(aService)
+    ,iCacheSession(NULL)
     ,iSubscribed(false)
 {
     Functor f1 = MakeFunctor(*this, &ServiceRadioNetwork::HandleIdChanged);

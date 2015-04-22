@@ -131,6 +131,8 @@ ServicePlaylist::ServicePlaylist(IInjectorDevice& aDevice, ILog& aLog)
     ,iTransportState(new Watchable<Brn>(iNetwork, Brn("TransportState"), Brx::Empty()))
     ,iRepeat(new Watchable<TBool>(iNetwork, Brn("Repeat"), false))
     ,iShuffle(new Watchable<TBool>(iNetwork, Brn("Shuffle"), true))
+    ,iMediaSupervisor(NULL)
+
 {
 }
 
@@ -213,6 +215,7 @@ ServicePlaylistNetwork::ServicePlaylistNetwork(IInjectorDevice& aDevice, CpProxy
     :ServicePlaylist(aDevice, aLog)
     ,iService(aService)
     ,iSubscribed(false)
+    ,iCacheSession(NULL)
 {
     Functor f1 = MakeFunctor(*this, &ServicePlaylistNetwork::HandleIdChanged);
     iService->SetPropertyIdChanged(f1);

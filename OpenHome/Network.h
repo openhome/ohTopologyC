@@ -83,9 +83,11 @@ public:
 
     void Add(IInjectorDevice* aDevice);
     void Add(Net::CpDevice* aDevice);
+    void AddCpDevice(Net::CpDevice* aDevice); // to get round FunctorGeneric with overloaded methods issue
 
     void Remove(IInjectorDevice* aDevice);
     void Remove(Net::CpDevice* aDevice);
+    void RemoveCpDevice(Net::CpDevice* aDevice);  // to get round FunctorGeneric with overloaded methods issue
 
 
     // INetwork
@@ -123,6 +125,7 @@ private:
     void DisposeCallback(void*);
     void RemoveCallback(void* aDevice);
     void Remove(const Brx& aUdn);
+	void DeleteDevice(void* aDevice);
 
 private:
     ILog& iLog;
