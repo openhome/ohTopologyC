@@ -46,6 +46,7 @@ private:
     void Test1();
 
     void ScheduleCallback(void* aWatcher);
+    void ExecuteCallback(void* aWatcher);
 
 private:
     Net::Library& iLib;
@@ -57,10 +58,10 @@ private:
 class HouseWatcher : public IWatcherUnordered<ITopologyRoom*>
 {
 
-    virtual void UnorderedOpen() {    Log::Print("HouseWatcher::UnorderedOpen()  \n"); };
+    virtual void UnorderedOpen() { /*   Log::Print("HouseWatcher::UnorderedOpen()  \n");*/ };
     virtual void UnorderedInitialised() {};
-    virtual void UnorderedAdd(ITopologyRoom* aItem) {    Log::Print("HouseWatcher::UnorderedAdd()  \n"); };
-    virtual void UnorderedRemove(ITopologyRoom* aItem) {};
+    virtual void UnorderedAdd(ITopologyRoom* aItem);
+    virtual void UnorderedRemove(ITopologyRoom* aItem);
     virtual void UnorderedClose() {};
 };
 
@@ -72,6 +73,22 @@ class HouseWatcher : public IWatcherUnordered<ITopologyRoom*>
 
 /////////////////////////////////////////////////////////////////////
 
+void HouseWatcher::UnorderedRemove(ITopologyRoom* aItem)
+{
+    Log::Print("HouseWatcher::UnorderedRemove()  removing room: ");
+    Log::Print(aItem->Name());
+    Log::Print("\n");;
+}
+
+
+void HouseWatcher::UnorderedAdd(ITopologyRoom* aItem)
+{
+    Log::Print("HouseWatcher::UnorderedAdd()  adding room: ");
+    Log::Print(aItem->Name());
+    Log::Print("\n");;
+}
+
+/////////////////////////////////////////////////////////////////////
 
 SuiteTopologyManual::SuiteTopologyManual(Net::Library& aLib)
     :SuiteUnitTest("SuiteTopologyManual")
@@ -94,7 +111,6 @@ void SuiteTopologyManual::TearDown()
 
 void SuiteTopologyManual::Test1()
 {
-
     ILog* log = new LogDummy();
     Network* network = new Network(50, *log);
 
@@ -103,8 +119,8 @@ void SuiteTopologyManual::Test1()
     iLib.DestroySubnetList(list);
     Net::CpStack& cpStack = *iLib.StartCp(subnetAddress);
 
-    auto fAdd = MakeFunctorGeneric<Net::CpDevice*>(*network, &Network::Add);
-    auto fRem = MakeFunctorGeneric<Net::CpDevice*>(*network, &Network::Remove);
+    FunctorGeneric<Net::CpDevice*> fAdd = MakeFunctorGeneric<Net::CpDevice*>(*network, &Network::AddCpDevice);
+    FunctorGeneric<Net::CpDevice*> fRem = MakeFunctorGeneric<Net::CpDevice*>(*network, &Network::RemoveCpDevice);
 
     InjectorProduct* injector = new InjectorProduct(cpStack, fAdd, fRem, *log);
 
@@ -113,14 +129,24 @@ void SuiteTopologyManual::Test1()
 
     iTopology = Topology6::CreateTopology(network, *log);
 
-    FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopologyManual::ScheduleCallback);
-    network->Schedule(fs, watcher);
+    FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopologyManual::ScheduleCallback);
+    network->Schedule(fe, watcher);
 
 
+    TUint count = 0;
     for (;;)
     {
         // forever
+        Thread::Sleep(1000);
+        count++;
+        if (count>3600)
+        {
+            break;
+        }
     }
+
+    FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopologyManual::ExecuteCallback);
+    network->Execute(fs, watcher);
 
 
     iTopology->Dispose();
@@ -139,6 +165,13 @@ void SuiteTopologyManual::ScheduleCallback(void* aWatcher)
     HouseWatcher* watcher = (HouseWatcher*)aWatcher;
     iTopology->Rooms().AddWatcher(*watcher);
 }
+
+void SuiteTopologyManual::ExecuteCallback(void* aWatcher)
+{
+    HouseWatcher* watcher = (HouseWatcher*)aWatcher;
+    iTopology->Rooms().RemoveWatcher(*watcher);
+}
+
 
 ////////////////////////////////////////////
 

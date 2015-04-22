@@ -214,8 +214,8 @@ const Brx& ServicePlaylist::ProtocolInfo()
 ServicePlaylistNetwork::ServicePlaylistNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgPlaylist1* aService, ILog& aLog)
     :ServicePlaylist(aDevice, aLog)
     ,iService(aService)
-    ,iSubscribed(false)
     ,iCacheSession(NULL)
+    ,iSubscribed(false)
 {
     Functor f1 = MakeFunctor(*this, &ServicePlaylistNetwork::HandleIdChanged);
     iService->SetPropertyIdChanged(f1);
