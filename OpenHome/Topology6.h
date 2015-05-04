@@ -31,6 +31,13 @@ public:
     virtual Brn Name() = 0;
     virtual IDevice& Device() = 0;
     virtual IWatchable<ISender*>& Sender() = 0;
+    virtual IWatchable<ITopologySource*>& GroupSource() = 0;
+    virtual std::vector<ITopologySource*>& GroupSources() = 0;	
+
+    TBool HasVolume();
+    TBool HasInfo();
+    TBool HasTime();
+		
     virtual ~ITopologyGroup() {}
 };
 
@@ -302,6 +309,7 @@ public:
     virtual IWatchable<EStandby>& Standby() = 0;
     virtual IWatchable<std::vector<ITopologyRoot*>*>& Roots() = 0;
     virtual IWatchable<std::vector<ITopologySource*>*>& Sources() = 0;
+    virtual IWatchable<std::vector<ITopologyGroup*>*>& Groups();
     virtual void SetStandby(TBool aValue) = 0;
     virtual ~ITopologyRoom() {}
 };
