@@ -3,7 +3,9 @@
 #include <OpenHome/Mockable.h>
 #include <OpenHome/Injector.h>
 #include <OpenHome/MetaData.h>
-#include <OpenHome/Tests/TestScriptHttpReader.h>
+#include <OpenHome/OsWrapper.h>
+#include <OpenHome/Private/OptionParser.h>
+#include <OpenHome/Private/Http.h>
 #include <exception>
 
 
@@ -19,6 +21,7 @@ namespace OpenHome
 {
 namespace Topology
 {
+
 namespace TestTopology1
 {
 
@@ -164,15 +167,41 @@ void SuiteTopology1::ScheduleCallback(void* aObj)
 
 void TestTopology1(Environment& aEnv, const std::vector<Brn>& aArgs)
 {
-    std::vector<Brn> args(aArgs);
-
-    if( find(args.begin(), args.end(), Brn("--path")) == args.end() )
+    if( find(aArgs.begin(), aArgs.end(), Brn("--path")) == aArgs.end() )
     {
-        args.push_back(Brn("--path"));
-        args.push_back(Brn("~eamonnb/Topology1TestScript.txt"));
+        Log::Print("No path supplied!\n");
+        ASSERTS();
     }
 
-    TestScriptHttpReader* reader = new TestScriptHttpReader(aEnv, args);
+    OptionParser parser;
+    OptionString optionServer("-s", "--server", Brn("eng"), "address of server to connect to");
+    parser.AddOption(&optionServer);
+    OptionUint optionPort("-p", "--port", 80, "server port to connect on");
+    parser.AddOption(&optionPort);
+    OptionString optionPath("", "--path", Brn(""), "path to use on server");
+    parser.AddOption(&optionPath);
+    if (!parser.Parse(aArgs) || parser.HelpDisplayed()) {
+        return;
+    }
+
+    TUint port = optionPort.Value();
+    ASSERT(port <= 65535);
+    Bwh uriBuf(100);
+
+    Endpoint endptServer = Endpoint(port, optionServer.Value());
+    uriBuf.Replace(Brn("http://"));
+    endptServer.AppendEndpoint(uriBuf);
+    uriBuf.Append(Brn("/"));
+    uriBuf.Append(optionPath.Value());
+    Uri uri(uriBuf);
+
+    auto reader = new HttpReader(aEnv);
+    if (!reader->Connect(uri))
+    {
+        Log::Print("Failed to connect \n");
+        ASSERTS();
+    }
+
     ReaderUntilS<1024>* readerUntil = new ReaderUntilS<1024>(*reader);
 
     Runner runner("Topology1 tests\n");

@@ -2,7 +2,9 @@
 #include <OpenHome/Topology6.h>
 #include <OpenHome/Mockable.h>
 #include <OpenHome/Injector.h>
-#include <OpenHome/Tests/TestScriptHttpReader.h>
+#include <OpenHome/OsWrapper.h>
+#include <OpenHome/Private/OptionParser.h>
+#include <OpenHome/Private/Http.h>
 #include <exception>
 
 #include <OpenHome/Private/Thread.h>
@@ -133,18 +135,14 @@ void SuiteTopologyManual::Test1()
     network->Schedule(fe, watcher);
 
 
-    TUint count = 0;
-    for (;;)
+
+    for (TUint i=0; i<3600; i++)
     {
-        // forever
+        Log::Print("i=%d \n", i);
         Thread::Sleep(1000);
-        count++;
-        if (count>3600)
-        {
-            break;
-        }
     }
 
+    Log::Print("exiting \n");
     FunctorGeneric<void*> fs = MakeFunctorGeneric(*this, &SuiteTopologyManual::ExecuteCallback);
     network->Execute(fs, watcher);
 
