@@ -223,7 +223,7 @@ void Network::AddCpDevice(CpDevice* aDevice)
 
 void Network::Add(CpDevice* aDevice)
 {
-    Log::Print(">Network::Add \n");
+    //Log::Print(">Network::Add \n");
     Brh value;
 
     if (aDevice->GetAttribute("Upnp.Service.schemas-upnp-org.ContentDirectory", value))
@@ -237,7 +237,7 @@ void Network::Add(CpDevice* aDevice)
 
     IInjectorDevice* device = Create(aDevice);
     Add(device);
-    Log::Print("<Network::Add \n");
+    //Log::Print("<Network::Add \n");
 }
 
 
@@ -285,7 +285,7 @@ void Network::Add(IInjectorDevice* aDevice)
  */
 void Network::AddCallback(void* aObj)
 {
-    Log::Print(">Network::AddCallback \n");
+    //Log::Print(">Network::AddCallback \n");
     Assert(); /// must be on watchable thread
 
     IInjectorDevice* injDevice = (IInjectorDevice*)aObj;
@@ -308,7 +308,7 @@ void Network::AddCallback(void* aObj)
         }
     }
 
-    Log::Print("<Network::AddCallback \n");
+    //Log::Print("<Network::AddCallback \n");
 }
 
 

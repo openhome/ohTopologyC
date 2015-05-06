@@ -472,7 +472,7 @@ void Topology3::UnorderedInitialised()
 
 void Topology3::UnorderedAdd(ITopology2Group* aItem)
 {
-    Log::Print(">Topology3::UnorderedAdd \n");
+    //Log::Print(">Topology3::UnorderedAdd \n");
     Topology3Group* group = new Topology3Group(iNetwork, *aItem);
     iReceiverLookup[aItem] = new ReceiverWatcher(*this, *group);
 
@@ -483,7 +483,7 @@ void Topology3::UnorderedAdd(ITopology2Group* aItem)
 
     iGroupLookup[aItem] = group;
     iGroups->Add(group);
-    Log::Print("<Topology3::UnorderedAdd \n");
+    //Log::Print("<Topology3::UnorderedAdd \n");
 }
 
 void Topology3::UnorderedRemove(ITopology2Group* aItem)

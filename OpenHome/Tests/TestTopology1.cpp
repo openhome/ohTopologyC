@@ -235,11 +235,11 @@ void TestTopology1(Environment& aEnv, const std::vector<Brn>& aArgs)
         return;
     }
 
-    ASSERT(optionPort.Value() <= 65535);
-
+    TUint port = optionPort.Value();
+    ASSERT(port <= 65535);
     Bwh uriBuf(100);
 
-    Endpoint endptServer = Endpoint(optionPort.Value(), optionServer.Value());
+    Endpoint endptServer = Endpoint(port, optionServer.Value());
     uriBuf.Replace(Brn("http://"));
     endptServer.AppendEndpoint(uriBuf);
     uriBuf.Append(Brn("/"));
