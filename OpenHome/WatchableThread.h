@@ -63,7 +63,7 @@ private:
 class WatchableThread : public IWatchableThread
 {
 public:
-    static const TUint kMaxFifoEntries = 5;
+    static const TUint kMaxFifoEntries = 20;
 
 public:
     WatchableThread(IExceptionReporter& aReporter);

@@ -146,10 +146,19 @@ ReceiverWatcher::ReceiverWatcher(Topology3& aTopology3, Topology3Group& aGroup)
     ,iTransportState(Brx::Empty())
     ,iMetadata(NULL)
 {
+    auto v(iGroup.Sources());
+
+    for(TUint i=0; i<v.size(); i++)
+    {
+        v[i]->AddWatcher(*this);
+    }
+
+/*
     for(TUint i=0; i<iGroup.Sources().size(); i++)
     {
         iGroup.Sources()[i]->AddWatcher(*this);
     }
+*/
 }
 
 
@@ -463,6 +472,7 @@ void Topology3::UnorderedInitialised()
 
 void Topology3::UnorderedAdd(ITopology2Group* aItem)
 {
+    Log::Print(">Topology3::UnorderedAdd \n");
     Topology3Group* group = new Topology3Group(iNetwork, *aItem);
     iReceiverLookup[aItem] = new ReceiverWatcher(*this, *group);
 
@@ -473,6 +483,7 @@ void Topology3::UnorderedAdd(ITopology2Group* aItem)
 
     iGroupLookup[aItem] = group;
     iGroups->Add(group);
+    Log::Print("<Topology3::UnorderedAdd \n");
 }
 
 void Topology3::UnorderedRemove(ITopology2Group* aItem)

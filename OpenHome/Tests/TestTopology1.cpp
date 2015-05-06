@@ -3,7 +3,9 @@
 #include <OpenHome/Mockable.h>
 #include <OpenHome/Injector.h>
 #include <OpenHome/MetaData.h>
-#include <OpenHome/Tests/TestScriptHttpReader.h>
+#include <OpenHome/OsWrapper.h>
+#include <OpenHome/Private/OptionParser.h>
+#include <OpenHome/Private/Http.h>
 #include <exception>
 
 
@@ -19,10 +21,62 @@ namespace OpenHome
 {
 namespace Topology
 {
+
 namespace TestTopology1
 {
 
 class TestExceptionReporter;
+
+
+class TestScriptReader : public HttpReader
+{
+public:
+    TestScriptReader(Environment& aEnv, const Brx& aServer, TUint aPort, const Brx& aPath)
+        :HttpReader(aEnv)
+    {
+        ASSERT(aPort <= 65535);
+
+/*
+        Net::InitialisationParams::ELoopback loopback;
+        if (aServer.Equals(Brn("127.0.0.1"))) { // using loopback
+            loopback = Net::InitialisationParams::ELoopbackUse;
+        }
+        else {
+            loopback = Net::InitialisationParams::ELoopbackExclude;
+        }
+        std::vector<NetworkAdapter*>* ifs = Os::NetworkListAdapters(aEnv, loopback, "TestScriptHttpReader");
+
+
+        ASSERT(ifs->size() > 0);
+        for (TUint i=0; i<ifs->size(); i++) {
+
+            (*ifs)[i]->RemoveRef("TestScriptHttpReader");
+
+        }
+        delete ifs;
+*/
+
+        // set up server uri
+        Endpoint endptServer = Endpoint(aPort, aServer);
+        iUriBuf.Replace(Brn("http://"));
+        endptServer.AppendEndpoint(iUriBuf);
+        iUriBuf.Append(Brn("/"));
+        iUriBuf.Append(aPath);
+        Uri uri(iUriBuf);
+
+
+        if (!Connect(uri))
+        {
+            Log::Print("Failed to connect \n");
+            ASSERTS();
+        }
+    }
+
+private:
+    Bws<100> iUriBuf;
+
+};
+
 
 /////////////////////////////////////////////////////////////////////
 
@@ -164,15 +218,41 @@ void SuiteTopology1::ScheduleCallback(void* aObj)
 
 void TestTopology1(Environment& aEnv, const std::vector<Brn>& aArgs)
 {
-    std::vector<Brn> args(aArgs);
-
-    if( find(args.begin(), args.end(), Brn("--path")) == args.end() )
+    if( find(aArgs.begin(), aArgs.end(), Brn("--path")) == aArgs.end() )
     {
-        args.push_back(Brn("--path"));
-        args.push_back(Brn("~eamonnb/Topology1TestScript.txt"));
+        Log::Print("No path supplied!\n");
+        ASSERTS();
     }
 
-    TestScriptHttpReader* reader = new TestScriptHttpReader(aEnv, args);
+    OptionParser parser;
+    OptionString optionServer("-s", "--server", Brn("eng"), "address of server to connect to");
+    parser.AddOption(&optionServer);
+    OptionUint optionPort("-p", "--port", 80, "server port to connect on");
+    parser.AddOption(&optionPort);
+    OptionString optionPath("", "--path", Brn(""), "path to use on server");
+    parser.AddOption(&optionPath);
+    if (!parser.Parse(aArgs) || parser.HelpDisplayed()) {
+        return;
+    }
+
+    ASSERT(optionPort.Value() <= 65535);
+
+    Bwh uriBuf(100);
+
+    Endpoint endptServer = Endpoint(optionPort.Value(), optionServer.Value());
+    uriBuf.Replace(Brn("http://"));
+    endptServer.AppendEndpoint(uriBuf);
+    uriBuf.Append(Brn("/"));
+    uriBuf.Append(optionPath.Value());
+    Uri uri(uriBuf);
+
+    auto reader = new HttpReader(aEnv);
+    if (!reader->Connect(uri))
+    {
+        Log::Print("Failed to connect \n");
+        ASSERTS();
+    }
+
     ReaderUntilS<1024>* readerUntil = new ReaderUntilS<1024>(*reader);
 
     Runner runner("Topology1 tests\n");

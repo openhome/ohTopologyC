@@ -35,10 +35,12 @@ Injector::~Injector()
 
 void Injector::Added(/*CpDeviceList& aList,*/ CpDevice& aDevice)
 {
+    Log::Print(">Injector::Added \n");
     if (!FilterOut(aDevice))
     {
         iAdd(&aDevice);
     }
+    Log::Print("<Injector::Added \n");
 }
 
 
@@ -72,7 +74,7 @@ InjectorProduct::InjectorProduct(CpStack& aCpStack, FunctorGeneric<CpDevice*> aA
 }
 
 /////////////////////////////////////////////////////////////////
-
+/*
 InjectorSender::InjectorSender(CpStack& aCpStack, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove, ILog& aLog)
     : Injector(aCpStack, aAdd, aRemove, Brn("av.openhome.org"), Brn("Sender"), 1, aLog)
 {
@@ -84,7 +86,7 @@ TBool InjectorSender::FilterOut(CpDevice& aCpDevice)
     Brh value;
     return aCpDevice.GetAttribute("Upnp.Service.av-openhome-org.Product", value);
 }
-
+*/
 
 /////////////////////////////////////////////////////////////////
 

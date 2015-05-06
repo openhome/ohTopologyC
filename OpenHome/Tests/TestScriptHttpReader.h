@@ -43,30 +43,16 @@ public:
         std::vector<NetworkAdapter*>* ifs = Os::NetworkListAdapters(aEnv, loopback, "TestTopology");
 
 
-
         ASSERT(ifs->size() > 0);
-        TIpAddress addr = (*ifs)[0]->Address(); // assume we are only on one subnet (or using loopback)
-
         for (TUint i=0; i<ifs->size(); i++) {
 
-            //Log::Print("ifs adr:%x \n", (*ifs)[i]->Address());
             (*ifs)[i]->RemoveRef("TestTopology");
 
         }
-
         delete ifs;
 
-        Endpoint endptClient(0, addr);
-        Endpoint::AddressBuf buf;
-        endptClient.AppendAddress(buf);
-        Log::Print("Using network interface %s\n", buf.Ptr());
-        Log::Print("Client IP:%x \n", addr);
-        Log::Print("Server IP:");
-        Log::Print(optionServer.Value());
-        Log::Print("\n");
 
         // set up server uri
-
         Endpoint endptServer = Endpoint(optionPort.Value(), optionServer.Value());
 
         iUriBuf.Replace(Brn("http://"));
