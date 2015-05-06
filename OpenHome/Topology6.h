@@ -19,9 +19,10 @@ namespace OpenHome
 
 namespace Topology
 {
-
+class ITopologySource;
 class Topology6Group;
 class Topology6Room;
+
 
 /////////////////////////////////////////////////////////////////////
 
@@ -34,9 +35,9 @@ public:
     virtual IWatchable<ITopologySource*>& GroupSource() = 0;
     virtual std::vector<ITopologySource*>& GroupSources() = 0;	
 
-    TBool HasVolume();
-    TBool HasInfo();
-    TBool HasTime();
+    virtual TBool HasVolume() = 0;
+    virtual TBool HasInfo() = 0;
+    virtual TBool HasTime() = 0;
 		
     virtual ~ITopologyGroup() {}
 };
@@ -309,7 +310,7 @@ public:
     virtual IWatchable<EStandby>& Standby() = 0;
     virtual IWatchable<std::vector<ITopologyRoot*>*>& Roots() = 0;
     virtual IWatchable<std::vector<ITopologySource*>*>& Sources() = 0;
-    virtual IWatchable<std::vector<ITopologyGroup*>*>& Groups();
+    virtual IWatchable<std::vector<ITopologyGroup*>*>& Groups() = 0;
     virtual void SetStandby(TBool aValue) = 0;
     virtual ~ITopologyRoom() {}
 };
