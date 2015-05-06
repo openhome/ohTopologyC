@@ -27,57 +27,6 @@ namespace TestTopology1
 
 class TestExceptionReporter;
 
-
-class TestScriptReader : public HttpReader
-{
-public:
-    TestScriptReader(Environment& aEnv, const Brx& aServer, TUint aPort, const Brx& aPath)
-        :HttpReader(aEnv)
-    {
-        ASSERT(aPort <= 65535);
-
-/*
-        Net::InitialisationParams::ELoopback loopback;
-        if (aServer.Equals(Brn("127.0.0.1"))) { // using loopback
-            loopback = Net::InitialisationParams::ELoopbackUse;
-        }
-        else {
-            loopback = Net::InitialisationParams::ELoopbackExclude;
-        }
-        std::vector<NetworkAdapter*>* ifs = Os::NetworkListAdapters(aEnv, loopback, "TestScriptHttpReader");
-
-
-        ASSERT(ifs->size() > 0);
-        for (TUint i=0; i<ifs->size(); i++) {
-
-            (*ifs)[i]->RemoveRef("TestScriptHttpReader");
-
-        }
-        delete ifs;
-*/
-
-        // set up server uri
-        Endpoint endptServer = Endpoint(aPort, aServer);
-        iUriBuf.Replace(Brn("http://"));
-        endptServer.AppendEndpoint(iUriBuf);
-        iUriBuf.Append(Brn("/"));
-        iUriBuf.Append(aPath);
-        Uri uri(iUriBuf);
-
-
-        if (!Connect(uri))
-        {
-            Log::Print("Failed to connect \n");
-            ASSERTS();
-        }
-    }
-
-private:
-    Bws<100> iUriBuf;
-
-};
-
-
 /////////////////////////////////////////////////////////////////////
 
 class SuiteTopology1: public SuiteUnitTest, public INonCopyable

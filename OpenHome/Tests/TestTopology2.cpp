@@ -2,9 +2,11 @@
 #include <OpenHome/Topology2.h>
 #include <OpenHome/Mockable.h>
 #include <OpenHome/Injector.h>
-#include <OpenHome/Tests/TestScriptHttpReader.h>
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/MetaData.h>
+#include <OpenHome/OsWrapper.h>
+#include <OpenHome/Private/OptionParser.h>
+#include <OpenHome/Private/Http.h>
 #include <exception>
 
 
