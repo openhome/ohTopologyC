@@ -55,12 +55,16 @@ public:
     RootWatcher(MockableScriptRunner& aRunner, ITopologyRoot& aRoot)
         :iFactory(new ResultWatcherFactory(aRunner))
     {
+        Log::Print(">RootWatcher::RootWatcher() name = ");
+        Log::Print(aRoot.Name());
+        Log::Print("\n");
         iFactory->Create<ITopologySource*>(aRoot.Name(), aRoot.Source(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback1));
         iFactory->Create<vector<ITopologyGroup*>*>(aRoot.Name(), aRoot.Senders(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback2));
     }
 
     void CreateCallback1(MockCbData<ITopologySource*>* aArgs)
     {
+        Log::Print(">RootWatcher::CreateCallback1()  \n");
         ITopologySource* s = aArgs->iData;
         auto f = aArgs->iCallback;
 
@@ -78,6 +82,7 @@ public:
         buf->Append(s->Type());
         buf->Append(Brn(" "));
 
+/*
         if (s->Visible())
         {
             buf->Append(Brn("True "));
@@ -86,7 +91,7 @@ public:
         {
             buf->Append(Brn("False "));
         }
-
+*/
 
         if (s->HasInfo())
         {
@@ -117,6 +122,9 @@ public:
 
 
         f(*buf);
+        Log::Print("buf = ");
+        Log::Print(*buf);
+        Log::Print("\n");
         delete aArgs;
         delete buf;
     }
@@ -182,9 +190,12 @@ public:
 
     virtual void ItemOpen(const Brx& /*aId*/, vector<ITopologyRoot*>* aValue)
     {
+        Log::Print(">RoomWatcher::ItemOpen() root names = ");
         for(TUint i=0; i<aValue->size(); i++)
         {
             auto root = (*aValue)[i];
+            Log::Print(root->Name());
+            Log::Print("\n");
             iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
     }
@@ -199,9 +210,14 @@ public:
 
         iWatchers.clear();
 
+        Log::Print(">RoomWatcher::ItemUpdate() root names = ");
+
+
         for(TUint i=0; i<aValue->size(); i++)
         {
             auto root = (*aValue)[i];
+            Log::Print(root->Name());
+            Log::Print("\n");
             iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
     }
@@ -330,6 +346,7 @@ public:
             buf->Append(s->Type());
             buf->Append(Brn(" "));
 
+/*
             if (s->Visible())
             {
                 buf->Append(Brn("True "));
@@ -338,8 +355,7 @@ public:
             {
                 buf->Append(Brn("False "));
             }
-
-            Brn udn(s->Device().Udn());
+*/
 
             if (s->HasInfo())
             {
@@ -360,6 +376,7 @@ public:
             }
 
 
+            Brn udn(s->Device().Udn());
             buf->Append(udn);
             buf->Append(Brn(" Volume"));
 
@@ -439,7 +456,6 @@ void SuiteTopology6::Test1()
     Functor f = MakeFunctor(*network, &Network::Wait);
 
     TBool test = runner->Run(f, iReader, *mocker);
-    //OpenHome::Log::Print("test = %d\n", test);
     TEST(test);
 
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology6::ExecuteCallback);
@@ -485,6 +501,7 @@ void TestTopology6(Environment& aEnv, const std::vector<Brn>& aArgs)
         ASSERTS();
     }
 
+    // build an options parser for the cmdline args
     OptionParser parser;
     OptionString optionServer("-s", "--server", Brn("eng"), "address of server to connect to");
     parser.AddOption(&optionServer);
@@ -496,10 +513,12 @@ void TestTopology6(Environment& aEnv, const std::vector<Brn>& aArgs)
         return;
     }
 
+    // assert the port is in range
     TUint port = optionPort.Value();
     ASSERT(port <= 65535);
-    Bwh uriBuf(100);
 
+    // build the URI we want to connect to
+    Bwh uriBuf(100);
     Endpoint endptServer = Endpoint(port, optionServer.Value());
     uriBuf.Replace(Brn("http://"));
     endptServer.AppendEndpoint(uriBuf);
@@ -507,6 +526,7 @@ void TestTopology6(Environment& aEnv, const std::vector<Brn>& aArgs)
     uriBuf.Append(optionPath.Value());
     Uri uri(uriBuf);
 
+    // connect to the URI
     auto reader = new HttpReader(aEnv);
     if (!reader->Connect(uri))
     {
@@ -514,6 +534,7 @@ void TestTopology6(Environment& aEnv, const std::vector<Brn>& aArgs)
         ASSERTS();
     }
 
+    // wrap the reader in a more useful reader (allows reading up to a delimiter char)
     ReaderUntilS<1024>* readerUntil = new ReaderUntilS<1024>(*reader);
 
     Runner runner("Topology6 tests\n");

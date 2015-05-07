@@ -30,15 +30,16 @@ class ITopologyGroup
 {
 public:
     virtual Brn Name() = 0;
+    virtual Brn Attributes() = 0;
     virtual IDevice& Device() = 0;
     virtual IWatchable<ISender*>& Sender() = 0;
     virtual IWatchable<ITopologySource*>& GroupSource() = 0;
-    virtual std::vector<ITopologySource*>& GroupSources() = 0;	
+    virtual std::vector<ITopologySource*>& GroupSources() = 0;
 
     virtual TBool HasVolume() = 0;
     virtual TBool HasInfo() = 0;
     virtual TBool HasTime() = 0;
-		
+
     virtual ~ITopologyGroup() {}
 };
 
@@ -50,14 +51,14 @@ public:
     virtual TUint Index() = 0;
     virtual Brn Name() = 0;
     virtual Brn Type() = 0;
-    virtual TBool Visible() = 0;
+    //virtual TBool Visible() = 0;
     virtual ITopologyGroup& Group() = 0;
     virtual IMediaPreset* CreatePreset() = 0;
     virtual std::vector<ITopologyGroup*>& Volumes() = 0;
     virtual IDevice& Device() = 0;
     virtual TBool HasInfo() = 0;
     virtual TBool HasTime() = 0;
-    virtual void Select() = 0;
+    //virtual void Select() = 0;
 
     virtual ~ITopologySource() {}
 };
