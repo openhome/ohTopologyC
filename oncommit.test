@@ -14,7 +14,7 @@ tests = '''
     TestTopology3 -s {ws_hostname} -p {ws_port} --path Topology3TestScript.txt
    #TestTopology4 -s {ws_hostname} -p {ws_port} --path Topology4TestScript.txt
     TestTopology5 -s {ws_hostname} -p {ws_port} --path Topology5TestScript.txt
-    TestTopology6 -s {ws_hostname} -p {ws_port} --path Topology6TestScript.txt
+   #TestTopology6 -s {ws_hostname} -p {ws_port} --path Topology6TestScript.txt
     '''
 
 w = StaticWebServer(os.path.join("TestScripts"))
