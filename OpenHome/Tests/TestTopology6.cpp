@@ -55,16 +55,12 @@ public:
     RootWatcher(MockableScriptRunner& aRunner, ITopologyRoot& aRoot)
         :iFactory(new ResultWatcherFactory(aRunner))
     {
-        Log::Print(">RootWatcher::RootWatcher() name = ");
-        Log::Print(aRoot.Name());
-        Log::Print("\n");
         iFactory->Create<ITopologySource*>(aRoot.Name(), aRoot.Source(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback1));
         iFactory->Create<vector<ITopologyGroup*>*>(aRoot.Name(), aRoot.Senders(), MakeFunctorGeneric(*this, &RootWatcher::CreateCallback2));
     }
 
     void CreateCallback1(MockCbData<ITopologySource*>* aArgs)
     {
-        Log::Print(">RootWatcher::CreateCallback1()  \n");
         ITopologySource* s = aArgs->iData;
         auto f = aArgs->iCallback;
 
@@ -122,9 +118,6 @@ public:
 
 
         f(*buf);
-        Log::Print("buf = ");
-        Log::Print(*buf);
-        Log::Print("\n");
         delete aArgs;
         delete buf;
     }
@@ -190,12 +183,9 @@ public:
 
     virtual void ItemOpen(const Brx& /*aId*/, vector<ITopologyRoot*>* aValue)
     {
-        Log::Print(">RoomWatcher::ItemOpen() root names = ");
         for(TUint i=0; i<aValue->size(); i++)
         {
             auto root = (*aValue)[i];
-            Log::Print(root->Name());
-            Log::Print("\n");
             iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
     }
@@ -210,14 +200,9 @@ public:
 
         iWatchers.clear();
 
-        Log::Print(">RoomWatcher::ItemUpdate() root names = ");
-
-
         for(TUint i=0; i<aValue->size(); i++)
         {
             auto root = (*aValue)[i];
-            Log::Print(root->Name());
-            Log::Print("\n");
             iWatchers.push_back(new RootWatcher(iRunner, *root));
         }
     }
