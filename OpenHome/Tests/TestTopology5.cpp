@@ -249,7 +249,9 @@ void TestTopology5(Environment& aEnv, const std::vector<Brn>& aArgs)
     Uri uri(uriBuf);
 
     auto reader = new HttpReader(aEnv);
-    if (!reader->Connect(uri))
+    TUint code = reader->Connect(uri);
+
+    if ((code < HttpStatus::kSuccessCodes) || (code >= HttpStatus::kRedirectionCodes))
     {
         Log::Print("Failed to connect \n");
         ASSERTS();
