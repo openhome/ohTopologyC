@@ -47,17 +47,19 @@ public:
 class  ITopologySource
 {
 public:
+
     virtual TUint Index() const = 0;
     virtual const Brx& Name() const = 0;
     virtual const Brx& Type() const = 0;
-    virtual TBool Visible() const = 0;
+    //virtual TBool Visible() const = 0;
     virtual ITopologyGroup& Group() const = 0;
     virtual IMediaPreset* CreatePreset() = 0;
     virtual std::vector<ITopologyGroup*>& Volumes() const = 0;
     virtual IDevice& Device() const = 0;
     virtual TBool HasInfo() const = 0;
     virtual TBool HasTime() const = 0;
-    virtual void Select() = 0;
+    //virtual void Select() = 0;
+
 
     virtual ~ITopologySource() {}
 };

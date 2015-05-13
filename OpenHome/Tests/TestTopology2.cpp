@@ -315,8 +315,8 @@ void TestTopology2(Environment& aEnv, const std::vector<Brn>& aArgs)
 
     TUint port = optionPort.Value();
     ASSERT(port <= 65535);
-    Bwh uriBuf(100);
 
+    Bwh uriBuf(100);
     Endpoint endptServer = Endpoint(port, optionServer.Value());
     uriBuf.Replace(Brn("http://"));
     endptServer.AppendEndpoint(uriBuf);

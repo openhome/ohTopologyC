@@ -72,7 +72,6 @@ TBool MockableScriptRunner::Run(Functor aWait, ReaderUntil& aStream, IMockable& 
     for (;;)
     {
         count++;
-        //OpenHome::Log::Print("Count = %d\n", count);
 
         iLine.Replace(lastline);
 
@@ -188,6 +187,8 @@ TBool MockableScriptRunner::Run(Functor aWait, ReaderUntil& aStream, IMockable& 
                 }
                 else
                 {
+                    OpenHome::Log::Print("\nExpected:\n");
+                    OpenHome::Log::Print(expected);
                     THROW(QueueEmpty);
                 }
 
@@ -216,6 +217,7 @@ TBool MockableScriptRunner::Run(Functor aWait, ReaderUntil& aStream, IMockable& 
             }
             else
             {
+                Log::Print(iLine);
                 THROW(NotSupportedException);
             }
         }
@@ -248,12 +250,6 @@ void MockableScriptRunner::Result(Bwh* aValue)
  */
 TBool MockableScriptRunner::Test(const Brx& aActual, const Brx& aExpected)
 {
-/*
-    OpenHome::Log::Print("\n\nActual/Expected:\n");
-    OpenHome::Log::Print(aActual);
-    OpenHome::Log::Print("\n");
-    OpenHome::Log::Print(aExpected);
-*/
     TBool success = aActual.Equals(aExpected);
 
     if (!success)

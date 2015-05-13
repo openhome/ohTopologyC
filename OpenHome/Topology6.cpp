@@ -1041,13 +1041,16 @@ void Topology6Room::InsertIntoTree(Topology6Group& aGroup)
 
     // remove any roots that are children of mine
     // (root = not a child (source) of any other group)
-    for(TUint i=0; i<iRoots.size(); i++)
+    for(TUint i=0; i<iRoots.size(); )
     {
         Topology6Group* g = iRoots[i];
         if ( aGroup.AddIfIsChild(*g) )
         {
             iRoots.erase(iRoots.begin()+i);
-            break;
+        }
+        else
+        {
+            i++;
         }
     }
 

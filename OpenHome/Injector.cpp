@@ -172,7 +172,7 @@ void InjectorMock::ExecuteCallback(void* aObj)
         }
         else if (type == Brn("dsm"))
         {
-            //Create(*DeviceFactory:CreateDsm(iNetwork, udn, iLog));
+            Create(DeviceFactory::CreateDsm(iNetwork, udn, iLog));
             return;
         }
     }

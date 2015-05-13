@@ -78,6 +78,7 @@ public:
         buf->Append(s->Type());
         buf->Append(Brn(" "));
 
+/*
         if (s->Visible())
         {
             buf->Append(Brn("True "));
@@ -86,7 +87,7 @@ public:
         {
             buf->Append(Brn("False "));
         }
-
+*/
 
         if (s->HasInfo())
         {
@@ -330,6 +331,7 @@ public:
             buf->Append(s->Type());
             buf->Append(Brn(" "));
 
+/*
             if (s->Visible())
             {
                 buf->Append(Brn("True "));
@@ -338,8 +340,7 @@ public:
             {
                 buf->Append(Brn("False "));
             }
-
-            Brn udn(s->Device().Udn());
+*/
 
             if (s->HasInfo())
             {
@@ -360,6 +361,7 @@ public:
             }
 
 
+            Brn udn(s->Device().Udn());
             buf->Append(udn);
             buf->Append(Brn(" Volume"));
 
@@ -439,7 +441,6 @@ void SuiteTopology6::Test1()
     Functor f = MakeFunctor(*network, &Network::Wait);
 
     TBool test = runner->Run(f, iReader, *mocker);
-    //OpenHome::Log::Print("test = %d\n", test);
     TEST(test);
 
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopology6::ExecuteCallback);
@@ -485,6 +486,7 @@ void TestTopology6(Environment& aEnv, const std::vector<Brn>& aArgs)
         ASSERTS();
     }
 
+    // build an options parser for the cmdline args
     OptionParser parser;
     OptionString optionServer("-s", "--server", Brn("eng"), "address of server to connect to");
     parser.AddOption(&optionServer);
@@ -496,10 +498,12 @@ void TestTopology6(Environment& aEnv, const std::vector<Brn>& aArgs)
         return;
     }
 
+    // assert the port is in range
     TUint port = optionPort.Value();
     ASSERT(port <= 65535);
-    Bwh uriBuf(100);
 
+    // build the URI we want to connect to
+    Bwh uriBuf(100);
     Endpoint endptServer = Endpoint(port, optionServer.Value());
     uriBuf.Replace(Brn("http://"));
     endptServer.AppendEndpoint(uriBuf);
@@ -507,6 +511,7 @@ void TestTopology6(Environment& aEnv, const std::vector<Brn>& aArgs)
     uriBuf.Append(optionPath.Value());
     Uri uri(uriBuf);
 
+    // connect to the URI
     auto reader = new HttpReader(aEnv);
     if (!reader->Connect(uri))
     {
@@ -514,6 +519,7 @@ void TestTopology6(Environment& aEnv, const std::vector<Brn>& aArgs)
         ASSERTS();
     }
 
+    // wrap the reader in a more useful reader (allows reading up to a delimiter char)
     ReaderUntilS<1024>* readerUntil = new ReaderUntilS<1024>(*reader);
 
     Runner runner("Topology6 tests\n");
