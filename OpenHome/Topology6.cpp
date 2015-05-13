@@ -170,6 +170,8 @@ Topology6Source::Topology6Source(INetwork& aNetwork, Topology6Group& aGroup, ITo
     :iNetwork(aNetwork)
     ,iGroup(aGroup)
     ,iSource(aSource)
+		, iSourceName(aSource.Name())
+		, iSourceType(aSource.Type())
     ,iVolumes(NULL)
     ,iHasInfo(aHasInfo)
     ,iHasTime(aHasTime)
@@ -178,31 +180,31 @@ Topology6Source::Topology6Source(INetwork& aNetwork, Topology6Group& aGroup, ITo
 }
 
 
-TUint Topology6Source::Index()
+TUint Topology6Source::Index() const
 {
     return iSource.Index();
 }
 
 
-Brn Topology6Source::Name()
+const Brx& Topology6Source::Name() const
 {
-    return iSource.Name();
+    return iSourceName;
 }
 
 
-ITopologyGroup& Topology6Source::Group()
+ITopologyGroup& Topology6Source::Group() const
 {
     return iGroup;
 }
 
 
-Brn Topology6Source::Type()
+const Brx& Topology6Source::Type() const
 {
-    return iSource.Type();
+    return iSourceType;
 }
 
 
-TBool Topology6Source::Visible()
+TBool Topology6Source::Visible() const
 {
     return iSource.Visible();
 }
@@ -232,7 +234,7 @@ IMediaPreset* Topology6Source::CreatePreset()
 }
 
 
-std::vector<ITopologyGroup*>& Topology6Source::Volumes()
+std::vector<ITopologyGroup*>& Topology6Source::Volumes() const
 {
     return *iVolumes;
 }
@@ -244,19 +246,19 @@ void Topology6Source::SetVolumes(std::vector<ITopologyGroup*>* aVolumes)
 }
 
 
-IDevice& Topology6Source::Device()
+IDevice& Topology6Source::Device() const
 {
     return(iGroup.Device());
 }
 
 
-TBool Topology6Source::HasInfo()
+TBool Topology6Source::HasInfo() const
 {
     return iHasInfo;
 }
 
 
-TBool Topology6Source::HasTime()
+TBool Topology6Source::HasTime() const
 {
     return iHasTime;
 }
@@ -366,13 +368,13 @@ void Topology6Group::Dispose()
 }
 
 
-Brn Topology6Group::Name()
+const Brx& Topology6Group::Name() const
 {
     return iName;
 }
 
 
-IDevice& Topology6Group::Device()
+IDevice& Topology6Group::Device() const
 {
     return iGroup.Device();
 }
@@ -411,29 +413,29 @@ Brn Topology6Group::Attributes()
     return iGroup.Attributes();
 }
 
-IWatchable<ISender*>& Topology6Group::Sender()
+IWatchable<ISender*>& Topology6Group::Sender() const
 {
     return iGroup.Sender();
 }
 
-IWatchable<ITopologySource*>& Topology6Group::Source()
+IWatchable<ITopologySource*>& Topology6Group::Source() const
 {
     ASSERT(!iDisposed);
     return *iWatchableSource;
 }
 
 
-TBool Topology6Group::HasVolume()
+TBool Topology6Group::HasVolume() const
 {
     return Ascii::Contains(iGroup.Attributes(), Brn("Volume"));
 }
 
-TBool Topology6Group::HasInfo()
+TBool Topology6Group::HasInfo() const
 {
     return Ascii::Contains(iGroup.Attributes(), Brn("Info"));
 }
 
-TBool Topology6Group::HasTime()
+TBool Topology6Group::HasTime() const
 {
     return Ascii::Contains(iGroup.Attributes(), Brn("Time"));
 }
@@ -515,19 +517,19 @@ void Topology6Group::EvaluateSources()
 }
 
 
-std::vector<ITopologySource*>& Topology6Group::Sources()
+const std::vector<ITopologySource*>& Topology6Group::Sources() const
 {
     return iVisibleSources;
 }
 
 
 
-IWatchable<ITopologySource*>& Topology6Group::GroupSource()
+IWatchable<ITopologySource*>& Topology6Group::GroupSource() const
 {
     return (*iWatchableGroupSource);
 }
 
-std::vector<ITopologySource*>& Topology6Group::GroupSources()
+const std::vector<ITopologySource*>& Topology6Group::GroupSources() const
 {
     return iVisibleGroupSources;
 }
@@ -561,13 +563,13 @@ void Topology6Group::EvaluateSenders()
 }
 
 
-IWatchable<std::vector<ITopologyGroup*>*>& Topology6Group::Senders()
+IWatchable<std::vector<ITopologyGroup*>*>& Topology6Group::Senders() const
 {
     return(*iSenders);
 }
 
 
-Topology6Group* Topology6Group::Parent()
+Topology6Group* Topology6Group::Parent() const
 {
     return iParent;
 }
@@ -862,30 +864,30 @@ void Topology6Room::Dispose()
 }
 
 
-Brn Topology6Room::Name()
+const Brx& Topology6Room::Name() const
 {
     return iName;
 }
 
 
-IWatchable<EStandby>& Topology6Room::Standby()
+IWatchable<EStandby>& Topology6Room::Standby() const
 {
     return *iWatchableStandby;
 }
 
 
-IWatchable<std::vector<ITopologyRoot*>*>& Topology6Room::Roots()
+IWatchable<std::vector<ITopologyRoot*>*>& Topology6Room::Roots() const
 {
     return *iWatchableRoots;
 }
 
 
-IWatchable<std::vector<ITopologySource*>*>& Topology6Room::Sources()
+IWatchable<std::vector<ITopologySource*>*>& Topology6Room::Sources() const
 {
     return *iWatchableSources;
 }
 
-IWatchable<std::vector<ITopologyGroup*>*>& Topology6Room::Groups()
+IWatchable<std::vector<ITopologyGroup*>*>& Topology6Room::Groups() const
 {
     return *iWatchableGroups;
 }
@@ -1180,14 +1182,14 @@ void Topology6::DisposeCallback(void*)
 }
 
 
-IWatchableUnordered<ITopologyRoom*>& Topology6::Rooms()
+IWatchableUnordered<ITopologyRoom*>& Topology6::Rooms() const
 {
     DisposeLock lock(*iDisposeHandler);
     return(*iRooms);
 }
 
 
-INetwork& Topology6::Network()
+INetwork& Topology6::Network() const
 {
     DisposeLock lock(*iDisposeHandler);
     return iNetwork;

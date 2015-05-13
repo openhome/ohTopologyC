@@ -29,15 +29,15 @@ class Topology6Room;
 class ITopologyGroup
 {
 public:
-    virtual Brn Name() = 0;
-    virtual IDevice& Device() = 0;
-    virtual IWatchable<ISender*>& Sender() = 0;
-    virtual IWatchable<ITopologySource*>& GroupSource() = 0;
-    virtual std::vector<ITopologySource*>& GroupSources() = 0;	
+    virtual const Brx& Name() const = 0;
+    virtual IDevice& Device() const = 0;
+    virtual IWatchable<ISender*>& Sender() const = 0;
+    virtual IWatchable<ITopologySource*>& GroupSource() const = 0;
+    virtual const std::vector<ITopologySource*>& GroupSources() const = 0;	
 
-    virtual TBool HasVolume() = 0;
-    virtual TBool HasInfo() = 0;
-    virtual TBool HasTime() = 0;
+    virtual TBool HasVolume() const = 0;
+    virtual TBool HasInfo() const = 0;
+    virtual TBool HasTime() const = 0;
 		
     virtual ~ITopologyGroup() {}
 };
@@ -47,16 +47,16 @@ public:
 class  ITopologySource
 {
 public:
-    virtual TUint Index() = 0;
-    virtual Brn Name() = 0;
-    virtual Brn Type() = 0;
-    virtual TBool Visible() = 0;
-    virtual ITopologyGroup& Group() = 0;
+    virtual TUint Index() const = 0;
+    virtual const Brx& Name() const = 0;
+    virtual const Brx& Type() const = 0;
+    virtual TBool Visible() const = 0;
+    virtual ITopologyGroup& Group() const = 0;
     virtual IMediaPreset* CreatePreset() = 0;
-    virtual std::vector<ITopologyGroup*>& Volumes() = 0;
-    virtual IDevice& Device() = 0;
-    virtual TBool HasInfo() = 0;
-    virtual TBool HasTime() = 0;
+    virtual std::vector<ITopologyGroup*>& Volumes() const = 0;
+    virtual IDevice& Device() const = 0;
+    virtual TBool HasInfo() const = 0;
+    virtual TBool HasTime() const = 0;
     virtual void Select() = 0;
 
     virtual ~ITopologySource() {}
@@ -90,15 +90,15 @@ public:
     Topology6Source(INetwork& aNetwork, Topology6Group& aGroup, ITopology4Source& aSource, TBool aHasInfo, TBool aHasTime);
 
     // ITopologySource
-    virtual TUint Index();
-    virtual Brn Name();
-    virtual Brn Type();
-    virtual TBool Visible();
-    virtual ITopologyGroup& Group();
-    virtual std::vector<ITopologyGroup*>& Volumes();
-    virtual IDevice& Device();
-    virtual TBool HasInfo();
-    virtual TBool HasTime();
+    virtual TUint Index() const;
+    virtual const Brx& Name() const;
+    virtual const Brx& Type() const;
+    virtual TBool Visible() const;
+    virtual ITopologyGroup& Group() const;
+    virtual std::vector<ITopologyGroup*>& Volumes() const;
+    virtual IDevice& Device() const;
+    virtual TBool HasInfo() const;
+    virtual TBool HasTime() const;
     virtual void Select();
     virtual IMediaPreset* CreatePreset();
 
@@ -109,6 +109,8 @@ private:
     INetwork& iNetwork;
     Topology6Group& iGroup;
     ITopology4Source& iSource;
+		Brn iSourceName;
+		Brn iSourceType;
     std::vector<ITopologyGroup*>* iVolumes;
     TBool iHasInfo;
     TBool iHasTime;
@@ -152,9 +154,9 @@ private:
 class ITopologyRoot : public ITopologyGroup
 {
 public:
-    virtual IWatchable<ITopologySource*>& Source() = 0;
-    virtual std::vector<ITopologySource*>& Sources() = 0;
-    virtual IWatchable<std::vector<ITopologyGroup*>*>& Senders() = 0;
+    virtual IWatchable<ITopologySource*>& Source() const = 0;
+    virtual const std::vector<ITopologySource*>& Sources() const = 0;
+    virtual IWatchable<std::vector<ITopologyGroup*>*>& Senders() const = 0;
     virtual ~ITopologyRoot() {}
 };
 
@@ -171,24 +173,24 @@ public:
     ~Topology6Group();
 
     virtual void Dispose();
-    virtual Brn Name();
-    virtual IDevice& Device();
-    virtual IWatchable<ISender*>& Sender();
+    virtual const Brx& Name() const;
+    virtual IDevice& Device() const;
+    virtual IWatchable<ISender*>& Sender() const;
 
-    virtual IWatchable<std::vector<ITopologyGroup*>*>& Senders();
-    virtual IWatchable<ITopologySource*>& Source();
-    virtual std::vector<ITopologySource*>& Sources();
+    virtual IWatchable<std::vector<ITopologyGroup*>*>& Senders() const;
+    virtual IWatchable<ITopologySource*>& Source() const;
+		virtual const std::vector<ITopologySource*>& Sources() const;
     virtual void SetSourceIndex(TUint aValue);
 
-    virtual IWatchable<ITopologySource*>& GroupSource();
-    virtual std::vector<ITopologySource*>& GroupSources();
+    virtual IWatchable<ITopologySource*>& GroupSource() const;
+    virtual const std::vector<ITopologySource*>& GroupSources() const;
 
 
-    virtual Topology6Group* Parent();
+    virtual Topology6Group* Parent() const;
 
-    TBool HasVolume();
-    TBool HasInfo();
-    TBool HasTime();
+    TBool HasVolume() const;
+    TBool HasInfo() const;
+    TBool HasTime() const;
 
 
 private:
@@ -306,11 +308,11 @@ private:
 class ITopologyRoom
 {
 public:
-    virtual Brn Name() = 0;
-    virtual IWatchable<EStandby>& Standby() = 0;
-    virtual IWatchable<std::vector<ITopologyRoot*>*>& Roots() = 0;
-    virtual IWatchable<std::vector<ITopologySource*>*>& Sources() = 0;
-    virtual IWatchable<std::vector<ITopologyGroup*>*>& Groups() = 0;
+    virtual const Brx& Name() const = 0;
+    virtual IWatchable<EStandby>& Standby() const = 0;
+    virtual IWatchable<std::vector<ITopologyRoot*>*>& Roots() const = 0;
+    virtual IWatchable<std::vector<ITopologySource*>*>& Sources() const = 0;
+    virtual IWatchable<std::vector<ITopologyGroup*>*>& Groups() const = 0;
     virtual void SetStandby(TBool aValue) = 0;
     virtual ~ITopologyRoom() {}
 };
@@ -328,13 +330,13 @@ public:
     ~Topology6Room();
 
     virtual void Dispose();
-    virtual Brn Name();
+    virtual const Brx& Name() const;
     virtual void SetStandby(TBool aValue);
 
-    virtual IWatchable<EStandby>& Standby();
-    virtual IWatchable<std::vector<ITopologyRoot*>*>& Roots();
-    virtual IWatchable<std::vector<ITopologySource*>*>& Sources();
-    virtual IWatchable<std::vector<ITopologyGroup*>*>& Groups();
+    virtual IWatchable<EStandby>& Standby() const;
+    virtual IWatchable<std::vector<ITopologyRoot*>*>& Roots() const;
+    virtual IWatchable<std::vector<ITopologySource*>*>& Sources() const;
+    virtual IWatchable<std::vector<ITopologyGroup*>*>& Groups() const;
 
 private:
     // IWatcherUnordered<ITopology4Group*>
@@ -384,8 +386,8 @@ private:
 class ITopology6 : public IDisposable
 {
 public:
-    virtual IWatchableUnordered<ITopologyRoom*>& Rooms() = 0;
-    virtual INetwork& Network() = 0;
+    virtual IWatchableUnordered<ITopologyRoom*>& Rooms() const = 0;
+    virtual INetwork& Network() const = 0;
     virtual void Dispose() = 0;
     virtual ~ITopology6() {}
 };
@@ -400,9 +402,9 @@ public:
     Topology6(ITopology5* aTopology5, ILog& aLog);
     ~Topology6();
 
-    virtual IWatchableUnordered<ITopologyRoom*>& Rooms();
+    virtual IWatchableUnordered<ITopologyRoom*>& Rooms() const;
     virtual void Dispose();
-    virtual INetwork& Network();
+    virtual INetwork& Network() const;
 
     static Topology6* CreateTopology(INetwork* aNetwork, ILog& aLog);
 
