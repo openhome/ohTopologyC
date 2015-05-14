@@ -510,7 +510,7 @@ void TestTopology6(Environment& aEnv, const std::vector<Brn>& aArgs)
     uriBuf.Append(Brn("/"));
     uriBuf.Append(optionPath.Value());
     Uri uri(uriBuf);
-
+		Log::Print(uriBuf);
     // connect to the URI
     auto reader = new HttpReader(aEnv);
     if (!reader->Connect(uri))

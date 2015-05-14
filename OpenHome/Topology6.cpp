@@ -634,7 +634,8 @@ ITopologySource* Topology6Group::EvaluateSource()
 
     // return the currently active source object.
     Topology6Source* source = iSources[iSourceIndex];
-
+		iCurrentGroupSource = source;
+		iWatchableGroupSource->Update(iCurrentGroupSource);
     // if the source has a child get the child's active source instead
     for(TUint i=0; i<iChildren.size(); i++)
     {
