@@ -31,9 +31,6 @@ public:
     virtual IWatchable<TBool>& Mute() = 0;
     virtual IWatchable<TUint>& Value() = 0;
     virtual IWatchable<TUint>& VolumeLimit() = 0;
-    virtual IWatchable<TUint>& VolumeMilliDbPerStep() = 0;
-    virtual IWatchable<TUint>& VolumeSteps() = 0;
-    virtual IWatchable<TUint>& VolumeUnity() = 0;
 
     virtual void SetBalance(TInt aValue) = 0;
     virtual void SetFade(TInt aValue) = 0;
@@ -45,6 +42,9 @@ public:
     virtual TUint BalanceMax() = 0;
     virtual TUint FadeMax() = 0;
     virtual TUint VolumeMax() = 0;
+    virtual TUint VolumeMilliDbPerStep() = 0;
+    virtual TUint VolumeSteps() = 0;
+    virtual TUint VolumeUnity() = 0;
 };
 
 ////////////////////////////////////////////////////////
@@ -66,9 +66,9 @@ public:
     virtual TUint BalanceMax();
     virtual TUint FadeMax();
     virtual TUint VolumeMax();
-    virtual IWatchable<TUint>& VolumeMilliDbPerStep();
-    virtual IWatchable<TUint>& VolumeSteps();
-    virtual IWatchable<TUint>& VolumeUnity();
+    virtual TUint VolumeMilliDbPerStep();
+    virtual TUint VolumeSteps();
+    virtual TUint VolumeUnity();
 
     virtual void SetBalance(TInt aValue) = 0;
     virtual void SetFade(TInt aValue) = 0;
@@ -86,9 +86,9 @@ protected:
     Watchable<TBool>* iMute;
     Watchable<TUint>* iValue;
     Watchable<TUint>* iVolumeLimit;
-    Watchable<TUint>* iVolumeMilliDbPerStep;
-    Watchable<TUint>* iVolumeSteps;
-    Watchable<TUint>* iVolumeUnity;
+    TUint iVolumeMilliDbPerStep;
+    TUint iVolumeSteps;
+    TUint iVolumeUnity;
 };
 
 //////////////////////////////////////////////////////
@@ -115,21 +115,12 @@ protected:
 
 private:
     void HandleInitialEvent();
-    void HandleVolumeUnityChanged();
-    void HandleVolumeStepsChanged();
-    void HandleVolumeMilliDbPerStepChanged();
     void HandleVolumeLimitChanged();
     void HandleVolumeChanged();
     void HandleMuteChanged();
     void HandleFadeChanged();
     void HandleBalanceChanged();
 
-    void VolumeUnityChangedCallback1(void*);
-    void VolumeUnityChangedCallback2(void*);
-    void VolumeStepsChangedCallback1(void*);
-    void VolumeStepsChangedCallback2(void*);
-    void VolumeMilliDbPerStepChangedCallback1(void*);
-    void VolumeMilliDbPerStepChangedCallback2(void*);
     void VolumeLimitChangedCallback1(void*);
     void VolumeLimitChangedCallback2(void*);
     void VolumeChangedCallback1(void*);
@@ -159,9 +150,9 @@ public:
     virtual IWatchable<TBool>& Mute();
     virtual IWatchable<TUint>& Value();
     virtual IWatchable<TUint>& VolumeLimit();
-    virtual IWatchable<TUint>& VolumeMilliDbPerStep();
-    virtual IWatchable<TUint>& VolumeSteps();
-    virtual IWatchable<TUint>& VolumeUnity();
+    virtual TUint VolumeMilliDbPerStep();
+    virtual TUint VolumeSteps();
+    virtual TUint VolumeUnity();
     virtual TUint BalanceMax();
     virtual TUint FadeMax();
     virtual TUint VolumeMax();

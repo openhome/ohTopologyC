@@ -21,9 +21,6 @@ ServiceVolume::ServiceVolume(IInjectorDevice& aDevice, ILog& aLog)
     ,iMute(new Watchable<TBool>(iNetwork, Brn("Mute"), false))
     ,iValue(new Watchable<TUint>(iNetwork, Brn("Value"), 0))
     ,iVolumeLimit(new Watchable<TUint>(iNetwork, Brn("VolumeLimit"), 0))
-    ,iVolumeMilliDbPerStep(new Watchable<TUint>(iNetwork, Brn("VolumeMilliDbPerStep"), 0))
-    ,iVolumeSteps(new Watchable<TUint>(iNetwork, Brn("VolumeSteps"), 0))
-    ,iVolumeUnity(new Watchable<TUint>(iNetwork, Brn("VolumeUnity"), 0))
 {
 }
 
@@ -34,9 +31,9 @@ ServiceVolume::~ServiceVolume()
     delete iMute;
     delete iValue;
     delete iVolumeLimit;
-    delete iVolumeMilliDbPerStep;
-    delete iVolumeSteps;
-    delete iVolumeUnity;
+    //delete iVolumeMilliDbPerStep;
+    //delete iVolumeSteps;
+    //delete iVolumeUnity;
 }
 
 void ServiceVolume::Dispose()
@@ -47,9 +44,9 @@ void ServiceVolume::Dispose()
     iMute->Dispose();
     iValue->Dispose();
     iVolumeLimit->Dispose();
-    iVolumeMilliDbPerStep->Dispose();
-    iVolumeSteps->Dispose();
-    iVolumeUnity->Dispose();
+    //iVolumeMilliDbPerStep->Dispose();
+    //iVolumeSteps->Dispose();
+    //iVolumeUnity->Dispose();
 }
 
 IProxy* ServiceVolume::OnCreate(IDevice& aDevice)
@@ -97,19 +94,19 @@ TUint ServiceVolume::VolumeMax()
     return iVolumeMax;
 }
 
-IWatchable<TUint>& ServiceVolume::VolumeMilliDbPerStep()
+TUint ServiceVolume::VolumeMilliDbPerStep()
 {
-    return *iVolumeMilliDbPerStep;
+    return iVolumeMilliDbPerStep;
 }
 
-IWatchable<TUint>& ServiceVolume::VolumeSteps()
+TUint ServiceVolume::VolumeSteps()
 {
-    return *iVolumeSteps;
+    return iVolumeSteps;
 }
 
-IWatchable<TUint>& ServiceVolume::VolumeUnity()
+TUint ServiceVolume::VolumeUnity()
 {
-    return *iVolumeUnity;
+    return iVolumeUnity;
 }
 
 ////////////////////////////////////////////////////////
@@ -134,6 +131,7 @@ ServiceVolumeNetwork::ServiceVolumeNetwork(IInjectorDevice& aDevice, CpProxyAvOp
     Functor f5 = MakeFunctor(*this, &ServiceVolumeNetwork::HandleVolumeLimitChanged);
     iService->SetPropertyVolumeLimitChanged(f5);
 
+/*
     Functor f6 = MakeFunctor(*this, &ServiceVolumeNetwork::HandleVolumeMilliDbPerStepChanged);
     iService->SetPropertyVolumeMilliDbPerStepChanged(f6);
 
@@ -142,7 +140,7 @@ ServiceVolumeNetwork::ServiceVolumeNetwork(IInjectorDevice& aDevice, CpProxyAvOp
 
     Functor f8 = MakeFunctor(*this, &ServiceVolumeNetwork::HandleVolumeUnityChanged);
     iService->SetPropertyVolumeUnityChanged(f8);
-
+*/
     Functor f9 = MakeFunctor(*this, &ServiceVolumeNetwork::HandleInitialEvent);
     iService->SetPropertyInitialEvent(f9);
 }
@@ -188,6 +186,13 @@ void ServiceVolumeNetwork::OnCancelSubscribe()
 
 void ServiceVolumeNetwork::HandleInitialEvent()
 {
+    iService->PropertyBalanceMax(iBalanceMax);
+    iService->PropertyFadeMax(iFadeMax);
+    iService->PropertyVolumeMax(iVolumeMax);
+    iService->PropertyVolumeMilliDbPerStep(iVolumeMilliDbPerStep);
+    iService->PropertyVolumeSteps(iVolumeSteps);
+    iService->PropertyVolumeUnity(iVolumeUnity);
+
     //if (!iSubscribedSource->iCancelled)
     //{
         SubscribeCompleted();
@@ -247,7 +252,7 @@ void ServiceVolumeNetwork::VolumeInc()
     iService->BeginVolumeInc(f);
 }
 
-
+/*
 void ServiceVolumeNetwork::HandleVolumeUnityChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::VolumeUnityChangedCallback1);
@@ -297,8 +302,6 @@ void ServiceVolumeNetwork::VolumeStepsChangedCallback2(void*)
     }
 }
 
-
-
 void ServiceVolumeNetwork::HandleVolumeMilliDbPerStepChanged()
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceVolumeNetwork::VolumeMilliDbPerStepChangedCallback1);
@@ -322,7 +325,7 @@ void ServiceVolumeNetwork::VolumeMilliDbPerStepChangedCallback2(void*)
         iVolumeMilliDbPerStep->Update(mdbs);
     }
 }
-
+*/
 
 void ServiceVolumeNetwork::HandleVolumeLimitChanged()
 {
@@ -637,17 +640,17 @@ IWatchable<TUint>& ProxyVolume::VolumeLimit()
     return iService.VolumeLimit();
 }
 
-IWatchable<TUint>& ProxyVolume::VolumeMilliDbPerStep()
+TUint ProxyVolume::VolumeMilliDbPerStep()
 {
     return iService.VolumeMilliDbPerStep();
 }
 
-IWatchable<TUint>& ProxyVolume::VolumeSteps()
+TUint ProxyVolume::VolumeSteps()
 {
     return iService.VolumeSteps();
 }
 
-IWatchable<TUint>& ProxyVolume::VolumeUnity()
+TUint ProxyVolume::VolumeUnity()
 {
     return iService.VolumeUnity();
 }
@@ -696,7 +699,6 @@ void ProxyVolume::VolumeInc()
 {
     return iService.VolumeInc();
 }
-
 
 void ProxyVolume::Dispose()
 {
