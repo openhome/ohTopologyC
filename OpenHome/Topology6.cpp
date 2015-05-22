@@ -288,6 +288,8 @@ Topology6Group::Topology6Group(INetwork& aNetwork, const Brx& aRoomName, const B
     ,iWatchableGroupSource(new Watchable<ITopologySource*>(iNetwork, Brn("groupSource"), iCurrentGroupSource))
     ,iSenders(new Watchable<vector<ITopologyGroup*>*>(iNetwork, Brn("senders"), iVectorSenders))
 {
+	Brn id(iGroup.ProductId());
+
     TBool hasInfo = Ascii::Contains(iGroup.Attributes(), Brn("Info"));
     TBool hasTime = (Ascii::Contains(iGroup.Attributes(), Brn("Time")) && hasInfo);
 
@@ -968,10 +970,10 @@ void Topology6Room::CreateTree()
         Topology6Group* t6Group = new Topology6Group(iNetwork, iName, groupWatcher->Name(), groupWatcher->Group(), groupWatcher->Sources(), iLog);
 
         InsertIntoTree(*t6Group);
-        if (t6Group->ProductId() != Brx::Empty())
-        {
+        //if (t6Group->ProductId() != Brx::Empty())
+        //{
             newGroups->push_back(t6Group);
-        }
+        //}
     }
 
     // Copy roots list to new list of ITopologyRoot
