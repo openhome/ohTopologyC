@@ -33,12 +33,12 @@ public:
     virtual IDevice& Device() const = 0;
     virtual IWatchable<ISender*>& Sender() const = 0;
     virtual IWatchable<ITopologySource*>& GroupSource() const = 0;
-    virtual const std::vector<ITopologySource*>& GroupSources() const = 0;	
+    virtual const std::vector<ITopologySource*>& GroupSources() const = 0;
 
     virtual TBool HasVolume() const = 0;
     virtual TBool HasInfo() const = 0;
     virtual TBool HasTime() const = 0;
-		
+
     virtual ~ITopologyGroup() {}
 };
 
@@ -111,8 +111,8 @@ private:
     INetwork& iNetwork;
     Topology6Group& iGroup;
     ITopology4Source& iSource;
-		Brn iSourceName;
-		Brn iSourceType;
+        Brn iSourceName;
+        Brn iSourceType;
     std::vector<ITopologyGroup*>* iVolumes;
     TBool iHasInfo;
     TBool iHasTime;
@@ -181,7 +181,7 @@ public:
 
     virtual IWatchable<std::vector<ITopologyGroup*>*>& Senders() const;
     virtual IWatchable<ITopologySource*>& Source() const;
-		virtual const std::vector<ITopologySource*>& Sources() const;
+        virtual const std::vector<ITopologySource*>& Sources() const;
     virtual void SetSourceIndex(TUint aValue);
 
     virtual IWatchable<ITopologySource*>& GroupSource() const;
@@ -213,7 +213,7 @@ private:
     ITopologySource* EvaluateSource();
     void EvaluateSourceFromChild();
     void EvaluateSendersFromChild();
-    void CreateCallback(ServiceCreateData* aSender);
+    void CreateCallback(IProxy* aProxy);
 
 
     // IWatcher<TUint>

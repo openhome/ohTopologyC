@@ -170,8 +170,8 @@ Topology6Source::Topology6Source(INetwork& aNetwork, Topology6Group& aGroup, ITo
     :iNetwork(aNetwork)
     ,iGroup(aGroup)
     ,iSource(aSource)
-		, iSourceName(aSource.Name())
-		, iSourceType(aSource.Type())
+    ,iSourceName(aSource.Name())
+    ,iSourceType(aSource.Type())
     ,iVolumes(NULL)
     ,iHasInfo(aHasInfo)
     ,iHasTime(aHasTime)
@@ -305,7 +305,7 @@ Topology6Group::Topology6Group(INetwork& aNetwork, const Brx& aRoomName, const B
 
     if (Ascii::Contains(iGroup.Attributes(), Brn("Sender")))
     {
-        FunctorGeneric<ServiceCreateData*> f  = MakeFunctorGeneric(*this, &Topology6Group::CreateCallback);
+        FunctorGeneric<IProxy*> f  = MakeFunctorGeneric(*this, &Topology6Group::CreateCallback);
         iGroup.Device().Create(f, eProxySender);
     }
 
@@ -329,20 +329,17 @@ Topology6Group::~Topology6Group()
 }
 
 
-void Topology6Group::CreateCallback(ServiceCreateData* aData)
+void Topology6Group::CreateCallback(IProxy* aProxy)
 {
-    IProxySender* senderService = (IProxySender*)aData->iProxy;
-    delete aData;
-
     if (!iDisposed)
     {
-        iSenderService = senderService;
+        iSenderService = (IProxySender*)aProxy;
         iSenderService->Status().AddWatcher(*this);
     }
     else
     {
-        senderService->Dispose();
-        delete senderService;
+        aProxy->Dispose();
+        delete aProxy;
     }
 }
 
@@ -631,11 +628,11 @@ void Topology6Group::ItemClose(const Brx& /*aId*/, TUint /*aValue*/)
 
 ITopologySource* Topology6Group::EvaluateSource()
 {
-
     // return the currently active source object.
     Topology6Source* source = iSources[iSourceIndex];
-		iCurrentGroupSource = source;
-		iWatchableGroupSource->Update(iCurrentGroupSource);
+    iCurrentGroupSource = source;
+    iWatchableGroupSource->Update(iCurrentGroupSource);
+
     // if the source has a child get the child's active source instead
     for(TUint i=0; i<iChildren.size(); i++)
     {

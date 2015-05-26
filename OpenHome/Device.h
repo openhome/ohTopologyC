@@ -22,7 +22,7 @@ class IDevice : public IJoinable
 {
 public:
     virtual Brn Udn() = 0;
-    virtual void Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType) = 0;
+    virtual void Create(FunctorGeneric<IProxy*> aCallback, EServiceType aServiceType) = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ class IInjectorDevice : public IJoinable, public IMockable, public IDisposable
 public:
     virtual Brn Udn() = 0;
     virtual INetwork& Network() const = 0;
-    virtual void Create(FunctorGeneric<ServiceCreateData*>, EServiceType aServiceType, IDevice& aDevice) = 0;
+    virtual void Create(FunctorGeneric<IProxy*>, EServiceType aServiceType, IDevice& aDevice) = 0;
     virtual TBool HasService(EServiceType aServiceType) = 0;
     virtual TBool Wait() = 0;
 };
@@ -49,7 +49,7 @@ public:
     virtual Brn Udn();
 
     // IDevice
-    virtual void Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType);
+    virtual void Create(FunctorGeneric<IProxy*> aCallback, EServiceType aServiceType);
 
     // IJoinable
     virtual void Join(Functor aAction);
@@ -79,7 +79,7 @@ public:
     virtual INetwork& Network() const;
     virtual void Add(EServiceType aServiceType, Service* aService);
     virtual bool HasService(EServiceType aServiceType);
-    virtual void Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType, IDevice& aDevice);
+    virtual void Create(FunctorGeneric<IProxy*> aCallback, EServiceType aServiceType, IDevice& aDevice);
     virtual TBool Wait();
 
     // IMockable
@@ -111,7 +111,7 @@ public:
     virtual void Unjoin(Functor aAction);
     virtual Brn Udn();
     virtual INetwork& Network() const;
-    virtual void Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType, IDevice& aDevice);
+    virtual void Create(FunctorGeneric<IProxy*> aCallback, EServiceType aServiceType, IDevice& aDevice);
     virtual TBool HasService(EServiceType aServiceType);
     virtual TBool Wait();
     virtual void Execute(ICommandTokens& aTokens);

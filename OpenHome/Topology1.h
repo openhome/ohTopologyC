@@ -57,7 +57,7 @@ public:
 
 private:
     void WatchDevices(void* aObj);
-    void UnorderedAddCallback(ServiceCreateData* aObj);
+    void UnorderedAddCallback(IProxy* aProxyProduct);
     void DisposeCallback(void*);
 
 

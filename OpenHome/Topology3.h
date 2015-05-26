@@ -108,7 +108,7 @@ public:
     virtual void ItemClose(const Brx& aId, ITopology2Source* aValue);
 
 private:
-    void CreateCallback(ServiceCreateData* aArgs);
+    void CreateCallback(IProxy* aProxy);
 
 private:
     TBool iDisposed;
@@ -137,7 +137,7 @@ public:
     virtual void ItemClose(const Brx& aId, ISenderMetadata* aValue);
 
 private:
-    void CreateCallback(ServiceCreateData* aArgs);
+    void CreateCallback(IProxy* aProxy);
 
 
 private:

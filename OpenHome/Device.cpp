@@ -36,7 +36,7 @@ Brn Device::Udn()
 }
 
 
-void Device::Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType)
+void Device::Create(FunctorGeneric<IProxy*> aCallback, EServiceType aServiceType)
 {
     DisposeLock lock(*iDisposeHandler);
     iDevice->Create(aCallback, aServiceType, *this);
@@ -109,7 +109,7 @@ INetwork& InjectorDeviceAdaptor::Network() const
     return iDevice.Network();
 }
 
-void InjectorDeviceAdaptor::Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType, IDevice& aDevice)
+void InjectorDeviceAdaptor::Create(FunctorGeneric<IProxy*> aCallback, EServiceType aServiceType, IDevice& aDevice)
 {
     iDevice.Create(aCallback, aServiceType, aDevice);
 }
@@ -264,7 +264,7 @@ TBool InjectorDevice::HasService(EServiceType aServiceType)
 
 
 
-void InjectorDevice::Create(FunctorGeneric<ServiceCreateData*> aCallback, EServiceType aServiceType, IDevice& aDevice)
+void InjectorDevice::Create(FunctorGeneric<IProxy*> aCallback, EServiceType aServiceType, IDevice& aDevice)
 {
     DisposeLock lock(*iDisposeHandler);
 

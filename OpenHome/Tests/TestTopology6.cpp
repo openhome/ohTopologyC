@@ -78,17 +78,6 @@ public:
         buf->Append(s->Type());
         buf->Append(Brn(" "));
 
-/*
-        if (s->Visible())
-        {
-            buf->Append(Brn("True "));
-        }
-        else
-        {
-            buf->Append(Brn("False "));
-        }
-*/
-
         if (s->HasInfo())
         {
             buf->Append(Brn("True "));
@@ -331,16 +320,6 @@ public:
             buf->Append(s->Type());
             buf->Append(Brn(" "));
 
-/*
-            if (s->Visible())
-            {
-                buf->Append(Brn("True "));
-            }
-            else
-            {
-                buf->Append(Brn("False "));
-            }
-*/
 
             if (s->HasInfo())
             {
@@ -510,7 +489,7 @@ void TestTopology6(Environment& aEnv, const std::vector<Brn>& aArgs)
     uriBuf.Append(Brn("/"));
     uriBuf.Append(optionPath.Value());
     Uri uri(uriBuf);
-		Log::Print(uriBuf);
+    //Log::Print(uriBuf);
     // connect to the URI
     auto reader = new HttpReader(aEnv);
     TUint code = reader->Connect(uri);

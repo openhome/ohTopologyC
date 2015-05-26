@@ -238,7 +238,7 @@ void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aValue)
 {
     if (aValue->Type().Equals(Brn("Receiver")))
     {
-        FunctorGeneric<ServiceCreateData*> f = MakeFunctorGeneric(*this, &ReceiverWatcher::CreateCallback);
+        FunctorGeneric<IProxy*> f = MakeFunctorGeneric(*this, &ReceiverWatcher::CreateCallback);
 
         iGroup.Device().Create(f, eProxyReceiver); // subscribe to Receiver Service
 /*
@@ -261,23 +261,23 @@ void ReceiverWatcher::ItemOpen(const Brx& /*aId*/, ITopology2Source* aValue)
 }
 
 
-void ReceiverWatcher::CreateCallback(ServiceCreateData* aData)
+void ReceiverWatcher::CreateCallback(IProxy* aProxy)
 {
     // call back from Receiver Service subscribe
-    IProxyReceiver* receiver = (IProxyReceiver*)aData->iProxy;
-    delete aData;
+    //IProxyReceiver* receiver = (IProxyReceiver*)aData->iProxy;
+    //delete aData;
 
     if (!iDisposed)
     {
-        iReceiver = receiver;
+        iReceiver = (IProxyReceiver*)aProxy;
         iReceiver->TransportState().AddWatcher(*this);
         iReceiver->Metadata().AddWatcher(*this);
         iTopology3.ReceiverChanged(*this);
     }
     else
     {
-        receiver->Dispose();
-        delete receiver;
+        aProxy->Dispose();
+        delete aProxy;
     }
 }
 
@@ -301,25 +301,22 @@ SenderWatcher::SenderWatcher(Topology3& aTopology3, ITopology2Group& aGroup)
     ,iMetadata(aTopology3.Network().SenderMetadataEmpty())
     ,iDisposed(false)
 {
-    FunctorGeneric<ServiceCreateData*> f = MakeFunctorGeneric(*this, &SenderWatcher::CreateCallback);
+    FunctorGeneric<IProxy*> f = MakeFunctorGeneric(*this, &SenderWatcher::CreateCallback);
     aGroup.Device().Create(f, eProxySender);
 }
 
 
-void SenderWatcher::CreateCallback(ServiceCreateData* aData)
+void SenderWatcher::CreateCallback(IProxy* aProxy)
 {
-    IProxySender* sender = (IProxySender*)aData->iProxy;
-    delete aData;
-
     if (!iDisposed)
     {
-        iSender = sender;
+        iSender = (IProxySender*)aProxy;
         iSender->Metadata().AddWatcher(*this);
     }
     else
     {
-        sender->Dispose();
-        delete sender;
+        aProxy->Dispose();
+        delete aProxy;
     }
 }
 

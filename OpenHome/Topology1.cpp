@@ -97,7 +97,7 @@ void Topology1::UnorderedClose()
 void Topology1::UnorderedAdd(IDevice* aDevice)
 {
     iPendingSubscriptions.push_back(aDevice);
-    FunctorGeneric<ServiceCreateData*> f = MakeFunctorGeneric(*this, &Topology1::UnorderedAddCallback);
+    FunctorGeneric<IProxy*> f = MakeFunctorGeneric(*this, &Topology1::UnorderedAddCallback);
     aDevice->Create(f, eProxyProduct);
 
 /*
@@ -127,11 +127,9 @@ void Topology1::UnorderedAdd(IDevice* aDevice)
 }
 
 
-void Topology1::UnorderedAddCallback(ServiceCreateData* aData)
+void Topology1::UnorderedAddCallback(IProxy* aProxyProduct)
 {
-    IDevice* device = aData->iDevice;
-    IProxyProduct* product = (IProxyProduct*)aData->iProxy;
-    delete aData;
+    IDevice* device = &aProxyProduct->Device();
 
     auto it = find(iPendingSubscriptions.begin(), iPendingSubscriptions.end(), device);
 
@@ -139,22 +137,22 @@ void Topology1::UnorderedAddCallback(ServiceCreateData* aData)
     {
         try
         {
-            iProducts->Add(product);
+            iProducts->Add((IProxyProduct*)aProxyProduct);
         }
         catch (ServiceNotFoundException)
         {
             // NOTE: we need to log the fact that product is not added due to a service not being found
-            product->Dispose();
-            delete product;
+            aProxyProduct->Dispose();
+            delete aProxyProduct;
             return;
         }
-        iProductLookup[device] = product;
+        iProductLookup[device] = (IProxyProduct*)aProxyProduct;
         iPendingSubscriptions.erase(it);
     }
     else
     {
-        product->Dispose();
-        delete product;
+        aProxyProduct->Dispose();
+        delete aProxyProduct;
     }
 }
 

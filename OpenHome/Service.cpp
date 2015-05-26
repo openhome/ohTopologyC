@@ -104,14 +104,14 @@ IInjectorDevice& Service::Device()
 }
 
 
-void Service::Create(FunctorGeneric<ServiceCreateData*> aCallback, IDevice* aDevice)
+void Service::Create(FunctorGeneric<IProxy*> aCallback, IDevice* aDevice)
 {
     Assert(); // check we're on watchable thread
 
     DisposeLock lock(*iDisposeHandler);
 
-    auto serviceCreateData = new ServiceCreateData();
-    serviceCreateData->iDevice = aDevice;
+//    auto serviceCreateData = new ServiceCreateData();
+//    serviceCreateData->iDevice = aDevice;
 
     if (iRefCount == 0)
     {
@@ -124,8 +124,8 @@ void Service::Create(FunctorGeneric<ServiceCreateData*> aCallback, IDevice* aDev
     if (iMockSubscribe)
     {
         // mock - callback immediately
-        serviceCreateData->iProxy = OnCreate(*aDevice);
-        aCallback(serviceCreateData);
+        //serviceCreateData->iProxy = OnCreate(*aDevice);
+        aCallback(OnCreate(*aDevice));
     }
     else
     {
@@ -134,12 +134,14 @@ void Service::Create(FunctorGeneric<ServiceCreateData*> aCallback, IDevice* aDev
         {
             // non mock, already subscribed - callback immediately
             iMutexSubscribe.Signal();
-            serviceCreateData->iProxy = OnCreate(*aDevice);
-            aCallback(serviceCreateData);
+            //serviceCreateData->iProxy = OnCreate(*aDevice);
+            aCallback(OnCreate(*aDevice));
         }
         else
         {
             // non mock, not yet subscribed - callback later when subscribe completes
+            auto serviceCreateData = new ServiceCreateData();
+            serviceCreateData->iDevice = aDevice;
             serviceCreateData->iCallback = aCallback;
             iSubscriptionsData.push_back(serviceCreateData);
             iMutexSubscribe.Signal();
@@ -198,8 +200,7 @@ void Service::SubscribeCompletedCallback(void* /*aArgs*/)
     for (TUint i=0; i<subscriptionsData->size(); i++)
     {
         auto data = (*subscriptionsData)[i];
-        data->iProxy = OnCreate(*(data->iDevice));
-        data->iCallback(data);
+        data->iCallback(OnCreate(*(data->iDevice)));
     }
 
 /*
