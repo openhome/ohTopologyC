@@ -7,10 +7,7 @@
 #include <OpenHome/Service.h>
 #include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
-//#include <OpenHome/AsyncAdaptor.h>
-//#include <OpenHome/MetaData.h>
-//#include <OpenHome/Media.h>
-//#include <OpenHome/IdCache.h>
+
 
 #include <vector>
 #include <memory>

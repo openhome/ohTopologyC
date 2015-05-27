@@ -27,12 +27,8 @@ ServiceTime::ServiceTime(IInjectorDevice& aDevice, ILog& aLog)
 void ServiceTime::Dispose()
 {
     ServiceTime::Dispose();
-
     iDuration->Dispose();
-    //iDuration = NULL;
-
     iSeconds->Dispose();
-    //iSeconds = null;
 }
 
 
@@ -52,19 +48,13 @@ IWatchable<TUint>& ServiceTime::Seconds()
 {
     return *iSeconds;
 }
-//    }
 
 ///////////////////////////////////////////////////////////////
 
-//    public sealed class ServiceTimeNetwork : ServiceTime
-//    {
 ServiceTimeNetwork::ServiceTimeNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgTime1* aService, ILog& aLog)
     :ServiceTime(aDevice, aLog)
     ,iService(aService)
 {
-
-    //iService->SetPropertyDurationChanged(HandleDurationChanged);
-
     Functor f1 = MakeFunctor(*this, &ServiceTimeNetwork::HandleDurationChanged);
     iService->SetPropertyDurationChanged(f1);
 
@@ -79,24 +69,11 @@ ServiceTimeNetwork::ServiceTimeNetwork(IInjectorDevice& aDevice, Net::CpProxyAvO
 void ServiceTimeNetwork::Dispose()
 {
     ServiceTime::Dispose();
-    //iService->Dispose();
 }
 
 
 TBool ServiceTimeNetwork::OnSubscribe()
 {
-/*
-    ASSERT(iSubscribedSource == NULL);
-
-    iSubscribedSource = new TaskCompletionSource<TBool>();
-
-    iService.Subscribe();
-
-    iSubscribed = true;
-
-    return iSubscribedSource.Task.ContinueWith((t) => { });
-*/
-
     iService->Subscribe();
     iSubscribed = true;
     return(false); // false = not mock
@@ -105,23 +82,11 @@ TBool ServiceTimeNetwork::OnSubscribe()
 
 void ServiceTimeNetwork::OnCancelSubscribe()
 {
-/*
-    if (iSubscribedSource != null)
-    {
-        iSubscribedSource.TrySetCanceled();
-    }
-*/
 }
 
 
 void ServiceTimeNetwork::HandleInitialEvent()
 {
-/*
-    if (!iSubscribedSource.Task.IsCanceled)
-    {
-        iSubscribedSource.SetResult(true);
-    }
-*/
     SubscribeCompleted();
 }
 
