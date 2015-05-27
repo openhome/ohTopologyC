@@ -26,6 +26,7 @@ ServiceTime::ServiceTime(IInjectorDevice& aDevice, ILog& aLog)
 
 void ServiceTime::Dispose()
 {
+    Service::Dispose();
     iDuration->Dispose();
     iSeconds->Dispose();
 }
