@@ -8,7 +8,6 @@
 #include <OpenHome/Service.h>
 #include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
-#include <Generated/CpAvOpenhomeOrgInfo1.h>
 #include <OpenHome/MetaData.h>
 
 
@@ -19,7 +18,7 @@ namespace OpenHome
 {
 namespace Net
 {
-class CpProxyAvOpenhomeOrgInfo1;
+    class CpProxyAvOpenhomeOrgInfo1;
 }
 
 namespace Topology

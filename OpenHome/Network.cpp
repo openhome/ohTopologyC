@@ -14,6 +14,7 @@
 #include <OpenHome/ServiceReceiver.h>
 #include <OpenHome/ServiceSender.h>
 #include <Generated/CpAvOpenhomeOrgProduct1.h>
+#include <Generated/CpAvOpenhomeOrgInfo1.h>
 #include <Generated/CpAvOpenhomeOrgVolume1.h>
 #include <Generated/CpAvOpenhomeOrgSender1.h>
 #include <Generated/CpAvOpenhomeOrgPlaylist1.h>

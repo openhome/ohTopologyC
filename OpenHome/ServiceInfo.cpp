@@ -4,6 +4,7 @@
 #include <OpenHome/Network.h>
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/Private/Debug.h>
+#include <Generated/CpAvOpenhomeOrgInfo1.h>
 #include <vector>
 
 using namespace OpenHome;
