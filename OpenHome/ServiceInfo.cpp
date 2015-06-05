@@ -126,7 +126,7 @@ ServiceInfoNetwork::ServiceInfoNetwork(IInjectorDevice& aDevice, CpProxyAvOpenho
     iService->SetPropertyBitDepthChanged(f1);
 
     Functor f2 = MakeFunctor(*this, &ServiceInfoNetwork::HandleDetailsChanged);
-    iService->SetPropertyBitDepthChanged(f2);
+    iService->SetPropertyChanged(f2);
 
     Functor f3 = MakeFunctor(*this, &ServiceInfoNetwork::HandleMetadataChanged);
     iService->SetPropertyMetadataChanged(f3);
@@ -173,6 +173,7 @@ void ServiceInfoNetwork::HandleInitialEvent()
         SubscribeCompleted();
     }
 */
+    SubscribeCompleted();
 }
 
 void ServiceInfoNetwork::OnUnsubscribe()

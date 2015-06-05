@@ -573,7 +573,7 @@ void Network::Dispose()
     Execute(f, NULL);
 
     //iEventSupervisor.Dispose();
-    //iIdCache->Dispose();
+    iIdCache->Dispose();
     iDisposeHandler->Dispose();
 
     if (iExceptions.size() > 0)
@@ -602,7 +602,6 @@ void Network::DisposeCallback(void*)
  */
 IIdCache& Network::IdCache()
 {
-    ASSERTS();
     return(*iIdCache);
 }
 
