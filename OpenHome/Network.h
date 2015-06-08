@@ -26,7 +26,7 @@ namespace Topology
 {
 
 
-class IIdCache;
+class IdCache;
 //class ITagManager;
 class IEventSupervisor;
 //class TagManager;
@@ -125,7 +125,7 @@ private:
     void DisposeCallback(void*);
     void RemoveCallback(void* aDevice);
     void Remove(const Brx& aUdn);
-	void DeleteDevice(void* aDevice);
+    void DeleteDevice(void* aDevice);
 
 private:
     ILog& iLog;
