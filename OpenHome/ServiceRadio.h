@@ -173,6 +173,7 @@ private:
 private:
     Net::CpProxyAvOpenhomeOrgRadio1* iService;
     IIdCacheSession* iCacheSession;
+		Bwh iIdList;
     TBool iSubscribed;
 };
 

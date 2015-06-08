@@ -602,23 +602,23 @@ void IdCacheSession::GetMissingEntriesCallback(void* aObj)
 {
     auto payload = (ReadListData*)aObj;
 
-    auto missingIds = payload->iMissingIds;
-    auto retrievedEntries = payload->iRetrievedEntries;
-    auto requiredIds = payload->iRequiredIds;
-    auto entries = payload->iEntries;
-    auto callback = payload->iCallback;
+    //auto missingIds = payload->iMissingIds;
+    //auto retrievedEntries = payload->iRetrievedEntries;
+    //auto requiredIds = payload->iRequiredIds;
+    //auto entries = payload->iEntries;
+    //auto callback = payload->iCallback;
 
-    for (TUint i=0; i<retrievedEntries->size(); i++)
-    {
-        TUint id = (*missingIds)[i];
-        IIdCacheEntry* entry = iCache->AddEntry(iSessionId, id, (*retrievedEntries)[i]);
-        auto it = find(requiredIds->begin(), requiredIds->end(), id);
-        ASSERT(it!=requiredIds->end());
-        (*entries)[it-requiredIds->begin()] = entry;
-    }
+    //for (TUint i=0; i<retrievedEntries->size(); i++)
+    //{
+    //    TUint id = (*missingIds)[i];
+    //    IIdCacheEntry* entry = iCache->AddEntry(iSessionId, id, (*retrievedEntries)[i]);
+    //    auto it = find(requiredIds->begin(), requiredIds->end(), id);
+    //    ASSERT(it!=requiredIds->end());
+    //    (*entries)[it-requiredIds->begin()] = entry;
+    //}
 
     delete payload;
-    callback(entries);
+    //callback(entries);
 }
 
 

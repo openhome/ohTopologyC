@@ -166,12 +166,12 @@ void ServiceInfoNetwork::OnCancelSubscribe()
 
 void ServiceInfoNetwork::HandleInitialEvent()
 {
-/*
-    if (!iSubscribedSource->iCancelled)
-    {
+
+		//if (!iSubscribedSource->iCancelled)
+   // {
         SubscribeCompleted();
-    }
-*/
+   // }
+
 }
 
 void ServiceInfoNetwork::OnUnsubscribe()

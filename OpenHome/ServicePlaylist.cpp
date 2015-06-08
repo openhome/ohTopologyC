@@ -215,6 +215,7 @@ ServicePlaylistNetwork::ServicePlaylistNetwork(IInjectorDevice& aDevice, CpProxy
     :ServicePlaylist(aDevice, aLog)
     ,iService(aService)
     ,iCacheSession(NULL)
+		,iIdList(Ascii::kMaxUintStringBytes * iTracksMax)
     ,iSubscribed(false)
 {
     Functor f1 = MakeFunctor(*this, &ServicePlaylistNetwork::HandleIdChanged);
@@ -500,14 +501,13 @@ void ServicePlaylistNetwork::ReadList(ReadListData* aReadListData)
     // called by IdCacheSession::CreateJobCallback - iFunction(payload);
     auto requiredIds = aReadListData->iMissingIds;
 
-    Bwh idList;
     for (TUint i=0;i<requiredIds->size(); i++)
     {
         if (i>0)
         {
-            idList.Append(Brn(" "));
+            iIdList.Append(Brn(" "));
         }
-        Ascii::AppendDec(idList, (*requiredIds)[i]);
+        Ascii::AppendDec(iIdList, (*requiredIds)[i]);
     }
 
     AsyncAdaptor& asyncAdaptor = iNetwork.GetAsyncAdaptorManager().GetAdaptor();
@@ -516,7 +516,7 @@ void ServicePlaylistNetwork::ReadList(ReadListData* aReadListData)
     asyncAdaptor.SetCallback(f, aReadListData);
     FunctorAsync fa = asyncAdaptor.AsyncCb();
 
-    iService->BeginReadList(idList, fa);
+    iService->BeginReadList(iIdList, fa);
 
 }
 

@@ -601,7 +601,7 @@ void Network::DisposeCallback(void*)
  */
 IIdCache& Network::IdCache()
 {
-    ASSERTS();
+//    ASSERTS();
     return(*iIdCache);
 }
 
