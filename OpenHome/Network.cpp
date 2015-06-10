@@ -20,7 +20,8 @@
 #include <Generated/CpAvOpenhomeOrgPlaylist1.h>
 #include <Generated/CpAvOpenhomeOrgRadio1.h>
 #include <Generated/CpAvOpenhomeOrgReceiver1.h>
-
+#include <OpenHome/Exception.h>
+#include <OpenHome/OsWrapper.h>
 
 using namespace OpenHome;
 using namespace OpenHome::Topology;
@@ -41,11 +42,6 @@ Network::Network(TUint aMaxCacheEntries, ILog& aLog)
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread))
     ,iAsyncAdaptorManager(new AsyncAdaptorManager())
-    ,iSenderEmpty(new Sender())
-    ,iInfoMetadataEmpty(new InfoMetadata())
-    ,iSenderMetadataEmpty(new SenderMetadata())
-    ,iInfoDetailsEmpty(new InfoDetails())
-    ,iInfoMetatextEmpty(new InfoMetatext())
 {
     iWatchableThread = new WatchableThread(*this);
 }
@@ -62,11 +58,6 @@ Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILo
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread);)
     ,iAsyncAdaptorManager(new AsyncAdaptorManager())
-    ,iSenderEmpty(new Sender())
-    ,iInfoMetadataEmpty(new InfoMetadata())
-    ,iSenderMetadataEmpty(new SenderMetadata())
-    ,iInfoDetailsEmpty(new InfoDetails())
-    ,iInfoMetatextEmpty(new InfoMetatext())
 {
 }
 
@@ -87,14 +78,23 @@ Network::~Network()
     {
         delete it2->second;
     }
+		if (iExceptions.size() > 0)
+		{
+		    Log::Print("%u exceptions from watchable callbacks caught:\n", (TUint)iExceptions.size());
+		}
+		for (auto it3=iExceptions.begin(); it3!=iExceptions.end(); ++it3)
+		{
+		    Exception& ex = *it3;
+        Log::Print("Exception %s at %s:%lu\n", ex.Message(), ex.File(), (unsigned long)ex.Line());
+        THandle stackTrace = ex.StackTrace();
+        TUint count = Os::StackTraceNumEntries(stackTrace);
+        for (TUint i=0; i<count; i++) {
+            const char* entry = Os::StackTraceEntry(stackTrace, i);
+						Log::Print("    %s\n", entry);
+				}
+		}
 
     delete iDisposeHandler;
-
-    delete iSenderEmpty;
-    delete iInfoMetadataEmpty;
-    delete iSenderMetadataEmpty;
-    delete iInfoDetailsEmpty;
-    delete iInfoMetatextEmpty;
 }
 
 
@@ -119,24 +119,24 @@ Sender* Network::SenderEmpty()
 
 InfoMetadata* Network::InfoMetadataEmpty()
 {
-    return(iInfoMetadataEmpty);
+    return new InfoMetadata();
 }
 
 SenderMetadata* Network::SenderMetadataEmpty()
 {
-    return(iSenderMetadataEmpty);
+    return new SenderMetadata();
 }
 
 
 InfoDetails* Network::InfoDetailsEmpty()
 {
-    return(iInfoDetailsEmpty);
+    return new InfoDetails();
 }
 
 
 InfoMetatext* Network::InfoMetatextEmpty()
 {
-    return(iInfoMetatextEmpty);
+    return new InfoMetatext();
 }
 
 /**

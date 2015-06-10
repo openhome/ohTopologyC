@@ -201,9 +201,9 @@ void ServiceReceiverNetwork::MetadataChangedCallback2(void* aInfoMetadata)
     if (iSubscribed)
     {
         IInfoMetadata* infoMetadata = (IInfoMetadata*)aInfoMetadata;
-        iMetadata->Update(infoMetadata);
         IInfoMetadata* oldmetadata = iCurrentMetadata;
         iCurrentMetadata = infoMetadata;
+        iMetadata->Update(iCurrentMetadata);
 				delete oldmetadata;
     }
 }

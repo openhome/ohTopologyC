@@ -132,7 +132,7 @@ ServicePlaylist::ServicePlaylist(IInjectorDevice& aDevice, ILog& aLog)
     ,iRepeat(new Watchable<TBool>(iNetwork, Brn("Repeat"), false))
     ,iShuffle(new Watchable<TBool>(iNetwork, Brn("Shuffle"), true))
     ,iMediaSupervisor(NULL)
-
+		,iTracksMax(0)
 {
 }
 
@@ -215,7 +215,7 @@ ServicePlaylistNetwork::ServicePlaylistNetwork(IInjectorDevice& aDevice, CpProxy
     :ServicePlaylist(aDevice, aLog)
     ,iService(aService)
     ,iCacheSession(NULL)
-		,iIdList(Ascii::kMaxUintStringBytes * iTracksMax)
+		,iIdList(nullptr)
     ,iSubscribed(false)
 {
     Functor f1 = MakeFunctor(*this, &ServicePlaylistNetwork::HandleIdChanged);
@@ -260,7 +260,6 @@ TBool ServicePlaylistNetwork::OnSubscribe()
 
     iService->Subscribe();
     iSubscribed = true;
-
     return(false); // false = not mock
 }
 
@@ -279,6 +278,7 @@ void ServicePlaylistNetwork::OnCancelSubscribe()
 void ServicePlaylistNetwork::HandleInitialEvent()
 {
     iService->PropertyTracksMax(iTracksMax);
+		iIdList.reset(new Bwh(Ascii::kMaxUintStringBytes * iTracksMax));
 
     Brhz protocolInfo;
     iService->PropertyProtocolInfo(protocolInfo);
@@ -505,9 +505,9 @@ void ServicePlaylistNetwork::ReadList(ReadListData* aReadListData)
     {
         if (i>0)
         {
-            iIdList.Append(Brn(" "));
+            iIdList->Append(Brn(" "));
         }
-        Ascii::AppendDec(iIdList, (*requiredIds)[i]);
+        Ascii::AppendDec(*iIdList, (*requiredIds)[i]);
     }
 
     AsyncAdaptor& asyncAdaptor = iNetwork.GetAsyncAdaptorManager().GetAdaptor();
@@ -516,7 +516,7 @@ void ServicePlaylistNetwork::ReadList(ReadListData* aReadListData)
     asyncAdaptor.SetCallback(f, aReadListData);
     FunctorAsync fa = asyncAdaptor.AsyncCb();
 
-    iService->BeginReadList(iIdList, fa);
+    iService->BeginReadList(*iIdList, fa);
 
 }
 

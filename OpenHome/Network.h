@@ -140,10 +140,6 @@ private:
     std::map<EServiceType, WatchableUnordered<IDevice*>*> iDeviceLists;
 
     Sender* iSenderEmpty;
-    InfoMetadata* iInfoMetadataEmpty;
-    SenderMetadata* iSenderMetadataEmpty;
-    InfoDetails* iInfoDetailsEmpty;
-    InfoMetatext* iInfoMetatextEmpty;
 };
 
 
