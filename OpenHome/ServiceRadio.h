@@ -117,16 +117,13 @@ public:
     virtual void SetChannel(const Brx& aUri, IMediaMetadata& aMetadata) = 0;
 
 protected:
-    TUint iChannelsMax;
     Bws<1000> iProtocolInfo;
-
     Watchable<TUint>* iId;
     Watchable<Brn>* iTransportState;
     Watchable<IInfoMetadata*>* iMetadata;
-
     MediaSupervisor<IMediaPreset*>* iMediaSupervisor;
-
     Bws<100>* iCurrentTransportState;
+    TUint iChannelsMax;
 };
 
 //////////////////////////////////////////////////////////////////
@@ -173,8 +170,8 @@ private:
 private:
     Net::CpProxyAvOpenhomeOrgRadio1* iService;
     IIdCacheSession* iCacheSession;
-		std::unique_ptr<Bwh> iIdList;
     TBool iSubscribed;
+		std::unique_ptr<Bwh> iIdList;
 };
 
 //////////////////////////////////////////////////////////////////

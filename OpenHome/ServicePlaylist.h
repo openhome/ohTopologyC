@@ -147,9 +147,7 @@ public:
 
 
 protected:
-    TUint iTracksMax;
     Bws<1000> iProtocolInfo;
-
     Watchable<TUint>* iId;
     Watchable<IInfoMetadata*>* iInfoNext;
     Watchable<TInt>* iInfoCurrentIndex;
@@ -157,6 +155,7 @@ protected:
     Watchable<TBool>* iRepeat;
     Watchable<TBool>* iShuffle;
     MediaSupervisor<IMediaPreset*>* iMediaSupervisor;
+    TUint iTracksMax;
 };
 
 /////////////////////////////////////////////////////////////////////////////
