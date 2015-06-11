@@ -42,6 +42,11 @@ Network::Network(TUint aMaxCacheEntries, ILog& aLog)
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread))
     ,iAsyncAdaptorManager(new AsyncAdaptorManager())
+    ,iSenderEmpty(new Sender())
+    ,iInfoMetadataEmpty(new InfoMetadata())
+    ,iSenderMetadataEmpty(new SenderMetadata())
+		,iInfoDetailsEmpty(new InfoDetails())
+    ,iInfoMetatextEmpty(new InfoMetatext())		
 {
     iWatchableThread = new WatchableThread(*this);
 }
@@ -58,6 +63,11 @@ Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILo
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread);)
     ,iAsyncAdaptorManager(new AsyncAdaptorManager())
+    ,iSenderEmpty(new Sender())
+    ,iInfoMetadataEmpty(new InfoMetadata())
+    ,iSenderMetadataEmpty(new SenderMetadata())
+		,iInfoDetailsEmpty(new InfoDetails())
+    ,iInfoMetatextEmpty(new InfoMetatext())		
 {
 }
 
@@ -95,7 +105,11 @@ Network::~Network()
 		}
 
     delete iDisposeHandler;
-}
+		delete iSenderEmpty;
+    delete iInfoMetadataEmpty;
+    delete iSenderMetadataEmpty;
+    delete iInfoDetailsEmpty;
+		delete iInfoMetatextEmpty;}
 
 
 ITagManager& Network::GetTagManager()
@@ -113,30 +127,30 @@ AsyncAdaptorManager& Network::GetAsyncAdaptorManager()
 
 Sender* Network::SenderEmpty()
 {
-    return(iSenderEmpty);
+    return iSenderEmpty;
 }
 
 
 InfoMetadata* Network::InfoMetadataEmpty()
 {
-    return new InfoMetadata();
+    return iInfoMetadataEmpty;
 }
 
 SenderMetadata* Network::SenderMetadataEmpty()
 {
-    return new SenderMetadata();
+    return iSenderMetadataEmpty;
 }
 
 
 InfoDetails* Network::InfoDetailsEmpty()
 {
-    return new InfoDetails();
+    return iInfoDetailsEmpty;
 }
 
 
 InfoMetatext* Network::InfoMetatextEmpty()
 {
-    return new InfoMetatext();
+    return iInfoMetatextEmpty;
 }
 
 /**

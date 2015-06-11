@@ -363,7 +363,7 @@ IDevice& ProxySender::Device()
 
 Sender::Sender()
     :iEnabled(false)
-    ,iDevice(NULL)
+    ,iDevice(nullptr)
 {
 }
 
