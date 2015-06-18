@@ -74,7 +74,10 @@ public:
     // ITagManagerInitialiser
     virtual void Add(ITag* aTag);
 
-
+private: //Private utility functions for Xml Parsing in FromDidlLite
+	Brn GoFind(const Brx& aTag, const Brx& aMetadata);
+	Brn GoFindAttribute(const Brx& aTag, const Brx& aAttribute, const Brx& aMetadata);
+	Brn GoFindElement(const Brx& aTag, const Brx& aAttribute, const Brx& aMetadata);
 private:
     std::map<TUint, ITag*> iTags;
     std::map<ETagRealm, ITagRealm*> iRealms;
@@ -98,7 +101,7 @@ public:
 
 private:
     std::vector<Brn> iValues;
-    Bws<100> iValue; // FIXME: random capacity
+    Bws<2083> iValue; // FIXME: random capacity. 2083 is longest URI accepted by IE
 };
 
 ////////////////////////////////////////////////////
