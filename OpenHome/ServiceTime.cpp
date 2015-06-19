@@ -109,7 +109,7 @@ void ServiceTimeNetwork::HandleDurationChanged()
 
 void ServiceTimeNetwork::DurationChangedCallback1(void*)
 {
-    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceTimeNetwork::DurationChangedCallback1);
+    FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceTimeNetwork::DurationChangedCallback2);
     iDisposeHandler->WhenNotDisposed(f, NULL);
 }
 
