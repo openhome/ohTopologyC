@@ -2,7 +2,6 @@
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/ServiceTime.h>
 #include <OpenHome/Network.h>
-//#include <OpenHome/AsyncAdaptor.h>
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/Private/Debug.h>
 #include <OpenHome/Net/Private/XmlParser.h>

@@ -192,6 +192,7 @@ def build(bld):
                 'Generated/CpAvOpenhomeOrgReceiver1.cpp',
                 'Generated/CpAvOpenhomeOrgSender1.cpp',
                 'Generated/CpAvOpenhomeOrgVolume1.cpp',
+                'Generated/CpAvOpenhomeOrgTime1.cpp',
             ],
             use=['OHNET'],
             target='ohTopologyC')

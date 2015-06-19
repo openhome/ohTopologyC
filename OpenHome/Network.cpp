@@ -13,6 +13,7 @@
 #include <OpenHome/ServiceRadio.h>
 #include <OpenHome/ServiceReceiver.h>
 #include <OpenHome/ServiceSender.h>
+#include <OpenHome/ServiceTime.h>
 #include <Generated/CpAvOpenhomeOrgProduct1.h>
 #include <Generated/CpAvOpenhomeOrgInfo1.h>
 #include <Generated/CpAvOpenhomeOrgVolume1.h>
@@ -20,6 +21,7 @@
 #include <Generated/CpAvOpenhomeOrgPlaylist1.h>
 #include <Generated/CpAvOpenhomeOrgRadio1.h>
 #include <Generated/CpAvOpenhomeOrgReceiver1.h>
+#include <Generated/CpAvOpenhomeOrgTime1.h>
 
 
 using namespace OpenHome;
@@ -420,7 +422,6 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
         }
     }
 
-/*
     if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Time", value))
     {
         if (Ascii::Uint(value) == 1)
@@ -429,6 +430,7 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
         }
     }
 
+/*
     if (aDevice->GetAttribute("Upnp.Service.av-openhome-org.Credentials", value))
     {
         if (Ascii::Uint(value) == 1)
