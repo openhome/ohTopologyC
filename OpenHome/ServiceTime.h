@@ -107,8 +107,8 @@ private:
 class IProxyTime : public IProxy
 {
 public:
-    IWatchable<TUint>& Duration(); // { get; }
-    IWatchable<TUint>& Seconds(); // { get; }
+    virtual IWatchable<TUint>& Duration() = 0; // { get; }
+    virtual IWatchable<TUint>& Seconds() = 0; // { get; }
 };
 
 //////////////////////////////////////
