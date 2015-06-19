@@ -144,7 +144,7 @@ void ServiceTimeNetwork::SecondsChangedCallback2(void*)
     if (iSubscribed)
     {
         TUint seconds;
-        iService->PropertyDuration(seconds);
+        iService->PropertySeconds(seconds);
         iSeconds->Update(seconds);
     }
 }
