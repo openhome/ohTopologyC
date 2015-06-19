@@ -27,7 +27,7 @@ ServiceReceiver::~ServiceReceiver()
     if (iCurrentMetadata!=iNetwork.InfoMetadataEmpty())
     {
         delete iCurrentMetadata;
-    }
+   }
     delete iCurrentTransportState;
 
 }
@@ -201,9 +201,13 @@ void ServiceReceiverNetwork::MetadataChangedCallback2(void* aInfoMetadata)
     if (iSubscribed)
     {
         IInfoMetadata* infoMetadata = (IInfoMetadata*)aInfoMetadata;
-        iMetadata->Update(infoMetadata);
-        delete iCurrentMetadata;
+        IInfoMetadata* oldmetadata = iCurrentMetadata;
         iCurrentMetadata = infoMetadata;
+        iMetadata->Update(iCurrentMetadata);
+				if(oldmetadata != iNetwork.InfoMetadataEmpty())
+				{
+					delete oldmetadata;
+				}
     }
 }
 

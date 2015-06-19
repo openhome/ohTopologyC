@@ -133,6 +133,7 @@ ServiceRadio::ServiceRadio(IInjectorDevice& aDevice, ILog& aLog)
     ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iNetwork.InfoMetadataEmpty()))
     ,iMediaSupervisor(NULL)
     ,iCurrentTransportState(NULL)
+		,iChannelsMax(0)
 {
 }
 
@@ -196,6 +197,7 @@ ServiceRadioNetwork::ServiceRadioNetwork(IInjectorDevice& aDevice, CpProxyAvOpen
     ,iService(aService)
     ,iCacheSession(NULL)
     ,iSubscribed(false)
+		,iIdList(nullptr)
 {
     Functor f1 = MakeFunctor(*this, &ServiceRadioNetwork::HandleIdChanged);
     iService->SetPropertyIdChanged(f1);
@@ -250,6 +252,7 @@ void ServiceRadioNetwork::HandleInitialEvent()
     TUint channelsMax;
     iService->PropertyChannelsMax(channelsMax);
     iChannelsMax = channelsMax;
+		iIdList.reset(new Bwh(Ascii::kMaxUintStringBytes * iChannelsMax));
 
     Brhz protocolInfo;
     iService->PropertyProtocolInfo(protocolInfo);
@@ -336,14 +339,13 @@ void ServiceRadioNetwork::ReadList(ReadListData* aReadListData)
 
     auto requiredIds = aReadListData->iMissingIds;
 
-    Bwh idList;
     for (TUint i=0;i<requiredIds->size(); i++)
     {
         if (i>0)
         {
-            idList.Append(Brn(" "));
+            iIdList->Append(Brn(" "));
         }
-        Ascii::AppendDec(idList, (*requiredIds)[i]);
+        Ascii::AppendDec(*iIdList, (*requiredIds)[i]);
     }
 
     AsyncAdaptor& asyncAdaptor = iNetwork.GetAsyncAdaptorManager().GetAdaptor();
@@ -351,48 +353,66 @@ void ServiceRadioNetwork::ReadList(ReadListData* aReadListData)
     asyncAdaptor.SetCallback(f, aReadListData);
     FunctorAsync fa = asyncAdaptor.AsyncCb();
 
-    iService->BeginReadList(idList, fa);
+    iService->BeginReadList(*iIdList, fa);
 }
 
 
 void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
 {
-    Brh channelList;
-    iService->EndReadList(*aArg->iAsync, channelList);
+  Brh channelList;
+  iService->EndReadList(*aArg->iAsync, channelList);
 
-    ReadListData* readListData = (ReadListData*)aArg->iArg;
+  ReadListData* readListData = (ReadListData*)aArg->iArg;
 
-    auto entries = new vector<IIdCacheEntry*>();
+  auto entries = new vector<IIdCacheEntry*>();
 
-    // Parse XML here and populate entries
-    auto requiredIds = readListData->iMissingIds;
-    for(TUint i=0; i<requiredIds->size(); i++)
+  // Parse XML here and populate entries
+  auto requiredIds = readListData->iMissingIds;
+  for(TUint i=0; i<requiredIds->size(); i++)
+  {
+    TUint id = (*requiredIds)[i];
+
+    if (id > 0)
     {
-        TUint id = (*requiredIds)[i];
-
-        if (id > 0)
-        {
-
-            Bwh xmlNodeName;
-            xmlNodeName.Replace(Brn("/ChannelList/Entry[Id="));
-            Ascii::AppendDec(xmlNodeName, id);
-            xmlNodeName.Append(Brn("]/Metadata"));
-
-            Brn innerText = XmlParserBasic::Find(xmlNodeName, channelList);
-
-            IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(innerText);
-
-            auto mvs = metadata->Values();
-            auto mv = mvs[iNetwork.GetTagManager().Audio().Uri()];
-            Brn uri = mv->Value();
-            entries->push_back(new IdCacheEntry(metadata, uri));
-
-        }
-    }
-
-    readListData->iEntries = entries;
-    readListData->iCallback(readListData);
+			try
+			{
+				Brn channelListText = XmlParserBasic::Find(Brn("ChannelList"), channelList);
+				Brn remainingText;
+				Brn entryText = XmlParserBasic::Find(Brn("Entry"), channelListText, remainingText);
+				Brn idText = XmlParserBasic::Find(Brn("Id"), entryText);
+				Brn metadataText;
+				for(;;)
+				{
+					if(Ascii::Uint(idText) == id)
+					{
+						metadataText = XmlParserBasic::Find(Brn("Metadata"), entryText);
+						IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metadataText);
+						auto mvs = metadata->Values();
+						auto mv = mvs[iNetwork.GetTagManager().Audio().Uri()];
+						if(mv)
+						{
+							Brn uri = mv->Value();
+							entries->push_back(new IdCacheEntry(metadata, uri));
+						}
+						break;
+					}
+					else
+					{
+						entryText = XmlParserBasic::Find(Brn("Entry"), remainingText, remainingText);
+					}
+				}
+			}
+			catch(XmlError&)
+			{ 
+				break;
+			}
+		}
+  }
+  readListData->iEntries = entries;
+  readListData->iCallback(readListData);
 }
+
+
 
 
 void ServiceRadioNetwork::HandleIdChanged()
