@@ -132,7 +132,7 @@ ServicePlaylist::ServicePlaylist(IInjectorDevice& aDevice, ILog& aLog)
     ,iRepeat(new Watchable<TBool>(iNetwork, Brn("Repeat"), false))
     ,iShuffle(new Watchable<TBool>(iNetwork, Brn("Shuffle"), true))
     ,iMediaSupervisor(NULL)
-		,iTracksMax(0)
+        ,iTracksMax(0)
 {
 }
 
@@ -215,7 +215,7 @@ ServicePlaylistNetwork::ServicePlaylistNetwork(IInjectorDevice& aDevice, CpProxy
     :ServicePlaylist(aDevice, aLog)
     ,iService(aService)
     ,iCacheSession(NULL)
-		,iIdList(nullptr)
+    ,iIdList(nullptr)
     ,iSubscribed(false)
 {
     Functor f1 = MakeFunctor(*this, &ServicePlaylistNetwork::HandleIdChanged);
@@ -278,7 +278,7 @@ void ServicePlaylistNetwork::OnCancelSubscribe()
 void ServicePlaylistNetwork::HandleInitialEvent()
 {
     iService->PropertyTracksMax(iTracksMax);
-		iIdList.reset(new Bwh(Ascii::kMaxUintStringBytes * iTracksMax));
+    iIdList.reset(new Bwh(Ascii::kMaxUintStringBytes * iTracksMax));
 
     Brhz protocolInfo;
     iService->PropertyProtocolInfo(protocolInfo);

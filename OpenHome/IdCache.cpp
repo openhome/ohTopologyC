@@ -473,7 +473,7 @@ Job* IdCacheSession::CreateJob(ReadEntriesData* aReadEntriesData)
     Job* job = new Job(MakeFunctorGeneric(*this, &IdCacheSession::CreateJobCallback), aReadEntriesData);
     return(job);
 /*
-    create a new job/thread (with CreatJobCallback that does the stuff below, and calls aCallback with result (vector<IIdCacheEntry*>))
+    create a new job/thread (with CreateJobCallback that does the stuff below, and calls aCallback with result (vector<IIdCacheEntry*>))
 */
 
 /*
@@ -544,15 +544,23 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
     {
         delete missingIds;
         readEntriesData->iEntriesCallback(readEntriesData);
+        return;
     }
 
     // fetch missing ids
     auto readListData = new ReadListData();
     readListData->iMissingIds = missingIds;
     readListData->iRequiredIds = reqIds;
+    readListData->iEntries = entries;
+
     readListData->iCallback = MakeFunctorGeneric(*this, &IdCacheSession::GetMissingEntriesCallback);
 
     iFunction(readListData);
+
+    readEntriesData->iEntriesCallback(readEntriesData);
+
+
+
     //iFunction(missingIds, MakeFunctorGeneric(*this, &IdCacheSession::GetMissingEntriesCallback));
 
 
@@ -601,24 +609,36 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
 void IdCacheSession::GetMissingEntriesCallback(void* aObj)
 {
     auto payload = (ReadListData*)aObj;
+    auto missingIds = payload->iMissingIds;
+    auto retrievedEntries = payload->iRetrievedEntries;
+    auto requiredIds = payload->iRequiredIds;
+    auto entries = payload->iEntries;
 
-    //auto missingIds = payload->iMissingIds;
-    //auto retrievedEntries = payload->iRetrievedEntries;
-    //auto requiredIds = payload->iRequiredIds;
-    //auto entries = payload->iEntries;
-    //auto callback = payload->iCallback;
-
-    //for (TUint i=0; i<retrievedEntries->size(); i++)
-    //{
-    //    TUint id = (*missingIds)[i];
-    //    IIdCacheEntry* entry = iCache->AddEntry(iSessionId, id, (*retrievedEntries)[i]);
-    //    auto it = find(requiredIds->begin(), requiredIds->end(), id);
-    //    ASSERT(it!=requiredIds->end());
-    //    (*entries)[it-requiredIds->begin()] = entry;
-    //}
+    for (TUint i=0; i<retrievedEntries->size(); i++)
+    {
+        TUint id = (*missingIds)[i];
+        IIdCacheEntry* entry = iCache->AddEntry(iSessionId, id, (*retrievedEntries)[i]);
+        auto it = find(requiredIds->begin(), requiredIds->end(), id);
+        ASSERT(it!=requiredIds->end());
+        (*entries)[it-requiredIds->begin()] = entry;
+    }
 
     delete payload;
-    //callback(entries);
+
+
+/*
+        // add retrieved ids to cache
+        uint index = 0;
+        foreach (IIdCacheEntry e in result)  // result = IEnumerable<IIdCacheEntry>
+        {
+            uint id = ids.ElementAt((int)index);
+            IIdCacheEntry entry = iCache.AddEntry(iSessionId, id, e);
+            entries[aIds.ToList().IndexOf(ids[(int)index])] = entry;
+            ++index;
+        }
+*/
+
+
 }
 
 
