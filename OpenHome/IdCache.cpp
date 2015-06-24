@@ -442,6 +442,10 @@ void IdCacheSession::SetValid(vector<TUint>& aValid)
             v->push_back(id);
             auto readEntriesData = new ReadEntriesData();
             readEntriesData->iRequestedIds = v;
+            FunctorGeneric<ReadEntriesData*> f1; // NULL functor
+            readEntriesData->iEntriesCallback = f1;
+            FunctorGeneric<std::vector<IMediaPreset*>*> f2; // NULL functor
+            readEntriesData->iPresetsCallback = f2;
 
             auto job = CreateJob(readEntriesData);
             iFifoLo.Write(job);
