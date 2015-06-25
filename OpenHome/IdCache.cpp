@@ -532,6 +532,8 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
     auto entries = new vector<IIdCacheEntry*>();
     auto missingIds = new vector<TUint>();
 
+    readEntriesData->iRetrievedEntries = entries;
+
     // find all entries currently in cache and build a list of ids required to be fetched
     for (TUint i=0; i<reqIds->size(); i++)
     {
