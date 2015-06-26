@@ -133,7 +133,7 @@ ServiceRadio::ServiceRadio(IInjectorDevice& aDevice, ILog& aLog)
     ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iNetwork.InfoMetadataEmpty()))
     ,iMediaSupervisor(NULL)
     ,iCurrentTransportState(NULL)
-		,iChannelsMax(0)
+        ,iChannelsMax(0)
 {
 }
 
@@ -197,7 +197,7 @@ ServiceRadioNetwork::ServiceRadioNetwork(IInjectorDevice& aDevice, CpProxyAvOpen
     ,iService(aService)
     ,iCacheSession(NULL)
     ,iSubscribed(false)
-		,iIdList(nullptr)
+        ,iIdList(nullptr)
 {
     Functor f1 = MakeFunctor(*this, &ServiceRadioNetwork::HandleIdChanged);
     iService->SetPropertyIdChanged(f1);
@@ -252,7 +252,7 @@ void ServiceRadioNetwork::HandleInitialEvent()
     TUint channelsMax;
     iService->PropertyChannelsMax(channelsMax);
     iChannelsMax = channelsMax;
-		iIdList.reset(new Bwh(Ascii::kMaxUintStringBytes * iChannelsMax));
+        iIdList.reset(new Bwh(Ascii::kMaxUintStringBytes * iChannelsMax));
 
     Brhz protocolInfo;
     iService->PropertyProtocolInfo(protocolInfo);
@@ -374,41 +374,41 @@ void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
 
     if (id > 0)
     {
-			try
-			{
-				Brn channelListText = XmlParserBasic::Find(Brn("ChannelList"), channelList);
-				Brn remainingText;
-				Brn entryText = XmlParserBasic::Find(Brn("Entry"), channelListText, remainingText);
-				Brn idText = XmlParserBasic::Find(Brn("Id"), entryText);
-				Brn metadataText;
-				for(;;)
-				{
-					if(Ascii::Uint(idText) == id)
-					{
-						metadataText = XmlParserBasic::Find(Brn("Metadata"), entryText);
-						IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metadataText);
-						auto mvs = metadata->Values();
-						auto mv = mvs[iNetwork.GetTagManager().Audio().Uri()];
-						if(mv)
-						{
-							Brn uri = mv->Value();
-							entries->push_back(new IdCacheEntry(metadata, uri));
-						}
-						break;
-					}
-					else
-					{
-						entryText = XmlParserBasic::Find(Brn("Entry"), remainingText, remainingText);
-					}
-				}
-			}
-			catch(XmlError&)
-			{ 
-				break;
-			}
-		}
+            try
+            {
+                Brn channelListText = XmlParserBasic::Find(Brn("ChannelList"), channelList);
+                Brn remainingText;
+                Brn entryText = XmlParserBasic::Find(Brn("Entry"), channelListText, remainingText);
+                Brn idText = XmlParserBasic::Find(Brn("Id"), entryText);
+                Brn metadataText;
+                for(;;)
+                {
+                    if(Ascii::Uint(idText) == id)
+                    {
+                        metadataText = XmlParserBasic::Find(Brn("Metadata"), entryText);
+                        IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metadataText);
+                        auto mvs = metadata->Values();
+                        auto mv = mvs[iNetwork.GetTagManager().Audio().Uri()];
+                        if(mv)
+                        {
+                            Brn uri = mv->Value();
+                            entries->push_back(new IdCacheEntry(metadata, uri));
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        entryText = XmlParserBasic::Find(Brn("Entry"), remainingText, remainingText);
+                    }
+                }
+            }
+            catch(XmlError&)
+            {
+                break;
+            }
+        }
   }
-  readListData->iEntries = entries;
+  readListData->iRetrievedEntries = entries;
   readListData->iCallback(readListData);
 }
 
@@ -570,13 +570,14 @@ void RadioSnapshot::Read(/*CancellationToken aCancellationToken,*/TUint aIndex, 
         }
     }
 
-    auto readEntriesdata = new ReadEntriesData();
-    readEntriesdata->iIndex = aIndex;
-    readEntriesdata->iRequestedIds = idList;
-    readEntriesdata->iPresetsCallback = aCallback;
-    readEntriesdata->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &RadioSnapshot::ReadCallback1);
+    auto readEntriesData = new ReadEntriesData();
+    readEntriesData->iIndex = aIndex;
+    readEntriesData->iRequestedIds = idList;
+    readEntriesData->iPresetsCallback = aCallback;
+    readEntriesData->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &RadioSnapshot::ReadCallback1);
+    readEntriesData->iFunctorsValid = true;
 
-    iCacheSession.Entries(readEntriesdata);
+    iCacheSession.Entries(readEntriesData);
 }
 
 

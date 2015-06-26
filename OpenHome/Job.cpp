@@ -33,8 +33,8 @@ void Job::Start()
         ASSERTS();
     }
 
-    iSem.Signal();
-    iStarted = true;
+	iStarted = true;
+	iSem.Signal();
 }
 
 

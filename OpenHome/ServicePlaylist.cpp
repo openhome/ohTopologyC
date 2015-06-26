@@ -544,11 +544,11 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
             entries->push_back(new IdCacheEntry(metadata, uriText));
         }
 
-        readListData->iEntries = entries;
+        readListData->iRetrievedEntries = entries;
     }
     catch(...)
     {
-        readListData->iEntries = NULL;
+        readListData->iRetrievedEntries = NULL;
     }
 
     readListData->iCallback(readListData);
@@ -633,6 +633,8 @@ void ServicePlaylistNetwork::EvaluateInfoNext(TUint aId, vector<TUint>& aIdArray
         readEntriesData->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &ServicePlaylistNetwork::EvaluateInfoNextCallback1);
         readEntriesData->iRequestedIds = new vector<TUint>();
         readEntriesData->iRequestedIds->push_back(aIdArray[index+1]);
+        readEntriesData->iFunctorsValid = true;
+
         iCacheSession->Entries(readEntriesData);
     }
     // if (!iShuffle.Value && iRepeat.Value && (index > -1) && index == aIdArray.Count - 1)
@@ -642,6 +644,7 @@ void ServicePlaylistNetwork::EvaluateInfoNext(TUint aId, vector<TUint>& aIdArray
         readEntriesData->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &ServicePlaylistNetwork::EvaluateInfoNextCallback1);
         readEntriesData->iRequestedIds = new vector<TUint>();
         readEntriesData->iRequestedIds->push_back(aIdArray[0]);
+        readEntriesData->iFunctorsValid = true;
         iCacheSession->Entries(readEntriesData);
     }
     else
@@ -804,13 +807,14 @@ void PlaylistSnapshot::Read(/*CancellationToken aCancellationToken,*/ TUint aInd
         idList->push_back((*iIdArray)[i]);
     }
 
-    auto readEntriesdata = new ReadEntriesData();
-    readEntriesdata->iIndex = aIndex;
-    readEntriesdata->iRequestedIds = idList;
-    readEntriesdata->iPresetsCallback = aCallback;
-    readEntriesdata->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &PlaylistSnapshot::ReadCallback1);
+    auto readEntriesData = new ReadEntriesData();
+    readEntriesData->iIndex = aIndex;
+    readEntriesData->iRequestedIds = idList;
+    readEntriesData->iPresetsCallback = aCallback;
+    readEntriesData->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &PlaylistSnapshot::ReadCallback1);
+    readEntriesData->iFunctorsValid = true;
 
-    iCacheSession.Entries(readEntriesdata);
+    iCacheSession.Entries(readEntriesData);
 }
 
 

@@ -48,6 +48,7 @@ struct ReadEntriesData
     std::vector<TUint>* iRequestedIds;
     std::vector<IIdCacheEntry*>* iRetrievedEntries;
     TUint iIndex;
+    TBool iFunctorsValid = false;
 };
 
 ///////////////////

@@ -446,6 +446,7 @@ void IdCacheSession::SetValid(vector<TUint>& aValid)
             readEntriesData->iEntriesCallback = f1;
             FunctorGeneric<std::vector<IMediaPreset*>*> f2; // NULL functor
             readEntriesData->iPresetsCallback = f2;
+            readEntriesData->iFunctorsValid = false;
 
             auto job = CreateJob(readEntriesData);
             iFifoLo.Write(job);
@@ -549,7 +550,10 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
     if (missingIds->size() == 0) // found them all
     {
         delete missingIds;
-        readEntriesData->iEntriesCallback(readEntriesData);
+		if (readEntriesData->iFunctorsValid)
+		{
+			readEntriesData->iEntriesCallback(readEntriesData);
+		}
         return;
     }
 
@@ -563,7 +567,10 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
 
     iFunction(readListData);
 
-    readEntriesData->iEntriesCallback(readEntriesData);
+	if (readEntriesData->iFunctorsValid)
+	{
+		readEntriesData->iEntriesCallback(readEntriesData);
+	}
 
 
 
@@ -620,14 +627,18 @@ void IdCacheSession::GetMissingEntriesCallback(void* aObj)
     auto requiredIds = payload->iRequiredIds;
     auto entries = payload->iEntries;
 
-    for (TUint i=0; i<retrievedEntries->size(); i++)
-    {
-        TUint id = (*missingIds)[i];
-        IIdCacheEntry* entry = iCache->AddEntry(iSessionId, id, (*retrievedEntries)[i]);
-        auto it = find(requiredIds->begin(), requiredIds->end(), id);
-        ASSERT(it!=requiredIds->end());
-        (*entries)[it-requiredIds->begin()] = entry;
-    }
+	if (retrievedEntries != NULL)
+	{
+
+		for (TUint i = 0; i < retrievedEntries->size(); i++)
+		{
+			TUint id = (*missingIds)[i];
+			IIdCacheEntry* entry = iCache->AddEntry(iSessionId, id, (*retrievedEntries)[i]);
+			auto it = find(requiredIds->begin(), requiredIds->end(), id);
+			ASSERT(it != requiredIds->end());
+			(*entries)[it - requiredIds->begin()] = entry;
+		}
+	}
 
     delete payload;
 
