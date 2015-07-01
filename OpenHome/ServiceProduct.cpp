@@ -711,16 +711,16 @@ void ServiceProductMock::Execute(ICommandTokens& aCommands)
 void ServiceProductMock::SetSourceIndex(TUint aIndex)
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, & ServiceProductMock::SetSourceIndexCallback);
-    auto u = new UintValue();
-    u->iValue = aIndex;
+    auto u = new TUint();
+    (*u) = aIndex;
     Schedule(f, u);
 }
 
 
 void ServiceProductMock::SetSourceIndexCallback(void* aIndex)
 {
-    auto u = ((UintValue*)aIndex);
-    TUint index = u->iValue;
+    auto u = ((TUint*)aIndex);
+    TUint index = *u;
     delete u;
     iSourceIndex->Update(index);
 }

@@ -227,7 +227,6 @@ private:
 private:
     Net::CpProxyAvOpenhomeOrgPlaylist1* iService;
     IIdCacheSession* iCacheSession;
-		std::unique_ptr<Bwh> iIdList;
     TBool iSubscribed;
 };
 

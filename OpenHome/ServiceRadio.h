@@ -171,7 +171,7 @@ private:
     Net::CpProxyAvOpenhomeOrgRadio1* iService;
     IIdCacheSession* iCacheSession;
     TBool iSubscribed;
-		std::unique_ptr<Bwh> iIdList;
+    std::unique_ptr<Bwh> iIdList;
 };
 
 //////////////////////////////////////////////////////////////////

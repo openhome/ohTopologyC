@@ -146,7 +146,7 @@ private:
     void Run();
 
 private:
-    void GetMissingEntriesCallback(void* aObj);
+    void GetMissingEntries(void* aObj);
 
 private:
     DisposeHandler* iDisposeHandler;
@@ -173,7 +173,7 @@ public:
 
 private:
     IMediaMetadata* iMetadata;
-    Bws<100> iUri;
+    Bws<1000> iUri;
 };
 
 //////////////////////////////////////////////////////

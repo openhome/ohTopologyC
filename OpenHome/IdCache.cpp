@@ -3,6 +3,7 @@
 
 
 #include <OpenHome/IdCache.h>
+#include <OpenHome/Private/Debug.h>
 #include <vector>
 #include <map>
 
@@ -550,10 +551,10 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
     if (missingIds->size() == 0) // found them all
     {
         delete missingIds;
-		if (readEntriesData->iFunctorsValid)
-		{
-			readEntriesData->iEntriesCallback(readEntriesData);
-		}
+        if (readEntriesData->iFunctorsValid)
+        {
+            readEntriesData->iEntriesCallback(readEntriesData);
+        }
         return;
     }
 
@@ -563,18 +564,18 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
     readListData->iRequiredIds = reqIds;
     readListData->iEntries = entries;
 
-    readListData->iCallback = MakeFunctorGeneric(*this, &IdCacheSession::GetMissingEntriesCallback);
+    readListData->iCallback = MakeFunctorGeneric(*this, &IdCacheSession::GetMissingEntries);
 
-    iFunction(readListData);
+    iFunction(readListData);  // this calls ServicePlaylistNetwork::ReadList or  ServiceRadioNetwork::ReadList
 
-	if (readEntriesData->iFunctorsValid)
-	{
-		readEntriesData->iEntriesCallback(readEntriesData);
-	}
+    if (readEntriesData->iFunctorsValid)
+    {
+        readEntriesData->iEntriesCallback(readEntriesData);
+    }
 
 
 
-    //iFunction(missingIds, MakeFunctorGeneric(*this, &IdCacheSession::GetMissingEntriesCallback));
+    //iFunction(missingIds, MakeFunctorGeneric(*this, &IdCacheSession::GetMissingEntries));
 
 
 /*
@@ -619,7 +620,7 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
 }
 
 
-void IdCacheSession::GetMissingEntriesCallback(void* aObj)
+void IdCacheSession::GetMissingEntries(void* aObj)
 {
     auto payload = (ReadListData*)aObj;
     auto missingIds = payload->iMissingIds;
@@ -627,18 +628,18 @@ void IdCacheSession::GetMissingEntriesCallback(void* aObj)
     auto requiredIds = payload->iRequiredIds;
     auto entries = payload->iEntries;
 
-	if (retrievedEntries != NULL)
-	{
 
-		for (TUint i = 0; i < retrievedEntries->size(); i++)
-		{
-			TUint id = (*missingIds)[i];
-			IIdCacheEntry* entry = iCache->AddEntry(iSessionId, id, (*retrievedEntries)[i]);
-			auto it = find(requiredIds->begin(), requiredIds->end(), id);
-			ASSERT(it != requiredIds->end());
-			(*entries)[it - requiredIds->begin()] = entry;
-		}
-	}
+    if (retrievedEntries != NULL)
+    {
+        for (TUint i = 0; i < retrievedEntries->size(); i++)
+        {
+            TUint id = (*missingIds)[i];
+            IIdCacheEntry* entry = iCache->AddEntry(iSessionId, id, (*retrievedEntries)[i]);
+            auto it = find(requiredIds->begin(), requiredIds->end(), id);
+            ASSERT(it != requiredIds->end());
+            (*entries)[it - requiredIds->begin()] = entry;
+        }
+    }
 
     delete payload;
 
@@ -665,6 +666,7 @@ IdCacheEntry::IdCacheEntry(IMediaMetadata* aMetadata, const Brx& aUri)
     :iMetadata(aMetadata)
     ,iUri(aUri)
 {
+    Log::Print("IdCacheEntry() \n");
 }
 
 

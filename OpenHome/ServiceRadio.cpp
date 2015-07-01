@@ -336,8 +336,9 @@ void ServiceRadioNetwork::SetChannel(const Brx& aUri, IMediaMetadata& aMetadata)
 void ServiceRadioNetwork::ReadList(ReadListData* aReadListData)
 {
     // called by IdCacheSession::CreateJobCallback - iFunction(payload);
-
     auto requiredIds = aReadListData->iMissingIds;
+
+    iIdList->SetBytes(0);
 
     for (TUint i=0;i<requiredIds->size(); i++)
     {
