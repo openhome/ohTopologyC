@@ -132,7 +132,7 @@ ServicePlaylist::ServicePlaylist(IInjectorDevice& aDevice, ILog& aLog)
     ,iRepeat(new Watchable<TBool>(iNetwork, Brn("Repeat"), false))
     ,iShuffle(new Watchable<TBool>(iNetwork, Brn("Shuffle"), true))
     ,iMediaSupervisor(NULL)
-        ,iTracksMax(0)
+    ,iTracksMax(0)
 {
 }
 
@@ -277,7 +277,6 @@ void ServicePlaylistNetwork::OnCancelSubscribe()
 void ServicePlaylistNetwork::HandleInitialEvent()
 {
     iService->PropertyTracksMax(iTracksMax);
-    //iIdList.reset(new Bwh(Ascii::kMaxUintStringBytes * iTracksMax));
 
     Brhz protocolInfo;
     iService->PropertyProtocolInfo(protocolInfo);
@@ -501,8 +500,6 @@ void ServicePlaylistNetwork::ReadList(ReadListData* aReadListData)
     auto requiredIds = aReadListData->iMissingIds;
 
     Bwh* idList = new Bwh((Ascii::kMaxUintStringBytes+1) * iTracksMax);
-
-    //iIdList->SetBytes(0);
 
     for (TUint i=0; i<requiredIds->size(); i++)
     {
@@ -891,6 +888,7 @@ void PlaylistSnapshot::ReadCallback2(void* aObj)
             tracks->push_back(new MediaPresetPlaylist(iNetwork, (idIndex + 1), id, entry->Metadata(), iPlaylist));
             index++;
         }
+
 
         callback(tracks);
     }

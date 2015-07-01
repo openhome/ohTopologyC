@@ -133,7 +133,7 @@ ServiceRadio::ServiceRadio(IInjectorDevice& aDevice, ILog& aLog)
     ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iNetwork.InfoMetadataEmpty()))
     ,iMediaSupervisor(NULL)
     ,iCurrentTransportState(NULL)
-        ,iChannelsMax(0)
+    ,iChannelsMax(0)
 {
 }
 
@@ -197,7 +197,6 @@ ServiceRadioNetwork::ServiceRadioNetwork(IInjectorDevice& aDevice, CpProxyAvOpen
     ,iService(aService)
     ,iCacheSession(NULL)
     ,iSubscribed(false)
-        ,iIdList(nullptr)
 {
     Functor f1 = MakeFunctor(*this, &ServiceRadioNetwork::HandleIdChanged);
     iService->SetPropertyIdChanged(f1);
@@ -252,7 +251,6 @@ void ServiceRadioNetwork::HandleInitialEvent()
     TUint channelsMax;
     iService->PropertyChannelsMax(channelsMax);
     iChannelsMax = channelsMax;
-        iIdList.reset(new Bwh(Ascii::kMaxUintStringBytes * iChannelsMax));
 
     Brhz protocolInfo;
     iService->PropertyProtocolInfo(protocolInfo);
@@ -338,15 +336,15 @@ void ServiceRadioNetwork::ReadList(ReadListData* aReadListData)
     // called by IdCacheSession::CreateJobCallback - iFunction(payload);
     auto requiredIds = aReadListData->iMissingIds;
 
-    iIdList->SetBytes(0);
+    Bwh* idList = new Bwh((Ascii::kMaxUintStringBytes+1) * iChannelsMax);
 
     for (TUint i=0;i<requiredIds->size(); i++)
     {
         if (i>0)
         {
-            iIdList->Append(Brn(" "));
+            idList->Append(Brn(" "));
         }
-        Ascii::AppendDec(*iIdList, (*requiredIds)[i]);
+        Ascii::AppendDec(*idList, (*requiredIds)[i]);
     }
 
     AsyncAdaptor& asyncAdaptor = iNetwork.GetAsyncAdaptorManager().GetAdaptor();
@@ -354,27 +352,28 @@ void ServiceRadioNetwork::ReadList(ReadListData* aReadListData)
     asyncAdaptor.SetCallback(f, aReadListData);
     FunctorAsync fa = asyncAdaptor.AsyncCb();
 
-    iService->BeginReadList(*iIdList, fa);
+    iService->BeginReadList(*idList, fa);
+    delete idList;
 }
 
 
 void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
 {
-  Brh channelList;
-  iService->EndReadList(*aArg->iAsync, channelList);
+    Brh channelList;
+    iService->EndReadList(*aArg->iAsync, channelList);
 
-  ReadListData* readListData = (ReadListData*)aArg->iArg;
+    ReadListData* readListData = (ReadListData*)aArg->iArg;
 
-  auto entries = new vector<IIdCacheEntry*>();
+    auto entries = new vector<IIdCacheEntry*>();
 
-  // Parse XML here and populate entries
-  auto requiredIds = readListData->iMissingIds;
-  for(TUint i=0; i<requiredIds->size(); i++)
-  {
-    TUint id = (*requiredIds)[i];
-
-    if (id > 0)
+    // Parse XML here and populate entries
+    auto requiredIds = readListData->iMissingIds;
+    for(TUint i=0; i<requiredIds->size(); i++)
     {
+        TUint id = (*requiredIds)[i];
+
+        if (id > 0)
+        {
             try
             {
                 Brn channelListText = XmlParserBasic::Find(Brn("ChannelList"), channelList);
@@ -408,9 +407,9 @@ void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
                 break;
             }
         }
-  }
-  readListData->iRetrievedEntries = entries;
-  readListData->iCallback(readListData);
+    }
+    readListData->iRetrievedEntries = entries;
+    readListData->iCallback(readListData);
 }
 
 
