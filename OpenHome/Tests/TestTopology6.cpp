@@ -404,7 +404,7 @@ void SuiteTopology6::Test1()
     mocker->Add(Brn("network"), *mockInjector);
 
 
-    Topology1* topology1 = new Topology1(network, *log);
+    Topology1* topology1 = new Topology1(*network, *log);
     Topology2* topology2 = new Topology2(topology1, *log);
     Topology3* topology3 = new Topology3(topology2, *log);
     Topology4* topology4 = new Topology4(topology3, *log);

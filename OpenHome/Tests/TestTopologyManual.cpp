@@ -129,7 +129,7 @@ void SuiteTopologyManual::Test1()
     auto watcher = new HouseWatcher();
 
 
-    iTopology = Topology6::CreateTopology(network, *log);
+    iTopology = Topology6::CreateTopology(*network, *log);
 
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopologyManual::ScheduleCallback);
     network->Schedule(fe, watcher);

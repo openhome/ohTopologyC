@@ -118,7 +118,7 @@ void SuiteTopology1::Test1()
     InjectorMock* mockInjector = new InjectorMock(*network, Brx::Empty(), *log);
     mocker->Add(Brn("network"), *mockInjector);
 
-    iTopology1 = new Topology1(network, *log);
+    iTopology1 = new Topology1(*network, *log);
 
     MockableScriptRunner* runner = new MockableScriptRunner();
 

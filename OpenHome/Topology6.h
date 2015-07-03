@@ -408,7 +408,7 @@ public:
     virtual void Dispose();
     virtual INetwork& Network() const;
 
-    static Topology6* CreateTopology(INetwork* aNetwork, ILog& aLog);
+    static Topology6* CreateTopology(INetwork& aNetwork, ILog& aLog);
 
 private:
     // IWatcherUnordered<ITopology5Room*>

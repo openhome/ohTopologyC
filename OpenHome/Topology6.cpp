@@ -1143,7 +1143,7 @@ Topology6::~Topology6()
     delete iTopology5;
 }
 
-Topology6* Topology6::CreateTopology(INetwork* aNetwork, ILog& aLog)
+Topology6* Topology6::CreateTopology(INetwork& aNetwork, ILog& aLog)
 {
     Topology1* topology1 = new Topology1(aNetwork, aLog);
     Topology2* topology2 = new Topology2(topology1, aLog);

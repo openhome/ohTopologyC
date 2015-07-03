@@ -9,14 +9,14 @@ using namespace OpenHome::Topology;
 using namespace std;
 
 
-Topology1::Topology1(INetwork* aNetwork, ILog& /*aLog*/)
+Topology1::Topology1(INetwork& aNetwork, ILog& /*aLog*/)
     :iDisposed(false)
     ,iNetwork(aNetwork)
     //,iLog = aLog;
-    ,iProducts(new WatchableUnordered<IProxyProduct*>(*iNetwork))
+    ,iProducts(new WatchableUnordered<IProxyProduct*>(iNetwork))
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::WatchDevices);
-    iNetwork->Schedule(f, 0);
+    iNetwork.Schedule(f, 0);
 }
 
 
@@ -34,7 +34,7 @@ Topology1::~Topology1()
 void Topology1::WatchDevices(void*)
 {
     LOG(kTrace, "Topology1::ExecuteCallback \n");
-    iDevices = &iNetwork->Create(eProxyProduct);
+    iDevices = &iNetwork.Create(eProxyProduct);
     iDevices->AddWatcher(*this);
 }
 
@@ -47,7 +47,7 @@ void Topology1::Dispose()
     }
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::DisposeCallback);
-    iNetwork->Execute(f, NULL);
+    iNetwork.Execute(f, NULL);
 
     iProducts->Dispose();
     iDisposed = true;
@@ -75,7 +75,7 @@ IWatchableUnordered<IProxyProduct*>& Topology1::Products()
 
 INetwork& Topology1::Network()
 {
-    return(*iNetwork);
+    return(iNetwork);
 }
 
 
