@@ -116,7 +116,19 @@ private:
     TBool iSubscribed;
     TBool iDetailsChanged;
 };
-
+////////////////////////////////////////////////////////
+class ServiceInfoMock : public ServiceInfo
+{
+public:
+    ServiceInfoMock(IInjectorDevice& aDevice, IInfoDetails* aDetails, IInfoMetadata* aMetadata, IInfoMetatext* aMetatext, ILog& aLog);
+    ~ServiceInfoMock();
+public:
+    void Execute(ICommandTokens& aValue) override; //from IMockable
+private:
+    IInfoDetails* iCurrentDetails;
+    IInfoMetadata* iCurrentMetadata;
+    IInfoMetatext* iCurrentMetatext;
+};
 ////////////////////////////////////////////////////////
 
 class IProxyInfo : public IProxy

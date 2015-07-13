@@ -291,7 +291,79 @@ void ServiceInfoNetwork::HandleMetatextChangedCallback2(void*)
 }
 
 
+/////////////////////////////////////////////////////////////
+ServiceInfoMock::ServiceInfoMock(IInjectorDevice& aDevice, IInfoDetails* aDetails, IInfoMetadata* aMetadata, IInfoMetatext* aMetatext, ILog& aLog)
+    : ServiceInfo(aDevice, aLog)
+    , iCurrentMetadata(nullptr)
+    , iCurrentMetatext(nullptr)
+{
+    iCurrentDetails = new InfoDetails(aDetails->BitDepth(), aDetails->BitRate(), aDetails->CodecName(), aDetails->Duration(), aDetails->Lossless(), aDetails->SampleRate());
+    iDetails->Update(iCurrentDetails);
+    
+    iMetadata->Update(aMetadata);
 
+    iMetatext->Update(aMetatext);
+}
+
+ServiceInfoMock::~ServiceInfoMock()
+{
+
+}
+
+void ServiceInfoMock::Execute(ICommandTokens& aValue)
+{
+    Brn command = aValue.Next();
+
+    if (Ascii::CaseInsensitiveEquals(command, Brn("details")))
+    {
+        if (aValue.Count() != 6)
+        {
+            Log::Print("Needs 6 values");
+            return;
+        }
+        auto oldDetails = iCurrentDetails;
+        iCurrentDetails = new InfoDetails(Ascii::Uint(aValue.Next()), //BitDepth
+            Ascii::Uint(aValue.Next()), //BitRate
+            aValue.Next(), //CodecName
+            Ascii::Uint(aValue.Next()), //Duration 
+            Ascii::CaseInsensitiveEquals(aValue.Next(), Brn("true")), //Lossless 
+            Ascii::Uint(aValue.Next())); //SampleRate
+
+        iDetails->Update(iCurrentDetails);
+        delete oldDetails;
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("metadata")))
+    {
+        if (aValue.Count() != 2)
+        {
+            Log::Print("Needs 2 values");
+            return;
+        }
+        auto oldMetadata = iCurrentMetadata;
+        iCurrentMetadata = new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(aValue.Next()), aValue.Next());
+        iMetadata->Update(iCurrentMetadata);
+        if (oldMetadata)
+        {
+            delete oldMetadata;
+        }
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("metatext")))
+    {
+        if (aValue.Count() != 1)
+        {
+            Log::Print("Needs 1 value");
+            return;
+        }
+        auto oldMetatext = iCurrentMetatext;
+        iCurrentMetatext = new InfoMetatext(iNetwork.GetTagManager().FromDidlLite(aValue.Next()));
+        iMetatext->Update(iCurrentMetatext);
+        if (oldMetatext)
+        {
+            delete oldMetatext;
+        }
+    }
+
+}
 /////////////////////////////////////////////////////////////
 
 ProxyInfo::ProxyInfo(ServiceInfo& aService, IDevice& aDevice)

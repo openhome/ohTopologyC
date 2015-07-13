@@ -233,7 +233,77 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 
+class TrackMock : public INonCopyable
+{
+public:
+    TrackMock(const Brx& aUri, IMediaMetadata& aMetadata);
+    ~TrackMock();
+public:
+    const Brx& Uri() const;
+    IMediaMetadata& Metadata() const;
+private:
+    Brn iUri;
+    IMediaMetadata& iMetadata;
+};
 
+class ServicePlaylistMock : public ServicePlaylist
+{
+public:
+    ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aTracks, TBool aRepeat, TBool aShuffle, const Brx& aTransportState, const Brx& aProtocolInfo, TUint aTracksMax, ILog& aLog);
+    ~ServicePlaylistMock();
+public:
+    void Execute(ICommandTokens& aValue) override;
+public: //override functions from ServicePlaylist
+    TBool OnSubscribe() override;
+    void OnUnsubscribe() override;
+    void Play() override;
+    void CallbackPlay(void*);
+
+    void Pause() override;
+    void CallbackPause(void*);
+
+    void Stop() override;
+    void CallbackStop(void*);
+
+    void Previous() override;
+    void CallbackPrevious(void*);
+
+    void Next() override;
+    void CallbackNext(void*);
+
+    void SeekId(TUint aValue) override;
+    void CallbackSeekId(void* aValue);
+
+    void SeekSecondAbsolute(TUint aValue) override;
+    void SeekSecondRelative(TInt aValue) override;
+    void Insert(IMediaPreset& aValue, const Brx& aUri, IMediaMetadata& aMetadata) override;
+    void Insert(TUint aAfterId, const Brx& aUri, IMediaMetadata& aMetadata) override;
+    void CallbackInsert(void* aValue);
+    void InsertNext(const Brx& aUri, IMediaMetadata& aMetadata) override;
+    void CallbackInsertNext(void* aValue);
+    void InsertEnd(const Brx& aUri, IMediaMetadata& aMetadata) override;
+    void CallbackInsertEnd(void* aValue);
+    void MakeRoomForInsert(TUint aCount) override;
+    void CallbackMakeRoomForInsert(void* aValue);
+
+    void Delete(IMediaPreset& aValue) override;
+    void CallbackDelete(void* aValue);
+    void DeleteAll() override;
+    void CallbackDeleteAll(void*);
+    void SetRepeat(TBool aValue) override;
+    void CallbackSetRepeat(void* aValue);
+    void SetShuffle(TBool aValue) override;
+    void CallbackSetShuffle(void* aValue);
+
+    void ReadList(ReadListData* aValue);
+private:
+    TUint iIdFactory;
+    std::vector<TrackMock*>* iTracks;
+    std::vector<TUint>* iIdArray;
+    IIdCacheSession* iCacheSession;
+};
+
+/////////////////////////////////////////////////////////////////////////////
 class PlaylistSnapshot : public IMediaClientSnapshot<IMediaPreset*>, public INonCopyable
 {
 public:

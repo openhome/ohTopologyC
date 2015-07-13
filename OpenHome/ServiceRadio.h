@@ -173,7 +173,38 @@ private:
     TBool iSubscribed;
 		std::unique_ptr<Bwh> iIdList;
 };
+//////////////////////////////////////////////////////////////////
+class ServiceRadioMock : public ServiceRadio
+{
+public:
+    ServiceRadioMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aPresets, IInfoMetadata* aInfoMetadata, const Brx& aProtocolInfo, const Brx& aTransportState, TUint aChannelsMax, ILog& aLog);
+    ~ServiceRadioMock();
+public:
+    void Dispose() override;
+    TBool OnSubscribe() override;
+    void OnUnsubscribe() override;
+    void Play() override;
+    void CallbackPlay(void*);
 
+    void Pause() override;
+    void CallbackPause(void*);
+
+    void Stop() override;
+    void CallbackStop(void*);
+    void SeekSecondAbsolute(TUint aValue) override;
+    void SeekSecondRelative(TInt aValue) override;
+    void SetId(TUint aId, const Brx& aValue) override;
+    void CallbackSetId(void* aValue);
+    void SetChannel(const Brx& aUri, IMediaMetadata& aMetadata) override;
+    void CallbackSetChannel(void* aValue);
+    void Execute(ICommandTokens& aValue) override;
+private:
+    void ReadList(ReadListData* aIdList);
+private:
+    IIdCacheSession* iCacheSession;
+    std::vector<IMediaMetadata*>& iPresets;
+    std::vector<TUint>* iIdArray;
+};
 //////////////////////////////////////////////////////////////////
 
 class RadioSnapshot : public IMediaClientSnapshot<IMediaPreset*>, public INonCopyable

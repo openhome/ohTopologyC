@@ -151,36 +151,37 @@ void ServiceTimeNetwork::SecondsChangedCallback2(void*)
 
 
 
-/*
-    class ServiceTimeMock : ServiceTime, IMockable
-    {
-        public ServiceTimeMock(IInjectorDevice aDevice, TUint aSeconds, TUint aDuration, ILog aLog)
-            : base(aDevice, aLog)
-        {
-            iDuration.Update(aDuration);
-            iSeconds.Update(aSeconds);
-        }
 
-        public override void Execute(IEnumerable<string> aValue)
-        {
-            string command = aValue.First().ToLowerInvariant();
-            if (command == "duration")
-            {
-                IEnumerable<string> value = aValue.Skip(1);
-                iDuration.Update(TUint.Parse(value.First()));
-            }
-            else if (command == "seconds")
-            {
-                IEnumerable<string> value = aValue.Skip(1);
-                iSeconds.Update(TUint.Parse(value.First()));
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
-        }
+
+ServiceTimeMock::ServiceTimeMock(IInjectorDevice& aDevice, TUint aSeconds, TUint aDuration, ILog& aLog)
+    : ServiceTime(aDevice, aLog)
+{
+    iDuration->Update(aDuration);
+    iSeconds->Update(aSeconds);
+}
+
+ServiceTimeMock::~ServiceTimeMock()
+{
+}
+
+void ServiceTimeMock::Execute(ICommandTokens& aValue)
+{
+    Brn command = aValue.Next();
+    if (Ascii::CaseInsensitiveEquals(command, Brn("duration")))
+    {
+        iDuration->Update(Ascii::Uint(aValue.Next()));
     }
-*/
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("seconds")))
+    {
+        iSeconds->Update(Ascii::Uint(aValue.Next()));
+    }
+    else
+    {
+        //throw new NotSupportedException();
+    }
+}
+
+
 
     //ProxyTime : Proxy<ServiceTime>, IProxyTime
     //{

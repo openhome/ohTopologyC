@@ -14,6 +14,13 @@ using namespace OpenHome::Topology;
 using namespace OpenHome::Net;
 using namespace std;
 
+//struct InsertCallbackData{
+//    InsertCallbackData(TUint aAfterId, const Brx& aUri, IMediaMetadata& aMetadata)
+//        : AfterId(aAfterId), Uri(aUri.Ptr(), aUri.Bytes()), Metadata(&aMetadata) {}
+//    TUint AfterId; 
+//    Brn Uri; 
+//    IMediaMetadata& Metadata; 
+//};
 
 MediaPresetPlaylist::MediaPresetPlaylist(IWatchableThread& aThread, TUint aIndex, TUint aId, IMediaMetadata& aMetadata, ServicePlaylist& aPlaylist)
     :iIndex(aIndex)
@@ -860,10 +867,370 @@ void PlaylistSnapshot::ReadCallback2(void* aObj)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+TrackMock::TrackMock(const Brx& aUri, IMediaMetadata& aMetadata)
+    : iUri(aUri.Ptr(), aUri.Bytes())
+    , iMetadata(aMetadata)
+{
+}
 
+TrackMock::~TrackMock()
+{}
+
+const Brx& TrackMock::Uri() const
+{
+    return iUri;
+}
+
+IMediaMetadata& TrackMock::Metadata() const
+{
+    return iMetadata;
+}
+
+ServicePlaylistMock::ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aTracks, TBool aRepeat, TBool aShuffle, const Brx& aTransportState, const Brx& aProtocolInfo, TUint aTracksMax, ILog& aLog)
+    : ServicePlaylist(aDevice, aLog)
+    , iIdFactory(0)
+    , iTracks(new std::vector<TrackMock*>())
+    , iIdArray(new std::vector<TUint>())
+    , iCacheSession(nullptr)
+{
+    iTracksMax = aTracksMax;
+    iProtocolInfo.Replace(aProtocolInfo.Ptr(), aProtocolInfo.Bytes());
+    
+    for (auto it = aTracks.begin(); it != aTracks.end(); ++it)
+    {
+        iIdArray->push_back(iIdFactory);
+        TrackMock* track = new TrackMock(((*it)->Values().at(iNetwork.GetTagManager().Audio().Uri()))->Value(), (**it));
+        iTracks->push_back(track);
+        ++iIdFactory;
+    }
+
+    iId->Update(aId);
+    iTransportState->Update(Brn(aTransportState));
+    iRepeat->Update(aRepeat);
+    iShuffle->Update(aShuffle);
+}
+
+ServicePlaylistMock::~ServicePlaylistMock()
+{
+}
+
+TBool ServicePlaylistMock::OnSubscribe()
+{
+    TUint id = IdCache::Hash(kCacheIdPrefixPlaylist, Device().Udn());
+
+    iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServicePlaylistMock::ReadList));
+
+    iCacheSession->SetValid(*iIdArray);
+
+    iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this));
+    return true; //true = is mock
+}
+
+void ServicePlaylistMock::OnUnsubscribe()
+{
+    if (iMediaSupervisor)
+    {
+        iMediaSupervisor->Dispose();
+        iMediaSupervisor = nullptr;
+    }
+
+    if (iCacheSession)
+    {
+        iCacheSession->Dispose();
+        iCacheSession = nullptr;
+    }
+}
+
+void ServicePlaylistMock::Play()
+{
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &ServicePlaylistMock::CallbackPlay), nullptr);
+}
+
+void ServicePlaylistMock::CallbackPlay(void*)
+{
+    iTransportState->Update(Brn("Playing"));
+}
+
+void ServicePlaylistMock::Pause()
+{
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &ServicePlaylistMock::CallbackPause), nullptr);
+}
+
+void ServicePlaylistMock::CallbackPause(void*)
+{
+    iTransportState->Update(Brn("Paused"));
+}
+
+void ServicePlaylistMock::Stop()
+{
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &ServicePlaylistMock::CallbackStop), nullptr);
+}
+
+void ServicePlaylistMock::CallbackStop(void*)
+{
+    iTransportState->Update(Brn("Stopped"));
+}
+
+void ServicePlaylistMock::Previous()
+{
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &ServicePlaylistMock::CallbackPrevious), nullptr);
+}
+
+void ServicePlaylistMock::CallbackPrevious(void*)
+{
+    TInt index = find(iIdArray->begin(), iIdArray->end(), iId->Value()) - iIdArray->begin();
+    ASSERT(index <= (TInt)iIdArray->size());
+
+    if (index > 0)
+    {
+        iId->Update((*iIdArray)[index - 1]);
+    }
+}
+
+void ServicePlaylistMock::Next()
+{
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &ServicePlaylistMock::CallbackPrevious), nullptr);
+}
+
+void ServicePlaylistMock::CallbackNext(void*)
+{
+    TInt index = find(iIdArray->begin(), iIdArray->end(), iId->Value()) - iIdArray->begin();
+    ASSERT(index <= (TInt)iIdArray->size());
+
+    if (index < (TInt)iIdArray->size() - 1)
+    {
+        iId->Update((*iIdArray)[index + 1]);
+    }
+}
+
+void ServicePlaylistMock::SeekId(TUint aValue)
+{
+    //iCallbackUint = aValue;
+
+    TUint* id = new TUint(aValue);
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &ServicePlaylistMock::CallbackSeekId), id);
+}
+
+void ServicePlaylistMock::CallbackSeekId(void* aValue)
+{
+    auto id = (TUint*)aValue;
+    iId->Update(*id);
+    delete id;
+}
+
+void ServicePlaylistMock::SeekSecondAbsolute(TUint /*aValue*/)
+{
+}
+
+void ServicePlaylistMock::SeekSecondRelative(TInt /*aValue*/)
+{
+}
+
+void ServicePlaylistMock::Insert(IMediaPreset& aValue, const Brx& aUri, IMediaMetadata& aMetadata)
+{
+    auto presetPlaylist = (MediaPresetPlaylist&)aValue;
+    Insert(presetPlaylist.Id(), aUri, aMetadata);
+}
+
+void ServicePlaylistMock::Insert(TUint aAfterId, const Brx& aUri, IMediaMetadata& aMetadata)
+{
+    auto insertData = new std::tuple<TUint, Brn, IMediaMetadata&>(aAfterId, Brn(aUri.Ptr(), aUri.Bytes()), aMetadata);
+    iNetwork.Execute(MakeFunctorGeneric(*this, &ServicePlaylistMock::CallbackInsert), insertData);
+}
+
+void ServicePlaylistMock::CallbackInsert(void* aValue)
+{
+    TUint newId = 0;
+    auto insertData = (std::tuple<TUint, Brn, IMediaMetadata&>*)aValue;
+    TInt index = find(iIdArray->begin(), iIdArray->end(), std::get<0>(*insertData)) - iIdArray->begin();
+    if (index == -1)
+    {
+        Log::Print("Id not found\n");
+        ASSERTS();
+    }
+
+    newId = iIdFactory;
+    iIdArray->insert(iIdArray->begin() + index + 1, newId);
+
+    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(std::get<1>(*insertData), std::get<2>(*insertData)));
+
+    ++iIdFactory;
+
+    auto newPlaylistSnapshot = new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this);
+    iMediaSupervisor->Update(newPlaylistSnapshot);
+
+}
+
+void ServicePlaylistMock::InsertNext(const Brx& aUri, IMediaMetadata& aMetadata)
+{
+    auto insertData = new std::pair<const Brx&, IMediaMetadata&>(aUri, aMetadata);
+    iNetwork.Execute(MakeFunctorGeneric<void*>(*this, &ServicePlaylistMock::CallbackInsertNext), insertData);
+}
+
+void ServicePlaylistMock::CallbackInsertNext(void* aValue)
+{
+    auto insertData = (std::pair<const Brx&, IMediaMetadata&>*)aValue;
+    TInt index = find(iIdArray->begin(), iIdArray->end(), iId->Value()) - iIdArray->begin();
+    if (index == -1)
+    {
+        Log::Print("Id not found\n");
+        ASSERTS();
+    }
+
+    TUint newId = iIdFactory;
+    iIdArray->insert(iIdArray->begin() + index + 1, newId);
+    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(insertData->first, insertData->second));
+
+    ++iIdFactory;
+
+    auto newPlaylistSnapshot = new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this);
+    iMediaSupervisor->Update(newPlaylistSnapshot);
+
+}
+
+void ServicePlaylistMock::InsertEnd(const Brx& aUri, IMediaMetadata& aMetadata)
+{
+    auto insertData = new std::pair<const Brx&, IMediaMetadata&>(aUri, aMetadata);
+    iNetwork.Execute(MakeFunctorGeneric<void*>(*this, &ServicePlaylistMock::CallbackInsertEnd), insertData);
+}
+
+void ServicePlaylistMock::CallbackInsertEnd(void* aValue)
+{
+    auto insertData = (std::pair<const Brx&, IMediaMetadata&>*)aValue;
+    TInt index = iIdArray->size() - 1;
+    if (index == -1)
+    {
+        index = 0;
+    }
+
+    TUint newId = iIdFactory;
+    iIdArray->insert(iIdArray->begin() + index + 1, newId);
+    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(insertData->first, insertData->second));
+    ++iIdFactory;
+
+    auto newPlaylistSnapshot = new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this);
+    iMediaSupervisor->Update(newPlaylistSnapshot);
+
+}
+
+void ServicePlaylistMock::MakeRoomForInsert(TUint aCount)
+{
+    auto count = new TUint(aCount);
+    iNetwork.Schedule(MakeFunctorGeneric<void*>(*this, &ServicePlaylistMock::CallbackMakeRoomForInsert), count);
+}
+
+void ServicePlaylistMock::CallbackMakeRoomForInsert(void* aValue)
+{
+    auto count = (TUint*)aValue;
+    iIdArray->erase(iIdArray->begin(), iIdArray->begin() + *count);
+    delete count;
+}
+
+void ServicePlaylistMock::Delete(IMediaPreset& aValue)
+{
+    iNetwork.Schedule(MakeFunctorGeneric<void*>(*this, &ServicePlaylistMock::CallbackDelete), &aValue);
+}
+
+void ServicePlaylistMock::CallbackDelete(void* aValue)
+{
+    auto preset = (MediaPresetPlaylist*)aValue;
+
+    TInt toErase = find(iIdArray->begin(), iIdArray->end(), preset->Id()) - iIdArray->begin();
+    iIdArray->erase(iIdArray->begin() + toErase);
+    TInt index = find(iIdArray->begin(), iIdArray->end(), preset->Id()) - iIdArray->begin();
+    if (index < (TInt)iIdArray->size())
+    {
+        iId->Update((*iIdArray)[index]);
+    }
+}
+
+void ServicePlaylistMock::DeleteAll()
+{
+    iNetwork.Schedule(MakeFunctorGeneric<void*>(*this, &ServicePlaylistMock::CallbackDeleteAll), nullptr);
+}
+
+void ServicePlaylistMock::CallbackDeleteAll(void*)
+{
+    iIdArray->clear();
+    iId->Update(0);
+    auto newPlaylistSnapshot = new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this);
+    iMediaSupervisor->Update(newPlaylistSnapshot);
+}
+
+void ServicePlaylistMock::SetRepeat(TBool aValue)
+{
+    auto repeat = new TBool(aValue);
+    iNetwork.Schedule(MakeFunctorGeneric<void*>(*this, &ServicePlaylistMock::CallbackSetRepeat), repeat);
+}
+
+void ServicePlaylistMock::CallbackSetRepeat(void* aValue)
+{
+    auto repeat = (TBool*)aValue;
+    iRepeat->Update(*repeat);
+    delete repeat;
+}
+
+void ServicePlaylistMock::SetShuffle(TBool aValue)
+{
+    auto shuffle = new TBool(aValue);
+    iNetwork.Schedule(MakeFunctorGeneric<void*>(*this, &ServicePlaylistMock::CallbackSetShuffle), shuffle);
+}
+
+void ServicePlaylistMock::CallbackSetShuffle(void* aValue)
+{
+    auto shuffle = (TBool*)aValue;
+    iShuffle->Update(*shuffle);
+    delete shuffle;
+}
+
+void ServicePlaylistMock::ReadList(ReadListData* aValue)
+{
+    for (auto it = aValue->iRequiredIds->begin(); it != aValue->iRequiredIds->end(); ++it)
+    {
+        IIdCacheEntry* entry  = new IdCacheEntry(&(iTracks->at(*it)->Metadata()), iTracks->at(*it)->Uri());
+        aValue->iEntries->push_back(entry);
+    }
+}
+
+void ServicePlaylistMock::Execute(ICommandTokens& aValue)
+{
+    Brn command = aValue.Next();
+    if (Ascii::CaseInsensitiveEquals(command, Brn("tracksmax")))
+    {
+        iTracksMax = Ascii::Uint(aValue.Next());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("protocolinfo")))
+    {
+        iProtocolInfo.Append(" ");
+        iProtocolInfo.Append(aValue.Next());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("id")))
+    {
+        iId->Update(Ascii::Uint(aValue.Next()));
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("tracks")))
+    {
+        Log::Print("PlaylistMock tracks not implemented");
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("repeat")))
+    {
+        iRepeat->Update(Ascii::CaseInsensitiveEquals(aValue.Next(), Brn("true")));
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("shuffle")))
+    {
+        iShuffle->Update(Ascii::CaseInsensitiveEquals(aValue.Next(), Brn("true")));
+    }
+    else
+    {
+        Log::Print("PlaylistMock command not supported");
+        ASSERTS();
+    }
+}
+////////////////////////////////////////////////////////////////////////////////
 ProxyPlaylist::ProxyPlaylist(ServicePlaylist& aService, IDevice& aDevice)
     :iService(aService)
-    ,iDevice(aDevice){
+    ,iDevice(aDevice)
+{
 }
 
 

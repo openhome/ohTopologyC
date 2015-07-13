@@ -531,8 +531,199 @@ void ServiceRadioNetwork::HandleTransportStateChangedCallback2(void*)
 
 ////////////////////////////////////////////////////////////////////////
 
+ServiceRadioMock::ServiceRadioMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aPresets, IInfoMetadata* aMetadata, const Brx& aProtocolInfo, const Brx& aTransportState, TUint aChannelsMax, ILog& aLog)
+    : ServiceRadio(aDevice, aLog)
+    , iPresets(aPresets)
+{
+    iChannelsMax = aChannelsMax;
+    iProtocolInfo.Replace(aProtocolInfo.Ptr(), aProtocolInfo.Bytes());
 
+    iIdArray = new std::vector<TUint>();
+    TUint id = 1;
 
+    for (auto it = aPresets.begin(); it != aPresets.end(); ++it)
+    {
+        if (*it == nullptr)
+        {
+            iIdArray->push_back(0);
+        }
+        else
+        {
+            iIdArray->push_back(id);
+        }
+        ++id;
+    }
+
+    iId->Update(aId);
+    iMetadata->Update(aMetadata);
+    iTransportState->Update(Brn(aTransportState));
+}
+
+ServiceRadioMock::~ServiceRadioMock()
+{}
+
+void ServiceRadioMock::Dispose()
+{
+    if (iMediaSupervisor)
+    {
+        iMediaSupervisor->Dispose();
+        iMediaSupervisor = nullptr;
+    }
+
+    if (iCacheSession)
+    {
+        iCacheSession->Dispose();
+        iCacheSession = nullptr;
+    }
+}
+
+TBool ServiceRadioMock::OnSubscribe()
+{
+    TUint id = IdCache::Hash(kCacheIdPrefixPlaylist, Device().Udn());
+
+    iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioMock::ReadList));
+
+    iCacheSession->SetValid(*iIdArray);
+
+    iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, new RadioSnapshot(iNetwork, *iCacheSession, iIdArray, *this));
+    return true; //true = is mock
+}
+
+void ServiceRadioMock::OnUnsubscribe()
+{
+    if (iMediaSupervisor)
+    {
+        iMediaSupervisor->Dispose();
+        iMediaSupervisor = nullptr;
+    }
+
+    if (iCacheSession)
+    {
+        iCacheSession->Dispose();
+        iCacheSession = nullptr;
+    }
+}
+
+void ServiceRadioMock::Play()
+{
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &ServiceRadioMock::CallbackPlay), nullptr);
+}
+
+void ServiceRadioMock::CallbackPlay(void*)
+{
+    iTransportState->Update(Brn("Playing"));
+}
+
+void ServiceRadioMock::Pause()
+{
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &ServiceRadioMock::CallbackPause), nullptr);
+}
+
+void ServiceRadioMock::CallbackPause(void*)
+{
+    iTransportState->Update(Brn("Paused"));
+}
+
+void ServiceRadioMock::Stop()
+{
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &ServiceRadioMock::CallbackStop), nullptr);
+}
+
+void ServiceRadioMock::CallbackStop(void*)
+{
+    iTransportState->Update(Brn("Stopped"));
+}
+
+void ServiceRadioMock::SeekSecondAbsolute(TUint /*aValue*/)
+{
+}
+
+void ServiceRadioMock::SeekSecondRelative(TInt /*aValue*/)
+{
+}
+
+void ServiceRadioMock::SetId(TUint aId, const Brx& /*aUri*/)
+{
+    auto id = new TUint(aId);
+    iNetwork.Schedule(MakeFunctorGeneric<void*>(*this, &ServiceRadioMock::CallbackSetId), id);
+}
+
+void ServiceRadioMock::CallbackSetId(void* aValue)
+{
+    auto id = (TUint*)aValue;
+    iId->Update(*id);
+    delete id;
+}
+
+void ServiceRadioMock::SetChannel(const Brx& aUri, IMediaMetadata& aMetadata)
+{
+    auto channelData = new std::pair<const Brx&, IMediaMetadata&>(aUri, aMetadata);
+    iNetwork.Execute(MakeFunctorGeneric<void*>(*this, &ServiceRadioMock::CallbackSetChannel), channelData);
+}
+
+void ServiceRadioMock::CallbackSetChannel(void* aValue)
+{
+    auto channelData = (std::pair<const Brx&, IMediaMetadata&>*)aValue;
+    auto newMetadata = new InfoMetadata(&channelData->second, channelData->first);
+    auto oldMetadata = iMetadata->Value();
+    iMetadata->Update(newMetadata);
+    if (oldMetadata){delete oldMetadata;}
+}
+
+void ServiceRadioMock::ReadList(ReadListData* aValue)
+{
+    for (auto it = aValue->iRequiredIds->begin(); it != aValue->iRequiredIds->end(); ++it)
+    {
+        if (*it != 0)
+        {
+            IIdCacheEntry* entry = new IdCacheEntry(iPresets.at(*it), iPresets.at(*it)->Value(iNetwork.GetTagManager().Audio().Uri())->Value());
+            aValue->iEntries->push_back(entry);
+        }
+    }
+}
+
+void ServiceRadioMock::Execute(ICommandTokens& aValue)
+{
+    Brn command = aValue.Next();
+    if (Ascii::CaseInsensitiveEquals(command, Brn("channelsmax")))
+    {
+        iChannelsMax = Ascii::Uint(aValue.Next());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("protocolinfo")))
+    {
+        iProtocolInfo.Append(Brn(" "));
+        iProtocolInfo.Append(aValue.Next());
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("id")))
+    {
+        iId->Update(Ascii::Uint(aValue.Next()));
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("presets")))
+    {
+        Log::Print("ServiceRadioMock presets command not implemented");
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("metadata")))
+    {
+        if (aValue.Count() != 2)
+        {
+            Log::Print("Need two values after metadata in test script");
+            ASSERTS();
+        }
+        auto newMetadata = new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(aValue.Next()), aValue.Next());
+        auto oldMetadata = iMetadata->Value();
+        iMetadata->Update(newMetadata);
+        if (oldMetadata){ delete oldMetadata; }
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("transportstate")))
+    {
+        iTransportState->Update(aValue.Next());
+    }
+    else
+    {
+        Log::Print("Command not recognised in ServiceRadioMock");
+    }
+}
+////////////////////////////////////////////////////////////////////////
 RadioSnapshot::RadioSnapshot(INetwork& aNetwork, IIdCacheSession& aCacheSession, vector<TUint>* aIdArray, ServiceRadio& aRadio)
     :iNetwork(aNetwork)
     ,iCacheSession(aCacheSession)

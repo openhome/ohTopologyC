@@ -450,11 +450,16 @@ void ServiceVolumeNetwork::BalanceChangedCallback2(void*)
 
     /////////////////////////////////////////////////////////////
 
-/*
-ServiceVolumeMock(INetwork aNetwork, IInjectorDevice aDevice, string aId, TInt aBalance, TUint aBalanceMax, TInt aFade, TUint aFadeMax, TBool aMute, TUint aValue, TUint aVolumeLimit, TUint aVolumeMax,
-    TUint aVolumeMilliDbPerStep, TUint aVolumeSteps, TUint aVolumeUnity, ILog aLog)
-    : ServiceVolume(aNetwork, aDevice, aLog)
+
+ServiceVolumeMock::ServiceVolumeMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& /*aId*/, TInt aBalance, TUint aBalanceMax, TInt aFade, TUint aFadeMax, TBool aMute, TUint aValue, TUint aVolumeLimit, TUint aVolumeMax,
+    TUint aVolumeMilliDbPerStep, TUint aVolumeSteps, TUint aVolumeUnity, ILog& aLog)
+    : ServiceVolume(aDevice, aLog)
+    , iNetwork(aNetwork)
+
 {
+    iBalanceMax = aBalanceMax;
+    iFadeMax = aFadeMax;
+    iVolumeMax = aVolumeMax;
     TUint volumeLimit = aVolumeLimit;
     if (volumeLimit > aVolumeMax)
     {
@@ -469,143 +474,133 @@ ServiceVolumeMock(INetwork aNetwork, IInjectorDevice aDevice, string aId, TInt a
     }
     iCurrentVolume = value;
 
-    iBalance.Update(aBalance);
-    iFade.Update(aFade);
-    iMute.Update(aMute);
-    iValue.Update(value);
-    iVolumeLimit.Update(volumeLimit);
-    iVolumeMilliDbPerStep.Update(aVolumeMilliDbPerStep);
-    iVolumeSteps.Update(aVolumeSteps);
-    iVolumeUnity.Update(aVolumeUnity);
+    iBalance->Update(aBalance);
+    iFade->Update(aFade);
+    iMute->Update(aMute);
+    iValue->Update(value);
+    iVolumeLimit->Update(volumeLimit);
+    iVolumeMilliDbPerStep = aVolumeMilliDbPerStep;
+    iVolumeSteps = aVolumeSteps;
+    iVolumeUnity = aVolumeUnity;
 }
 
-Task SetBalance(TInt aValue)
+ServiceVolumeMock::~ServiceVolumeMock()
+{}
+
+void ServiceVolumeMock::SetBalance(TInt aValue)
 {
-    Task task = Task.Factory.StartNew(() =>
-    {
-        iNetwork.Schedule(() =>
-        {
-            iBalance.Update(aValue);
-        });
-    });
-    return task;
+    auto balance = new TInt(aValue);
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &ServiceVolumeMock::CallbackSetBalance), balance);
 }
 
-Task SetFade(TInt aValue)
+void ServiceVolumeMock::CallbackSetBalance(void* aValue)
 {
-    Task task = Task.Factory.StartNew(() =>
-    {
-        iNetwork.Schedule(() =>
-        {
-            iFade.Update(aValue);
-        });
-    });
-    return task;
+    auto balance = (TInt*)aValue;
+    iBalance->Update(*balance);
+    delete balance;
 }
 
-Task SetMute(TBool aValue)
+void ServiceVolumeMock::SetFade(TInt aValue)
 {
-    Task task = Task.Factory.StartNew(() =>
-    {
-        iNetwork.Schedule(() =>
-        {
-            iMute.Update(aValue);
-        });
-    });
-    return task;
+    auto fade = new TInt(aValue);
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &ServiceVolumeMock::CallbackSetFade), fade);
 }
 
-Task SetVolume(TUint aValue)
+void ServiceVolumeMock::CallbackSetFade(void* aValue)
 {
-    Task task = Task.Factory.StartNew(() =>
-    {
-        TUint value = aValue;
-        if (value > iCurrentVolumeLimit)
-        {
-            value = iCurrentVolumeLimit;
-        }
-
-        if (value != iCurrentVolume)
-        {
-            iCurrentVolume = value;
-            iNetwork.Schedule(() =>
-            {
-                iValue.Update(aValue);
-            });
-        }
-    });
-    return task;
+    auto fade = (TInt*)aValue;
+    iFade->Update(*fade);
+    delete fade;
 }
 
-Task VolumeDec()
+void ServiceVolumeMock::SetMute(TBool aValue)
 {
-    Task task = Task.Factory.StartNew(() =>
-    {
-        if (iCurrentVolume > 0)
-        {
-            --iCurrentVolume;
-            iNetwork.Schedule(() =>
-            {
-                iValue.Update(iCurrentVolume);
-            });
-        }
-    });
-    return task;
+    auto mute = new TBool(aValue);
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &ServiceVolumeMock::CallbackSetMute), mute);
 }
 
-Task VolumeInc()
+void ServiceVolumeMock::CallbackSetMute(void* aValue)
 {
-    Task task = Task.Factory.StartNew(() =>
-    {
-        if (iCurrentVolume < iCurrentVolumeLimit)
-        {
-            ++iCurrentVolume;
-            iNetwork.Schedule(() =>
-            {
-                iValue.Update(iCurrentVolume);
-            });
-        }
-    });
-    return task;
+    auto mute = (TBool*)aValue;
+    iMute->Update(*mute);
+    delete mute;
 }
 
-void Execute(IEnumerable<string> aValue)
+void ServiceVolumeMock::SetVolume(TUint aValue)
 {
-    string command = aValue.First().ToLowerInvariant();
-    if (command == "balance")
+    auto volume = new TUint(aValue);
+    iNetwork.Schedule(MakeFunctorGeneric(*this, &ServiceVolumeMock::CallbackSetVolume), volume);
+}
+
+void ServiceVolumeMock::CallbackSetVolume(void* aValue)
+{
+    auto volume = (TUint*)aValue;
+    iValue->Update(*volume);
+    delete volume;
+}
+
+void ServiceVolumeMock::VolumeDec()
+{
+    if (iCurrentVolume > 0)
     {
-        IEnumerable<string> value = aValue.Skip(1);
-        iBalance.Update(TInt.Parse(value.First()));
+        --iCurrentVolume;
+        iNetwork.Schedule(MakeFunctorGeneric(*this, &ServiceVolumeMock::CallbackVolumeDec), nullptr);
     }
-    else if (command == "fade")
+}
+
+void ServiceVolumeMock::CallbackVolumeDec(void*)
+{
+    iValue->Update(iCurrentVolume);
+}
+
+void ServiceVolumeMock::VolumeInc()
+{
+    if (iCurrentVolume < iCurrentVolumeLimit)
     {
-        IEnumerable<string> value = aValue.Skip(1);
-        iFade.Update(TInt.Parse(value.First()));
+        ++iCurrentVolume;
+        iNetwork.Schedule(MakeFunctorGeneric(*this, &ServiceVolumeMock::CallbackVolumeInc), nullptr);
+
     }
-    else if (command == "mute")
+}
+
+void ServiceVolumeMock::CallbackVolumeInc(void*)
+{
+    iValue->Update(iCurrentVolume);
+}
+
+void ServiceVolumeMock::Execute(ICommandTokens& aValue)
+{
+    Brn command = aValue.Next();
+    if (Ascii::CaseInsensitiveEquals(command, Brn("balance")))
     {
-        IEnumerable<string> value = aValue.Skip(1);
-        iMute.Update(TBool.Parse(value.First()));
+        iBalance->Update(Ascii::Int(aValue.Next()));
     }
-    else if (command == "value")
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("fade")))
     {
-        IEnumerable<string> value = aValue.Skip(1);
-        iValue.Update(TUint.Parse(value.First()));
+        iFade->Update(Ascii::Int(aValue.Next()));
     }
-    else if (command == "volumeinc")
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("mute")))
+    {
+        iMute->Update((Ascii::CaseInsensitiveEquals(aValue.Next(), Brn("mute"))));
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("value")))
+    {
+        iValue->Update(Ascii::Uint(aValue.Next()));
+    }
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("volumeinc")))
     {
         VolumeInc();
     }
-    else if (command == "volumedec")
+    else if (Ascii::CaseInsensitiveEquals(command, Brn("volumedec")))
     {
         VolumeDec();
     }
     else
     {
-        throw new NotSupportedException();
+       // throw new NotSupportedException();
     }
 }
-*/
+
 //////////////////////////////////////////////////////
 
 

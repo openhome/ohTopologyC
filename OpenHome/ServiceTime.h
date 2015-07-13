@@ -72,36 +72,17 @@ private:
 };
 
 
-/*
-    class ServiceTimeMock : ServiceTime, IMockable
-    {
-        public ServiceTimeMock(IInjectorDevice aDevice, TUint aSeconds, TUint aDuration, ILog aLog)
-            : base(aDevice, aLog)
-        {
-            iDuration.Update(aDuration);
-            iSeconds.Update(aSeconds);
-        }
 
-        public override void Execute(IEnumerable<string> aValue)
-        {
-            string command = aValue.First().ToLowerInvariant();
-            if (command == "duration")
-            {
-                IEnumerable<string> value = aValue.Skip(1);
-                iDuration.Update(TUint.Parse(value.First()));
-            }
-            else if (command == "seconds")
-            {
-                IEnumerable<string> value = aValue.Skip(1);
-                iSeconds.Update(TUint.Parse(value.First()));
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
-        }
-    }
-*/
+class ServiceTimeMock : public ServiceTime
+{
+public:
+    ServiceTimeMock(IInjectorDevice& aDevice, TUint aSeconds, TUint aDuration, ILog& aLog);
+    ~ServiceTimeMock();
+public:
+    void Execute(ICommandTokens& aValue) override;
+
+};
+
 
 
 class IProxyTime : public IProxy

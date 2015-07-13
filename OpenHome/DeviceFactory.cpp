@@ -10,6 +10,7 @@
 #include <OpenHome/ServiceRadio.h>
 #include <OpenHome/ServicePlaylist.h>
 #include <OpenHome/ServiceInfo.h>
+#include <OpenHome/ServiceTime.h>
 #include <vector>
 #include <memory>
 
@@ -65,6 +66,14 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
 */
     // sender service
 
+    ServiceVolumeMock* svm = new ServiceVolumeMock(aNetwork, *device, aUdn, 0, 15, 0, 0, false, 50, 100, 100, 1024, 100, 80, aLog);
+    device->Add(eProxyVolume, svm);
+
+    ServiceInfoMock* sim = new ServiceInfoMock(*device, new InfoDetails(0, 0, Brx::Empty(), 0, false, 0), new InfoMetadata(aNetwork.GetTagManager().FromDidlLite(Brx::Empty()), Brx::Empty()), new InfoMetatext(aNetwork.GetTagManager().FromDidlLite(Brx::Empty())), aLog);
+    device->Add(eProxyInfo, sim);
+
+    ServiceTimeMock* stm = new ServiceTimeMock(*device, 0, 0, aLog);
+    device->Add(eProxyTime, stm);
 
 
     Bwh senderMeta(Brn("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>Main Room:Mock DS</dc:title><res protocolInfo=\"ohz:*:*:u\">ohz://239.255.255.250:51972/"));
@@ -86,7 +95,9 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
     ServiceReceiverMock* srm =  new ServiceReceiverMock(*device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty(), aLog);
     device->Add(eProxyReceiver, srm);
 
-
+    std::vector<IMediaMetadata*>* tracks = new std::vector<IMediaMetadata*>();
+    ServicePlaylistMock* spm = new ServicePlaylistMock(*device, 0, *tracks, false, false, Brn("Stopped"), Brx::Empty(), 1000, aLog);
+    device->Add(eProxyPlaylist, spm);
             // credentials service
 /*
     device.Add<IProxyCredentials>(new ServiceCredentialsMock(device, new Dictionary<string, Credentials>() { { "tidalhifi.com", new Credentials(string.Empty, false, false, string.Empty, string.Empty) } },
@@ -174,6 +185,14 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
     // time service
     device->Add<IProxyTime>(new ServiceTimeMock(aNetwork, device, 0, 0, aLog));
 */
+    ServiceVolumeMock* svm = new ServiceVolumeMock(aNetwork, *device, aUdn, 0, 15, 0, 0, false, 50, 100, 100, 1024, 100, 80, aLog);
+    device->Add(eProxyVolume, svm);
+
+    ServiceInfoMock* sim = new ServiceInfoMock(*device, new InfoDetails(0, 0, Brx::Empty(), 0, false, 0), new InfoMetadata(aNetwork.GetTagManager().FromDidlLite(Brx::Empty()), Brx::Empty()), new InfoMetatext(aNetwork.GetTagManager().FromDidlLite(Brx::Empty())), aLog);
+    device->Add(eProxyInfo, sim);
+
+    ServiceTimeMock* stm = new ServiceTimeMock(*device, 0, 0, aLog);
+    device->Add(eProxyTime, stm);
     // sender service
     Bwh senderMeta(Brn("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>Main Room:Mock DSM</dc:title><res protocolInfo=\"ohz:*:*:u\">ohz://239.255.255.250:51972/"));
     senderMeta.Grow(2000);

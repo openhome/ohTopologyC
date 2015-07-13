@@ -176,168 +176,40 @@ private:
     IDevice& iDevice;
 };
 
-/*
-class ServiceVolumeMock : ServiceVolume, IMockable
+
+class ServiceVolumeMock : public ServiceVolume
 {
-    public ServiceVolumeMock(INetwork aNetwork, IInjectorDevice aDevice, string aId, TInt aBalance, TUint aBalanceMax, TInt aFade, TUint aFadeMax, TBool aMute, TUint aValue, TUint aVolumeLimit, TUint aVolumeMax,
-        TUint aVolumeMilliDbPerStep, TUint aVolumeSteps, TUint aVolumeUnity, ILog aLog)
-        : base(aNetwork, aDevice, aLog)
-    {
-        TUint volumeLimit = aVolumeLimit;
-        if (volumeLimit > aVolumeMax)
-        {
-            volumeLimit = aVolumeMax;
-        }
-        iCurrentVolumeLimit = volumeLimit;
+public:
+    ServiceVolumeMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aId, TInt aBalance, TUint aBalanceMax, TInt aFade, TUint aFadeMax, TBool aMute, TUint aValue, TUint aVolumeLimit, TUint aVolumeMax,
+        TUint aVolumeMilliDbPerStep, TUint aVolumeSteps, TUint aVolumeUnity, ILog& aLog);
+    ~ServiceVolumeMock();
+public:
+    void SetBalance(TInt aValue) override;
+    void CallbackSetBalance(void*);
 
-        TUint value = aValue;
-        if (value > aVolumeLimit)
-        {
-            value = aVolumeLimit;
-        }
-        iCurrentVolume = value;
+    void SetFade(TInt aValue) override;
+    void CallbackSetFade(void*);
 
-        iBalance.Update(aBalance);
-        iFade.Update(aFade);
-        iMute.Update(aMute);
-        iValue.Update(value);
-        iVolumeLimit.Update(volumeLimit);
-        iVolumeMilliDbPerStep.Update(aVolumeMilliDbPerStep);
-        iVolumeSteps.Update(aVolumeSteps);
-        iVolumeUnity.Update(aVolumeUnity);
-    }
+    void SetMute(TBool aValue) override;
+    void CallbackSetMute(void*);
 
-    public virtual Task SetBalance(TInt aValue)
-    {
-        Task task = Task.Factory.StartNew(() =>
-        {
-            iNetwork.Schedule(() =>
-            {
-                iBalance.Update(aValue);
-            });
-        });
-        return task;
-    }
+    void SetVolume(TUint aValue) override;
+    void CallbackSetVolume(void*);
 
-    public virtual Task SetFade(TInt aValue)
-    {
-        Task task = Task.Factory.StartNew(() =>
-        {
-            iNetwork.Schedule(() =>
-            {
-                iFade.Update(aValue);
-            });
-        });
-        return task;
-    }
+    void VolumeDec() override;
+    void CallbackVolumeDec(void*);
 
-    public virtual Task SetMute(TBool aValue)
-    {
-        Task task = Task.Factory.StartNew(() =>
-        {
-            iNetwork.Schedule(() =>
-            {
-                iMute.Update(aValue);
-            });
-        });
-        return task;
-    }
+    void VolumeInc() override;
+    void CallbackVolumeInc(void*);
 
-    public virtual Task SetVolume(TUint aValue)
-    {
-        Task task = Task.Factory.StartNew(() =>
-        {
-            TUint value = aValue;
-            if (value > iCurrentVolumeLimit)
-            {
-                value = iCurrentVolumeLimit;
-            }
+    void Execute(ICommandTokens& aValue);
+private:
+    TUint iCurrentVolume;
+    TUint iCurrentVolumeLimit;
+private: //variables for setter callbacks
+    INetwork& iNetwork;
+};
 
-            if (value != iCurrentVolume)
-            {
-                iCurrentVolume = value;
-                iNetwork.Schedule(() =>
-                {
-                    iValue.Update(aValue);
-                });
-            }
-        });
-        return task;
-    }
-
-    public virtual Task VolumeDec()
-    {
-        Task task = Task.Factory.StartNew(() =>
-        {
-            if (iCurrentVolume > 0)
-            {
-                --iCurrentVolume;
-                iNetwork.Schedule(() =>
-                {
-                    iValue.Update(iCurrentVolume);
-                });
-            }
-        });
-        return task;
-    }
-
-    public virtual Task VolumeInc()
-    {
-        Task task = Task.Factory.StartNew(() =>
-        {
-            if (iCurrentVolume < iCurrentVolumeLimit)
-            {
-                ++iCurrentVolume;
-                iNetwork.Schedule(() =>
-                {
-                    iValue.Update(iCurrentVolume);
-                });
-            }
-        });
-        return task;
-    }
-
-    public virtual void Execute(IEnumerable<string> aValue)
-    {
-        string command = aValue.First().ToLowerInvariant();
-        if (command == "balance")
-        {
-            IEnumerable<string> value = aValue.Skip(1);
-            iBalance.Update(TInt.Parse(value.First()));
-        }
-        else if (command == "fade")
-        {
-            IEnumerable<string> value = aValue.Skip(1);
-            iFade.Update(TInt.Parse(value.First()));
-        }
-        else if (command == "mute")
-        {
-            IEnumerable<string> value = aValue.Skip(1);
-            iMute.Update(TBool.Parse(value.First()));
-        }
-        else if (command == "value")
-        {
-            IEnumerable<string> value = aValue.Skip(1);
-            iValue.Update(TUint.Parse(value.First()));
-        }
-        else if (command == "volumeinc")
-        {
-            VolumeInc();
-        }
-        else if (command == "volumedec")
-        {
-            VolumeDec();
-        }
-        else
-        {
-            throw new NotSupportedException();
-        }
-    }
-
-    private TUint iCurrentVolume;
-    private TUint iCurrentVolumeLimit;
-}
-*/
 
 } // Topology
 } // OpenHome
