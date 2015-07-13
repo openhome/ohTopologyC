@@ -398,9 +398,10 @@ void IdCacheSession::Run()
             job->Start();
             // wait on Job completion ? (iSemaJob.Wait()??)
         }
-        while(iFifoLo.SlotsUsed()>0)
+        while(iFifoLo.SlotsUsed()>0 )
         {
             Job* job = iFifoLo.Read();
+            ASSERT(job != NULL);
             job->Start();
             // wait on Job completion ? (iSemaJob.Wait()??)
         }
@@ -414,7 +415,7 @@ void IdCacheSession::Dispose()
     iCache->DestroySession(iSessionId);
 
     iMutexQueueLow.Wait();
-    iFifoLo.Write(NULL);
+//    iFifoLo.Write(NULL);
     iMutexQueueLow.Signal();
 
     iSemaQ.Signal();
@@ -449,6 +450,7 @@ void IdCacheSession::SetValid(vector<TUint>& aValid)
             readEntriesData->iFunctorsValid = false;
 
             auto job = CreateJob(readEntriesData);
+            ASSERT(job != NULL);
             iFifoLo.Write(job);
 
             iMutexQueueLow.Signal();
@@ -463,6 +465,7 @@ void IdCacheSession::Entries(ReadEntriesData* aReadEntriesData)
     DisposeLock lock(*iDisposeHandler);
 
     Job* job = CreateJob(aReadEntriesData);
+    ASSERT(job != NULL);
     iFifoHi.Write(job);
     iSemaQ.Signal();
 }
@@ -476,6 +479,7 @@ Job* IdCacheSession::CreateJob(ReadEntriesData* aReadEntriesData)
     // I propose "CreateEntriesJob"
 
     Job* job = new Job(MakeFunctorGeneric(*this, &IdCacheSession::CreateJobCallback), aReadEntriesData);
+    ASSERT(job != NULL)
     return(job);
 /*
     create a new job/thread (with CreateJobCallback that does the stuff below, and calls aCallback with result (vector<IIdCacheEntry*>))
