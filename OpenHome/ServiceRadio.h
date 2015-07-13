@@ -171,7 +171,6 @@ private:
     Net::CpProxyAvOpenhomeOrgRadio1* iService;
     IIdCacheSession* iCacheSession;
     TBool iSubscribed;
-		std::unique_ptr<Bwh> iIdList;
 };
 //////////////////////////////////////////////////////////////////
 class ServiceRadioMock : public ServiceRadio

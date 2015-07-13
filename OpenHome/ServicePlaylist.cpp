@@ -139,7 +139,7 @@ ServicePlaylist::ServicePlaylist(IInjectorDevice& aDevice, ILog& aLog)
     ,iRepeat(new Watchable<TBool>(iNetwork, Brn("Repeat"), false))
     ,iShuffle(new Watchable<TBool>(iNetwork, Brn("Shuffle"), true))
     ,iMediaSupervisor(NULL)
-        ,iTracksMax(0)
+    ,iTracksMax(0)
 {
 }
 
@@ -222,7 +222,6 @@ ServicePlaylistNetwork::ServicePlaylistNetwork(IInjectorDevice& aDevice, CpProxy
     :ServicePlaylist(aDevice, aLog)
     ,iService(aService)
     ,iCacheSession(NULL)
-    ,iIdList(nullptr)
     ,iSubscribed(false)
 {
     Functor f1 = MakeFunctor(*this, &ServicePlaylistNetwork::HandleIdChanged);
@@ -285,7 +284,6 @@ void ServicePlaylistNetwork::OnCancelSubscribe()
 void ServicePlaylistNetwork::HandleInitialEvent()
 {
     iService->PropertyTracksMax(iTracksMax);
-    iIdList.reset(new Bwh(Ascii::kMaxUintStringBytes * iTracksMax));
 
     Brhz protocolInfo;
     iService->PropertyProtocolInfo(protocolInfo);
@@ -508,13 +506,15 @@ void ServicePlaylistNetwork::ReadList(ReadListData* aReadListData)
     // called by IdCacheSession::CreateJobCallback - iFunction(payload);
     auto requiredIds = aReadListData->iMissingIds;
 
-    for (TUint i=0;i<requiredIds->size(); i++)
+    Bwh* idList = new Bwh((Ascii::kMaxUintStringBytes+1) * iTracksMax);
+
+    for (TUint i=0; i<requiredIds->size(); i++)
     {
         if (i>0)
         {
-            iIdList->Append(Brn(" "));
+            idList->Append(Brn(" "));
         }
-        Ascii::AppendDec(*iIdList, (*requiredIds)[i]);
+        Ascii::AppendDec(*idList, (*requiredIds)[i]);
     }
 
     AsyncAdaptor& asyncAdaptor = iNetwork.GetAsyncAdaptorManager().GetAdaptor();
@@ -523,7 +523,8 @@ void ServicePlaylistNetwork::ReadList(ReadListData* aReadListData)
     asyncAdaptor.SetCallback(f, aReadListData);
     FunctorAsync fa = asyncAdaptor.AsyncCb();
 
-    iService->BeginReadList(*iIdList, fa);
+    iService->BeginReadList(*idList, fa);
+    delete idList;
 
 }
 
@@ -532,10 +533,19 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
 {
     ReadListData* readListData = (ReadListData*)aArg->iArg;
 
+
+    Brh trackList;
+
     try
     {
-        Brh trackList;
-        iService->EndReadList(*aArg->iAsync, trackList);
+        try
+        {
+            iService->EndReadList(*aArg->iAsync, trackList);
+        }
+        catch (ProxyError&)
+        {
+            ASSERTS();
+        }
 
         auto entries = new vector<IIdCacheEntry*>();
 
@@ -544,11 +554,34 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
         Brn remaining = xmlNodeList;
         while(!remaining.Equals(Brx::Empty()))
         {
-            Brn metadataText = XmlParserBasic::Find(Brn("Metadata"), xmlNodeList, remaining);
-            Brn uriText = XmlParserBasic::Find(Brn("Uri"), xmlNodeList, remaining);
+            Brn metadataText;
+            try
+            {
+                metadataText = XmlParserBasic::Find(Brn("Metadata"), xmlNodeList, remaining);
+            }
+            catch(XmlError&)
+            {
+                break;
+                //ASSERTS();
+            }
+
+            Brn uriText;
+            try
+            {
+                uriText = XmlParserBasic::Find(Brn("Uri"), xmlNodeList, remaining);
+            }
+            catch(XmlError&)
+            {
+                break;
+                //ASSERTS();
+            }
+
             xmlNodeList = remaining;
             IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metadataText);
-            entries->push_back(new IdCacheEntry(metadata, uriText));
+            IdCacheEntry* cacheEntry = new IdCacheEntry(metadata, uriText);
+            Log::Print("created new cache entry \n");
+            entries->push_back(cacheEntry);
+            Log::Print("entries->size()=%d \n", entries->size());
         }
 
         readListData->iRetrievedEntries = entries;
@@ -558,7 +591,7 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
         readListData->iRetrievedEntries = NULL;
     }
 
-    readListData->iCallback(readListData);
+    readListData->iCallback(readListData); // this calls CacheSession::GetMissingEntriesCallback
 
 }
 
@@ -809,7 +842,7 @@ void PlaylistSnapshot::Read(/*CancellationToken aCancellationToken,*/ TUint aInd
     ASSERT((aIndex + aCount) <= Total());
 
     auto idList = new vector<TUint>();
-    for (TUint i = aIndex; i < aIndex + aCount; i++)
+    for (TUint i = aIndex; i < (aIndex + aCount); i++)
     {
         idList->push_back((*iIdArray)[i]);
     }
@@ -850,7 +883,8 @@ void PlaylistSnapshot::ReadCallback2(void* aObj)
 
         for (TUint i=0; i<entries->size(); i++)
         {
-            IIdCacheEntry* e = (*entries)[i];
+            IIdCacheEntry* entry = (*entries)[i];
+            ASSERT(entry!=NULL);
 
             TUint id = (*iIdArray)[index];
 
@@ -858,9 +892,10 @@ void PlaylistSnapshot::ReadCallback2(void* aObj)
             ASSERT(it!=iIdArray->end());
             TUint idIndex = it-iIdArray->begin();
 
-            tracks->push_back(new MediaPresetPlaylist(iNetwork, (idIndex + 1), id, e->Metadata(), iPlaylist));
+            tracks->push_back(new MediaPresetPlaylist(iNetwork, (idIndex + 1), id, entry->Metadata(), iPlaylist));
             index++;
         }
+
 
         callback(tracks);
     }
