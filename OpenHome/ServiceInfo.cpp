@@ -168,7 +168,7 @@ void ServiceInfoNetwork::OnCancelSubscribe()
 void ServiceInfoNetwork::HandleInitialEvent()
 {
 
-		//if (!iSubscribedSource->iCancelled)
+        //if (!iSubscribedSource->iCancelled)
    // {
         SubscribeCompleted();
    // }
@@ -293,20 +293,21 @@ void ServiceInfoNetwork::HandleMetatextChangedCallback2(void*)
 
 /////////////////////////////////////////////////////////////
 ServiceInfoMock::ServiceInfoMock(IInjectorDevice& aDevice, IInfoDetails* aDetails, IInfoMetadata* aMetadata, IInfoMetatext* aMetatext, ILog& aLog)
-    : ServiceInfo(aDevice, aLog)
-    , iCurrentMetadata(nullptr)
-    , iCurrentMetatext(nullptr)
+    :ServiceInfo(aDevice, aLog)
+    ,iCurrentDetails(new InfoDetails(aDetails->BitDepth(), aDetails->BitRate(), aDetails->CodecName(), aDetails->Duration(), aDetails->Lossless(), aDetails->SampleRate()))
+    ,iCurrentMetadata(aMetadata)
+    ,iCurrentMetatext(aMetatext)
 {
-    iCurrentDetails = new InfoDetails(aDetails->BitDepth(), aDetails->BitRate(), aDetails->CodecName(), aDetails->Duration(), aDetails->Lossless(), aDetails->SampleRate());
     iDetails->Update(iCurrentDetails);
-    
-    iMetadata->Update(aMetadata);
-
-    iMetatext->Update(aMetatext);
+    iMetadata->Update(iCurrentMetadata);
+    iMetatext->Update(iCurrentMetatext);
 }
 
 ServiceInfoMock::~ServiceInfoMock()
 {
+    delete iCurrentDetails;
+    delete iCurrentMetadata;
+    delete iCurrentMetatext;
 
 }
 
@@ -323,11 +324,11 @@ void ServiceInfoMock::Execute(ICommandTokens& aValue)
         }
         auto oldDetails = iCurrentDetails;
         iCurrentDetails = new InfoDetails(Ascii::Uint(aValue.Next()), //BitDepth
-            Ascii::Uint(aValue.Next()), //BitRate
-            aValue.Next(), //CodecName
-            Ascii::Uint(aValue.Next()), //Duration 
-            Ascii::CaseInsensitiveEquals(aValue.Next(), Brn("true")), //Lossless 
-            Ascii::Uint(aValue.Next())); //SampleRate
+                                            Ascii::Uint(aValue.Next()), //BitRate
+                                            aValue.Next(), //CodecName
+                                            Ascii::Uint(aValue.Next()), //Duration
+                                            Ascii::CaseInsensitiveEquals(aValue.Next(), Brn("true")), //Lossless
+                                            Ascii::Uint(aValue.Next())); //SampleRate
 
         iDetails->Update(iCurrentDetails);
         delete oldDetails;

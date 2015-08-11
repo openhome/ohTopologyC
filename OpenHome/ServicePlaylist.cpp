@@ -17,9 +17,9 @@ using namespace std;
 //struct InsertCallbackData{
 //    InsertCallbackData(TUint aAfterId, const Brx& aUri, IMediaMetadata& aMetadata)
 //        : AfterId(aAfterId), Uri(aUri.Ptr(), aUri.Bytes()), Metadata(&aMetadata) {}
-//    TUint AfterId; 
-//    Brn Uri; 
-//    IMediaMetadata& Metadata; 
+//    TUint AfterId;
+//    Brn Uri;
+//    IMediaMetadata& Metadata;
 //};
 
 MediaPresetPlaylist::MediaPresetPlaylist(IWatchableThread& aThread, TUint aIndex, TUint aId, IMediaMetadata& aMetadata, ServicePlaylist& aPlaylist)
@@ -138,10 +138,23 @@ ServicePlaylist::ServicePlaylist(IInjectorDevice& aDevice, ILog& aLog)
     ,iTransportState(new Watchable<Brn>(iNetwork, Brn("TransportState"), Brx::Empty()))
     ,iRepeat(new Watchable<TBool>(iNetwork, Brn("Repeat"), false))
     ,iShuffle(new Watchable<TBool>(iNetwork, Brn("Shuffle"), true))
-    ,iMediaSupervisor(NULL)
+    ,iMediaSupervisor(nullptr)
     ,iTracksMax(0)
 {
 }
+
+ServicePlaylist::~ServicePlaylist()
+{
+    delete iId;
+    delete iInfoNext;
+    delete iInfoCurrentIndex;
+    delete iTransportState;
+    delete iRepeat;
+    delete iShuffle;
+    delete iMediaSupervisor;
+}
+
+
 
 void ServicePlaylist::Dispose()
 {
@@ -930,7 +943,7 @@ ServicePlaylistMock::ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, st
 {
     iTracksMax = aTracksMax;
     iProtocolInfo.Replace(aProtocolInfo.Ptr(), aProtocolInfo.Bytes());
-    
+
     for (auto it = aTracks.begin(); it != aTracks.end(); ++it)
     {
         iIdArray->push_back(iIdFactory);
@@ -947,6 +960,8 @@ ServicePlaylistMock::ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, st
 
 ServicePlaylistMock::~ServicePlaylistMock()
 {
+    delete iTracks;
+    delete iIdArray;
 }
 
 TBool ServicePlaylistMock::OnSubscribe()

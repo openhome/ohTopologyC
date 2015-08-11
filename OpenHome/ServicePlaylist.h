@@ -111,6 +111,7 @@ class ServicePlaylist : public Service
 {
 protected:
     ServicePlaylist(IInjectorDevice& aDevice, ILog& aLog);
+    ~ServicePlaylist();
 
 public:
     void Dispose();
@@ -244,6 +245,8 @@ private:
     Brn iUri;
     IMediaMetadata& iMetadata;
 };
+
+/////////////////////////////////////////////////////////////////////////////
 
 class ServicePlaylistMock : public ServicePlaylist
 {

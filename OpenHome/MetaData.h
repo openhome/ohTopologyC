@@ -42,6 +42,8 @@ class InfoMetatext : public IInfoMetatext
 {
 public:
     InfoMetatext();
+    ~InfoMetatext();
+
     InfoMetatext(IMediaMetadata* aMetatext);
 
     IMediaMetadata& Metatext();

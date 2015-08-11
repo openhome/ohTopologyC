@@ -27,6 +27,7 @@ class ServiceTime : public Service
 {
 protected:
     ServiceTime(IInjectorDevice& aDevice, ILog& aLog);
+    ~ServiceTime();
 
 public:
     void Dispose();

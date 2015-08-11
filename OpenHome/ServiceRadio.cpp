@@ -370,9 +370,9 @@ void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
     auto requiredIds = readListData->iMissingIds;
     for(TUint i=0; i<requiredIds->size(); i++)
     {
-        TUint id = (*requiredIds)[i];
+        TUint id = ((*requiredIds)[i]);
 
-        if (id > 0)
+        if(id>0)
         {
             try
             {
@@ -407,9 +407,9 @@ void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
                 break;
             }
         }
-    }
-    readListData->iRetrievedEntries = entries;
-    readListData->iCallback(readListData);
+  }
+  readListData->iEntries = entries;
+  readListData->iCallback(readListData);
 }
 
 
@@ -560,7 +560,8 @@ ServiceRadioMock::ServiceRadioMock(IInjectorDevice& aDevice, TUint aId, std::vec
 }
 
 ServiceRadioMock::~ServiceRadioMock()
-{}
+{
+}
 
 void ServiceRadioMock::Dispose()
 {

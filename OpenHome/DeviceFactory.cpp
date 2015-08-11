@@ -69,8 +69,12 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
     ServiceVolumeMock* svm = new ServiceVolumeMock(aNetwork, *device, aUdn, 0, 15, 0, 0, false, 50, 100, 100, 1024, 100, 80, aLog);
     device->Add(eProxyVolume, svm);
 
-    ServiceInfoMock* sim = new ServiceInfoMock(*device, new InfoDetails(0, 0, Brx::Empty(), 0, false, 0), new InfoMetadata(aNetwork.GetTagManager().FromDidlLite(Brx::Empty()), Brx::Empty()), new InfoMetatext(aNetwork.GetTagManager().FromDidlLite(Brx::Empty())), aLog);
+    auto details = new InfoDetails(0, 0, Brx::Empty(), 0, false, 0);
+    auto infoMetaData = new InfoMetadata(aNetwork.GetTagManager().FromDidlLite(Brx::Empty()), Brx::Empty());
+    auto infoMetatext = new InfoMetatext(aNetwork.GetTagManager().FromDidlLite(Brx::Empty()));
+    ServiceInfoMock* sim = new ServiceInfoMock(*device, details, infoMetaData, infoMetatext, aLog);
     device->Add(eProxyInfo, sim);
+    delete details;
 
     ServiceTimeMock* stm = new ServiceTimeMock(*device, 0, 0, aLog);
     device->Add(eProxyTime, stm);
@@ -95,8 +99,8 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
     ServiceReceiverMock* srm =  new ServiceReceiverMock(*device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty(), aLog);
     device->Add(eProxyReceiver, srm);
 
-    std::vector<IMediaMetadata*>* tracks = new std::vector<IMediaMetadata*>();
-    ServicePlaylistMock* spm = new ServicePlaylistMock(*device, 0, *tracks, false, false, Brn("Stopped"), Brx::Empty(), 1000, aLog);
+    std::vector<IMediaMetadata*> tracks;// = new std::vector<IMediaMetadata*>();
+    ServicePlaylistMock* spm = new ServicePlaylistMock(*device, 0, tracks, false, false, Brn("Stopped"), Brx::Empty(), 1000, aLog);
     device->Add(eProxyPlaylist, spm);
             // credentials service
 /*
@@ -188,8 +192,10 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
     ServiceVolumeMock* svm = new ServiceVolumeMock(aNetwork, *device, aUdn, 0, 15, 0, 0, false, 50, 100, 100, 1024, 100, 80, aLog);
     device->Add(eProxyVolume, svm);
 
-    ServiceInfoMock* sim = new ServiceInfoMock(*device, new InfoDetails(0, 0, Brx::Empty(), 0, false, 0), new InfoMetadata(aNetwork.GetTagManager().FromDidlLite(Brx::Empty()), Brx::Empty()), new InfoMetatext(aNetwork.GetTagManager().FromDidlLite(Brx::Empty())), aLog);
+    auto details = new InfoDetails(0, 0, Brx::Empty(), 0, false, 0);
+    ServiceInfoMock* sim = new ServiceInfoMock(*device, details, new InfoMetadata(aNetwork.GetTagManager().FromDidlLite(Brx::Empty()), Brx::Empty()), new InfoMetatext(aNetwork.GetTagManager().FromDidlLite(Brx::Empty())), aLog);
     device->Add(eProxyInfo, sim);
+    delete details;
 
     ServiceTimeMock* stm = new ServiceTimeMock(*device, 0, 0, aLog);
     device->Add(eProxyTime, stm);

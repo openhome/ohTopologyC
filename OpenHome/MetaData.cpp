@@ -12,8 +12,13 @@ using namespace OpenHome::Net;
 //////////////////////////////////////////////////////////
 
 InfoMetatext::InfoMetatext()
-    :iMetatext(NULL)
+    :iMetatext(nullptr)
 {
+}
+
+InfoMetatext::~InfoMetatext()
+{
+    delete iMetatext;
 }
 
 InfoMetatext::InfoMetatext(IMediaMetadata* aMetatext)

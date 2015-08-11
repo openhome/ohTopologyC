@@ -116,7 +116,9 @@ private:
     TBool iSubscribed;
     TBool iDetailsChanged;
 };
+
 ////////////////////////////////////////////////////////
+
 class ServiceInfoMock : public ServiceInfo
 {
 public:

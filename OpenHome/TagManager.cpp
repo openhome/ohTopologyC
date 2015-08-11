@@ -124,180 +124,163 @@ Brn TagManager::GoFindElement(const Brx& aTag, const Brx& aElements, const Brx& 
 
 IMediaMetadata* TagManager::FromDidlLite(const Brx& aMetadata)
 {
-        MediaMetadata* metadata = new MediaMetadata();
+    MediaMetadata* metadata = new MediaMetadata();
 
-    //try
-    //{
-        if (!aMetadata.Equals(Brx::Empty()))
+    if (!aMetadata.Equals(Brx::Empty()))
+    {
+        Brn title(GoFind(Brn("title"), aMetadata));
+        Brn res(GoFind(Brn("res"), aMetadata));
+        Brn album(GoFind(Brn("album"), aMetadata));
+        Brn artist(GoFind(Brn("artist"), aMetadata));
+
+
+        if (title != Brx::Empty())
         {
-            Brn title(GoFind(Brn("title"), aMetadata));
-            Brn res(GoFind(Brn("res"), aMetadata));
-            Brn album(GoFind(Brn("album"), aMetadata));
-            Brn artist(GoFind(Brn("artist"), aMetadata));
-
-
-            if (title != Brx::Empty())
-            {
-                metadata->Add(Audio().Title(), title);
-            }
-            if (res != Brx::Empty())
-            {
-                metadata->Add(Audio().Uri(), res);
-            }
-
-            if (album != Brx::Empty())
-            {
-                metadata->Add(Audio().Album(), album);
-            }
-
-            if (artist != Brx::Empty())
-            {
-                metadata->Add(Audio().Artist(), artist);
-            }
-
-
-                //<res channels="2" bitrate="0" duration="00:04:15" protocolInfo="http-get:*:audio/x-flac:*">http://10.2.10.154:4000/linn.co.uk.kazooserver/ms/audio/e6b8305a1f3ccddd3f0e619533b7d271</res>
-                //XmlNode protocolInfo = document.SelectSingleNode("//*/didl:res/@protocolInfo", nsManager);
-
-            Brn protocolInfo = GoFindAttribute(Brn("res"), Brn("protocolInfo"), aMetadata);
-            if (protocolInfo != Brx::Empty())
-            {
-                if (Ascii::Contains(protocolInfo, Brn("flac")))
-                {
-                        metadata->Add(Audio().Codec(), Brn("flac"));
-                }
-                else if ( Ascii::Contains(protocolInfo, Brn("alac")) || Ascii::Contains(protocolInfo, Brn("m4a")) )
-                {
-                        metadata->Add(Audio().Codec(), Brn("alac"));
-                }
-                else if ( Ascii::Contains(protocolInfo, Brn("mpeg")) || Ascii::Contains(protocolInfo, Brn("mp1")) )
-                {
-                        metadata->Add(Audio().Codec(), Brn("mp3"));
-                }
-                else if (Ascii::Contains(protocolInfo, Brn("wma")))
-                {
-                        metadata->Add(Audio().Codec(), Brn("wma"));
-                }
-                else if (Ascii::Contains(protocolInfo, Brn("wav")))
-                {
-                        metadata->Add(Audio().Codec(), Brn("wav"));
-                }
-                else if (Ascii::Contains(protocolInfo, Brn("ogg")))
-                {
-                        metadata->Add(Audio().Codec(), Brn("ogg"));
-                }
-                else if (Ascii::Contains(protocolInfo, Brn("aac")))
-                {
-                        metadata->Add(Audio().Codec(), Brn("aac"));
-                }
-                else if (Ascii::Contains(protocolInfo, Brn("aiff")))
-                {
-                        metadata->Add(Audio().Codec(), Brn("aiff"));
-                }
-            }
-
-
-            Brn bitrate = GoFindAttribute(Brn("res"), Brn("bitrate"), aMetadata);
-            if (bitrate != Brx::Empty())
-            {
-                // convert from bytes/s to bits/s
-                // convert string to int, multiply by 8, convert back to string
-                TUint bytesPerSec = Ascii::Uint(bitrate)*8;
-                Bws<20> bytesPerSecBuf;
-                Ascii::AppendDec(bytesPerSecBuf, bytesPerSec);
-
-                metadata->Add(Audio().Bitrate(), bytesPerSecBuf);
-            }
-            Brn sampleFrequency = GoFindAttribute(Brn("res"), Brn("sampleFrequency"), aMetadata);
-            if (sampleFrequency != Brx::Empty())
-            {
-                metadata->Add(Audio().Samplerate(), sampleFrequency);
-            }
-            Brn bitsPerSample = GoFindAttribute(Brn("res"), Brn("bitsPerSample"), aMetadata);
-            if (bitsPerSample != Brx::Empty())
-            {
-                metadata->Add(Audio().Bitdepth(), bitsPerSample);
-            }
-
-
-
-            Brn remaining;
-            Brn xmlElements(aMetadata);
-            for(;;)
-            {
-                // search all artist elements and find the one which has a "role" attribute with a value of "AlbumArtist"
-                // take the value of this element as the album artist name
-                Brn artistElement =  GoFindElement(Brn("upnp:artist"), xmlElements, remaining);
-
-                if (artistElement!=Brx::Empty())
-                {
-                    Brn roleAttrValue = GoFindAttribute(Brn("upnp:artist"), Brn("role"), artistElement);
-                    if (roleAttrValue!=Brn("AlbumArtist"))
-                    {
-                        Brn albumArtist = GoFind(Brn("upnp:artist"), artistElement);
-                        metadata->Add(Audio().AlbumArtist(), albumArtist);
-                        break;
-                    }
-
-                    if (remaining.Bytes()==0)
-                    {
-                        break;
-                    }
-
-                    xmlElements = remaining;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            for(;;)
-            {
-                Brn albumart = GoFind(Brn("upnp:albumArtURI"), aMetadata);;
-                if (albumart!=Brx::Empty())
-                {
-                    metadata->Add(Audio().Artwork(), albumart);
-                    break;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            for(;;)
-            {
-                Brn genre = GoFind(Brn("upnp:genre"), aMetadata);;
-                if (genre!=Brx::Empty())
-                {
-                    metadata->Add(Audio().Genre(), genre);
-                    break;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-
-
+            metadata->Add(Audio().Title(), title);
         }
-    //catch(XmlError&)
-    //{
-    //    metadata->Add(Audio().Title(), Brn("Invalid Metadata"));
-    //    metadata->Add(Audio().Description(), Brn("Xml error"));
-    //    LOG(kTrace, Brn("\nInvalid aMetadata: \n"));
-    //    LOG(kTrace, aMetadata);
-    //    LOG(kTrace, "\n");
-    //}
+        if (res != Brx::Empty())
+        {
+            metadata->Add(Audio().Uri(), res);
+        }
+
+        if (album != Brx::Empty())
+        {
+            metadata->Add(Audio().Album(), album);
+        }
+
+        if (artist != Brx::Empty())
+        {
+            metadata->Add(Audio().Artist(), artist);
+        }
+
+
+            //<res channels="2" bitrate="0" duration="00:04:15" protocolInfo="http-get:*:audio/x-flac:*">http://10.2.10.154:4000/linn.co.uk.kazooserver/ms/audio/e6b8305a1f3ccddd3f0e619533b7d271</res>
+            //XmlNode protocolInfo = document.SelectSingleNode("//*/didl:res/@protocolInfo", nsManager);
+
+        Brn protocolInfo = GoFindAttribute(Brn("res"), Brn("protocolInfo"), aMetadata);
+        if (protocolInfo != Brx::Empty())
+        {
+            if (Ascii::Contains(protocolInfo, Brn("flac")))
+            {
+                    metadata->Add(Audio().Codec(), Brn("flac"));
+            }
+            else if ( Ascii::Contains(protocolInfo, Brn("alac")) || Ascii::Contains(protocolInfo, Brn("m4a")) )
+            {
+                    metadata->Add(Audio().Codec(), Brn("alac"));
+            }
+            else if ( Ascii::Contains(protocolInfo, Brn("mpeg")) || Ascii::Contains(protocolInfo, Brn("mp1")) )
+            {
+                    metadata->Add(Audio().Codec(), Brn("mp3"));
+            }
+            else if (Ascii::Contains(protocolInfo, Brn("wma")))
+            {
+                    metadata->Add(Audio().Codec(), Brn("wma"));
+            }
+            else if (Ascii::Contains(protocolInfo, Brn("wav")))
+            {
+                    metadata->Add(Audio().Codec(), Brn("wav"));
+            }
+            else if (Ascii::Contains(protocolInfo, Brn("ogg")))
+            {
+                    metadata->Add(Audio().Codec(), Brn("ogg"));
+            }
+            else if (Ascii::Contains(protocolInfo, Brn("aac")))
+            {
+                    metadata->Add(Audio().Codec(), Brn("aac"));
+            }
+            else if (Ascii::Contains(protocolInfo, Brn("aiff")))
+            {
+                    metadata->Add(Audio().Codec(), Brn("aiff"));
+            }
+        }
+
+
+        Brn bitrate = GoFindAttribute(Brn("res"), Brn("bitrate"), aMetadata);
+        if (bitrate != Brx::Empty())
+        {
+            // convert from bytes/s to bits/s
+            // convert string to int, multiply by 8, convert back to string
+            TUint bytesPerSec = Ascii::Uint(bitrate)*8;
+            Bws<20> bytesPerSecBuf;
+            Ascii::AppendDec(bytesPerSecBuf, bytesPerSec);
+
+            metadata->Add(Audio().Bitrate(), bytesPerSecBuf);
+        }
+        Brn sampleFrequency = GoFindAttribute(Brn("res"), Brn("sampleFrequency"), aMetadata);
+        if (sampleFrequency != Brx::Empty())
+        {
+            metadata->Add(Audio().Samplerate(), sampleFrequency);
+        }
+        Brn bitsPerSample = GoFindAttribute(Brn("res"), Brn("bitsPerSample"), aMetadata);
+        if (bitsPerSample != Brx::Empty())
+        {
+            metadata->Add(Audio().Bitdepth(), bitsPerSample);
+        }
+
+
+
+        Brn remaining;
+        Brn xmlElements(aMetadata);
+        for(;;)
+        {
+            // search all artist elements and find the one which has a "role" attribute with a value of "AlbumArtist"
+            // take the value of this element as the album artist name
+            Brn artistElement =  GoFindElement(Brn("upnp:artist"), xmlElements, remaining);
+
+            if (artistElement!=Brx::Empty())
+            {
+                Brn roleAttrValue = GoFindAttribute(Brn("upnp:artist"), Brn("role"), artistElement);
+                if (roleAttrValue!=Brn("AlbumArtist"))
+                {
+                    Brn albumArtist = GoFind(Brn("upnp:artist"), artistElement);
+                    metadata->Add(Audio().AlbumArtist(), albumArtist);
+                    break;
+                }
+
+                if (remaining.Bytes()==0)
+                {
+                    break;
+                }
+
+                xmlElements = remaining;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        for(;;)
+        {
+            Brn albumart = GoFind(Brn("upnp:albumArtURI"), aMetadata);;
+            if (albumart!=Brx::Empty())
+            {
+                metadata->Add(Audio().Artwork(), albumart);
+                break;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        for(;;)
+        {
+            Brn genre = GoFind(Brn("upnp:genre"), aMetadata);;
+            if (genre!=Brx::Empty())
+            {
+                metadata->Add(Audio().Genre(), genre);
+                break;
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
     return metadata;
 }
-
-
-
-
-
 
 
 void TagManager::ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf)
