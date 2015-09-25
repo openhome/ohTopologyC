@@ -1,5 +1,4 @@
-#ifndef HEADER_WATCHABLE
-#define HEADER_WATCHABLE
+#pragma once
 
 #include <OpenHome/WatchableThread.h>
 #include <OpenHome/IWatchable.h>
@@ -239,6 +238,5 @@ void Watchable<T>::DisposeCallback(void*)
 } // namespace OpenHome
 
 
-#endif // HEADER_WATCHABLE
 
 

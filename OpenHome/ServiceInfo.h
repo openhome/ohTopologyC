@@ -1,5 +1,4 @@
-#ifndef HEADER_SERVICE_INFO
-#define HEADER_SERVICE_INFO
+#pragma once
 
 
 #include <OpenHome/OhNetTypes.h>
@@ -170,4 +169,3 @@ private:
 } // Topology
 } // OpenHome
 
-#endif

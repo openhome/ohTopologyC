@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPOLOGYC
-#define HEADER_OHTOPOLOGYC
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Buffer.h>
@@ -94,4 +93,3 @@ public:
 
 } // OpenHome
 
-#endif // HEADER_OHTOPOLOGYC

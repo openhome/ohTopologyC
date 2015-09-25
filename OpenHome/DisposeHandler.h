@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPOLOGYC_DISPOSE_HANDLER
-#define HEADER_OHTOPOLOGYC_DISPOSE_HANDLER
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Functor.h>
@@ -49,4 +48,3 @@ private:
 } // Topology
 } // OpenHome
 
-#endif // HEADER_OHTOPOLOGYC_DISPOSE_HANDLER

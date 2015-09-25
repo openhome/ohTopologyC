@@ -1,5 +1,4 @@
-#ifndef HEADER_WATCHABLE_ORDERED
-#define HEADER_WATCHABLE_ORDERED
+#pragma once
 
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/Watchable.h>
@@ -227,4 +226,3 @@ void WatchableOrdered<T>::DisposeCallback(void*)
 
 
 
-#endif // HEADER_WATCHABLE_ORDERED

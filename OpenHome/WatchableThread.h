@@ -1,5 +1,4 @@
-#ifndef HEADER_WATCHABLE_THREAD
-#define HEADER_WATCHABLE_THREAD
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Private/Thread.h>
@@ -97,4 +96,3 @@ private:
 
 
 
-#endif //HEADER_WATCHABLE_THREAD

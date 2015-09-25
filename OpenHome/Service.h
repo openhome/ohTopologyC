@@ -1,5 +1,4 @@
-#ifndef HEADER_SERVICE
-#define HEADER_SERVICE
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/WatchableThread.h>
@@ -126,4 +125,3 @@ private:
 } // OpenHome
 
 
-#endif // HEADER_SERVICE

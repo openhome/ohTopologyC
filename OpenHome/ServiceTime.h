@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPC_SERVICE_TIME
-#define HEADER_OHTOPC_SERVICE_TIME
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/OhTopologyC.h>
@@ -119,5 +118,4 @@ private:
 } // Topology
 } // OpeNHome
 
-#endif // HEADER_OHTOPC_SERVICE_TIME
 

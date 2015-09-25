@@ -1,5 +1,4 @@
-#ifndef HEADER_SERVICE_PRODUCT
-#define HEADER_SERVICE_PRODUCT
+#pragma once
 
 
 #include <OpenHome/OhNetTypes.h>
@@ -290,4 +289,3 @@ private:
 } // OpenHome
 
 
-#endif //HEADER_SERVICE_PRODUCT

@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPC_SERVICE_PLAYLIST
-#define HEADER_OHTOPC_SERVICE_PLAYLIST
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/OhTopologyC.h>
@@ -371,4 +370,3 @@ private:
 } // Topology
 } // OpenHome
 
-#endif // HEADER_OHTOPC_SERVICE_PLAYLIST

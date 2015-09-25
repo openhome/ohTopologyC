@@ -1,5 +1,4 @@
-#ifndef HEADER_TOPOLOGY1
-#define HEADER_TOPOLOGY1
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/WatchableUnordered.h>
@@ -77,4 +76,3 @@ private:
 } // namespace OpenHome
 
 
-#endif //HEADER_TOPOLOGY1

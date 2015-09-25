@@ -1,5 +1,4 @@
-#ifndef HEADER_WATCHER
-#define HEADER_WATCHER
+#pragma once
 
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/Watcher.h>
@@ -111,4 +110,3 @@ private:
 
 } // namespace OpenHome
 
-#endif // HEADER_WATCHER

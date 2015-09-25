@@ -1,5 +1,4 @@
-#ifndef HEADER_INJECTOR
-#define HEADER_INJECTOR
+#pragma once
 
 
 #include <OpenHome/OhNetTypes.h>
@@ -100,4 +99,3 @@ private:
 } // namespace Topology
 } // namespace OpenHome
 
-#endif

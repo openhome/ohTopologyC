@@ -1,5 +1,4 @@
-#ifndef HEADER_DEVICE
-#define HEADER_DEVICE
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/OhTopologyC.h>
@@ -155,4 +154,3 @@ public:
 } // Topology
 } // OpenHome
 
-#endif // HEADER_DEVICE

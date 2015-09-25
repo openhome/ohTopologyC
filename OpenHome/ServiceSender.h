@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPOLOGYC_SERVICE_SENDER
-#define HEADER_OHTOPOLOGYC_SERVICE_SENDER
+#pragma once
 
 #include <OpenHome/Buffer.h>
 #include <OpenHome/MetaData.h>
@@ -162,4 +161,3 @@ private:
 } // OpenHome
 
 
-#endif // HEADER_OHTOPOLOGYC_SERVICE_SENDER

@@ -1,5 +1,4 @@
-#ifndef HEADER_TEST_EXCEPTION_REPORTER
-#define HEADER_TEST_EXCEPTION_REPORTER
+#pragma once
 
 #include <OpenHome/Private/OptionParser.h>
 #include <OpenHome/OsWrapper.h>
@@ -28,4 +27,3 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 
-#endif // HEADER_TEST_EXCEPTION_REPORTER

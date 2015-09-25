@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPC_MEDIA
-#define HEADER_OHTOPC_MEDIA
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/OhTopologyC.h>
@@ -279,4 +278,3 @@ std::vector<T>& WatchableFragment<T>::Data()
 
 } // OpenHome
 
-#endif

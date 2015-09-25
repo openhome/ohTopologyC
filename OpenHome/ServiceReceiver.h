@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPOLOGYC_SERVICE_RECEIVER
-#define HEADER_OHTOPOLOGYC_SERVICE_RECEIVER
+#pragma once
 
 #include <OpenHome/Service.h>
 #include <OpenHome/IWatchable.h>
@@ -150,4 +149,3 @@ private:
 } // OpenHome
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPOLOGYC_NETWORK
-#define HEADER_OHTOPOLOGYC_NETWORK
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/WatchableThread.h>
@@ -152,4 +151,3 @@ private:
 } // OpenHome
 
 
-#endif // HEADER_OHTOPOLOGYC_NETWORK

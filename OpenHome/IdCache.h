@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPC_IDCACHE
-#define HEADER_OHTOPC_IDCACHE
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Private/Fifo.h>
@@ -196,4 +195,3 @@ private:
 } // namespace Topology
 } // namespace OpenHome
 
-#endif // HEADER_OHTOPC_IDCACHE

@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPC_ASYNC_ADAPTOR
-#define HEADER_OHTOPC_ASYNC_ADAPTOR
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Private/Fifo.h>
@@ -64,4 +63,3 @@ private:
 } // Topology
 } // OpenHome
 
-#endif // HEADER_OHTOPC_ASYNC_ADAPTOR

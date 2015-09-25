@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPC_JOB
-#define HEADER_OHTOPC_JOB
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/OhTopologyC.h>
@@ -49,4 +48,3 @@ private:
 } // Topology
 } // OpenHome
 
-#endif // HEADER_OHTOPC_JOB

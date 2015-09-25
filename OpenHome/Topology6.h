@@ -1,5 +1,4 @@
-#ifndef HEADER_TOPOLOGY6
-#define HEADER_TOPOLOGY6
+#pragma once
 
 #include <OpenHome/IWatcher.h>
 #include <OpenHome/IWatchable.h>
@@ -436,5 +435,4 @@ private:
 } // Topology
 } // OpenHome
 
-#endif // HEADER_TOPOLOGY6
 

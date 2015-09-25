@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPC_SERVICE_RADIO
-#define HEADER_OHTOPC_SERVICE_RADIO
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/OhTopologyC.h>
@@ -267,4 +266,3 @@ private:
 } // Topology
 } // OpenHome
 
-#endif

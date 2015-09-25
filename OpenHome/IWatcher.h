@@ -1,5 +1,4 @@
-#ifndef HEADER_IWATCHER
-#define HEADER_IWATCHER
+#pragma once
 
 #include <OpenHome/WatchableThread.h>
 #include <vector>
@@ -70,6 +69,5 @@ public:
 } // OpenHome
 
 
-#endif // HEADER_IWATCHER
 
 

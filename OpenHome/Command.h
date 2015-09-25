@@ -1,5 +1,4 @@
-#ifndef HEADER_LINN_COMMAND
-#define HEADER_LINN_COMMAND
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Private/Stream.h>
@@ -50,7 +49,6 @@ private:
 
 } // namespace Linn
 
-#endif // HEADER_LINN_COMMAND
 
 
 

@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPOLOGYC_TAGMANAGER
-#define HEADER_OHTOPOLOGYC_TAGMANAGER
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/WatchableThread.h>
@@ -141,4 +140,3 @@ public:
 } // OpenHome
 
 
-#endif // HEADER_OHTOPOLOGYC_TAGMANAGER

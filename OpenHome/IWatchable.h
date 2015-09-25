@@ -1,5 +1,4 @@
-#ifndef HEADER_IWATCHABLE
-#define HEADER_IWATCHABLE
+#pragma once
 
 #include <OpenHome/WatchableThread.h>
 #include <OpenHome/IWatcher.h>
@@ -63,6 +62,5 @@ public:
 } // OpenHome
 
 
-#endif // HEADER_IWATCHABLE
 
 

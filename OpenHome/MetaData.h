@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPOLOGYC_META_DATA
-#define HEADER_OHTOPOLOGYC_META_DATA
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Buffer.h>
@@ -115,4 +114,3 @@ private:
 } // namespace Topology
 
 
-#endif // HEADER_OHTOPOLOGYC_META_DATA

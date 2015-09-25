@@ -1,5 +1,4 @@
-#ifndef HEADER_OHTOPC_TAG
-#define HEADER_OHTOPC_TAG
+#pragma once
 
 
 #include <OpenHome/OhNetTypes.h>
@@ -745,4 +744,3 @@ private:
 } // OpenHome
 
 
-#endif // HEADER_OHTOPC_TAG

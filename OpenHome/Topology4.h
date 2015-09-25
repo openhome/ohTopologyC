@@ -1,5 +1,4 @@
-#ifndef HEADER_TOPOLOGY4
-#define HEADER_TOPOLOGY4
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/IWatcher.h>
@@ -195,5 +194,4 @@ private:
 }
 
 
-#endif // HEADER_TOPOLOGY4
 

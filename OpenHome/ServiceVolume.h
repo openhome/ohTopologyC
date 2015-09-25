@@ -1,5 +1,4 @@
-#ifndef HEADER_SERVICE_VOLUME
-#define HEADER_SERVICE_VOLUME
+#pragma once
 
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/OhTopologyC.h>
@@ -214,4 +213,3 @@ private: //variables for setter callbacks
 } // Topology
 } // OpenHome
 
-#endif //HEADER_SERVICE_VOLUME

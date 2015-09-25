@@ -1,5 +1,4 @@
-#ifndef HEADER_MOCKABLE
-#define HEADER_MOCKABLE
+#pragma once
 
 
 #include <OpenHome/OhNetTypes.h>
@@ -551,5 +550,4 @@ void ResultOrderedWatcher<T>::Dispose()
 
 } // namespace OpenHome
 
-#endif // HEADER_MOCKABLE
 
