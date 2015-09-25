@@ -2,7 +2,6 @@
 #include <OpenHome/Command.h>
 
 using namespace OpenHome;
-using namespace Linn;
 
 CommandTokens::CommandTokens(const Brx& aValue)
        : iValue(Ascii::Trim(aValue))

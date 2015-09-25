@@ -5,9 +5,7 @@
 #include <OpenHome/Private/Stream.h>
 #include <OpenHome/Buffer.h>
 
-using namespace OpenHome;
-
-namespace Linn {
+namespace OpenHome {
 
 
 class ICommandTokens

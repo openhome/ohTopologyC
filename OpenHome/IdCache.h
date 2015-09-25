@@ -16,9 +16,9 @@
 namespace std
 {
 
-template <> struct hash<Brn>
+template <> struct hash<OpenHome::Brn>
 {
-    size_t operator()(const Brn& aX) const
+    size_t operator()(const OpenHome::Brn& aX) const
     {
         return(aX.Bytes());  // FIXME: just return the byte count for now
     }

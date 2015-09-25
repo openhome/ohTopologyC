@@ -10,8 +10,6 @@
 EXCEPTION(NotSupportedException);
 EXCEPTION(NotImplementedException);
 
-using namespace Linn;
-
 namespace OpenHome
 {
 

@@ -5,10 +5,6 @@
 #include <OpenHome/OsWrapper.h>
 
 
-using namespace OpenHome;
-using namespace OpenHome::TestFramework;
-
-
 namespace OpenHome {
 
 class TestExceptionReporter : public IExceptionReporter

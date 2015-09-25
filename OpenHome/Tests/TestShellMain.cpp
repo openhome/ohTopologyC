@@ -5,6 +5,7 @@
 #include <OpenHome/Net/Private/DviStack.h>
 
 using namespace OpenHome;
+using namespace OpenHome::Net;
 
 SIMPLE_TEST_DECLARATION(TestWatchableThread);
 SIMPLE_TEST_DECLARATION(TestWatchable);
