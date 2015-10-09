@@ -92,17 +92,17 @@ Network::~Network()
     }
         if (iExceptions.size() > 0)
         {
-            Log::Print("%u exceptions from watchable callbacks caught:\n", (TUint)iExceptions.size());
+            LOG(kApplication7, "%u exceptions from watchable callbacks caught:\n", (TUint)iExceptions.size());
         }
         for (auto it3=iExceptions.begin(); it3!=iExceptions.end(); ++it3)
         {
             Exception& ex = *it3;
-        Log::Print("Exception %s at %s:%lu\n", ex.Message(), ex.File(), (unsigned long)ex.Line());
+        LOG(kApplication7, "Exception %s at %s:%lu\n", ex.Message(), ex.File(), (unsigned long)ex.Line());
         THandle stackTrace = ex.StackTrace();
         TUint count = Os::StackTraceNumEntries(stackTrace);
         for (TUint i=0; i<count; i++) {
             const char* entry = Os::StackTraceEntry(stackTrace, i);
-                        Log::Print("    %s\n", entry);
+                        LOG(kApplication7, "    %s\n", entry);
                 }
         }
 
@@ -240,7 +240,7 @@ void Network::AddCpDevice(CpDevice* aDevice)
 
 void Network::Add(CpDevice* aDevice)
 {
-    //Log::Print(">Network::Add \n");
+    //LOG(kApplication7, ">Network::Add \n");
     Brh value;
 
     if (aDevice->GetAttribute("Upnp.Service.schemas-upnp-org.ContentDirectory", value))
@@ -254,7 +254,7 @@ void Network::Add(CpDevice* aDevice)
 
     IInjectorDevice* device = Create(aDevice);
     Add(device);
-    //Log::Print("<Network::Add \n");
+    //LOG(kApplication7, "<Network::Add \n");
 }
 
 
@@ -302,7 +302,7 @@ void Network::Add(IInjectorDevice* aDevice)
  */
 void Network::AddCallback(void* aObj)
 {
-    //Log::Print(">Network::AddCallback \n");
+    //LOG(kApplication7, ">Network::AddCallback \n");
     Assert(); /// must be on watchable thread
 
     IInjectorDevice* injDevice = (IInjectorDevice*)aObj;
@@ -325,7 +325,7 @@ void Network::AddCallback(void* aObj)
         }
     }
 
-    //Log::Print("<Network::AddCallback \n");
+    //LOG(kApplication7, "<Network::AddCallback \n");
 }
 
 

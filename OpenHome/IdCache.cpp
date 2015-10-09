@@ -670,7 +670,7 @@ IdCacheEntry::IdCacheEntry(IMediaMetadata* aMetadata, const Brx& aUri)
     :iMetadata(aMetadata)
     ,iUri(aUri)
 {
-    Log::Print("IdCacheEntry() \n");
+    LOG(kApplication7, "IdCacheEntry()\n");
 }
 
 

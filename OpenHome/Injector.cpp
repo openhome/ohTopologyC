@@ -35,12 +35,12 @@ Injector::~Injector()
 
 void Injector::Added(/*CpDeviceList& aList,*/ CpDevice& aDevice)
 {
-    Log::Print(">Injector::Added \n");
+    LOG(kApplication7, ">Injector::Added\n");
     if (!FilterOut(aDevice))
     {
         iAdd(&aDevice);
     }
-    Log::Print("<Injector::Added \n");
+    LOG(kApplication7, "<Injector::Added\n");
 }
 
 

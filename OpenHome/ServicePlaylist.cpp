@@ -592,9 +592,9 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
             xmlNodeList = remaining;
             IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metadataText);
             IdCacheEntry* cacheEntry = new IdCacheEntry(metadata, uriText);
-            Log::Print("created new cache entry \n");
+            LOG(kApplication7, "created new cache entry \n");
             entries->push_back(cacheEntry);
-            Log::Print("entries->size()=%d \n", entries->size());
+            LOG(kApplication7, "entries->size()=%d \n", entries->size());
         }
 
         readListData->iRetrievedEntries = entries;
