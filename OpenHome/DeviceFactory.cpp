@@ -24,7 +24,7 @@ using namespace std;
 
 IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, ILog& aLog)
 {
-    LOG(kTrace, ">DeviceFactory::CreateDs \n");
+    LOG(kApplication7, ">DeviceFactory::CreateDs \n");
     return CreateDs(aNetwork, aUdn, Brn("Main Room"), Brn("Mock DS"), Brn("Info Time Volume Sender"), aLog);
 }
 

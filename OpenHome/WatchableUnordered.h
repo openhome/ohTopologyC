@@ -64,7 +64,7 @@ WatchableUnordered<T>::WatchableUnordered(IWatchableThread& aWatchableThread)
 template <class T>
 void WatchableUnordered<T>::Add(T aWatchable)
 {
-    //LOG(kTrace, "WatchableUnordered<T>::Add \n");
+    LOG(kApplication7, "WatchableUnordered<T>::Add \n");
     Assert(); /// must be on watchable thread
 
     iWatchables.push_back(aWatchable); /// add aWatchable to iWatchables
@@ -88,7 +88,7 @@ void WatchableUnordered<T>::Remove(T aWatchable)
     //Log::Print("\nWatchableUnordered<T>::Remove ");
     //Log::Print(typeid(this).name());
 
-    //LOG(kTrace, "WatchableUnordered<T>::Remove \n");
+    LOG(kApplication7, "WatchableUnordered<T>::Remove \n");
     Assert(); /// must be on watchable thread
 
     auto it = std::find(iWatchables.begin(), iWatchables.end(), aWatchable);
@@ -134,14 +134,14 @@ void WatchableUnordered<T>::Clear()
 template <class T>
 void WatchableUnordered<T>::AddWatcher(IWatcherUnordered<T>& aWatcher)
 {
-    //LOG(kTrace, "WatchableUnordered<T>::AddWatcher  iWatchables.size()=%d\n", iWatchables.size());
+    LOG(kApplication7, "WatchableUnordered<T>::AddWatcher  iWatchables.size()=%d\n", iWatchables.size());
     Assert(); /// must be on watchable thread
     iWatchers.push_back(&aWatcher); /// add aWatcher to iWatchers
     aWatcher.UnorderedOpen(); /// set aWatcher status to Open
 
     for (TUint i=0; i<iWatchables.size(); i++)
     {
-        //LOG(kTrace, "WatchableUnordered<T>::AddWatcher  adding watchables...\n");
+        LOG(kApplication7, "WatchableUnordered<T>::AddWatcher  adding watchables...\n");
         aWatcher.UnorderedAdd(iWatchables[i]); /// add all watchables to aWatcher
     }
 

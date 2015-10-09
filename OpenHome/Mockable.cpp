@@ -52,7 +52,7 @@ MockableScriptRunner::MockableScriptRunner()
  */
 TBool MockableScriptRunner::Run(Functor aWait, ReaderUntil& aStream, IMockable& aMockable)
 {
-    LOG(kTrace, " MockableScriptRunner::Run \n");
+    LOG(kApplication7, " MockableScriptRunner::Run \n");
 
     TBool wait = true;
     TBool eof = false;
@@ -109,16 +109,16 @@ TBool MockableScriptRunner::Run(Functor aWait, ReaderUntil& aStream, IMockable& 
 
         if (eof)
         {
-            LOG(kTrace, "empty line - break out\n");
+            LOG(kApplication7, "empty line - break out\n");
             break;
         }
 
 
         if (iLine.BeginsWith(Brn("//")))
         {
-            LOG(kTrace, "skipping line : ");
-            LOG(kTrace, iLine);
-            LOG(kTrace, "\n");
+            LOG(kApplication7, "skipping line : ");
+            LOG(kApplication7, iLine);
+            LOG(kApplication7, "\n");
             continue;
         }
 
@@ -126,30 +126,30 @@ TBool MockableScriptRunner::Run(Functor aWait, ReaderUntil& aStream, IMockable& 
 
         if (commands.Count()>0)
         {
-            LOG(kTrace, "commands(%d): ", commands.Count());
+            LOG(kApplication7, "commands(%d): ", commands.Count());
 
-            LOG(kTrace, commands.Remaining());
-            LOG(kTrace, "\n");
+            LOG(kApplication7, commands.Remaining());
+            LOG(kApplication7, "\n");
 
 
             Brn command = commands.Next();
 
-            LOG(kTrace, "command = ");
-            LOG(kTrace, command);
-            LOG(kTrace, "\n");
+            LOG(kApplication7, "command = ");
+            LOG(kApplication7, command);
+            LOG(kApplication7, "\n");
 
 
 
             if (Ascii::CaseInsensitiveEquals(command, Brn("mock")))
             {
-                LOG(kTrace, "mock... \n");
+                LOG(kApplication7, "mock... \n");
                 aMockable.Execute(commands);
 
                 wait = true;
             }
             else if (Ascii::CaseInsensitiveEquals(command, Brn("expect")))
             {
-                LOG(kTrace, "expect... \n");
+                LOG(kApplication7, "expect... \n");
                 if (wait)
                 {
                     try
@@ -202,7 +202,7 @@ TBool MockableScriptRunner::Run(Functor aWait, ReaderUntil& aStream, IMockable& 
                 catch (Exception e)
                 {
                     //Console.WriteLine(e);
-                     LOG(kTrace, " exception \n");
+                     LOG(kApplication7, " exception \n");
                 }
 
                 if (iResultQueue.SlotsUsed() != 0)
@@ -212,7 +212,7 @@ TBool MockableScriptRunner::Run(Functor aWait, ReaderUntil& aStream, IMockable& 
             }
             else if (Ascii::CaseInsensitiveEquals(command, Brn("break")))
             {
-                 LOG(kTrace, "\n");
+                 LOG(kApplication7, "\n");
                 //Debugger.Break();
             }
             else
@@ -238,8 +238,8 @@ TBool MockableScriptRunner::Run(Functor aWait, ReaderUntil& aStream, IMockable& 
  */
 void MockableScriptRunner::Result(Bwh* aValue)
 {
-    LOG(kTrace, "\nMockableScriptRunner::Result: \n");
-    LOG(kTrace, *aValue);
+    LOG(kApplication7, "\nMockableScriptRunner::Result: \n");
+    LOG(kApplication7, *aValue);
     //Brn actual(*aValue);
     iResultQueue.Write(aValue);
 }

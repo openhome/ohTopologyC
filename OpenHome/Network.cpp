@@ -214,7 +214,7 @@ TBool Network::WaitDevices()
  */
 void Network::Wait()
 {
-    //LOG(kTrace, "Network::Wait \n");
+    LOG(kApplication7, "Network::Wait \n");
     for (;;)
     {
         Execute();

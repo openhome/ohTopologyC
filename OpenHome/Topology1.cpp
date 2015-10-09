@@ -33,7 +33,7 @@ Topology1::~Topology1()
 
 void Topology1::WatchDevices(void*)
 {
-    LOG(kTrace, "Topology1::ExecuteCallback \n");
+    LOG(kApplication7, "Topology1::ExecuteCallback \n");
     iDevices = &iNetwork.Create(eProxyProduct);
     iDevices->AddWatcher(*this);
 }

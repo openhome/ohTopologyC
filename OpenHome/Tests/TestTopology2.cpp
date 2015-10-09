@@ -277,7 +277,7 @@ void SuiteTopology2::Test1()
 
 void SuiteTopology2::ExecuteCallback(void* aObj)
 {
-    LOG(kTrace, "SuiteTopology2::ExecuteCallback() \n");
+    LOG(kApplication7, "SuiteTopology2::ExecuteCallback() \n");
     GroupWatcher* watcher = (GroupWatcher*)aObj;
     iTopology2->Groups().RemoveWatcher(*watcher);
     watcher->Dispose();
@@ -286,7 +286,7 @@ void SuiteTopology2::ExecuteCallback(void* aObj)
 
 void SuiteTopology2::ScheduleCallback(void* aObj)
 {
-    LOG(kTrace, "SuiteTopology2::ScheduleCallback() \n");
+    LOG(kApplication7, "SuiteTopology2::ScheduleCallback() \n");
     GroupWatcher* watcher = (GroupWatcher*)aObj;
     iTopology2->Groups().AddWatcher(*watcher);
 }
