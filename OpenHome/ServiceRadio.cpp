@@ -348,6 +348,7 @@ void ServiceRadioNetwork::ReadList(ReadListData* aReadListData)
     }
 
     AsyncAdaptor& asyncAdaptor = iNetwork.GetAsyncAdaptorManager().GetAdaptor();
+
     auto f = MakeFunctorGeneric<AsyncCbArg*>(*this, &ServiceRadioNetwork::ReadListCallback);
     asyncAdaptor.SetCallback(f, aReadListData);
     FunctorAsync fa = asyncAdaptor.AsyncCb();
@@ -408,7 +409,13 @@ void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
             }
         }
   }
-  readListData->iEntries = entries;
+  try{
+      readListData->iRetrievedEntries = entries;
+  }
+  catch(...)
+  {
+      readListData->iRetrievedEntries = nullptr;
+  }
   readListData->iCallback(readListData);
 }
 
