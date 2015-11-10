@@ -173,16 +173,21 @@ void IdCache::SetValid(TUint aSessionId, vector<TUint>& aValid)
     AutoMutex mutex(iMutexCache);
 
     auto c = iCache[aSessionId];
-    for(auto it = c->begin(); it!=c->end(); it++)
+    auto it = c->begin();
+
+    while(it!=c->end())
     {
         TUint key = it->first;
         auto itv = find(aValid.begin(), aValid.end(), key);
 
         if (itv != aValid.end())
         {
+            it++;
             c->erase(key);
             --iCacheEntries;
+            continue;
         }
+        it++;
     }
 /*
     using (iDisposeHandler.Lock())
