@@ -319,11 +319,13 @@ void ServicePlaylistNetwork::OnUnsubscribe()
     if (iMediaSupervisor != NULL)
     {
         iMediaSupervisor->Dispose();
+        iMediaSupervisor = nullptr;
     }
 
     if (iCacheSession != NULL)
     {
         iCacheSession->Dispose();
+        iCacheSession = nullptr;
     }
 
     iSubscribed = false;
