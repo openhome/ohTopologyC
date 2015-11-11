@@ -471,8 +471,9 @@ void ServiceRadioNetwork::HandleIdArrayChangedCallback2(void*)
         auto idArray = new vector<TUint>();
         IdCache::UnpackIdArray(idArrayStr, *idArray);
 
-        auto idNonZeroItems = IdCache::NonZeroItems(*idArray);
-        iCacheSession->SetValid(idNonZeroItems);
+        vector<TUint> nonZeroIds;
+        IdCache::NonZeroItems(*idArray, nonZeroIds);
+        iCacheSession->SetValid(nonZeroIds);
         iMediaSupervisor->Update(new RadioSnapshot(iNetwork, *iCacheSession, idArray, *this));
     }
 }
@@ -744,9 +745,16 @@ RadioSnapshot::RadioSnapshot(INetwork& aNetwork, IIdCacheSession& aCacheSession,
 
 TUint RadioSnapshot::Total()
 {
-    //return ((TUint)iIdArray.Where(v => v != 0).Count());
-    auto idNonZeroItems = IdCache::NonZeroItems(*iIdArray);
-    return(idNonZeroItems.size());
+    TUint count = 0;
+    for(TUint i=0; i<iIdArray->size(); i++)
+    {
+        TUint item = (*iIdArray)[i];
+        if ( item > 0 )
+        {
+            count++;
+        }
+    }
+    return(count);
 }
 
 

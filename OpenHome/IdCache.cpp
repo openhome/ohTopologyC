@@ -89,21 +89,16 @@ TUint IdCache::Hash(const Brx& aPrefix, const Brx& aUdn)
 }
 
 
-vector<TUint> IdCache::NonZeroItems(vector<TUint>& aItems)
+void IdCache::NonZeroItems(const vector<TUint>& aItems, vector<TUint>& aNonZeroItems)
 {
-    vector<TUint> nonZero;
-
     for(TUint i=0; i<aItems.size(); i++)
     {
         TUint item = aItems[i];
         if (item!=0)
         {
-            nonZero.push_back(item);
+            aNonZeroItems.push_back(item);
         }
     }
-
-    ASSERT(nonZero.size()>0);
-    return(nonZero);
 }
 
 
