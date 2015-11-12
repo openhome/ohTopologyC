@@ -272,7 +272,7 @@ void ServicePlaylistNetwork::Dispose()
 
 TBool ServicePlaylistNetwork::OnSubscribe()
 {
-    TUint id = IdCache::Hash(kCacheIdPrefixPlaylist, Device().Udn());
+    TUint id = IdCache::Hash(IdCache::kPrefixPlaylist, Device().Udn());
 
     iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServicePlaylistNetwork::ReadList));
     iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, new PlaylistSnapshot(iNetwork, *iCacheSession, new vector<TUint>(), *this));
@@ -968,7 +968,7 @@ ServicePlaylistMock::~ServicePlaylistMock()
 
 TBool ServicePlaylistMock::OnSubscribe()
 {
-    TUint id = IdCache::Hash(kCacheIdPrefixPlaylist, Device().Udn());
+    TUint id = IdCache::Hash(IdCache::kPrefixPlaylist, Device().Udn());
 
     iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServicePlaylistMock::ReadList));
 
