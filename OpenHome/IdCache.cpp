@@ -102,7 +102,7 @@ vector<TUint> IdCache::NonZeroItems(vector<TUint>& aItems)
         }
     }
 
-    ASSERT(nonZero.size()>0);
+    
     return(nonZero);
 }
 
