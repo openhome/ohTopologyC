@@ -226,7 +226,7 @@ void ServiceRadioNetwork::Dispose()
 
 TBool ServiceRadioNetwork::OnSubscribe()
 {
-    TUint id = IdCache::Hash(kCacheIdPrefixRadio, Device().Udn());
+    TUint id = IdCache::Hash(IdCache::kPrefixRadio, Device().Udn());
     iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioNetwork::ReadList));
 
     auto snapshot = new RadioSnapshot(iNetwork, *iCacheSession, new vector<TUint>(), *this);
@@ -590,7 +590,7 @@ void ServiceRadioMock::Dispose()
 
 TBool ServiceRadioMock::OnSubscribe()
 {
-    TUint id = IdCache::Hash(kCacheIdPrefixPlaylist, Device().Udn());
+    TUint id = IdCache::Hash(IdCache::kPrefixPlaylist, Device().Udn());
 
     iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioMock::ReadList));
 

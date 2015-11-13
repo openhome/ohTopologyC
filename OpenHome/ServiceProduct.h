@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/Watchable.h>
@@ -8,17 +7,14 @@
 #include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
 
-
 #include <vector>
 #include <memory>
-
-
 
 namespace OpenHome
 {
 namespace Net
 {
-class CpProxyAvOpenhomeOrgProduct1;
+    class CpProxyAvOpenhomeOrgProduct1;
 }
 
 namespace Topology
@@ -275,17 +271,11 @@ private:
     void StandbyChangedCallback1(void*);
     void StandbyChangedCallback2(void*);
 
-
 private:
     Net::CpProxyAvOpenhomeOrgProduct1* iService;
     TBool iSubscribed;
 };
 
 
-
-
 } // Topology
-
 } // OpenHome
-
-

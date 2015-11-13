@@ -7,16 +7,15 @@
 #include <OpenHome/Watchable.h>
 #include <OpenHome/Net/Core/CpDevice.h>
 
-
 namespace OpenHome
 {
 namespace Net
 {
-class CpProxyAvOpenhomeOrgSender1;
+    class CpProxyAvOpenhomeOrgSender1;
 }
+
 namespace Topology
 {
-
 
 class ISender
 {
@@ -155,9 +154,5 @@ private:
     IDevice& iDevice;
 };
 
-
-
 } // Topology
 } // OpenHome
-
-

@@ -3,12 +3,8 @@
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/Watcher.h>
 
-
-
-
 namespace OpenHome
 {
-
 namespace Topology
 {
 
@@ -99,14 +95,9 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 /**
     @}
  */
 
-
 } // namespace Topology
-
 } // namespace OpenHome
-

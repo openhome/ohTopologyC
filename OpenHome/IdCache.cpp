@@ -1,17 +1,29 @@
 #ifndef HEADER_IDCACHE
 #define HEADER_IDCACHE
 
-
 #include <OpenHome/IdCache.h>
 #include <OpenHome/Private/Debug.h>
 #include <vector>
 #include <map>
 
-
 using namespace OpenHome;
 using namespace OpenHome::Topology;
 using namespace std;
 
+TUint OpenHome::Topology::Hash(const Brx& aBuffer)
+{
+    TUint hash = 0;
+    const TUint bytes = aBuffer.Bytes();
+    const TByte* ptr = aBuffer.Ptr();
+    for (TUint i=0; i<bytes; i++) {
+        hash += *ptr++;
+    }
+    return hash;
+}
+
+
+const Brn IdCache::kPrefixRadio("Radio");
+const Brn IdCache::kPrefixPlaylist("Playlist");
 
 IdCache::IdCache(TUint aMaxCacheEntries)
     :iDisposeHandler(new DisposeHandler())
@@ -30,10 +42,7 @@ IdCache::~IdCache()
 
 void IdCache::Dispose()
 {
-    if (iSessions.size() > 0)
-    {
-        //throw new Exception("IdCache disposed with active sessions");
-    }
+    ASSERT(iSessions.size() == 0);
 
     iDisposeHandler->Dispose();
     iCache.clear();
@@ -107,8 +116,8 @@ void IdCache::Remove(const Brx& aUdn)
     DisposeLock lock(*iDisposeHandler);
     AutoMutex mutex(iMutexCache);
 
-    TUint playlistHash = Hash(kCacheIdPrefixPlaylist, aUdn);
-    TUint radioHash = Hash(kCacheIdPrefixRadio, aUdn);
+    TUint playlistHash = Hash(kPrefixPlaylist, aUdn);
+    TUint radioHash = Hash(kPrefixRadio, aUdn);
 
     vector<TUint>* keys = new vector<TUint>();
 

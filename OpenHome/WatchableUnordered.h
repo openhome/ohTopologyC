@@ -9,10 +9,8 @@
 
 namespace OpenHome
 {
-
 namespace Topology
 {
-
 
 /**
     \ingroup watchable
@@ -42,9 +40,6 @@ private:
     std::vector<IWatcherUnordered<T>*> iWatchers;
     TUint iCount;
 };
-
-
-
 
 /**
     Constructor
@@ -187,18 +182,9 @@ void WatchableUnordered<T>::DisposeCallback(void*)
 }
 
 
-
-
 /**
     @}
  */
 
-
-
 } // namespace Topology
 } // namespace OpenHome
-
-
-
-
-

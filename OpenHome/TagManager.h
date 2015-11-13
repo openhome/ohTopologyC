@@ -6,16 +6,14 @@
 #include <OpenHome/DisposeHandler.h>
 #include <OpenHome/Tag.h>
 #include <OpenHome/Net/Private/XmlParser.h>
+
 #include <vector>
 #include <map>
-
-
 
 namespace OpenHome
 {
 namespace Topology
 {
-
 
 class IMediaValue
 {
@@ -135,8 +133,5 @@ public:
 
 ///////////////////////////////////////////////////
 
-
 } // Topology
 } // OpenHome
-
-

@@ -6,12 +6,10 @@
 
 #include <stddef.h>
 
-
 namespace OpenHome
 {
 namespace Topology
 {
-
 
 //////////////////////////////////////////////////////////////////////
 
@@ -107,10 +105,5 @@ private:
     Bws<1000> iMetadata;
 };
 
-
-
 } // namespace OpenHome
-
 } // namespace Topology
-
-

@@ -8,13 +8,12 @@
 #include <OpenHome/Device.h>
 #include <OpenHome/Buffer.h>
 #include <OpenHome/Topology1.h>
+
 #include <vector>
 #include <map>
 
-
 namespace OpenHome
 {
-
 namespace Topology
 {
 
@@ -102,7 +101,6 @@ public:
     virtual void ItemClose(const Brx& aId, Brn aValue);
     virtual void ItemUpdate(const Brx& aId, Brn, Brn aPrevious);
 
-
 private:
     void ProcessSourceXml(const Brx& aSourceXml, TBool aInitial);
 
@@ -151,7 +149,6 @@ private:
     void WatchT1Products(void*);
     void DisposeCallback(void*);
 
-
 private:
     ITopology1* iTopology1;
     INetwork& iNetwork;
@@ -160,7 +157,5 @@ private:
     TBool iDisposed;
 };
 
-
 } // namespace Topology
 } // namespace OpenHome
-

@@ -8,13 +8,10 @@
 
 #include <stddef.h>
 
-
 namespace OpenHome
 {
-
 namespace Topology
 {
-
 
 /////////////////////////////////////////////////////////
 
@@ -30,7 +27,6 @@ public:
 };
 
 ///////////////////////////////////////////////
-
 
 class SignalledCallback
 {
@@ -72,7 +68,6 @@ public:
     virtual void Execute(FunctorGeneric<void*> aCallback, void* aObj);
     virtual void Execute();
 
-
 private:
     void Run();
     void Shutdown(void*);
@@ -88,11 +83,5 @@ private:
 
 //////////////////////////////////////////////
 
-
 } // namsespace Av
-
 } // namespace OpenHome
-
-
-
-

@@ -9,13 +9,12 @@
 #include <OpenHome/Buffer.h>
 #include <OpenHome/Topology5.h>
 #include <OpenHome/Media.h>
+
 #include <vector>
 #include <map>
 
-
 namespace OpenHome
 {
-
 namespace Topology
 {
 class ITopologySource;
@@ -59,28 +58,9 @@ public:
     virtual TBool HasTime() const = 0;
     //virtual void Select() = 0;
 
-
     virtual ~ITopologySource() {}
 };
 
-/////////////////////////////////////////////////////////////////////
-/*
-class Topology6SourceNull : public ITopologySource
-{
-public:
-    virtual TUint Index();
-    virtual Brn Name();
-    virtual Brn Type();
-    virtual TBool Visible();
-    virtual ITopologyGroup& Group();
-    virtual IMediaPreset* CreatePreset();
-    virtual std::vector<ITopologyGroup*>& Volumes();
-    virtual IDevice& Device();
-    virtual TBool HasInfo();
-    virtual TBool HasTime();
-    virtual void Select();
-};
-*/
 /////////////////////////////////////////////////////////////////////
 
 class Topology6Source : public ITopologySource, public INonCopyable
@@ -110,8 +90,8 @@ private:
     INetwork& iNetwork;
     Topology6Group& iGroup;
     ITopology4Source& iSource;
-        Brn iSourceName;
-        Brn iSourceType;
+    Brn iSourceName;
+    Brn iSourceType;
     std::vector<ITopologyGroup*>* iVolumes;
     TBool iHasInfo;
     TBool iHasTime;
@@ -180,19 +160,15 @@ public:
 
     virtual IWatchable<std::vector<ITopologyGroup*>*>& Senders() const;
     virtual IWatchable<ITopologySource*>& Source() const;
-        virtual const std::vector<ITopologySource*>& Sources() const;
+    virtual const std::vector<ITopologySource*>& Sources() const;
     virtual void SetSourceIndex(TUint aValue);
-
     virtual IWatchable<ITopologySource*>& GroupSource() const;
     virtual const std::vector<ITopologySource*>& GroupSources() const;
-
-
     virtual Topology6Group* Parent() const;
 
     TBool HasVolume() const;
     TBool HasInfo() const;
     TBool HasTime() const;
-
 
 private:
     Brn RoomName();
@@ -214,7 +190,6 @@ private:
     void EvaluateSendersFromChild();
     void CreateCallback(IProxy* aProxy);
 
-
     // IWatcher<TUint>
     virtual void ItemOpen(const Brx& aId, TUint aValue);
     virtual void ItemUpdate(const Brx& aId, TUint aValue, TUint aPrevious);
@@ -224,7 +199,6 @@ private:
     virtual void ItemOpen(const Brx& aId, Brn aValue);
     virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious);
     virtual void ItemClose(const Brx& aId, Brn aValue);
-
 
 private:
     INetwork& iNetwork;
@@ -240,7 +214,6 @@ private:
     IProxySender* iSenderService;
     TBool iHasSender;
     TUint iSourceIndex;
-
 
     std::vector<Topology6Group*> iChildren;
     std::vector<Topology6Source*> iSources;
@@ -422,7 +395,6 @@ private:
     void UnorderedAddCallback(void* aT5Room);
     void UnorderedRemoveCallback(void* aT5Room);
 
-
 private:
     ITopology5* iTopology5;
     ILog& iLog;
@@ -434,5 +406,3 @@ private:
 
 } // Topology
 } // OpenHome
-
-

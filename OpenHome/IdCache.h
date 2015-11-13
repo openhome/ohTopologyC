@@ -6,36 +6,16 @@
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/Media.h>
 #include <OpenHome/Job.h>
+
 #include <vector>
 #include <map>
 
-
-
-
-namespace std
-{
-
-template <> struct hash<OpenHome::Brn>
-{
-    size_t operator()(const OpenHome::Brn& aX) const
-    {
-        return(aX.Bytes());  // FIXME: just return the byte count for now
-    }
-};
-
-}
-
-
 namespace OpenHome
 {
-
 namespace Topology
 {
 
-
-static const Brn kCacheIdPrefixRadio("Radio");
-static const Brn kCacheIdPrefixPlaylist("Playlist");
-
+TUint Hash(const Brx& aBuffer);
 
 class IdCacheEntrySession;
 class IIdCacheEntry;
@@ -95,6 +75,9 @@ public:
 
 class IdCache : public IIdCache, public IDisposable
 {
+public:
+    static const Brn kPrefixRadio;
+    static const Brn kPrefixPlaylist;
 public:
     IdCache(TUint aMaxCacheEntries);
     virtual ~IdCache();
@@ -195,3 +178,14 @@ private:
 } // namespace Topology
 } // namespace OpenHome
 
+
+namespace std
+{
+    template <> struct hash<OpenHome::Brn>
+    {
+        size_t operator()(const OpenHome::Brn& aX) const
+        {
+            return OpenHome::Topology::Hash(aX);
+        }
+    };
+}

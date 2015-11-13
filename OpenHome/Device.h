@@ -7,13 +7,12 @@
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/Service.h>
 #include <OpenHome/DisposeHandler.h>
+
 #include <vector>
 #include <map>
 
-
 namespace OpenHome
 {
-
 namespace Topology
 {
 
@@ -53,7 +52,6 @@ public:
     // IJoinable
     virtual void Join(Functor aAction);
     virtual void Unjoin(Functor aAction);
-
 
     virtual void Dispose();
     virtual TBool HasService(EServiceType aServiceType);
@@ -138,19 +136,5 @@ private:
     IInjectorDevice* iOn;
 };
 
-///////////////////////////////////////////////////////////////
-/*
-class ServiceNotFoundException : public Exception
-{
-public:
-    //ServiceNotFoundException();
-    ServiceNotFoundException(const Brx& aMessage);
-    ServiceNotFoundException(const Brx& aMessage, Exception aInnerException);
-};
-
-*/
-
-
 } // Topology
 } // OpenHome
-

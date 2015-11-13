@@ -6,7 +6,6 @@
 
 namespace OpenHome {
 
-
 class ICommandTokens
 {
 public:
@@ -46,9 +45,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////
 
-
-} // namespace Linn
-
-
-
-
+} // namespace OpenHome

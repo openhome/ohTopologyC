@@ -7,16 +7,14 @@
 #include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
 
-
 #include <vector>
 #include <memory>
-
 
 namespace OpenHome
 {
 namespace Net
 {
-class CpProxyAvOpenhomeOrgVolume1;
+    class CpProxyAvOpenhomeOrgVolume1;
 }
 
 namespace Topology
@@ -212,4 +210,3 @@ private: //variables for setter callbacks
 
 } // Topology
 } // OpenHome
-

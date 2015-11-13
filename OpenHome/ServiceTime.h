@@ -7,7 +7,6 @@
 #include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
 
-
 #include <vector>
 #include <memory>
 
@@ -16,7 +15,7 @@ namespace OpenHome
 
 namespace Net
 {
-class CpProxyAvOpenhomeOrgTime1;
+    class CpProxyAvOpenhomeOrgTime1;
 }
 
 namespace Topology
@@ -64,14 +63,11 @@ private:
     void SecondsChangedCallback1(void*);
     void SecondsChangedCallback2(void*);
 
-
 private:
     Net::CpProxyAvOpenhomeOrgTime1* iService;
     TBool iSubscribed;
     //TBool iSubscribedSource;
 };
-
-
 
 class ServiceTimeMock : public ServiceTime
 {
@@ -82,7 +78,6 @@ public:
     void Execute(ICommandTokens& aValue) override;
 
 };
-
 
 
 class IProxyTime : public IProxy
@@ -117,5 +112,3 @@ private:
 
 } // Topology
 } // OpeNHome
-
-

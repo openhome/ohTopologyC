@@ -9,18 +9,14 @@
 #include <OpenHome/ServiceProduct.h>
 #include <OpenHome/Device.h>
 #include <OpenHome/Buffer.h>
+
 #include <vector>
 #include <map>
 
-
-
-
 namespace OpenHome
 {
-
 namespace Topology
 {
-
 
 class ITopology1 : public IDisposable
 {
@@ -59,7 +55,6 @@ private:
     void UnorderedAddCallback(IProxy* aProxyProduct);
     void DisposeCallback(void*);
 
-
 private:
     TBool iDisposed;
     INetwork& iNetwork;
@@ -70,9 +65,5 @@ private:
     IWatchableUnordered<IDevice*>* iDevices;
 };
 
-
 } // namespace Topology
-
 } // namespace OpenHome
-
-

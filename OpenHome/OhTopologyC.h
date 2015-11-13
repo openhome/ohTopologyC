@@ -5,13 +5,11 @@
 #include <OpenHome/Command.h>
 #include <OpenHome/Functor.h>
 
-
 EXCEPTION(NotSupportedException);
 EXCEPTION(NotImplementedException);
 
 namespace OpenHome
 {
-
 
 enum EStandby
 {
@@ -90,6 +88,4 @@ public:
     virtual void Write(const Brx&) {}
 };
 
-
 } // OpenHome
-

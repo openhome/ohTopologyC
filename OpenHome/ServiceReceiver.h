@@ -8,20 +8,18 @@
 //#include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
 
-
-
 namespace OpenHome
 {
 namespace Net
 {
-class CpProxyAvOpenhomeOrgReceiver1;
+    class CpProxyAvOpenhomeOrgReceiver1;
 }
 namespace Topology
 {
 
-static const Brn kTransportStatePlaying("Playing");
-static const Brn kTransportStateStopped("Stopped");
-static const Brn kTransportStatePaused("Paused");
+extern const Brn kReceiverTransportStatePlaying;
+extern const Brn kReceiverTransportStateStopped;
+extern const Brn kReceiverTransportStatePaused;
 
 class IProxyReceiver : public IProxy
 {
@@ -145,7 +143,4 @@ private:
 };
 
 } // Topology
-
 } // OpenHome
-
-

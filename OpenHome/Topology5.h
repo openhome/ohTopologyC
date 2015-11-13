@@ -8,19 +8,16 @@
 #include <OpenHome/Device.h>
 #include <OpenHome/Buffer.h>
 #include <OpenHome/Topology4.h>
+
 #include <vector>
 #include <map>
 
-
 namespace OpenHome
 {
-
 namespace Topology
 {
 
-
 class Topology5;
-
 
 class ITopology5Room
 {
@@ -131,9 +128,5 @@ private:
     std::map<Brn, Topology5Room*, BufferCmp> iRoomLookup;
 };
 
-
 } // Topology
-
 } // OpenHome
-
-

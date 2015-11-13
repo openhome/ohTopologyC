@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/Watchable.h>
@@ -8,7 +7,6 @@
 #include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
 #include <OpenHome/MetaData.h>
-
 
 #include <vector>
 #include <memory>
@@ -151,7 +149,6 @@ public:
     virtual IWatchable<IInfoMetadata*>& Metadata();
     virtual IWatchable<IInfoMetatext*>& Metatext();
 
-
     // IProxy
     virtual IDevice& Device();
 
@@ -168,4 +165,3 @@ private:
 
 } // Topology
 } // OpenHome
-
