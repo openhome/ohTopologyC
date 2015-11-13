@@ -251,12 +251,10 @@ IIdCacheEntry* IdCache::Entry(TUint aSessionId, TUint aId)
 IIdCacheEntry* IdCache::AddEntry(TUint aSessionId, TUint aId, IIdCacheEntry* aEntry)
 {
     DisposeLock lock(*iDisposeHandler);
-
-    IdCacheEntrySession* entry = NULL;
-
     AutoMutex mutex(iMutexCache);
 
-    if (iCache[aSessionId]->count(aId)==0)
+    IdCacheEntrySession* entry = NULL;
+    if (iCache[aSessionId]->count(aId) == 0)
     {
         /*IdCacheEntrySession&*/ entry = new IdCacheEntrySession(aSessionId, aId, aEntry);
 
@@ -271,56 +269,17 @@ IIdCacheEntry* IdCache::AddEntry(TUint aSessionId, TUint aId, IIdCacheEntry* aEn
     }
 
     return entry;
-/*
-    using (iDisposeHandler.Lock())
-    {
-        IdCacheEntrySession entry;
-
-        lock (iCache)
-        {
-            if (!iCache[aSessionId].TryGetValue(aId, out entry))
-            {
-                entry = new IdCacheEntrySession(aSessionId, aId, aEntry);
-
-                if (iCacheEntries == iMaxCacheEntries)
-                {
-                    RemoveEntry();
-                }
-
-                iCache[aSessionId].Add(aId, entry);
-                iLastAccessed.Add(entry);
-                ++iCacheEntries;
-            }
-        }
-
-        return entry;
-    }
-*/
 }
 
 
 void IdCache::RemoveEntry()
 {
-    DisposeLock lock(*iDisposeHandler);
-
-    AutoMutex mutex(iMutexCache);
+    // must be called with iDisposeHandler, iMutexCache held
 
     IdCacheEntrySession* entry = iLastAccessed[0];
     iCache[entry->SessionId()]->erase(entry->Id());
     iLastAccessed.erase(iLastAccessed.begin());
     --iCacheEntries;
-/*
-    using (iDisposeHandler.Lock())
-    {
-        lock (iCache)
-        {
-            IdCacheEntrySession entry = iLastAccessed[0];
-            iCache[entry.SessionId].Remove(entry.Id);
-            iLastAccessed.RemoveAt(0);
-            --iCacheEntries;
-        }
-    }
-*/
 }
 
 
