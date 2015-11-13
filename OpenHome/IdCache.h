@@ -95,7 +95,7 @@ public:
 
     static void UnpackIdArray(Brh& aIdArrayBuf, std::vector<TUint>& aIdArray);
     static TUint Hash(const Brx& aPrefix, const Brx& aUdn);
-    static std::vector<TUint> NonZeroItems(std::vector<TUint>& aItems);
+    static void NonZeroItems(const std::vector<TUint>& aItems, std::vector<TUint>& aNonZeroItems);
 
 
 private: // (internal)
