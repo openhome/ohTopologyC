@@ -347,11 +347,17 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
     else if (Ascii::CaseInsensitiveEquals(command, Brn("transportstate")))
     {
         Brn state(aValue.Next());
-        if (state== kReceiverTransportStatePlaying  ||
-            state == kReceiverTransportStateStopped ||
-            state == kReceiverTransportStatePaused)
+        if (state == kReceiverTransportStatePlaying)
         {
-            iTransportState->Update(state);
+            iTransportState->Update(kReceiverTransportStatePlaying);
+        }
+        else if (state == kReceiverTransportStateStopped)
+        {
+            iTransportState->Update(kReceiverTransportStateStopped);
+        }
+        else if (state == kReceiverTransportStatePaused)
+        {
+            iTransportState->Update(kReceiverTransportStatePaused);
         }
     }
     else
