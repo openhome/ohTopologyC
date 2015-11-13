@@ -10,6 +10,11 @@ using namespace OpenHome::Topology;
 using namespace OpenHome::Net;
 
 
+const Brn OpenHome::Topology::kReceiverTransportStatePlaying("Playing");
+const Brn OpenHome::Topology::kReceiverTransportStateStopped("Stopped");
+const Brn OpenHome::Topology::kReceiverTransportStatePaused("Paused");
+
+
 ServiceReceiver::ServiceReceiver(IInjectorDevice& aDevice, ILog& aLog)
     :Service(aDevice, aLog)
     ,iCurrentMetadata(iNetwork.InfoMetadataEmpty())
@@ -342,18 +347,11 @@ void ServiceReceiverMock::Execute(ICommandTokens& aValue)
     else if (Ascii::CaseInsensitiveEquals(command, Brn("transportstate")))
     {
         Brn state(aValue.Next());
-
-        if (state.Equals(kTransportStatePlaying))
+        if (state== kReceiverTransportStatePlaying  ||
+            state == kReceiverTransportStateStopped ||
+            state == kReceiverTransportStatePaused)
         {
-            iTransportState->Update(kTransportStatePlaying);
-        }
-        else if (state.Equals(kTransportStateStopped))
-        {
-            iTransportState->Update(kTransportStateStopped);
-        }
-        else if (state.Equals(kTransportStatePaused))
-        {
-            iTransportState->Update(kTransportStatePaused);
+            iTransportState->Update(state);
         }
     }
     else

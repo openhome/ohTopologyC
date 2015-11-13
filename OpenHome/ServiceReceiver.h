@@ -17,9 +17,9 @@ namespace Net
 namespace Topology
 {
 
-static const Brn kTransportStatePlaying("Playing");
-static const Brn kTransportStateStopped("Stopped");
-static const Brn kTransportStatePaused("Paused");
+extern const Brn kReceiverTransportStatePlaying;
+extern const Brn kReceiverTransportStateStopped;
+extern const Brn kReceiverTransportStatePaused;
 
 class IProxyReceiver : public IProxy
 {
