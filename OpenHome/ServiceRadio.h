@@ -19,14 +19,11 @@ namespace OpenHome
 
 namespace Net
 {
-class CpProxyAvOpenhomeOrgRadio1;
+    class CpProxyAvOpenhomeOrgRadio1;
 }
 
 namespace Topology
 {
-
-
-
 
 class ServiceRadio;
 
@@ -265,4 +262,3 @@ private:
 
 } // Topology
 } // OpenHome
-

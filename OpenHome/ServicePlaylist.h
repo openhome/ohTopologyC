@@ -18,7 +18,7 @@ namespace OpenHome
 {
 namespace Net
 {
-class CpProxyAvOpenhomeOrgPlaylist1;
+    class CpProxyAvOpenhomeOrgPlaylist1;
 }
 
 namespace Topology
@@ -125,7 +125,6 @@ public:
     TUint TracksMax();
     const Brx& ProtocolInfo();
 
-
     virtual void Play() = 0;
     virtual void Pause() = 0;
     virtual void Stop() = 0;
@@ -143,8 +142,6 @@ public:
     virtual void DeleteAll() = 0;
     virtual void SetRepeat(TBool aValue) = 0;
     virtual void SetShuffle(TBool aValue) = 0;
-
-
 
 protected:
     Bws<1000> iProtocolInfo;
@@ -199,7 +196,6 @@ protected:
     void HandleTransportStateChanged();
     void HandleRepeatChanged();
     void HandleShuffleChanged();
-
 
     void HandleIdChangedCallback1(void*);
     void HandleIdChangedCallback2(void*);
@@ -369,4 +365,3 @@ private:
 
 } // Topology
 } // OpenHome
-

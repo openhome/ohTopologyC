@@ -14,6 +14,7 @@
 #include <OpenHome/ServiceSender.h>
 #include <OpenHome/ServiceInfo.h>
 #include <OpenHome/Net/Core/CpDevice.h>
+
 #include <vector>
 #include <map>
 
@@ -24,32 +25,8 @@ namespace OpenHome
 namespace Topology
 {
 
-
 class IdCache;
-//class ITagManager;
 class IEventSupervisor;
-//class TagManager;
-
-
-
-/*
-class IEventSupervisorSession : public IDisposable
-{
-    IDisposable Create(string aId, Action<string, uint> aHandler);
-}
-
-
-////////////////////////////////////////////////////////////////////
-
-class IEventSupervisor : public IWatchableThread
-{
-    IEventSupervisorSession Create(const Brx& aEndpoint) = 0;
-    IWatchable<TUint> Servers() = 0; // { get; }
-    IWatchable<TUint> Alive() = 0; // { get; }
-}
-*/
-
-////////////////////////////////////////////////////////////////////
 
 class INetwork : public IWatchableThread, public IDisposable
 {
@@ -88,7 +65,6 @@ public:
     void Remove(Net::CpDevice* aDevice);
     void RemoveCpDevice(Net::CpDevice* aDevice);  // to get round FunctorGeneric with overloaded methods issue
 
-
     // INetwork
     virtual IIdCache& IdCache();
     virtual ITagManager& GetTagManager();
@@ -116,7 +92,6 @@ public:
     virtual void Report(Exception& aException);
     virtual void Report(std::exception& aException);
 
-
 private:
     void ReportException(Exception& aException);
     TBool WaitDevices();
@@ -137,17 +112,12 @@ private:
     AsyncAdaptorManager* iAsyncAdaptorManager;
     std::map<Brn, Device*, BufferCmp> iDevices;
     std::map<EServiceType, WatchableUnordered<IDevice*>*> iDeviceLists;
-		Sender* iSenderEmpty;
-		InfoMetadata* iInfoMetadataEmpty;
-		SenderMetadata* iSenderMetadataEmpty;
-		InfoDetails* iInfoDetailsEmpty;
-		InfoMetatext* iInfoMetatextEmpty;		
+	Sender* iSenderEmpty;
+	InfoMetadata* iInfoMetadataEmpty;
+	SenderMetadata* iSenderMetadataEmpty;
+	InfoDetails* iInfoDetailsEmpty;
+	InfoMetatext* iInfoMetatextEmpty;
 };
 
-
-
 } // Topology
-
 } // OpenHome
-
-

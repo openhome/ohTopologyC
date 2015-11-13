@@ -2,14 +2,13 @@
 
 #include <OpenHome/WatchableThread.h>
 #include <OpenHome/IWatcher.h>
+
 #include <vector>
 
 namespace OpenHome
 {
-
 namespace Topology
 {
-
 
 /**
     \defgroup watchable Watchable
@@ -55,12 +54,5 @@ public:
     @}
  */
 
-
-
 } // Topology
-
 } // OpenHome
-
-
-
-

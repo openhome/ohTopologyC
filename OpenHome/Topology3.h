@@ -12,10 +12,9 @@
 #include <OpenHome/ServiceReceiver.h>
 #include <OpenHome/ServiceSender.h>
 #include <OpenHome/Private/Ascii.h>
+
 #include <vector>
 #include <map>
-
-
 
 namespace OpenHome
 {
@@ -44,7 +43,6 @@ class Topology3Group : public ITopology3Group, public INonCopyable
 public:
     Topology3Group(INetwork& aNetwork, ITopology2Group& aGroup);
     ~Topology3Group();
-
 
     // IDisposable
     virtual void Dispose();
@@ -138,7 +136,6 @@ public:
 private:
     void CreateCallback(IProxy* aProxy);
 
-
 private:
     Topology3& iTopology3;
     DisposeHandler* iDisposeHandler;
@@ -199,5 +196,3 @@ private:
 
 } // Topology
 } // OpenHome
-
-

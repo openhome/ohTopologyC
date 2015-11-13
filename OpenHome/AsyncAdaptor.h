@@ -3,8 +3,8 @@
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Private/Fifo.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
-#include <vector>
 
+#include <vector>
 
 namespace OpenHome
 {
@@ -62,4 +62,3 @@ private:
 
 } // Topology
 } // OpenHome
-

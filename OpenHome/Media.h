@@ -11,7 +11,6 @@
 #include <vector>
 #include <memory>
 
-
 namespace OpenHome
 {
 namespace Topology
@@ -107,7 +106,6 @@ public:
 
 private:
     void ReadCallback(std::vector<T>*);
-
 
 private:
     //CancellationToken& iCancellationToken;
@@ -272,9 +270,5 @@ std::vector<T>& WatchableFragment<T>::Data()
     return(iData);
 }
 
-
-
 } // Topology
-
 } // OpenHome
-

@@ -5,12 +5,10 @@
 #include <OpenHome/Private/Thread.h>
 #include <OpenHome/OhTopologyC.h>
 
-
 namespace OpenHome
 {
 namespace Topology
 {
-
 
 class DisposeHandler : IDisposable
 {
@@ -42,9 +40,5 @@ private:
     DisposeHandler& iHandler;
 };
 
-
-
-
 } // Topology
 } // OpenHome
-

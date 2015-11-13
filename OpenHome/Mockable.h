@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Private/Debug.h>
 #include <OpenHome/IWatchable.h>
@@ -9,16 +8,14 @@
 #include <OpenHome/Buffer.h>
 #include <OpenHome/Private/Ascii.h>
 #include <OpenHome/Private/Stream.h>
+
 #include <vector>
 #include <map>
 
-
 namespace OpenHome
 {
-
 namespace Topology
 {
-
 
 static const TUint kMaxResultBytes = 5000;
 
@@ -55,7 +52,6 @@ class MockableScriptRunner : public IResultAggregator
 private:
     static const TUint kMaxFifoEntries = 1000;
     static const TUint kMaxLineBytes = 5000;
-
 
 private:
     class AssertError : public Exception
@@ -168,7 +164,6 @@ private:
     void UnorderedAddCallback(const Brx& aValue);
     void UnorderedRemoveCallback(const Brx& aValue);
 
-
 private:
     IResultAggregator& iResult;
     Brn iId;
@@ -201,7 +196,6 @@ private:
     void OrderedAddCallback(const Brx& aValue);
     void OrderedMoveCallback(const Brx& aValue);
     void OrderedRemoveCallback(const Brx& aValue);
-
 
 private:
     IResultAggregator& iResult;
@@ -259,11 +253,7 @@ void ResultWatcherFactory::Create(const Brx& aId, IWatchableOrdered<T>& aWatchab
     iWatchers[id].push_back(new ResultOrderedWatcher<T>(iResult, aId, aWatchable, aAction));
 }
 
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////
-
 
 template <class T>
 ResultWatcher<T>::ResultWatcher(IResultAggregator& aResult, const Brx& aId, IWatchable<T>& aWatchable, FunctorGeneric<MockCbData<T>*> aAction)
@@ -547,7 +537,4 @@ void ResultOrderedWatcher<T>::Dispose()
 
 
 } // namespace Topology
-
 } // namespace OpenHome
-
-

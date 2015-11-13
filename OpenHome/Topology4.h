@@ -12,19 +12,17 @@
 #include <OpenHome/ServiceReceiver.h>
 #include <OpenHome/ServiceSender.h>
 #include <OpenHome/Private/Ascii.h>
+
 #include <vector>
 #include <map>
-
 
 namespace OpenHome
 {
 namespace Topology
 {
 
-
 class ICredentialsSubscription
 {
-
 };
 
 
@@ -123,7 +121,6 @@ public:
     void SetStandby(TBool aValue);
     void SetSourceIndex(TUint aValue);
 
-
 private:
     virtual void ItemOpen(const Brx& aId, ITopology2Source* aValue);
     virtual void ItemUpdate(const Brx& aId, ITopology2Source* aValue, ITopology2Source* aPrevious);
@@ -176,7 +173,6 @@ private:
     void WatchT3Groups(void*);
     void DisposeCallback(void*);
 
-
 private:
     ITopology3* iTopology3;
     ILog& iLog;
@@ -189,9 +185,5 @@ private:
     std::vector<ITopology3Group*> iPendingSubscriptions;
 };
 
-}
-
-}
-
-
-
+} // namespace Topology
+} //namespace OpenHome

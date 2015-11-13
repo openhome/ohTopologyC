@@ -3,16 +3,13 @@
 #include <OpenHome/IWatchable.h>
 #include <OpenHome/Watchable.h>
 #include <OpenHome/OhTopologyC.h>
+
 #include<vector>
-
-
 
 namespace OpenHome
 {
 namespace Topology
 {
-
-
 
 /**
     \ingroup watchable
@@ -213,16 +210,9 @@ void WatchableOrdered<T>::DisposeCallback(void*)
 }
 
 
-
-
 /**
     @}
  */
 
-
 }  // Topology
 }  // OpenHome
-
-
-
-

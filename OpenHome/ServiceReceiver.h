@@ -8,13 +8,11 @@
 //#include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
 
-
-
 namespace OpenHome
 {
 namespace Net
 {
-class CpProxyAvOpenhomeOrgReceiver1;
+    class CpProxyAvOpenhomeOrgReceiver1;
 }
 namespace Topology
 {
@@ -145,7 +143,4 @@ private:
 };
 
 } // Topology
-
 } // OpenHome
-
-

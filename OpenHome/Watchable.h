@@ -2,9 +2,9 @@
 
 #include <OpenHome/WatchableThread.h>
 #include <OpenHome/IWatchable.h>
+
 #include <vector>
 #include <algorithm>
-
 
 /*
     Windows compiler warns (4505) that it has removed certain unreferenced local functions.
@@ -12,17 +12,13 @@
     The warning is wrong - so I'm disabling it.
 */
 #ifdef _MSC_VER
-#pragma warning (disable : 4505)
+# pragma warning (disable : 4505)
 #endif
-
 
 namespace OpenHome
 {
-
 namespace Topology
 {
-
-
 
 /**
     \addtogroup  watchable
@@ -222,21 +218,11 @@ void Watchable<T>::DisposeCallback(void*)
     iCount = iWatchers.size();
 }
 
-
-
 //////////////////////////////////////////////////////////////////////////////////
-
 
 /**
     @}
  */
 
-
-
-
 } // namespace Topology
 } // namespace OpenHome
-
-
-
-

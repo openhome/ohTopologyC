@@ -5,10 +5,10 @@
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/DisposeHandler.h>
 #include <OpenHome/Private/Thread.h>
+
 #include <vector>
 
 EXCEPTION(ServiceNotFoundException)
-
 
 namespace OpenHome
 {
@@ -89,8 +89,6 @@ private:
     void StartCallback(void* aArg);
     void AddTask(Semaphore* sema);
 
-
-
 private:
     struct StartData
     {
@@ -98,7 +96,6 @@ private:
         void* iArg;
         Semaphore* iSema;
     };
-
 
 protected:
     INetwork& iNetwork;
@@ -117,11 +114,5 @@ private:
     std::vector<OpenHome::Semaphore*> iSemas;
 };
 
-
-/////////////////////////////////////////////////////
-
-
 } // Topology
 } // OpenHome
-
-

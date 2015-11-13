@@ -1,11 +1,11 @@
 #pragma once
 
 #include <OpenHome/WatchableThread.h>
+
 #include <vector>
 
 namespace OpenHome
 {
-
 namespace Topology
 {
 
@@ -62,12 +62,5 @@ public:
     @}
  */
 
-
-
 } // Topology
-
 } // OpenHome
-
-
-
-

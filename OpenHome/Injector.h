@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/WatchableThread.h>
 #include <OpenHome/OhTopologyC.h>
@@ -13,17 +12,12 @@
 
 #include <map>
 
-
 namespace OpenHome
 {
-
 namespace Topology
 {
 
-
 class Network;
-
-
 
 class Injector : public IDisposable, public INonCopyable
 {
@@ -98,4 +92,3 @@ private:
 
 } // namespace Topology
 } // namespace OpenHome
-
