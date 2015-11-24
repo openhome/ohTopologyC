@@ -64,38 +64,38 @@ void WatchableThread::Run()
         {
             callback->Callback();
         }
-				catch (AssertionFailed&)
-				{
-				    throw;
-				}
-				catch (OpenHome::Windows_SEH_AccessViolation&)
-				{
-				    throw;
-				}
-				catch (OpenHome::Windows_SEH_ArrayBoundsExceeded&)
-				{
-				    throw;
-				}
-				catch (OpenHome::Windows_SEH_DatatypeMisalignment&)
-				{
-				    throw;
-				}
-				catch (OpenHome::Windows_SEH_GuardPage&)
-				{
-				    throw;
-				}
-				catch (OpenHome::Windows_SEH_DivideByZero&)
-				{
-				    throw;
-				}
-				catch (OpenHome::Windows_SEH_InvalidHandle&)
-				{
-				    throw;
-				}
-				catch (OpenHome::Windows_SEH_StackOverflow&)
-				{
-				    throw;
-				}
+        catch (AssertionFailed&)
+        {
+            throw;
+        }
+        catch (OpenHome::Windows_SEH_AccessViolation&)
+        {
+            throw;
+        }
+        catch (OpenHome::Windows_SEH_ArrayBoundsExceeded&)
+        {
+            throw;
+        }
+        catch (OpenHome::Windows_SEH_DatatypeMisalignment&)
+        {
+            throw;
+        }
+        catch (OpenHome::Windows_SEH_GuardPage&)
+        {
+            throw;
+        }
+        catch (OpenHome::Windows_SEH_DivideByZero&)
+        {
+            throw;
+        }
+        catch (OpenHome::Windows_SEH_InvalidHandle&)
+        {
+            throw;
+        }
+        catch (OpenHome::Windows_SEH_StackOverflow&)
+        {
+            throw;
+        }
         catch (ThreadKill& )
         {
             iFree.Write(callback);

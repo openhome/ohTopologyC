@@ -57,6 +57,20 @@ void Service::Dispose()
 
     OnUnsubscribe();
 
+    iMutexSubscribe.Wait();
+    std::vector<ServiceCreateData*> subscriptionsData(iSubscriptionsData);
+    iSubscriptionsData.clear();
+    iMutexSubscribe.Signal();
+
+    iRefCount = 0;
+
+    for (TUint i=0; i<subscriptionsData.size(); i++)
+    {
+        delete subscriptionsData[i];
+    }
+
+
+
     //iCancelSubscribe.Dispose();
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::DisposeCallback);
@@ -110,9 +124,6 @@ void Service::Create(FunctorGeneric<IProxy*> aCallback, IDevice* aDevice)
 
     DisposeLock lock(*iDisposeHandler);
 
-//    auto serviceCreateData = new ServiceCreateData();
-//    serviceCreateData->iDevice = aDevice;
-
     if (iRefCount == 0)
     {
         ASSERT(!iMockSubscribe);
@@ -124,7 +135,6 @@ void Service::Create(FunctorGeneric<IProxy*> aCallback, IDevice* aDevice)
     if (iMockSubscribe)
     {
         // mock - callback immediately
-        //serviceCreateData->iProxy = OnCreate(*aDevice);
         aCallback(OnCreate(*aDevice));
     }
     else
@@ -134,7 +144,6 @@ void Service::Create(FunctorGeneric<IProxy*> aCallback, IDevice* aDevice)
         {
             // non mock, already subscribed - callback immediately
             iMutexSubscribe.Signal();
-            //serviceCreateData->iProxy = OnCreate(*aDevice);
             aCallback(OnCreate(*aDevice));
         }
         else
@@ -192,15 +201,16 @@ void Service::SubscribeCompletedCallback(void* /*aArgs*/)
 {
     ASSERT(!iMockSubscribe);
     iMutexSubscribe.Wait();
-    auto subscriptionsData = new vector<ServiceCreateData*>(iSubscriptionsData);
+    std::vector<ServiceCreateData*> subscriptionsData(iSubscriptionsData);
     iSubscriptionsData.clear();
     iSubscribed = true;
     iMutexSubscribe.Signal();
 
-    for (TUint i=0; i<subscriptionsData->size(); i++)
+    for (TUint i=0; i<subscriptionsData.size(); i++)
     {
-        auto data = (*subscriptionsData)[i];
+        auto data = subscriptionsData[i];
         data->iCallback(OnCreate(*(data->iDevice)));
+        delete data;
     }
 
 /*
