@@ -248,6 +248,8 @@ void Service::OnUnsubscribe()
 
 void Service::Unsubscribe()
 {
+    Assert();
+
     ASSERT(iRefCount != 0);
     iRefCount--;
     if (iRefCount == 0)
