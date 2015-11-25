@@ -50,7 +50,7 @@ def configure(conf):
             conf.options.dest_platform = guess_dest_platform()
         except KeyError:
             conf.fatal('Specify --dest-platform')
-    
+
     if is_core_platform(conf):
         guess_libosa_location(conf)
         guess_libplatform_location(conf)
@@ -193,6 +193,7 @@ def build(bld):
                 'Generated/CpAvOpenhomeOrgSender1.cpp',
                 'Generated/CpAvOpenhomeOrgVolume1.cpp',
                 'Generated/CpAvOpenhomeOrgTime1.cpp',
+                'TestCpProxies/CpAvOpenhomeOrgRadio1Test.cpp'
             ],
             use=['OHNET'],
             target='ohTopologyC')
