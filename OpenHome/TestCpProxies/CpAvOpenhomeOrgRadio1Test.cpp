@@ -1,329 +1,404 @@
-#include <OpenHome/TestCpProxies/CpProxyAvOpenhomeOrgRadio1Test.h>
+#include <OpenHome/TestCpProxies/CpAvOpenhomeOrgRadio1Test.h>
+
+using namespace OpenHome::Topology;
+using namespace OpenHome::Net;
+using namespace OpenHome;
+
+CpProxyAvOpenhomeOrgRadio1Test::CpProxyAvOpenhomeOrgRadio1Test(std::shared_ptr<ResultRecorder<RadioEvent>> aRecorder)
+  : iRecorder(aRecorder)
+  , iAsync(new AsyncTest())
+{
+
+}
+
+CpProxyAvOpenhomeOrgRadio1Test::~CpProxyAvOpenhomeOrgRadio1Test()
+{
+
+}
 
 void CpProxyAvOpenhomeOrgRadio1Test::SyncPlay()
 {
-  iPlaying = true;
+  iRecorder->Record(RadioEvent::eSyncPlay);
 }
 
 void CpProxyAvOpenhomeOrgRadio1Test::BeginPlay(FunctorAsync& aFunctor)
 {
-  iPlaying = true;
-  aFunctor();
+  iRecorder->Record(RadioEvent::eBeginPlay);
+  aFunctor(*iAsync);
 }
 
 void CpProxyAvOpenhomeOrgRadio1Test::EndPlay(IAsync& /*aAsync*/)
 {
-  //Retrieve arguments?
+  iRecorder->Record(RadioEvent::eEndPlay);
 }
 
 void CpProxyAvOpenhomeOrgRadio1Test::SyncPause()
 {
-  iPaused = true;
+  iRecorder->Record(RadioEvent::eSyncPause);
+
 }
 
 void CpProxyAvOpenhomeOrgRadio1Test::BeginPause(FunctorAsync& aFunctor)
 {
-  iPaused = true;
-  aFunctor();
+  iRecorder->Record(RadioEvent::eBeginPause);
+  aFunctor(*iAsync);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::EndPlay(IAsync& /*aAsync*/)
+void CpProxyAvOpenhomeOrgRadio1Test::EndPause(IAsync& /*aAsync*/)
 {
-  //Retrieve arguments
+  iRecorder->Record(RadioEvent::eEndPause);
 }
 
 void CpProxyAvOpenhomeOrgRadio1Test::SyncStop()
 {
-  iStopped = true;
+  iRecorder->Record(RadioEvent::eSyncStop);
 }
 
 void CpProxyAvOpenhomeOrgRadio1Test::BeginStop(FunctorAsync& aFunctor)
 {
-  iStopped = true;
-  aFunctor();
+  iRecorder->Record(RadioEvent::eBeginStop);
+
+  aFunctor(*iAsync);
 }
 
 void CpProxyAvOpenhomeOrgRadio1Test::EndStop(IAsync& /*aAsync*/)
 {
-  //Retrieve arguments
+  iRecorder->Record(RadioEvent::eEndStop);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::SyncSeekSecondAbsolute(TUint aValue)
+void CpProxyAvOpenhomeOrgRadio1Test::SyncSeekSecondAbsolute(TUint /*aValue*/)
 {
-  iSeconds = aValue;
+  iRecorder->Record(RadioEvent::eSyncSeekSecondAbsolute);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::BeginSeekSecondAbsolute(TUint aValue, FunctorAsync& aFunctor)
+void CpProxyAvOpenhomeOrgRadio1Test::BeginSeekSecondAbsolute(TUint /*aValue*/, FunctorAsync& aFunctor)
 {
-  iSeconds = aValue;
-  aFunctor();
+  iRecorder->Record(RadioEvent::eBeginSeekSecondAbsolute);
+
+  aFunctor(*iAsync);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::EndSeekSecondAbsolute(TUint aValue, IAsync& /*aAsync*/)
+void CpProxyAvOpenhomeOrgRadio1Test::EndSeekSecondAbsolute(IAsync& /*aAsync*/)
 {
-  //Retrieve arguments
+  iRecorder->Record(RadioEvent::eEndSeekSecondAbsolute);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::SyncSeekSecondRelative(TInt aValue)
+void CpProxyAvOpenhomeOrgRadio1Test::SyncSeekSecondRelative(TInt /*aValue*/)
 {
-  iSeconds += aValue;
+  iRecorder->Record(RadioEvent::eSyncSeekSecondRelative);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::BeginSeekSecondRelative(TInt aValue, FunctorAsync& aFunctor)
+void CpProxyAvOpenhomeOrgRadio1Test::BeginSeekSecondRelative(TInt /*aValue*/, FunctorAsync& aFunctor)
 {
-  iSeconds += aValue;
-  aFunctor();
+  iRecorder->Record(RadioEvent::eBeginSeekSecondRelative);
+  aFunctor(*iAsync);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::EndSeekSecondRelative(IAsync& aFunctor)
+void CpProxyAvOpenhomeOrgRadio1Test::EndSeekSecondRelative(IAsync& /*aFunctor*/)
 {
-  //Retrieve arguments
+  iRecorder->Record(RadioEvent::eEndSeekSecondRelative);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::SyncChannel(Brh& aUri, Brh& aMetadata)
+void CpProxyAvOpenhomeOrgRadio1Test::SyncChannel(Brh& /*aUri*/, Brh& /*aMetadata*/)
 {
-  aUri = iUri;
-  aMetadata = iMetadata;
+  iRecorder->Record(RadioEvent::eSyncChannel);
 }
 
 void CpProxyAvOpenhomeOrgRadio1Test::BeginChannel(FunctorAsync& aFunctor)
 {
-  aFunctor();
+  iRecorder->Record(RadioEvent::eBeginChannel);
+  aFunctor(*iAsync);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::EndChannel(IAsync& /*aFunctor*/, Brh& aUri, Brh& aMetadata)
+void CpProxyAvOpenhomeOrgRadio1Test::EndChannel(IAsync& /*aFunctor*/, Brh& /*aUri*/, Brh& /*aMetadata*/)
 {
-  aUri = iUri;
-  aMetadata = iMetadata;
+  iRecorder->Record(RadioEvent::eEndChannel);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::SyncSetChannel(const Brx& aUri, const Brx& aMetadata)
+void CpProxyAvOpenhomeOrgRadio1Test::SyncSetChannel(const Brx& /*aUri*/, const Brx& /*aMetadata*/)
 {
-  iUri = aUri;
-  iMetadata = aMetadata;
+  iRecorder->Record(RadioEvent::eSyncSetChannel);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::BeginSetChannel(const Brx& aUri, const Brx& aMetadata, FunctorAsync& aFunctor)
+void CpProxyAvOpenhomeOrgRadio1Test::BeginSetChannel(const Brx& /*aUri*/, const Brx&/* aMetadata*/, FunctorAsync& aFunctor)
 {
-  iUri = aUri;
-  iMetadata = aMetadata;
-  aFunctor();
+  iRecorder->Record(RadioEvent::eBeginSetChannel);
+  aFunctor(*iAsync);
 }
 
 void CpProxyAvOpenhomeOrgRadio1Test::EndSetChannel(IAsync& /*aAsync*/)
 {
-
+  iRecorder->Record(RadioEvent::eEndSetChannel);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::SyncTransportState(Brh& aValue)
+void CpProxyAvOpenhomeOrgRadio1Test::SyncTransportState(Brh& /*aValue*/)
 {
-  aValue = iState;
+  iRecorder->Record(RadioEvent::eSyncTransportState);
 }
 
 void CpProxyAvOpenhomeOrgRadio1Test::BeginTransportState(FunctorAsync& aFunctor)
 {
-  aFunctor();
+  iRecorder->Record(RadioEvent::eBeginTransportState);
+  aFunctor(*iAsync);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::EndTransportState(IAsync& /*aAsync*/, Brh& aValue)
+void CpProxyAvOpenhomeOrgRadio1Test::EndTransportState(IAsync& /*aAsync*/, Brh& /*aValue*/)
 {
-  aValue = iState;
+  iRecorder->Record(RadioEvent::eEndTransportState);
 }
 
-void CpProxyAvOpenhomeOrgRadio1Test::SyncId(TUint& aValue)
+void CpProxyAvOpenhomeOrgRadio1Test::SyncId(TUint& /*aValue*/)
 {
-  aValue = iId;
+  iRecorder->Record(RadioEvent::eSyncId);
 }
 
-void CpProxyAvOpenhomOrgRadio1Test::BeginId(FunctorAsync& aFunctor)
+void CpProxyAvOpenhomeOrgRadio1Test::BeginId(FunctorAsync& aFunctor)
 {
-  aFunctor();
+  iRecorder->Record(RadioEvent::eBeginId);
+  aFunctor(*iAsync);
 }
 
-void CpProxyAvOpenhomOrgRadio1Test::EndId(IAsync& /*aAsync*/, TUint& aValue)
+void CpProxyAvOpenhomeOrgRadio1Test::EndId(IAsync& /*aAsync*/, TUint& /*aValue*/)
 {
-  aValue = iId;
-  //pass back args to async?
+  iRecorder->Record(RadioEvent::eEndId);
 }
 
-void CpProxyAvOpenhomOrgRadio1Test::SyncSetId(TUint aValue, const Brx& aUri)
+void CpProxyAvOpenhomeOrgRadio1Test::SyncSetId(TUint /*aValue*/, const Brx& /*aUri*/)
 {
-  iId = aValue;
+  iRecorder->Record(RadioEvent::eSyncSetId);
 }
 
-void CpProxyAvOpenhomOrgRadio1Test::BeginSetId(TUint aValue, const Brx& aUri, FunctorAsync& aFunctor)
+void CpProxyAvOpenhomeOrgRadio1Test::BeginSetId(TUint /*aValue*/, const Brx& /*aUri*/, FunctorAsync& aFunctor)
 {
-  iId = aValue;
-  iUri = aUri;
-  aFunctor();
+  iRecorder->Record(RadioEvent::eBeginSetId);
+  aFunctor(*iAsync);
 }
 
-void CpProxyAvOpenhomOrgRadio1Test::EndSetId(IAsync& /*aAsync*/)
+void CpProxyAvOpenhomeOrgRadio1Test::EndSetId(IAsync& /*aAsync*/)
+{
+  iRecorder->Record(RadioEvent::eEndSetId);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::SyncRead(TUint /*aId*/, Brh& /*aMetadata*/)
+{
+  iRecorder->Record(RadioEvent::eSyncRead);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::BeginRead(TUint /*aId*/, FunctorAsync& aFunctor)
+{
+  iRecorder->Record(RadioEvent::eBeginRead);
+  aFunctor(*iAsync);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::EndRead(IAsync& /*aAsync*/, Brh& /*aMetadata*/)
+{
+  iRecorder->Record(RadioEvent::eEndRead);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::SyncReadList(const Brx& /*aIdList*/, Brh& /*aChannelList*/)
+{
+  iRecorder->Record(RadioEvent::eSyncReadList);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::BeginReadList(const Brx& /*aIdList*/, FunctorAsync& aFunctor)
+{
+  iRecorder->Record(RadioEvent::eBeginReadList);
+  aFunctor(*iAsync);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::EndReadList(IAsync& /*aAsync*/, Brh& /*aChannelList*/)
+{
+  iRecorder->Record(RadioEvent::eEndReadList);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::SyncIdArray(TUint& /*aToken*/, Brh& /*aArray*/)
+{
+  iRecorder->Record(RadioEvent::eSyncIdArray);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::BeginIdArray(FunctorAsync& aFunctor)
+{
+  iRecorder->Record(RadioEvent::eBeginIdArray);
+  aFunctor(*iAsync);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::EndIdArray(IAsync& /*aAsync*/, TUint& /*aToken*/, Brh& /*aArray*/)
+{
+  iRecorder->Record(RadioEvent::eEndIdArray);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::SyncIdArrayChanged(TUint /*aToken*/, TBool& /*aValue*/)
+{
+  iRecorder->Record(RadioEvent::eSyncIdArrayChanged);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::BeginIdArrayChanged(TUint /*aToken*/, FunctorAsync& aFunctor)
+{
+  iRecorder->Record(RadioEvent::eBeginIdArrayChanged);
+  aFunctor(*iAsync);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::EndIdArrayChanged(IAsync& /*aAsync*/, TBool& /*aValue*/)
+{
+  iRecorder->Record(RadioEvent::eEndIdArrayChanged);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::SyncChannelsMax(TUint& /*aValue*/)
+{
+  iRecorder->Record(RadioEvent::eSyncChannelsMax);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::BeginChannelsMax(FunctorAsync& aFunctor)
+{
+  iRecorder->Record(RadioEvent::eBeginChannelsMax);
+  aFunctor(*iAsync);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::EndChannelsMax(IAsync& /*aAsync*/, TUint& /*aValue*/)
+{
+  iRecorder->Record(RadioEvent::eEndChannelsMax);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::SyncProtocolInfo(Brh&/* aValue*/)
+{
+  iRecorder->Record(RadioEvent::eSyncProtocolInfo);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::BeginProtocolInfo(FunctorAsync& aFunctor)
+{
+  iRecorder->Record(RadioEvent::eBeginProtocolInfo);
+  aFunctor(*iAsync);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::EndProtocolInfo(IAsync& /*aAsync*/, Brh& aValue)
+{
+  iRecorder->Record(RadioEvent::eEndProtocolInfo);
+  aValue.Set(Brn("TestEndProtocolInfo"));
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::SetPropertyUriChanged(Functor& /*aUriChanged*/)
+{
+  iRecorder->Record(RadioEvent::eSetPropertyUriChanged);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::PropertyUri(Brhz& aUri) const
+{
+  iRecorder->Record(RadioEvent::ePropertyUri);
+  aUri.Set(Brn("TestUri"));
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::SetPropertyMetadataChanged(Functor& /*aMetadataChanged*/)
+{
+  iRecorder->Record(RadioEvent::eSetPropertyMetadataChanged);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::PropertyMetadata(Brhz& aMetadata) const
+{
+  iRecorder->Record(RadioEvent::ePropertyMetadata);
+  aMetadata.Set(Brn("TestMetadata"));
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::SetPropertyTransportStateChanged(Functor& /*aTransportStateChanged*/)
+{
+  iRecorder->Record(RadioEvent::eSetPropertyTransportStateChanged);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::PropertyTransportState(Brhz& aTransportState) const
+{
+  iRecorder->Record(RadioEvent::ePropertyTransportState);
+  aTransportState.Set(Brn("TestTransportState"));
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::SetPropertyIdChanged(Functor& /*aIdChanged*/)
+{
+  iRecorder->Record(RadioEvent::eSetPropertyIdChanged);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::PropertyId(TUint& aId) const
+{
+  iRecorder->Record(RadioEvent::ePropertyId);
+  aId = 1;
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::SetPropertyIdArrayChanged(Functor& /*aIdArrayChanged*/)
+{
+  iRecorder->Record(RadioEvent::eSetPropertyIdArrayChanged);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::PropertyIdArray(Brh& aIdArray) const
+{
+  iRecorder->Record(RadioEvent::ePropertyIdArray);
+  aIdArray.Set(Brn("TestIdArray"));
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::SetPropertyChannelsMaxChanged(Functor& /*aChannelsMaxChanged*/)
+{
+  iRecorder->Record(RadioEvent::eSetPropertyChannelsMaxChanged);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::PropertyChannelsMax(TUint& /*aChannelsMax*/) const
+{
+  iRecorder->Record(RadioEvent::ePropertyChannelsMax);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::SetPropertyProtocolInfoChanged(Functor& /*aProtocolInfoChanged*/)
+{
+  iRecorder->Record(RadioEvent::eSetPropertyProtocolInfoChanged);
+}
+
+void CpProxyAvOpenhomeOrgRadio1Test::PropertyProtocolInfo(Brhz& aProtocolInfo) const
+{
+  iRecorder->Record(RadioEvent::ePropertyProtocolInfo);
+  aProtocolInfo.Set(Brn("TestProtocolInfo"));
+}
+
+
+
+
+////////////////////////////////////ICpProxy Functions/////////
+void CpProxyAvOpenhomeOrgRadio1Test::Subscribe()
 {
 
 }
 
-void CpProxyAvOpenhomOrgRadio1Test::SyncRead(TUint /*aId*/, Brh& aMetadata)
-{
-  aMetadata = iMetadata;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::BeginRead(TUint /*aId*/, FunctorAsync& aFunctor)
-{
-  aFunctor();
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::EndRead(IAsync& /*aAsync*/, Brh& aMetadata)
-{
-  aMetadata = iMetadata;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::SyncReadList(const Brx& /*aIdList*/, Brh& aChannelList)
-{
-  aChannelList = iChannelList;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::BeginReadList(const Brx& /*aIdList*/, FunctorAsync& aFunctor)
-{
-  aFunctor();
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::EndReadList(IAsync& /*aAsync*/, Brh& aChannelList)
-{
-  aChannelList = iChannelList;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::SyncIdArray(TUint& aToken, Brh& aArray)
-{
-  aToken = iToken;
-  aArray = iArray;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::BeginIdArray(FunctorAsync& aFunctor)
-{
-  aFunctor();
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::EndIdArray(IAsync& /*aAsync*/, TUint& aToken, Brh& aArray)
-{
-  aToken = iToken;
-  aArray = iArray;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::SyncIdArrayChanged(TUint /*aToken*/, TBool& aValue)
-{
-   aValue = iArrayChanged;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::BeginIdArrayChanged(TUint /*aToken*/, FunctorAsync& aFunctor)
-{
-  aFuntor();
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::EndIdArrayChanged(IAsync& /*aAsync*/, TBool& aValue)
-{
-aValue = iArrayChanged;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::SyncChannelsMax(TUint& aValue)
-{
-  aValue = iMaxChannels;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::BeginChannelsMax(FunctorAsync& aFunctor)
-{
-  aFunctor();
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::EndChannelsMax(IAsync& /*aAsync*/, TUint& aValue)
-{
-  aValue = iMaxChannels;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::SyncProtocolInfo(Brh& aValue)
-{
-  aValue = iProtocolInfo;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::BeginProtocolInfo(FunctorAsync& aFunctor)
-{
-  aFunctor();
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::EndProtocolInfo(IAsync& /*aAsync*/, Brh& aValue)
-{
-  aValue = iProtocolInfo;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::SetPropertyUriChanged(Functor& aUriChanged)
-{
-  aUriChanged = iUriChanged;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::PropertyUri(Brhz& aUri) const
-{
-  aUri.Set(iUri);
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::SetPropertyMetadataChanged(Functor& /*aMetadataChanged*/)
+void CpProxyAvOpenhomeOrgRadio1Test::Unsubscribe()
 {
 
 }
 
-void CpProxyAvOpenhomOrgRadio1Test::PropertyMetadata(Brhz& aMetadata) const
-{
-  aMetadata.Set(iMetadata);
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::SetPropertyTransportStateChanged(Functor& /*aTransportStateChanged*/)
+void CpProxyAvOpenhomeOrgRadio1Test::SetPropertyChanged(Functor& /*aFunctor*/)
 {
 
 }
 
-void CpProxyAvOpenhomOrgRadio1Test::PropertyTransportState(Brhz& aTransportState) const
-{
-  aTransportState.Set(iState);
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::SetPropertyIdChanged(Functor& /*aIdChanged*/)
+void CpProxyAvOpenhomeOrgRadio1Test::SetPropertyInitialEvent(Functor& /*aFunctor*/)
 {
 
 }
 
-void CpProxyAvOpenhomOrgRadio1Test::PropertyId(TUint& aId) const
-{
-  aId = iId;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::SetPropertyIdArrayChanged(Functor& /*aIdArrayChanged*/)
+void CpProxyAvOpenhomeOrgRadio1Test::AddProperty(Property* /*aProperty*/)
 {
 
 }
 
-void CpProxyAvOpenhomOrgRadio1Test::PropertyIdArray(Brh& aIdArray) const
-{
-  aIdArray.Set(iArray);
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::SetPropertyChannelsMaxChanged(Functor& /*aChannelsMaxChanged*/)
+void CpProxyAvOpenhomeOrgRadio1Test::DestroyService()
 {
 
 }
 
-void CpProxyAvOpenhomOrgRadio1Test::PropertyChannelsMax(TUint& aChannelsMax) const
-{
-  aChannelsMax = iChannelsMax;
-}
-
-void CpProxyAvOpenhomOrgRadio1Test::SetPropertyProtocolInfoChanged(Functor& /*aProtocolInfoChanged*/)
+void CpProxyAvOpenhomeOrgRadio1Test::ReportEvent(Functor /*aFunctor*/)
 {
 
 }
 
-void CpProxyAvOpenhomOrgRadio1Test::PropertyProtocolInfo(Brhz& aProtocolInfo) const
+TUint CpProxyAvOpenhomeOrgRadio1Test::Version() const
 {
-  aProtocolInfo.Set(iProtocolInfo);
+  return 1;
 }
+
+
+/////////////////////////////////////////////AsyncTest/////////
+
 
 AsyncTest::AsyncTest()
 {
