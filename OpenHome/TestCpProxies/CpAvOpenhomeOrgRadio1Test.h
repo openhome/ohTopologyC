@@ -166,20 +166,6 @@ public: //ICpProxyAvOpenhomeOrgRadio1
     TUint Version() const override;
   private:
     std::shared_ptr<ResultRecorder<RadioEvent>> iRecorder;
-    TBool iPlaying;
-    TBool iPaused;
-    TBool iStopped;
-    TUint iSeconds;
-    Brh iState;
-    TUint iId;
-    Brh iUri;
-    Brh iMetadata;
-    TBool iArrayChanged;
-    Brh iChannelList;
-    TUint iToken;
-    Brh iArray;
-    TUint iChannelsMax;
-    Brh iProtocolInfo;
     std::unique_ptr<OpenHome::Net::IAsync> iAsync;
 
 };
