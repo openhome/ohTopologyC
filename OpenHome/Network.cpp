@@ -24,7 +24,7 @@
 #include <Generated/CpAvOpenhomeOrgTime1.h>
 #include <OpenHome/Exception.h>
 #include <OpenHome/OsWrapper.h>
-
+#include <OpenHome/Net/Core/CpProxy.h>
 using namespace OpenHome;
 using namespace OpenHome::Topology;
 using namespace OpenHome::Net;
@@ -424,7 +424,8 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
     {
         if (Ascii::Uint(value) == 1)
         {
-            device->Add(eProxyRadio, new ServiceRadioNetwork(*device, new CpProxyAvOpenhomeOrgRadio1(*aDevice), iLog));
+
+            device->Add(eProxyRadio, new ServiceRadioNetwork(*device, std::unique_ptr<CpProxyAvOpenhomeOrgRadio1>(new CpProxyAvOpenhomeOrgRadio1(*aDevice)), iLog));
         }
     }
 
@@ -631,6 +632,3 @@ IEventSupervisor& Network::EventSupervisor()
     ASSERTS();
     return(*iEventSupervisor);
 }
-
-
-

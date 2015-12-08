@@ -192,10 +192,10 @@ const Brx& ServiceRadio::ProtocolInfo()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ServiceRadioNetwork::ServiceRadioNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgRadio1* aService, ILog& aLog)
+ServiceRadioNetwork::ServiceRadioNetwork(IInjectorDevice& aDevice, std::unique_ptr<Net::ICpProxyAvOpenhomeOrgRadio1> aService, ILog& aLog)
     :ServiceRadio(aDevice, aLog)
-    ,iService(aService)
-    ,iCacheSession(NULL)
+    ,iService(std::move(aService))
+    ,iCacheSession(nullptr)
     ,iSubscribed(false)
 {
     Functor f1 = MakeFunctor(*this, &ServiceRadioNetwork::HandleIdChanged);
@@ -227,7 +227,7 @@ void ServiceRadioNetwork::Dispose()
 TBool ServiceRadioNetwork::OnSubscribe()
 {
     TUint id = IdCache::Hash(IdCache::kPrefixRadio, Device().Udn());
-    iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioNetwork::ReadList));
+    iCacheSession = std::move(iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioNetwork::ReadList)));
 
     auto snapshot = new RadioSnapshot(iNetwork, *iCacheSession, new vector<TUint>(), *this);
     iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, snapshot);
@@ -325,7 +325,7 @@ void ServiceRadioNetwork::SetId(TUint aId, const Brx& aUri)
 
 void ServiceRadioNetwork::SetChannel(const Brx& aUri, IMediaMetadata& aMetadata)
 {
-    Bwh didlLite;
+    Bws<1024> didlLite;
     iNetwork.GetTagManager().ToDidlLite(aMetadata, didlLite);
     FunctorAsync f;
     iService->BeginSetChannel(aUri, didlLite, f);
@@ -592,7 +592,7 @@ TBool ServiceRadioMock::OnSubscribe()
 {
     TUint id = IdCache::Hash(IdCache::kPrefixPlaylist, Device().Udn());
 
-    iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioMock::ReadList));
+    iCacheSession = std::move(iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioMock::ReadList)));
 
     iCacheSession->SetValid(*iIdArray);
 

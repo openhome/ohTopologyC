@@ -5,12 +5,13 @@
 #include <OpenHome/Watchable.h>
 #include <OpenHome/Service.h>
 #include <OpenHome/Net/Core/CpDevice.h>
+#include <OpenHome/Net/Core/CpProxy.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
 #include <OpenHome/MetaData.h>
 #include <OpenHome/Media.h>
 #include <OpenHome/IdCache.h>
 #include <OpenHome/AsyncAdaptor.h>
-
+#include <Generated/CpAvOpenhomeOrgRadio1.h>
 #include <vector>
 #include <memory>
 
@@ -19,7 +20,8 @@ namespace OpenHome
 
 namespace Net
 {
-    class CpProxyAvOpenhomeOrgRadio1;
+    class ICpProxyAvOpenhomeOrgRadio1;
+    class ICpProxy;
 }
 
 namespace Topology
@@ -127,7 +129,7 @@ protected:
 class ServiceRadioNetwork : public ServiceRadio
 {
 public:
-    ServiceRadioNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgRadio1* aService, ILog& aLog);
+    ServiceRadioNetwork(IInjectorDevice& aDevice, std::unique_ptr<Net::ICpProxyAvOpenhomeOrgRadio1> aService, ILog& aLog); //ICpProxyAvOpenhomeOrgRadio1* and ICpProxy* must be wrapped in shared_ptr
     ~ServiceRadioNetwork();
 
     void Dispose();
@@ -164,8 +166,8 @@ private:
     void HandleTransportStateChangedCallback2(void*);
 
 private:
-    Net::CpProxyAvOpenhomeOrgRadio1* iService;
-    IIdCacheSession* iCacheSession;
+    std::unique_ptr<Net::ICpProxyAvOpenhomeOrgRadio1> iService;
+    std::unique_ptr<IIdCacheSession> iCacheSession;
     TBool iSubscribed;
 };
 //////////////////////////////////////////////////////////////////
@@ -196,7 +198,7 @@ public:
 private:
     void ReadList(ReadListData* aIdList);
 private:
-    IIdCacheSession* iCacheSession;
+    std::unique_ptr<IIdCacheSession> iCacheSession;
     std::vector<IMediaMetadata*>& iPresets;
     std::vector<TUint>* iIdArray;
 };
