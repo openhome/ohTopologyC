@@ -67,7 +67,7 @@ class IdCacheSession;
 class IIdCache
 {
 public:
-    virtual IdCacheSession* CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction) = 0;
+    virtual std::unique_ptr<IdCacheSession> CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction) = 0;
     virtual ~IIdCache() {}
 };
 
@@ -82,7 +82,7 @@ public:
     IdCache(TUint aMaxCacheEntries);
     virtual ~IdCache();
 
-    virtual IdCacheSession* CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction);
+    virtual std::unique_ptr<IdCacheSession> CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction);
 
     // IDisposable
     virtual void Dispose();

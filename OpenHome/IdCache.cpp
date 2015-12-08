@@ -69,7 +69,7 @@ void IdCache::UnpackIdArray(Brh& aIdArrayBuf, vector<TUint>& aIdArray)
 }
 
 
-IdCacheSession* IdCache::CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction)
+std::unique_ptr<IdCacheSession> IdCache::CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction)
 {
     DisposeLock lock(*iDisposeHandler);
 
@@ -80,7 +80,7 @@ IdCacheSession* IdCache::CreateSession(TUint aId, FunctorGeneric<ReadListData*> 
         iCache[aId] = new map<TUint, IdCacheEntrySession*>();
     }
 
-    return(new IdCacheSession(aId, aFunction, this));
+    return(std::unique_ptr<IdCacheSession>(new IdCacheSession(aId, aFunction, this)));
 }
 
 TUint IdCache::Hash(const Brx& aPrefix, const Brx& aUdn)
