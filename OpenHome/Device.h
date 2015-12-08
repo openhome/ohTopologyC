@@ -157,8 +157,8 @@ public:  // IMockable
 public: // IDisposable
   void Dispose() override;
 private:
-  Bws<37> iUdn;
   INetwork& iNetwork;
+  Bws<37> iUdn;
 };
 
 } // Topology

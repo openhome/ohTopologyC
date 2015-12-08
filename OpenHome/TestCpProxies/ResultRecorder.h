@@ -3,7 +3,7 @@
 #include <OpenHome/Types.h>
 #include <OpenHome/Buffer.h>
 #include <vector>
-
+#include <algorithm>
 namespace OpenHome{
 namespace Topology{
 
