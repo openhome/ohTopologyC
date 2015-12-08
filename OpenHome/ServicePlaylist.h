@@ -222,7 +222,7 @@ private:
 
 private:
     Net::CpProxyAvOpenhomeOrgPlaylist1* iService;
-    IIdCacheSession* iCacheSession;
+    std::unique_ptr<IIdCacheSession> iCacheSession;
     TBool iSubscribed;
 };
 
@@ -297,7 +297,7 @@ private:
     TUint iIdFactory;
     std::vector<TrackMock*>* iTracks;
     std::vector<TUint>* iIdArray;
-    IIdCacheSession* iCacheSession;
+    std::unique_ptr<IIdCacheSession> iCacheSession;
 };
 
 /////////////////////////////////////////////////////////////////////////////

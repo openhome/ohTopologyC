@@ -234,7 +234,7 @@ const Brx& ServicePlaylist::ProtocolInfo()
 ServicePlaylistNetwork::ServicePlaylistNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgPlaylist1* aService, ILog& aLog)
     :ServicePlaylist(aDevice, aLog)
     ,iService(aService)
-    ,iCacheSession(NULL)
+    ,iCacheSession(nullptr)
     ,iSubscribed(false)
 {
     Functor f1 = MakeFunctor(*this, &ServicePlaylistNetwork::HandleIdChanged);
@@ -274,7 +274,7 @@ TBool ServicePlaylistNetwork::OnSubscribe()
 {
     TUint id = IdCache::Hash(IdCache::kPrefixPlaylist, Device().Udn());
 
-    iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServicePlaylistNetwork::ReadList));
+    iCacheSession = std::move(iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServicePlaylistNetwork::ReadList)));
     iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, new PlaylistSnapshot(iNetwork, *iCacheSession, new vector<TUint>(), *this));
 
     iService->Subscribe();
@@ -970,7 +970,7 @@ TBool ServicePlaylistMock::OnSubscribe()
 {
     TUint id = IdCache::Hash(IdCache::kPrefixPlaylist, Device().Udn());
 
-    iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServicePlaylistMock::ReadList));
+    iCacheSession = std::move(iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServicePlaylistMock::ReadList)));
 
     iCacheSession->SetValid(*iIdArray);
 
