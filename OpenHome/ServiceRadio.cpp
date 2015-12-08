@@ -410,15 +410,9 @@ void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
                 break;
             }
         }
-  }
-  try{
-      readListData->iRetrievedEntries = entries;
-  }
-  catch(...)
-  {
-      readListData->iRetrievedEntries = nullptr;
-  }
-  readListData->iCallback(readListData);
+    }
+    readListData->iRetrievedEntries = entries;
+    readListData->iCallback(readListData);
 }
 
 
