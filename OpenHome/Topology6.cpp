@@ -354,6 +354,7 @@ void Topology6Group::Dispose()
 
     iWatchableGroupSource->Dispose();
 
+
     if (iSenderService != NULL)
     {
         iSenderService->Status().RemoveWatcher(*this);

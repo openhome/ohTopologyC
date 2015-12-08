@@ -193,7 +193,8 @@ def build(bld):
                 'Generated/CpAvOpenhomeOrgSender1.cpp',
                 'Generated/CpAvOpenhomeOrgVolume1.cpp',
                 'Generated/CpAvOpenhomeOrgTime1.cpp',
-                'TestCpProxies/CpAvOpenhomeOrgRadio1Test.cpp'
+                'OpenHome/TestCpProxies/CpAvOpenhomeOrgRadio1Test.cpp',
+                'OpenHome/TestCpProxies/ResultRecorder.cpp'
             ],
             use=['OHNET'],
             target='ohTopologyC')
@@ -212,6 +213,7 @@ def build(bld):
                 'OpenHome/Tests/TestTopology6.cpp',
                 'OpenHome/Tests/TestTopologyManual.cpp',
                 'OpenHome/Tests/TestShell.cpp',
+                'OpenHome/Tests/TestServiceRadio.cpp'
             ],
             use=['ohTopologyC'],
             target='ohTopologyCTestUtils')
@@ -265,6 +267,11 @@ def build(bld):
            source='OpenHome/Tests/TestShellMain.cpp',
            use=['OHNET', 'SHELL', 'ohTopologyC', 'ohTopologyCTestUtils'],
            target='TestShell')
+
+    bld.program(
+           source='OpenHome/Tests/TestServiceRadioMain.cpp',
+           use=['OHNET', 'SHELL', 'ohTopologyC', 'ohTopologyCTestUtils'],
+           target='TestServiceRadio')
 
 # Bundles
 def bundle(ctx):
