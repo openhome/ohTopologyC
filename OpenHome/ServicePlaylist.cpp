@@ -601,7 +601,11 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
 
         readListData->iRetrievedEntries = entries;
     }
-    catch(...)
+    catch (AssertionFailed&)
+    {
+        throw;
+    }
+    catch (Exception&)
     {
         readListData->iRetrievedEntries = NULL;
     }
@@ -724,15 +728,14 @@ void ServicePlaylistNetwork::EvaluateInfoNextCallback2(void* aReadEntriesData)
 void ServicePlaylistNetwork::EvaluateInfoNextCallback3(void* aReadEntriesData)
 {
     auto readEntriesData = (ReadEntriesData*)aReadEntriesData;
-
-    try
-    {
-        IIdCacheEntry* entry = (*readEntriesData->iRetrievedEntries)[0];
-        iInfoNext->Update(new InfoMetadata(&entry->Metadata(), entry->Uri()));
-    }
-    catch(...)
+    IIdCacheEntry* entry = (*readEntriesData->iRetrievedEntries)[0];
+    if (entry == NULL)
     {
         iInfoNext->Update(iNetwork.InfoMetadataEmpty());
+    }
+    else
+    {
+        iInfoNext->Update(new InfoMetadata(&entry->Metadata(), entry->Uri()));
     }
 }
 
