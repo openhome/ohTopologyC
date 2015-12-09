@@ -328,9 +328,12 @@ void IdCacheSession::Run()
             while (iFifoLo.SlotsUsed()>0)
             {
                 Job* job = iFifoLo.Read();
-                ASSERT(job != NULL);
-                job->Start();
-                iSemaJob.Wait();
+				if (job != NULL)
+				{
+					job->Start();
+					iSemaJob.Wait();
+				}
+                
             }
         }
     }
@@ -345,8 +348,12 @@ void IdCacheSession::Dispose()
 
     iFifoHi.ReadInterrupt();
     iFifoLo.ReadInterrupt();
-    iSemaQ.Signal();
-    //delete iThread; FIXME - deadlocks if deleted from here
+	iFifoLo.Write(NULL);
+	iSemaQ.Signal();
+
+	iThread->Join();
+
+    delete iThread; //FIXME - deadlocks if deleted from here
 
     delete iDisposeHandler;
 }
