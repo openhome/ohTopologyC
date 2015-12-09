@@ -74,7 +74,7 @@ void Service::Dispose()
     //iCancelSubscribe.Dispose();
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Service::DisposeCallback);
-    Schedule(f, NULL);
+    Execute(f, NULL);
 }
 
 
