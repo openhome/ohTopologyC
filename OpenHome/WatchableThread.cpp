@@ -22,7 +22,7 @@ WatchableThread::WatchableThread(IExceptionReporter& aReporter)
     ,iFree(kMaxFifoEntries)
     ,iScheduled(kMaxFifoEntries)
 {
-    iThread = new ThreadFunctor("WTHR", MakeFunctor(*this, &WatchableThread::Run) );
+    iThread = new ThreadFunctor("WatchableThread", MakeFunctor(*this, &WatchableThread::Run) );
 
     for (TUint i = 0; i < kMaxFifoEntries; i++)
     {

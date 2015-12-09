@@ -119,6 +119,7 @@ class IdCacheSession : public IIdCacheSession
 {
 public:
     IdCacheSession(TUint aSessionId, FunctorGeneric<ReadListData*> aFunction, IdCache* aCache);
+    ~IdCacheSession();
     virtual void Dispose();
     virtual void SetValid(std::vector<TUint>& aValid);
     virtual void Entries(ReadEntriesData* aReadEntriesData);
@@ -139,6 +140,7 @@ private:
 
     IdCache* iCache;
     Semaphore iSemaQ;
+    Semaphore iSemaJob;
     Fifo<Job*> iFifoHi;
     Fifo<Job*> iFifoLo;
     //Task iTask;

@@ -301,88 +301,51 @@ void IdCache::RemoveEntry()
 
 
 IdCacheSession::IdCacheSession(TUint aSessionId, FunctorGeneric<ReadListData*> aFunction, IdCache* aCache)
-    :iDisposeHandler(new DisposeHandler())
-    ,iSessionId(aSessionId)
-    ,iFunction(aFunction)  // radio/playlist ReadList method
-    ,iCache(aCache)
-    ,iSemaQ("IDCQ", 0)
-    ,iFifoHi(10)
-    ,iFifoLo(10)
-    ,iMutexQueueLow("IDCX")
+    : iDisposeHandler(new DisposeHandler())
+    , iSessionId(aSessionId)
+    , iFunction(aFunction)  // radio/playlist ReadList method
+    , iCache(aCache)
+    , iSemaQ("IDCQ", 0)
+    , iSemaJob("IDCJ", 0)
+    , iFifoHi(10)
+    , iFifoLo(10)
+    , iMutexQueueLow("IDCX")
 {
 
-    iThread = new ThreadFunctor("IDCT", MakeFunctor(*this, &IdCacheSession::Run) );
+    iThread = new ThreadFunctor("IdCacheSession", MakeFunctor(*this, &IdCacheSession::Run) );
     iThread->Start();
-
-/*
-    iTask = Task.Factory.StartNew(() =>
-    {
-        while (true)
-        {
-            int result = Semaphore.WaitAny(new WaitHandle[] { iSemaphoreHigh, iSemaphoreLow });
-            Task<IEnumerable<IIdCacheEntry>> job = null;
-            switch (result)
-            {
-                case 0:
-                    lock (iQueueHigh)
-                    {
-                        job = iQueueHigh.Dequeue();
-                    }
-                    break;
-                case 1:
-                    lock (iQueueLow)
-                    {
-                        job = iQueueLow.Dequeue();
-                    }
-                    break;
-                default:
-                    ASSERTS();
-                    //Do.Assert(true);
-                    break;
-            }
-
-            if (job != null)
-            {
-                job.Start();
-                try
-                {
-                    job.Wait();
-                }
-                catch
-                {
-                    // we just want to ensure task has completed - some other piece of code will handle the exception if required
-                }
-            }
-            else
-            {
-                break;
-            }
-        }
-    }, TaskCreationOptions.LongRunning);
-
-*/
 }
 
+IdCacheSession::~IdCacheSession()
+{
+}
 
 void IdCacheSession::Run()
 {
-    for(;;)
+    try
     {
-        iSemaQ.Wait();
-        while(iFifoHi.SlotsUsed()>0)
+        for (;;)
         {
-            Job* job = iFifoHi.Read();
-            job->Start();
-            // wait on Job completion ? (iSemaJob.Wait()??)
-        }
-        while(iFifoLo.SlotsUsed()>0 )
-        {
-            Job* job = iFifoLo.Read();
-            ASSERT(job != NULL);
-            job->Start();
-            // wait on Job completion ? (iSemaJob.Wait()??)
+            iSemaQ.Wait();
+            while (iFifoHi.SlotsUsed()>0)
+            {
+                Job* job = iFifoHi.Read();
+                job->Start();
+                iSemaJob.Wait();
+            }
+            while (iFifoLo.SlotsUsed()>0)
+            {
+                Job* job = iFifoLo.Read();
+				if (job != NULL)
+				{
+					job->Start();
+					iSemaJob.Wait();
+				}
+                
+            }
         }
     }
+    catch (FifoReadError&) {}
 }
 
 
@@ -391,13 +354,14 @@ void IdCacheSession::Dispose()
     iDisposeHandler->Dispose();
     iCache->DestroySession(iSessionId);
 
-    iMutexQueueLow.Wait();
-//    iFifoLo.Write(NULL);
-    iMutexQueueLow.Signal();
+    iFifoHi.ReadInterrupt();
+    iFifoLo.ReadInterrupt();
+	iFifoLo.Write(NULL);
+	iSemaQ.Signal();
 
-    iSemaQ.Signal();
+	iThread->Join();
 
-    //iTask.Wait();
+    delete iThread; 
 
     delete iDisposeHandler;
 }
@@ -510,7 +474,6 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
     ReadEntriesData* readEntriesData = (ReadEntriesData*)aReadEntriesData;
     vector<TUint>* reqIds = readEntriesData->iRequestedIds;
 
-
     auto entries = new vector<IIdCacheEntry*>();
     auto missingIds = new vector<TUint>();
 
@@ -535,6 +498,7 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
         {
             readEntriesData->iEntriesCallback(readEntriesData);
         }
+        iSemaJob.Signal();
         return;
     }
 
@@ -553,50 +517,7 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
         readEntriesData->iEntriesCallback(readEntriesData);
     }
 
-
-
-    //iFunction(missingIds, MakeFunctorGeneric(*this, &IdCacheSession::GetMissingEntries));
-
-
-/*
-    Task<IEnumerable<IIdCacheEntry>> task = new Task<IEnumerable<IIdCacheEntry>>(() =>
-    {
-        List<IIdCacheEntry> entries = new List<IIdCacheEntry>();
-        List<uint> ids = new List<uint>();
-
-        // find all entries currently in cache and build a list of ids required to be fetched
-        foreach (uint id in aIds)
-        {
-            IIdCacheEntry entry = iCache.Entry(iSessionId, id);
-            if (entry == null)
-            {
-                ids.Add(id);
-            }
-            entries.Add(entry);
-        }
-
-        if (ids.Count == 0) // found them all
-        {
-            return entries;
-        }
-
-        // fetch missing ids
-        IEnumerable<IIdCacheEntry> result = iFunction(ids).Result;
-
-        // add retrieved ids to cache
-        uint index = 0;
-        foreach (IIdCacheEntry e in result)
-        {
-            uint id = ids.ElementAt((int)index);
-            IIdCacheEntry entry = iCache.AddEntry(iSessionId, id, e);
-            entries[aIds.ToList().IndexOf(ids[(int)index])] = entry;
-            ++index;
-        }
-
-        return entries;
-*/
-
-
+    iSemaJob.Signal();
 }
 
 
