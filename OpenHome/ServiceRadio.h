@@ -11,7 +11,7 @@
 #include <OpenHome/Media.h>
 #include <OpenHome/IdCache.h>
 #include <OpenHome/AsyncAdaptor.h>
-#include <Generated/CpAvOpenhomeOrgRadio1.h>
+
 #include <vector>
 #include <memory>
 
