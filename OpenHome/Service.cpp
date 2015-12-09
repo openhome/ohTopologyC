@@ -1,7 +1,7 @@
 #include <OpenHome/Service.h>
 #include <OpenHome/Network.h>
 #include <OpenHome/Private/Thread.h>
-
+#include <memory>
 using namespace OpenHome;
 using namespace OpenHome::Topology;
 using namespace OpenHome::Net;
@@ -58,16 +58,16 @@ void Service::Dispose()
     OnUnsubscribe();
 
     iMutexSubscribe.Wait();
-    std::vector<ServiceCreateData*> subscriptionsData(iSubscriptionsData);
+    //std::vector<ServiceCreateData*> subscriptionsData(iSubscriptionsData);
     iSubscriptionsData.clear();
     iMutexSubscribe.Signal();
 
     iRefCount = 0;
 
-    for (TUint i=0; i<subscriptionsData.size(); i++)
-    {
-        delete subscriptionsData[i];
-    }
+    // for (TUint i=0; i<subscriptionsData.size(); i++)
+    // {
+    //     delete subscriptionsData[i];
+    // }
 
 
 
@@ -149,10 +149,10 @@ void Service::Create(FunctorGeneric<IProxy*> aCallback, IDevice* aDevice)
         else
         {
             // non mock, not yet subscribed - callback later when subscribe completes
-            auto serviceCreateData = new ServiceCreateData();
-            serviceCreateData->iDevice = aDevice;
+            std::unique_ptr<ServiceCreateData> serviceCreateData(new ServiceCreateData());
+            serviceCreateData->iDevice.reset(aDevice);
             serviceCreateData->iCallback = aCallback;
-            iSubscriptionsData.push_back(serviceCreateData);
+            iSubscriptionsData.push_back(std::move(serviceCreateData));
             iMutexSubscribe.Signal();
         }
     }
@@ -201,18 +201,18 @@ void Service::SubscribeCompletedCallback(void* /*aArgs*/)
 {
     ASSERT(!iMockSubscribe);
     iMutexSubscribe.Wait();
-    std::vector<ServiceCreateData*> subscriptionsData(iSubscriptionsData);
-    iSubscriptionsData.clear();
+    //std::vector<ServiceCreateData*> subscriptionsData(iSubscriptionsData);
+    //iSubscriptionsData.clear();
     iSubscribed = true;
     iMutexSubscribe.Signal();
 
-    for (TUint i=0; i<subscriptionsData.size(); i++)
+    for (auto it = iSubscriptionsData.begin(); it != iSubscriptionsData.end(); ++it)
     {
-        auto data = subscriptionsData[i];
-        data->iCallback(OnCreate(*(data->iDevice)));
-        delete data;
+        //auto data = subscriptionsData[i];
+        (*it)->iCallback(OnCreate(*((*it)->iDevice)));
+        //delete data;
     }
-
+    iSubscriptionsData.clear();
 /*
     if (t.Exception == NULL && !iCancelSubscribe.IsCancellationRequested)
     {
@@ -412,5 +412,3 @@ void Service::Execute()
 void Service::Execute(ICommandTokens& /*aCommand*/)
 {
 }
-
-

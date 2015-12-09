@@ -36,6 +36,14 @@ IdCache::IdCache(TUint aMaxCacheEntries)
 
 IdCache::~IdCache()
 {
+    for(auto it1 = iCache.begin(); it1 != iCache.end(); ++it1)
+    {
+        for(auto it2 = it1->second->begin(); it2 != it1->second->end(); ++it2)
+        {
+            delete it2->second;
+        }
+        delete it1->second;
+    }
     delete iDisposeHandler;
 }
 
@@ -662,7 +670,10 @@ IdCacheEntrySession::IdCacheEntrySession(TUint aSessionId, TUint aId, IIdCacheEn
 {
 }
 
-
+IdCacheEntrySession::~IdCacheEntrySession()
+{
+    delete iCacheEntry;
+}
 TUint IdCacheEntrySession::SessionId()
 {
     return(iSessionId);
