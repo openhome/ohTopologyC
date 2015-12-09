@@ -353,7 +353,7 @@ void IdCacheSession::Dispose()
 
 	iThread->Join();
 
-    delete iThread; //FIXME - deadlocks if deleted from here
+    delete iThread; 
 
     delete iDisposeHandler;
 }
