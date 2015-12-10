@@ -68,6 +68,7 @@ private:
   void TestCreateProxy();
   void WatchableThreadTests();
   void DoWatchableTests(void*);
+  void TestDispose();
 private:
     void FunctorCreate(IProxy* aProxy){
         TEST(aProxy != nullptr);
@@ -112,6 +113,7 @@ void SuiteServiceRadioNetwork::WatchableThreadTests()
 void SuiteServiceRadioNetwork::DoWatchableTests(void*)
 {
     TestCreateProxy();
+    TestDispose();
 }
 SuiteServiceRadioNetwork::SuiteServiceRadioNetwork()
   : SuiteUnitTest("SuiteServiceRadioNetwork")
@@ -131,6 +133,7 @@ SuiteServiceRadioNetwork::SuiteServiceRadioNetwork()
     AddTest(MakeFunctor(*this, &SuiteServiceRadioNetwork::TestSetId));
     AddTest(MakeFunctor(*this, &SuiteServiceRadioNetwork::TestSetChannel));
     AddTest(MakeFunctor(*this, &SuiteServiceRadioNetwork::WatchableThreadTests));
+
 }
 
 SuiteServiceRadioNetwork::~SuiteServiceRadioNetwork()
@@ -191,6 +194,10 @@ void SuiteServiceRadioNetwork::TestCreateProxy()
     iService->Create(MakeFunctorGeneric<IProxy*>(*this, &SuiteServiceRadioNetwork::FunctorCreate), dv.release());
 }
 
+void SuiteServiceRadioNetwork::TestDispose()
+{
+    iService->Dispose();
+}
 ///////////////////////////////////////////////////////////////
 
 void TestServiceRadio(std::vector<OpenHome::Brn>& /*aArgs*/)

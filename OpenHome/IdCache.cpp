@@ -318,6 +318,7 @@ IdCacheSession::IdCacheSession(TUint aSessionId, FunctorGeneric<ReadListData*> a
 
 IdCacheSession::~IdCacheSession()
 {
+    delete iDisposeHandler;
 }
 
 void IdCacheSession::Run()
@@ -341,7 +342,7 @@ void IdCacheSession::Run()
 					job->Start();
 					iSemaJob.Wait();
 				}
-                
+
             }
         }
     }
@@ -360,10 +361,8 @@ void IdCacheSession::Dispose()
 	iSemaQ.Signal();
 
 	iThread->Join();
+    delete iThread;
 
-    delete iThread; 
-
-    delete iDisposeHandler;
 }
 
 
