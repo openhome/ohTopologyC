@@ -139,7 +139,7 @@ IInjectorDevice& Service::Device()
 }
 
 
-void Service::Create(FunctorGeneric<IProxy*> aCallback, IDevice* aDevice)
+void Service::Create(FunctorGeneric<IProxy*> aCallback, IDevice& aDevice)
 {
     Assert(); // check we're on watchable thread
 
@@ -156,7 +156,7 @@ void Service::Create(FunctorGeneric<IProxy*> aCallback, IDevice* aDevice)
     if (iMockSubscribe)
     {
         // mock - callback immediately
-        aCallback(OnCreate(*aDevice));
+        aCallback(OnCreate(aDevice));
     }
     else
     {
@@ -165,12 +165,12 @@ void Service::Create(FunctorGeneric<IProxy*> aCallback, IDevice* aDevice)
         {
             // non mock, already subscribed - callback immediately
             iMutexSubscribe.Signal();
-            aCallback(OnCreate(*aDevice));
+            aCallback(OnCreate(aDevice));
         }
         else
         {
             // non mock, not yet subscribed - callback later when subscribe completes
-            ServiceCreateData serviceCreateData(aCallback, *aDevice);
+            ServiceCreateData serviceCreateData(aCallback, aDevice);
             iSubscriptionsData.push_back(serviceCreateData);
             iMutexSubscribe.Signal();
         }

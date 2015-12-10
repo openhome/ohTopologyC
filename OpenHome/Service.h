@@ -44,7 +44,7 @@ private:
 class IService : public IMockable, public IDisposable
 {
 public:
-    virtual void Create(FunctorGeneric<IProxy*>, IDevice* aDevice) = 0;
+    virtual void Create(FunctorGeneric<IProxy*>, IDevice& aDevice) = 0;
 };
 
 ////////////////////////////////////////////////
@@ -61,7 +61,7 @@ public:
     virtual IProxy* OnCreate(IDevice& aDevice) = 0;
 
     // IService
-    virtual void Create(FunctorGeneric<IProxy*> aCallback, IDevice* aDevice);
+    virtual void Create(FunctorGeneric<IProxy*> aCallback, IDevice& aDevice);
 
     // IWatchableThread
     virtual void Assert();

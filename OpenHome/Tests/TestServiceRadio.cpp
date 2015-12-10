@@ -182,7 +182,7 @@ void SuiteServiceRadioNetwork::TestSetChannel()
 void SuiteServiceRadioNetwork::TestCreateProxy()
 {
     iDevice = new TestDevice(*iRecorder);
-    iService->Create(MakeFunctorGeneric<IProxy*>(*this, &SuiteServiceRadioNetwork::FunctorCreate), iDevice);
+    iService->Create(MakeFunctorGeneric<IProxy*>(*this, &SuiteServiceRadioNetwork::FunctorCreate), *iDevice);
 }
 
 void SuiteServiceRadioNetwork::TestDispose()

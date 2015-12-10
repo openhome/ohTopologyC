@@ -274,7 +274,7 @@ void InjectorDevice::Create(FunctorGeneric<IProxy*> aCallback, EServiceType aSer
         //throw new ServiceNotFoundException("Cannot find service of type " + typeof(T) + " on " + iUdn);
     }
 
-    iServices[aServiceType]->Create(aCallback, &aDevice);
+    iServices[aServiceType]->Create(aCallback, aDevice);
 }
 
 
