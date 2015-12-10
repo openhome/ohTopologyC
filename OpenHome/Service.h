@@ -28,10 +28,15 @@ public:
 
 ////////////////////////////////////////////////
 
-struct ServiceCreateData
+class ServiceCreateData
 {
+public:
+    ServiceCreateData(FunctorGeneric<IProxy*>& aCallback, IDevice& aDevice);
+    IDevice& Device();
+    void RunCallback(IProxy* aProxy);
+private:
     FunctorGeneric<IProxy*> iCallback;
-    std::unique_ptr<IDevice> iDevice;
+    IDevice* iDevice;
 };
 
 ////////////////////////////////////////////////
@@ -106,7 +111,7 @@ private:
     IInjectorDevice& iDevice;
     Brn iUdn;
     TUint iRefCount;
-    std::vector<std::unique_ptr<ServiceCreateData>> iSubscriptionsData;
+    std::vector<ServiceCreateData> iSubscriptionsData;
     mutable Mutex iMutexSubscribe;
     TBool iMockSubscribe;
     TBool iSubscribed;

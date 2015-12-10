@@ -41,37 +41,39 @@ private:
 class SuiteServiceRadioNetwork : public TestFramework::SuiteUnitTest, public INonCopyable
 {
 public:
-  SuiteServiceRadioNetwork();
-  ~SuiteServiceRadioNetwork();
+    SuiteServiceRadioNetwork();
+    ~SuiteServiceRadioNetwork();
 private: //SuiteUnitTest
-  void Setup() override;
-  void TearDown() override;
+    void Setup() override;
+    void TearDown() override;
 private:
-  void FirstTest();
-  void TestPlay();
-  void TestPause();
-  void TestStop();
-  void TestSSAbsolute();
-  void TestSSRelative();
-  void TestSetId();
-  void TestSetChannel();
-  void TestCreateProxy();
-  void WatchableThreadTests();
-  void DoWatchableTests(void*);
-  void TestDispose();
+    void FirstTest();
+    void TestPlay();
+    void TestPause();
+    void TestStop();
+    void TestSSAbsolute();
+    void TestSSRelative();
+    void TestSetId();
+    void TestSetChannel();
+    void TestCreateProxy();
+    void WatchableThreadTests();
+    void DoWatchableTests(void*);
+    void TestDispose();
 private:
-    void FunctorCreate(IProxy* aProxy){
+    void FunctorCreate(IProxy* aProxy)
+    {
         TEST(aProxy != nullptr);
         delete aProxy;
     }
 private:
-  std::shared_ptr<ResultRecorder<CpProxyAvOpenhomeOrgRadio1Test::RadioEvent>> iRecorder;
-  std::unique_ptr<ILog> iLog;
-  std::unique_ptr<INetwork> iNetwork;
-  std::unique_ptr<IInjectorDevice> iInjectorDevice;
-  CpProxyAvOpenhomeOrgRadio1Test* iCp;
-  std::unique_ptr<ServiceRadioNetwork> iService;
-  std::vector<CpProxyAvOpenhomeOrgRadio1Test::RadioEvent> iExpected;
+    std::shared_ptr<ResultRecorder<CpProxyAvOpenhomeOrgRadio1Test::RadioEvent>> iRecorder;
+    std::unique_ptr<ILog> iLog;
+    std::unique_ptr<INetwork> iNetwork;
+    std::unique_ptr<IInjectorDevice> iInjectorDevice;
+    CpProxyAvOpenhomeOrgRadio1Test* iCp;
+    IDevice* iDevice;
+    std::unique_ptr<ServiceRadioNetwork> iService;
+    std::vector<CpProxyAvOpenhomeOrgRadio1Test::RadioEvent> iExpected;
 };
 
 }//TestServiceRadio
@@ -112,6 +114,7 @@ SuiteServiceRadioNetwork::SuiteServiceRadioNetwork()
   , iNetwork(new Network(50, *iLog))
   , iInjectorDevice(new InjectorDeviceTest(*iNetwork))
   , iCp(new CpProxyAvOpenhomeOrgRadio1Test(iRecorder))
+  , iDevice(NULL)
   , iService(new ServiceRadioNetwork(*iInjectorDevice, iCp, *iLog))
 {
     AddTest(MakeFunctor(*this, &SuiteServiceRadioNetwork::FirstTest));
@@ -180,13 +183,15 @@ void SuiteServiceRadioNetwork::TestSetChannel()
 
 void SuiteServiceRadioNetwork::TestCreateProxy()
 {
-    std::unique_ptr<IDevice> dv(new TestDevice(*iRecorder));
-    iService->Create(MakeFunctorGeneric<IProxy*>(*this, &SuiteServiceRadioNetwork::FunctorCreate), dv.release());
+    iDevice = new TestDevice(*iRecorder);
+    iService->Create(MakeFunctorGeneric<IProxy*>(*this, &SuiteServiceRadioNetwork::FunctorCreate), iDevice);
 }
 
 void SuiteServiceRadioNetwork::TestDispose()
 {
     iService->Dispose();
+    delete iDevice;
+    iDevice = NULL;
 }
 ///////////////////////////////////////////////////////////////
 

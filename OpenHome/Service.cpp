@@ -8,6 +8,28 @@ using namespace OpenHome::Net;
 using namespace std;
 
 
+// ServiceCreateData
+
+ServiceCreateData::ServiceCreateData(FunctorGeneric<IProxy*>& aCallback, IDevice& aDevice)
+    : iCallback(aCallback)
+    , iDevice(&aDevice)
+{
+    ASSERT(iDevice != NULL);
+}
+
+IDevice& ServiceCreateData::Device()
+{
+    return *iDevice;
+}
+
+void ServiceCreateData::RunCallback(IProxy* aProxy)
+{
+    iCallback(aProxy);
+}
+
+
+// Service
+
 Service::Service(IInjectorDevice& aDevice, ILog& aLog)
     :iNetwork(aDevice.Network())
     ,iLog(aLog)
@@ -23,7 +45,6 @@ Service::Service(IInjectorDevice& aDevice, ILog& aLog)
     ,iMutexSemas("SSMX")
 {
 }
-
 
 Service::~Service()
 {
@@ -149,10 +170,8 @@ void Service::Create(FunctorGeneric<IProxy*> aCallback, IDevice* aDevice)
         else
         {
             // non mock, not yet subscribed - callback later when subscribe completes
-            std::unique_ptr<ServiceCreateData> serviceCreateData(new ServiceCreateData());
-            serviceCreateData->iDevice.reset(aDevice);
-            serviceCreateData->iCallback = aCallback;
-            iSubscriptionsData.push_back(std::move(serviceCreateData));
+            ServiceCreateData serviceCreateData(aCallback, *aDevice);
+            iSubscriptionsData.push_back(serviceCreateData);
             iMutexSubscribe.Signal();
         }
     }
@@ -209,7 +228,8 @@ void Service::SubscribeCompletedCallback(void* /*aArgs*/)
     for (auto it = iSubscriptionsData.begin(); it != iSubscriptionsData.end(); ++it)
     {
         //auto data = subscriptionsData[i];
-        (*it)->iCallback(OnCreate(*((*it)->iDevice)));
+        auto proxy = OnCreate((*it).Device());
+        (*it).RunCallback(proxy);
         //delete data;
     }
     iSubscriptionsData.clear();
