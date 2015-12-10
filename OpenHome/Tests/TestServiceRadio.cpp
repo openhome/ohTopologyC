@@ -190,7 +190,7 @@ void SuiteServiceRadioNetwork::TestDispose()
 }
 ///////////////////////////////////////////////////////////////
 
-void TestServiceRadio(std::vector<OpenHome::Brn>& /*aArgs*/)
+void TestServiceRadio()
 {
   Runner runner("ServiceRadio tests\n");
   runner.Add(new SuiteServiceRadioNetwork());

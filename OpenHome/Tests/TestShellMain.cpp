@@ -49,7 +49,7 @@ static void ShellTestTopology6(CpStack& aCpStack, DvStack& /*aDvStack*/, const s
     TestTopology6(aCpStack.Env(), aArgs);
 }
 
-
+SIMPLE_TEST_DECLARATION(TestServiceRadio);
 
 void OpenHome::TestFramework::Runner::Main(TInt /*aArgc*/, TChar* /*aArgv*/[], Net::InitialisationParams* aInitParams)
 {
@@ -62,6 +62,7 @@ void OpenHome::TestFramework::Runner::Main(TInt /*aArgc*/, TChar* /*aArgv*/[], N
     //shellTests.push_back(ShellTest("TestTopology4", ShellTestTopology4));
     shellTests.push_back(ShellTest("TestTopology5", ShellTestTopology5));
     shellTests.push_back(ShellTest("TestTopology6", ShellTestTopology6));
+    shellTests.push_back(ShellTest("TestServiceRadio", ShellTestServiceRadio));
 
     OpenHome::ExecuteTestShell(aInitParams, shellTests);
 }
