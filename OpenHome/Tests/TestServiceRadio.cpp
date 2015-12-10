@@ -21,9 +21,9 @@ public:
 public:
     Brn Udn() { return Brn(iUdn); }
     void Create(FunctorGeneric<IProxy*> /*aCallback*/, EServiceType /*aService*/)
-        {
-            iRecorder.Record(CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eDeviceCreate);
-        }
+    {
+        iRecorder.Record(CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eDeviceCreate);
+    }
     void Join(Functor /*aAction*/)
     {
         iRecorder.Record(CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eDeviceJoin);
@@ -86,7 +86,6 @@ using namespace TestFramework;
 using namespace Net;
 void SuiteServiceRadioNetwork::Setup()
 {
-
 }
 
 void SuiteServiceRadioNetwork::TearDown()
@@ -108,14 +107,14 @@ void SuiteServiceRadioNetwork::DoWatchableTests(void*)
     TestDispose();
 }
 SuiteServiceRadioNetwork::SuiteServiceRadioNetwork()
-  : SuiteUnitTest("SuiteServiceRadioNetwork")
-  , iRecorder(new ResultRecorder<CpProxyAvOpenhomeOrgRadio1Test::RadioEvent>())
-  , iLog(new LogDummy())
-  , iNetwork(new Network(50, *iLog))
-  , iInjectorDevice(new InjectorDeviceTest(*iNetwork))
-  , iCp(new CpProxyAvOpenhomeOrgRadio1Test(iRecorder))
-  , iDevice(NULL)
-  , iService(new ServiceRadioNetwork(*iInjectorDevice, iCp, *iLog))
+    : SuiteUnitTest("SuiteServiceRadioNetwork")
+    , iRecorder(new ResultRecorder<CpProxyAvOpenhomeOrgRadio1Test::RadioEvent>())
+    , iLog(new LogDummy())
+    , iNetwork(new Network(50, *iLog))
+    , iInjectorDevice(new InjectorDeviceTest(*iNetwork))
+    , iCp(new CpProxyAvOpenhomeOrgRadio1Test(iRecorder))
+    , iDevice(NULL)
+    , iService(new ServiceRadioNetwork(*iInjectorDevice, iCp, *iLog))
 {
     AddTest(MakeFunctor(*this, &SuiteServiceRadioNetwork::FirstTest));
     AddTest(MakeFunctor(*this, &SuiteServiceRadioNetwork::TestPlay));
@@ -131,34 +130,33 @@ SuiteServiceRadioNetwork::SuiteServiceRadioNetwork()
 
 SuiteServiceRadioNetwork::~SuiteServiceRadioNetwork()
 {
-
 }
 void SuiteServiceRadioNetwork::FirstTest()
 {
-  iExpected = { CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eSetPropertyIdChanged, CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eSetPropertyIdArrayChanged, CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eSetPropertyMetadataChanged, CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eSetPropertyTransportStateChanged };
+    iExpected = { CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eSetPropertyIdChanged, CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eSetPropertyIdArrayChanged, CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eSetPropertyMetadataChanged, CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eSetPropertyTransportStateChanged };
 }
 void SuiteServiceRadioNetwork::TestPlay()
 {
-  iExpected = {CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eBeginPlay};
-  iService->Play();
+    iExpected = {CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eBeginPlay};
+    iService->Play();
 }
 
 void SuiteServiceRadioNetwork::TestPause()
 {
-  iExpected = { CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eBeginPause };
-  iService->Pause();
+    iExpected = { CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eBeginPause };
+    iService->Pause();
 }
 
 void SuiteServiceRadioNetwork::TestStop()
 {
-  iExpected = { CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eBeginStop };
-  iService->Stop();
+    iExpected = { CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eBeginStop };
+    iService->Stop();
 }
 
 void SuiteServiceRadioNetwork::TestSSAbsolute()
 {
-  iExpected = { CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eBeginSeekSecondAbsolute };
-  iService->SeekSecondAbsolute(1);
+    iExpected = { CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eBeginSeekSecondAbsolute };
+    iService->SeekSecondAbsolute(1);
 }
 
 void SuiteServiceRadioNetwork::TestSSRelative()
@@ -197,7 +195,7 @@ void SuiteServiceRadioNetwork::TestDispose()
 
 void TestServiceRadio()
 {
-  Runner runner("ServiceRadio tests\n");
-  runner.Add(new SuiteServiceRadioNetwork());
-  runner.Run();
+    Runner runner("ServiceRadio tests\n");
+    runner.Add(new SuiteServiceRadioNetwork());
+    runner.Run();
 }
