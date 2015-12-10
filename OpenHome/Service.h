@@ -7,7 +7,7 @@
 #include <OpenHome/Private/Thread.h>
 
 #include <vector>
-
+#include <memory>
 EXCEPTION(ServiceNotFoundException)
 
 namespace OpenHome
@@ -31,7 +31,7 @@ public:
 struct ServiceCreateData
 {
     FunctorGeneric<IProxy*> iCallback;
-    IDevice* iDevice;
+    std::unique_ptr<IDevice> iDevice;
 };
 
 ////////////////////////////////////////////////
@@ -106,7 +106,7 @@ private:
     IInjectorDevice& iDevice;
     Brn iUdn;
     TUint iRefCount;
-    std::vector<ServiceCreateData*> iSubscriptionsData;
+    std::vector<std::unique_ptr<ServiceCreateData>> iSubscriptionsData;
     mutable Mutex iMutexSubscribe;
     TBool iMockSubscribe;
     TBool iSubscribed;

@@ -131,7 +131,7 @@ ServiceRadio::ServiceRadio(IInjectorDevice& aDevice, ILog& aLog)
     ,iId(new Watchable<TUint>(iNetwork, Brn("Id"), 0))
     ,iTransportState(new Watchable<Brn>(iNetwork, Brn("TransportState"), Brx::Empty()))
     ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iNetwork.InfoMetadataEmpty()))
-    ,iMediaSupervisor(NULL)
+    ,iMediaSupervisor(nullptr)
     ,iCurrentTransportState(NULL)
     ,iChannelsMax(0)
 {
@@ -139,11 +139,10 @@ ServiceRadio::ServiceRadio(IInjectorDevice& aDevice, ILog& aLog)
 
 ServiceRadio::~ServiceRadio()
 {
+    delete iCurrentTransportState;
     delete iId;
     delete iTransportState;
     delete iMetadata;
-    delete iCurrentTransportState;
-
 }
 
 void ServiceRadio::Dispose()
@@ -231,7 +230,7 @@ TBool ServiceRadioNetwork::OnSubscribe()
     iCacheSession = std::move(iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioNetwork::ReadList)));
 
     auto snapshot = new RadioSnapshot(iNetwork, *iCacheSession, new vector<TUint>(), *this);
-    iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, snapshot);
+    iMediaSupervisor.reset(new MediaSupervisor<IMediaPreset*>(iNetwork, snapshot));
     iService->Subscribe();
     iSubscribed = true;
     return(false); // false = not mock
@@ -591,7 +590,7 @@ TBool ServiceRadioMock::OnSubscribe()
 
     iCacheSession->SetValid(*iIdArray);
 
-    iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, new RadioSnapshot(iNetwork, *iCacheSession, iIdArray, *this));
+    iMediaSupervisor.reset(new MediaSupervisor<IMediaPreset*>(iNetwork, new RadioSnapshot(iNetwork, *iCacheSession, iIdArray, *this)));
     return true; //true = is mock
 }
 
@@ -733,9 +732,14 @@ void ServiceRadioMock::Execute(ICommandTokens& aValue)
 RadioSnapshot::RadioSnapshot(INetwork& aNetwork, IIdCacheSession& aCacheSession, vector<TUint>* aIdArray, ServiceRadio& aRadio)
     :iNetwork(aNetwork)
     ,iCacheSession(aCacheSession)
-    ,iIdArray(aIdArray)
+    ,iIdArray(std::move(aIdArray))
     ,iRadio(aRadio)
 {
+}
+
+RadioSnapshot::~RadioSnapshot()
+{
+
 }
 
 TUint RadioSnapshot::Total()

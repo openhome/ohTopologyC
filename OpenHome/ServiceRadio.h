@@ -119,7 +119,7 @@ protected:
     Watchable<TUint>* iId;
     Watchable<Brn>* iTransportState;
     Watchable<IInfoMetadata*>* iMetadata;
-    MediaSupervisor<IMediaPreset*>* iMediaSupervisor;
+    std::unique_ptr<MediaSupervisor<IMediaPreset*>> iMediaSupervisor;
     Bws<100>* iCurrentTransportState;
     TUint iChannelsMax;
 };
@@ -210,6 +210,7 @@ class RadioSnapshot : public IMediaClientSnapshot<IMediaPreset*>, public INonCop
 {
 public:
     RadioSnapshot(INetwork& aNetwork, IIdCacheSession& aCacheSession, std::vector<TUint>* aIdArray, ServiceRadio& aRadio);
+    ~RadioSnapshot();
     TUint Total();
     std::vector<TUint>* Alpha();
     void Read(/*CancellationToken aCancellationToken,*/ TUint aIndex, TUint aCount, FunctorGeneric<std::vector<IMediaPreset*>*> aCallback);
@@ -222,7 +223,7 @@ private:
 private:
     INetwork& iNetwork;
     IIdCacheSession& iCacheSession;
-    std::vector<TUint>* iIdArray;
+    std::unique_ptr<std::vector<TUint>> iIdArray;
     ServiceRadio& iRadio;
 };
 

@@ -4,13 +4,12 @@
 
 using namespace OpenHome;
 
-extern void TestServiceRadio(std::vector<Brn>& aArgs);
+extern void TestServiceRadio();
 
-void OpenHome::TestFramework::Runner::Main(TInt aArgc, TChar* aArgv[], Net::InitialisationParams* aInitParams)
+void OpenHome::TestFramework::Runner::Main(TInt /*aArgc*/, TChar* /*aArgv*/[], Net::InitialisationParams* aInitParams)
 {
   Net::UpnpLibrary::InitialiseMinimal(aInitParams);
-  std::vector<Brn> args = OptionParser::ConvertArgs(aArgc, aArgv);
-  TestServiceRadio(args);
+  TestServiceRadio();
   delete aInitParams;
   Net::UpnpLibrary::Close();
 }

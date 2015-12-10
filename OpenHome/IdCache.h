@@ -48,6 +48,7 @@ class IIdCacheEntry
 public:
     virtual IMediaMetadata& Metadata() = 0;
     virtual const Brx& Uri() = 0;
+    virtual ~IIdCacheEntry() {}
 };
 
 //////////////////////////////////////////
@@ -57,6 +58,7 @@ class IIdCacheSession : public IDisposable
 public:
     virtual void SetValid(std::vector<TUint>& aValid) = 0;
     virtual void Entries(ReadEntriesData* aReadEntriesData) = 0;
+    virtual ~IIdCacheSession() {}
 
 };
 
@@ -152,6 +154,7 @@ class IdCacheEntry : public IIdCacheEntry
 {
 public:
     IdCacheEntry(IMediaMetadata* aMetadata, const Brx& aUri);
+    ~IdCacheEntry() {}
     virtual IMediaMetadata& Metadata();
     virtual const Brx& Uri();
 
@@ -166,6 +169,7 @@ class IdCacheEntrySession : public IIdCacheEntry
 {
 public:
     IdCacheEntrySession(TUint aSessionId, TUint aId, IIdCacheEntry* aCacheEntry);
+    ~IdCacheEntrySession();
     virtual TUint SessionId();
     virtual TUint Id();
     virtual IMediaMetadata& Metadata();

@@ -7,6 +7,7 @@
 #include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/FunctorAsync.h>
 #include <OpenHome/MetaData.h>
+#include <OpenHome/Private/Printer.h>
 
 #include <vector>
 #include <memory>
@@ -25,6 +26,7 @@ public:
     virtual IWatchable<TBool>& Playing() = 0;
     virtual IWatchable<TBool>& Selected() = 0;
     virtual void Play() = 0;
+    virtual ~IMediaPreset() {}
 };
 
 /////////////////////////////////////////////////////////
@@ -34,6 +36,8 @@ class IWatchableFragment
 public:
     virtual TUint Index() = 0;
     virtual std::vector<T>& Data() = 0;
+    virtual ~IWatchableFragment() {}
+
 };
 
 /////////////////////////////////////////////////////////
@@ -46,6 +50,7 @@ public:
     virtual std::vector<TUint>* Alpha() = 0; // null if no alpha map
     //virtual void Read(TUint aIndex, TUint aCount, CancellationToken aCancellationToken, Action<IWatchableFragment<T>> aCallback) = 0;
     virtual void Read(TUint aIndex, TUint aCount, /*CancellationToken aCancellationToken,*/ FunctorGeneric<IWatchableFragment<T>*> aCallback) = 0;
+    virtual ~IWatchableSnapshot() {}
 };
 
 /////////////////////////////////////////////////////////
@@ -55,6 +60,8 @@ class IWatchableContainer
 {
 public:
     virtual IWatchable<IWatchableSnapshot<T>*>& Snapshot() = 0;
+    virtual ~IWatchableContainer() {}
+
 };
 
 /////////////////////////////////////////////////////////
@@ -67,6 +74,8 @@ public:
     virtual std::vector<TUint>* Alpha() = 0; // null if no alpha map
     //virtual void Read(CancellationToken& aToken, TUint aIndex, TUint aCount, Action<IEnumerable<T>> aCallback) = 0;
     virtual void Read(/*CancellationToken& aToken,*/ TUint aIndex, TUint aCount, FunctorGeneric<std::vector<T>*> aCallback) = 0;
+    virtual ~IMediaClientSnapshot() {}
+
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,13 +86,15 @@ class MediaSupervisor : public IDisposable
 {
 public:
     MediaSupervisor(IWatchableThread& aThread, IMediaClientSnapshot<T>* aClientSnapshot);
+    ~MediaSupervisor();
     void Dispose();
     Watchable<IWatchableSnapshot<T>*>& Snapshot();
     void Update(IMediaClientSnapshot<T>* aClientSnapshot);
 
 private:
     //CancellationTokenSource* iCancellationTokenSource;
-    Watchable<IWatchableSnapshot<T>*>* iSnapshot;
+    IWatchableSnapshot<T>* iSnapshotVal;
+    std::unique_ptr<Watchable<IWatchableSnapshot<T>*>> iSnapshot;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,7 +105,7 @@ class MediaSnapshot : public IWatchableSnapshot<T>, public IDisposable
 {
 public:
     MediaSnapshot(/*CancellationToken& aCancellationToken,*/ IMediaClientSnapshot<T>* aSnapshot);
-
+    ~MediaSnapshot();
     // IWatchableSnapshot<IMediaPreset>
     TUint Total();
     std::vector<TUint>* Alpha();
@@ -120,7 +131,7 @@ class WatchableFragment : public IWatchableFragment<T>
 {
 public:
     WatchableFragment(TUint aIndex, std::vector<T>& aData);
-
+    ~WatchableFragment();
     // IWatchableFragment<T>
     TUint Index();
     std::vector<T>& Data();
@@ -135,18 +146,24 @@ private:
 template <class T>
 MediaSupervisor<T>::MediaSupervisor(IWatchableThread& aThread, IMediaClientSnapshot<T>* aClientSnapshot)
     //:iCancellationTokenSource(new CancellationTokenSource())
-    :iSnapshot(new Watchable<IWatchableSnapshot<T>*>(aThread, Brn("Snapshot"), new MediaSnapshot<T>(/*iCancellationTokenSource.Token,*/ aClientSnapshot)))
+    : iSnapshotVal(new MediaSnapshot<T>(/*iCancellationTokenSource.Token,*/ aClientSnapshot))
+    , iSnapshot(new Watchable<IWatchableSnapshot<T>*>(aThread, Brn("Snapshot"), iSnapshotVal))
 {
 }
 
+template <class T>
+MediaSupervisor<T>::~MediaSupervisor()
+{
+    delete iSnapshotVal;
+}
 
 template <class T>
 void MediaSupervisor<T>::Dispose()
 {
     //iCancellationTokenSource.Cancel();
-    MediaSnapshot<T>* snapshot = (MediaSnapshot<T>*)iSnapshot->Value();
-    iSnapshot->Dispose();
+    MediaSnapshot<T>* snapshot = (MediaSnapshot<T>*)iSnapshotVal;
     snapshot->Dispose();
+    iSnapshot->Dispose();
     //iCancellationTokenSource.Dispose();
 }
 
@@ -180,6 +197,11 @@ MediaSnapshot<T>::MediaSnapshot(/*CancellationToken& aCancellationToken,*/ IMedi
 }
 
 // IWatchableSnapshot<IMediaPreset>
+template <class T>
+MediaSnapshot<T>::~MediaSnapshot()
+{
+    delete iSnapshot;
+}
 
 template <class T>
 TUint MediaSnapshot<T>::Total()
@@ -257,6 +279,12 @@ WatchableFragment<T>::WatchableFragment(TUint aIndex, std::vector<T>& aData)
 }
 
 // IWatchableFragment<T>
+
+template <class T>
+WatchableFragment<T>::~WatchableFragment()
+{
+
+}
 
 template <class T>
 TUint WatchableFragment<T>::Index()
