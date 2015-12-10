@@ -88,7 +88,10 @@ public:
     eAddProperty,
     eDestroyService,
     eReportEvent,
-    eVersion
+    eVersion,
+    eDeviceCreate,
+    eDeviceJoin,
+    eDeviceUnjoin
   };
 public:
     CpProxyAvOpenhomeOrgRadio1Test(std::shared_ptr<ResultRecorder<RadioEvent>> aRecorder);

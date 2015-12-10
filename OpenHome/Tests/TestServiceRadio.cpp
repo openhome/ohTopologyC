@@ -13,16 +13,6 @@ namespace OpenHome{
 namespace Topology{
 namespace TestServiceRadio{
 
-class ExceptionReporterNull : public OpenHome::IExceptionReporter
-{
-public:
-    ExceptionReporterNull(){}
-    ~ExceptionReporterNull(){}
-private:
-    void Report(OpenHome::Exception& /*aException*/){}
-    void Report(std::exception& /*aException*/){}
-};
-
 class TestDevice : public IDevice
 {
 public:
@@ -32,15 +22,15 @@ public:
     Brn Udn() { return Brn(iUdn); }
     void Create(FunctorGeneric<IProxy*> /*aCallback*/, EServiceType /*aService*/)
         {
-
+            iRecorder.Record(CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eDeviceCreate);
         }
     void Join(Functor /*aAction*/)
     {
-
+        iRecorder.Record(CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eDeviceJoin);
     }
     void Unjoin(Functor /*aAction*/)
     {
-
+        iRecorder.Record(CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eDeviceUnjoin);
     }
 private:
     ResultRecorder<CpProxyAvOpenhomeOrgRadio1Test::RadioEvent>& iRecorder;
@@ -204,7 +194,5 @@ void TestServiceRadio(std::vector<OpenHome::Brn>& /*aArgs*/)
 {
   Runner runner("ServiceRadio tests\n");
   runner.Add(new SuiteServiceRadioNetwork());
-  ExceptionReporterNull er;
-  WatchableThread thread(er);
   runner.Run();
 }
