@@ -425,7 +425,7 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
         if (Ascii::Uint(value) == 1)
         {
 
-            device->Add(eProxyRadio, new ServiceRadioNetwork(*device, std::unique_ptr<CpProxyAvOpenhomeOrgRadio1>(new CpProxyAvOpenhomeOrgRadio1(*aDevice)), iLog));
+            device->Add(eProxyRadio, new ServiceRadioNetwork(*device, new CpProxyAvOpenhomeOrgRadio1(*aDevice), iLog));
         }
     }
 

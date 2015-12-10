@@ -78,7 +78,7 @@ private:
   std::unique_ptr<ILog> iLog;
   std::unique_ptr<INetwork> iNetwork;
   std::unique_ptr<IInjectorDevice> iInjectorDevice;
-  std::unique_ptr<CpProxyAvOpenhomeOrgRadio1Test> iCp;
+  CpProxyAvOpenhomeOrgRadio1Test* iCp;
   std::unique_ptr<ServiceRadioNetwork> iService;
   std::vector<CpProxyAvOpenhomeOrgRadio1Test::RadioEvent> iExpected;
 };
@@ -120,7 +120,7 @@ SuiteServiceRadioNetwork::SuiteServiceRadioNetwork()
   , iNetwork(new Network(50, *iLog))
   , iInjectorDevice(new InjectorDeviceTest(*iNetwork))
   , iCp(new CpProxyAvOpenhomeOrgRadio1Test(iRecorder))
-  , iService(new ServiceRadioNetwork(*iInjectorDevice, std::move(iCp), *iLog))
+  , iService(new ServiceRadioNetwork(*iInjectorDevice, iCp, *iLog))
 {
     AddTest(MakeFunctor(*this, &SuiteServiceRadioNetwork::FirstTest));
     AddTest(MakeFunctor(*this, &SuiteServiceRadioNetwork::TestPlay));

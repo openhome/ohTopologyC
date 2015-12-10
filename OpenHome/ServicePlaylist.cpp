@@ -257,9 +257,9 @@ ServicePlaylistNetwork::ServicePlaylistNetwork(IInjectorDevice& aDevice, CpProxy
 }
 
 
-
 ServicePlaylistNetwork::~ServicePlaylistNetwork()
 {
+    delete iService;
 }
 
 

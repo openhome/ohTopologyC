@@ -129,7 +129,7 @@ protected:
 class ServiceRadioNetwork : public ServiceRadio
 {
 public:
-    ServiceRadioNetwork(IInjectorDevice& aDevice, std::unique_ptr<Net::ICpProxyAvOpenhomeOrgRadio1> aService, ILog& aLog); //ICpProxyAvOpenhomeOrgRadio1* and ICpProxy* must be wrapped in shared_ptr
+    ServiceRadioNetwork(IInjectorDevice& aDevice, Net::ICpProxyAvOpenhomeOrgRadio1* aService, ILog& aLog); //ICpProxyAvOpenhomeOrgRadio1* and ICpProxy* must be wrapped in shared_ptr
     ~ServiceRadioNetwork();
 
     void Dispose();
@@ -166,11 +166,13 @@ private:
     void HandleTransportStateChangedCallback2(void*);
 
 private:
-    std::unique_ptr<Net::ICpProxyAvOpenhomeOrgRadio1> iService;
+    Net::ICpProxyAvOpenhomeOrgRadio1* iService;
     std::unique_ptr<IIdCacheSession> iCacheSession;
     TBool iSubscribed;
 };
+
 //////////////////////////////////////////////////////////////////
+
 class ServiceRadioMock : public ServiceRadio
 {
 public:

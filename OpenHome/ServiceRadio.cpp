@@ -192,9 +192,9 @@ const Brx& ServiceRadio::ProtocolInfo()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ServiceRadioNetwork::ServiceRadioNetwork(IInjectorDevice& aDevice, std::unique_ptr<Net::ICpProxyAvOpenhomeOrgRadio1> aService, ILog& aLog)
+ServiceRadioNetwork::ServiceRadioNetwork(IInjectorDevice& aDevice, Net::ICpProxyAvOpenhomeOrgRadio1* aService, ILog& aLog)
     :ServiceRadio(aDevice, aLog)
-    ,iService(std::move(aService))
+    ,iService(aService)
     ,iCacheSession(nullptr)
     ,iSubscribed(false)
 {
@@ -216,6 +216,7 @@ ServiceRadioNetwork::ServiceRadioNetwork(IInjectorDevice& aDevice, std::unique_p
 
 ServiceRadioNetwork::~ServiceRadioNetwork()
 {
+    delete iService;
 }
 
 void ServiceRadioNetwork::Dispose()

@@ -46,6 +46,7 @@ class ServiceTimeNetwork : public ServiceTime
 {
 public:
     ServiceTimeNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgTime1* aService, ILog& aLog);
+    ~ServiceTimeNetwork();
     void Dispose();
 
 protected:

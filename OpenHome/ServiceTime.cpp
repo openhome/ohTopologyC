@@ -72,6 +72,11 @@ ServiceTimeNetwork::ServiceTimeNetwork(IInjectorDevice& aDevice, Net::CpProxyAvO
 }
 
 
+ServiceTimeNetwork::~ServiceTimeNetwork()
+{
+    delete iService;
+}
+
 void ServiceTimeNetwork::Dispose()
 {
     ServiceTime::Dispose();
