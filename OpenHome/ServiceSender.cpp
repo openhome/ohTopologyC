@@ -253,8 +253,8 @@ void ServiceSenderNetwork::StatusChangedCallback2(void*)
         Brhz status;
         iService->PropertyStatus(status);
 
-        Bws<100>* oldStatus = iCurrentStatus;
-        Bws<100>* iCurrentStatus = new Bws<100>(status);
+        auto oldStatus = iCurrentStatus;
+        iCurrentStatus = new Bws<100>(status);
 
         iStatus->Update(Brn(*iCurrentStatus));
         delete oldStatus;

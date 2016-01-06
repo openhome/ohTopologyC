@@ -32,9 +32,8 @@ ServiceReceiver::~ServiceReceiver()
     if (iCurrentMetadata!=iNetwork.InfoMetadataEmpty())
     {
         delete iCurrentMetadata;
-   }
+    }
     delete iCurrentTransportState;
-
 }
 
 void ServiceReceiver::Dispose()
@@ -209,10 +208,10 @@ void ServiceReceiverNetwork::MetadataChangedCallback2(void* aInfoMetadata)
         IInfoMetadata* oldmetadata = iCurrentMetadata;
         iCurrentMetadata = infoMetadata;
         iMetadata->Update(iCurrentMetadata);
-				if(oldmetadata != iNetwork.InfoMetadataEmpty())
-				{
-					delete oldmetadata;
-				}
+                if(oldmetadata != iNetwork.InfoMetadataEmpty())
+                {
+                    delete oldmetadata;
+                }
     }
 }
 
@@ -239,8 +238,8 @@ void ServiceReceiverNetwork::TransportChangedCallback2(void*)
         Brhz transportState;
         iService->PropertyTransportState(transportState);
 
-        Bws<100>* oldTransportState = iCurrentTransportState;
-        Bws<100>* iCurrentTransportState = new Bws<100>(transportState);
+        auto oldTransportState = iCurrentTransportState;
+        iCurrentTransportState = new Bws<100>(transportState);
 
         iTransportState->Update(Brn(*iCurrentTransportState));
         delete oldTransportState;

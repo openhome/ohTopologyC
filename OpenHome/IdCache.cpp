@@ -273,7 +273,7 @@ IIdCacheEntry* IdCache::AddEntry(TUint aSessionId, TUint aId, IIdCacheEntry* aEn
     IdCacheEntrySession* entry = NULL;
     if (iCache[aSessionId]->count(aId) == 0)
     {
-        /*IdCacheEntrySession&*/ entry = new IdCacheEntrySession(aSessionId, aId, aEntry);
+        entry = new IdCacheEntrySession(aSessionId, aId, aEntry);
 
         if (iCacheEntries == iMaxCacheEntries)
         {
