@@ -279,9 +279,11 @@ def bundle(ctx):
     header_files = gather_files(ctx, '{top}', ['OpenHome/**/*.h'])
     lib_names = ['ohTopologyC']
     lib_files = gather_files(ctx, '{bld}', (ctx.env.cxxstlib_PATTERN % x for x in lib_names))
+    dep_file = gather_files(ctx, '{top}/projectdata', ['dependencies.json'])
     bundle_dev_files = build_tree({
         'ohTopologyC/lib' : lib_files,
-        'ohTopologyC/include' : header_files
+        'ohTopologyC/include' : header_files,
+        'ohTopologyC' : dep_file
         })
     bundle_dev_files.create_tgz_task(ctx, 'ohTopologyC.tar.gz')
 
