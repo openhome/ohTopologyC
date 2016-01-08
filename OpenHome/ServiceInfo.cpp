@@ -244,7 +244,10 @@ void ServiceInfoNetwork::HandleDetailsChangedCallback2(void*)
         auto oldDetails = iCurrentDetails;
         iCurrentDetails = new InfoDetails(bitDepth, bitRate, codec, duration, lossless, sampleRate);
         iDetails->Update(iCurrentDetails);
-        delete oldDetails;
+        if (oldDetails!=iNetwork.InfoDetailsEmpty())
+        {
+            delete oldDetails;
+        }
 
         iDetailsChanged = false;
     }
@@ -280,7 +283,11 @@ void ServiceInfoNetwork::HandleMetadataChangedCallback2(void*)
         auto oldMetadata = iCurrentMetadata;
         iCurrentMetadata = new InfoMetadata(metadata, uri);
         iMetadata->Update(iCurrentMetadata);
-        delete oldMetadata;
+
+        if(oldMetadata!=iNetwork.InfoMetadataEmpty())
+        {
+            delete oldMetadata;
+        }
     }
 }
 
@@ -309,7 +316,10 @@ void ServiceInfoNetwork::HandleMetatextChangedCallback2(void*)
         IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metatextstr);
         iCurrentMetatext = new InfoMetatext(metadata);
         iMetatext->Update(iCurrentMetatext);
-        delete oldMetatext;
+        if(oldMetatext!=iNetwork.InfoMetatextEmpty())
+        {
+            delete oldMetatext;
+        }
     }
 }
 

@@ -77,7 +77,7 @@ void IdCache::UnpackIdArray(Brh& aIdArrayBuf, vector<TUint>& aIdArray)
 }
 
 
-std::unique_ptr<IdCacheSession> IdCache::CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction)
+IdCacheSession* IdCache::CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction)
 {
     DisposeLock lock(*iDisposeHandler);
 
@@ -88,7 +88,7 @@ std::unique_ptr<IdCacheSession> IdCache::CreateSession(TUint aId, FunctorGeneric
         iCache[aId] = new map<TUint, IdCacheEntrySession*>();
     }
 
-    return(std::unique_ptr<IdCacheSession>(new IdCacheSession(aId, aFunction, this)));
+    return(new IdCacheSession(aId, aFunction, this));
 }
 
 TUint IdCache::Hash(const Brx& aPrefix, const Brx& aUdn)
@@ -337,11 +337,11 @@ void IdCacheSession::Run()
             while (iFifoLo.SlotsUsed()>0)
             {
                 Job* job = iFifoLo.Read();
-				if (job != NULL)
-				{
-					job->Start();
-					iSemaJob.Wait();
-				}
+                if (job != NULL)
+                {
+                    job->Start();
+                    iSemaJob.Wait();
+                }
 
             }
         }
@@ -357,10 +357,10 @@ void IdCacheSession::Dispose()
 
     iFifoHi.ReadInterrupt();
     iFifoLo.ReadInterrupt();
-	iFifoLo.Write(NULL);
-	iSemaQ.Signal();
+    iFifoLo.Write(NULL);
+    iSemaQ.Signal();
 
-	iThread->Join();
+    iThread->Join();
     delete iThread;
 
 }

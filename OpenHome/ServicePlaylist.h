@@ -145,6 +145,7 @@ public:
 
 protected:
     Bws<1000> iProtocolInfo;
+    InfoMetadata* iCurrentInfo;
     Watchable<TUint>* iId;
     Watchable<IInfoMetadata*>* iInfoNext;
     Watchable<TInt>* iInfoCurrentIndex;
@@ -217,12 +218,12 @@ private:
     void Delete(std::vector<TUint>& aIds);
     void Delete(TUint);
     void IdArray(std::vector<TUint>& aIdArray);
-
     void EvaluateInfoCurrentIndex(TUint aId, std::vector<TUint>& aIdArray);
+    void UpdateInfo(InfoMetadata* aInfo);
 
 private:
     Net::CpProxyAvOpenhomeOrgPlaylist1* iService;
-    std::unique_ptr<IIdCacheSession> iCacheSession;
+    IIdCacheSession* iCacheSession;
     TBool iSubscribed;
 };
 
@@ -297,17 +298,19 @@ private:
     TUint iIdFactory;
     std::vector<TrackMock*>* iTracks;
     std::vector<TUint>* iIdArray;
-    std::unique_ptr<IIdCacheSession> iCacheSession;
+    IIdCacheSession* iCacheSession;
 };
 
 /////////////////////////////////////////////////////////////////////////////
+
 class PlaylistSnapshot : public IMediaClientSnapshot<IMediaPreset*>, public INonCopyable
 {
 public:
     PlaylistSnapshot(INetwork& aNetwork, IIdCacheSession& aCacheSession, std::vector<TUint>* aIdArray, ServicePlaylist& aPlaylist);
+    ~PlaylistSnapshot();
     TUint Total();
     std::vector<TUint>* Alpha();
-    void Read(/*CancellationToken aCancellationToken,*/ TUint aIndex, TUint aCount, FunctorGeneric<std::vector<IMediaPreset*>*> aCallback);
+    void Read(TUint aIndex, TUint aCount, FunctorGeneric<std::vector<IMediaPreset*>*> aCallback);
 
 private:
     void ReadCallback1(ReadEntriesData* aReadEntriesData);

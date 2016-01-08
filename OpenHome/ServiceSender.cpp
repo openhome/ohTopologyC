@@ -14,11 +14,11 @@ using namespace OpenHome::Net;
 
 ServiceSender::ServiceSender(IInjectorDevice& aDevice, ILog& aLog)
     :Service(aDevice, aLog)
+    ,iCurrentMetadata(iNetwork.SenderMetadataEmpty())
+    ,iCurrentStatus(new Bws<100>())
     ,iAudio(new Watchable<TBool>(iNetwork, Brn("Audio"), false))
-    ,iMetadata(new Watchable<ISenderMetadata*>(iNetwork, Brn("Metadata"), iNetwork.SenderMetadataEmpty()))
-    ,iStatus(new Watchable<Brn>(iNetwork, Brn("Status"), Brx::Empty()))
-    ,iCurrentMetadata(NULL)
-    ,iCurrentStatus(NULL)
+    ,iMetadata(new Watchable<ISenderMetadata*>(iNetwork, Brn("Metadata"), iCurrentMetadata))
+    ,iStatus(new Watchable<Brn>(iNetwork, Brn("Status"), Brn(*iCurrentStatus) ))
 {
 }
 
@@ -224,10 +224,20 @@ void ServiceSenderNetwork::MetadataChangedCallback2(void* aMetadata)
 {
     if (iSubscribed)
     {
+        auto oldMetaData = iCurrentMetadata;
+        iCurrentMetadata = (ISenderMetadata*)aMetadata;
+        iMetadata->Update(iCurrentMetadata);
+        if (oldMetaData!=iNetwork.SenderMetadataEmpty())
+        {
+            delete oldMetaData;
+        }
+
+/*
         ISenderMetadata* metadata = (ISenderMetadata*)aMetadata;
         iMetadata->Update(metadata);
         delete iCurrentMetadata;
         iCurrentMetadata = metadata;
+*/
     }
 }
 
@@ -255,7 +265,6 @@ void ServiceSenderNetwork::StatusChangedCallback2(void*)
 
         auto oldStatus = iCurrentStatus;
         iCurrentStatus = new Bws<100>(status);
-
         iStatus->Update(Brn(*iCurrentStatus));
         delete oldStatus;
     }

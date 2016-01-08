@@ -128,21 +128,28 @@ void MediaPresetRadio::ItemClose(const Brx& /*aId*/, Brn aValue)
 
 ServiceRadio::ServiceRadio(IInjectorDevice& aDevice, ILog& aLog)
     :Service(aDevice, aLog)
+    ,iCurrentMetadata(iNetwork.InfoMetadataEmpty())
+    ,iCurrentTransportState(new Bws<100>())
     ,iId(new Watchable<TUint>(iNetwork, Brn("Id"), 0))
-    ,iTransportState(new Watchable<Brn>(iNetwork, Brn("TransportState"), Brx::Empty()))
-    ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iNetwork.InfoMetadataEmpty()))
+    ,iTransportState(new Watchable<Brn>(iNetwork, Brn("TransportState"), Brn(*iCurrentTransportState) ))
+    ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iCurrentMetadata))
     ,iMediaSupervisor(nullptr)
-    ,iCurrentTransportState(NULL)
     ,iChannelsMax(0)
 {
 }
 
 ServiceRadio::~ServiceRadio()
 {
+    if(iCurrentMetadata!=iNetwork.InfoMetadataEmpty())
+    {
+        delete iCurrentMetadata;
+    }
+
     delete iCurrentTransportState;
     delete iId;
     delete iTransportState;
     delete iMetadata;
+    delete iMediaSupervisor;
 }
 
 void ServiceRadio::Dispose()
@@ -216,21 +223,21 @@ ServiceRadioNetwork::ServiceRadioNetwork(IInjectorDevice& aDevice, Net::ICpProxy
 ServiceRadioNetwork::~ServiceRadioNetwork()
 {
     delete iService;
+    delete iCacheSession;
 }
 
 void ServiceRadioNetwork::Dispose()
 {
     ServiceRadio::Dispose();
-    ASSERT(iCacheSession == NULL);
 }
 
 TBool ServiceRadioNetwork::OnSubscribe()
 {
     TUint id = IdCache::Hash(IdCache::kPrefixRadio, Device().Udn());
-    iCacheSession = std::move(iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioNetwork::ReadList)));
+    iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioNetwork::ReadList));
 
     auto snapshot = new RadioSnapshot(iNetwork, *iCacheSession, new vector<TUint>(), *this);
-    iMediaSupervisor.reset(new MediaSupervisor<IMediaPreset*>(iNetwork, snapshot));
+    iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, snapshot);
     iService->Subscribe();
     iSubscribed = true;
     return(false); // false = not mock
@@ -272,6 +279,7 @@ void ServiceRadioNetwork::OnUnsubscribe()
     if (iMediaSupervisor != NULL)
     {
         iMediaSupervisor->Dispose();
+        delete iMediaSupervisor;
         iMediaSupervisor = nullptr;
     }
 
@@ -279,11 +287,11 @@ void ServiceRadioNetwork::OnUnsubscribe()
     if (iCacheSession != NULL)
     {
         iCacheSession->Dispose();
+        delete iCacheSession;
         iCacheSession = nullptr;
     }
 
     iSubscribed = false;
-    //iSubscribedSource = NULL;
 }
 
 void ServiceRadioNetwork::Play()
@@ -500,7 +508,13 @@ void ServiceRadioNetwork::HandleMetadataChangedCallback2(void*)
         Brhz uri;
         iService->PropertyUri(uri);
 
-        iMetadata->Update(new InfoMetadata(metadata, Brn(uri)));
+        auto oldMetadata = iCurrentMetadata;
+        iCurrentMetadata = new InfoMetadata(metadata, Brn(uri));
+        iMetadata->Update(iCurrentMetadata);
+        if(oldMetadata!=iNetwork.InfoMetadataEmpty())
+        {
+            delete oldMetadata;
+        }
     }
 }
 
@@ -565,6 +579,7 @@ ServiceRadioMock::ServiceRadioMock(IInjectorDevice& aDevice, TUint aId, std::vec
 
 ServiceRadioMock::~ServiceRadioMock()
 {
+    delete iCacheSession;
 }
 
 void ServiceRadioMock::Dispose()
@@ -572,13 +587,11 @@ void ServiceRadioMock::Dispose()
     if (iMediaSupervisor)
     {
         iMediaSupervisor->Dispose();
-        iMediaSupervisor = nullptr;
     }
 
     if (iCacheSession)
     {
         iCacheSession->Dispose();
-        iCacheSession = nullptr;
     }
 }
 
@@ -586,11 +599,11 @@ TBool ServiceRadioMock::OnSubscribe()
 {
     TUint id = IdCache::Hash(IdCache::kPrefixPlaylist, Device().Udn());
 
-    iCacheSession = std::move(iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioMock::ReadList)));
+    iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServiceRadioMock::ReadList));
 
     iCacheSession->SetValid(*iIdArray);
 
-    iMediaSupervisor.reset(new MediaSupervisor<IMediaPreset*>(iNetwork, new RadioSnapshot(iNetwork, *iCacheSession, iIdArray, *this)));
+    iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, new RadioSnapshot(iNetwork, *iCacheSession, iIdArray, *this));
     return true; //true = is mock
 }
 
@@ -732,14 +745,14 @@ void ServiceRadioMock::Execute(ICommandTokens& aValue)
 RadioSnapshot::RadioSnapshot(INetwork& aNetwork, IIdCacheSession& aCacheSession, vector<TUint>* aIdArray, ServiceRadio& aRadio)
     :iNetwork(aNetwork)
     ,iCacheSession(aCacheSession)
-    ,iIdArray(std::move(aIdArray))
+    ,iIdArray(aIdArray)
     ,iRadio(aRadio)
 {
 }
 
 RadioSnapshot::~RadioSnapshot()
 {
-
+    delete iIdArray;
 }
 
 TUint RadioSnapshot::Total()
@@ -759,7 +772,7 @@ TUint RadioSnapshot::Total()
 
 vector<TUint>* RadioSnapshot::Alpha()
 {
-    return(NULL);
+    return(nullptr);
 }
 
 

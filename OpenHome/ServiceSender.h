@@ -78,14 +78,13 @@ protected:
     ServiceSender(IInjectorDevice& aDevice, ILog& aLog);
 
 protected:
+    ISenderMetadata* iCurrentMetadata;
+    Bws<100>* iCurrentStatus; //FIXME:random capacity
     Bws<100> iAttributes;
     Bws<100> iPresentationUrl;
     Watchable<TBool>* iAudio;
     Watchable<ISenderMetadata*>* iMetadata;
     Watchable<Brn>* iStatus;
-    ISenderMetadata* iCurrentMetadata;
-    TBool iCurrentAudio;
-    Bws<100>* iCurrentStatus; //FIXME:random capacity
 };
 
 /////////////////////////////////////////////////////////

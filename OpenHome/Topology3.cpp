@@ -122,14 +122,15 @@ void Topology3Group::SetSourceIndex(TUint aValue)
 
 void Topology3Group::SetSender(ISender* aSender)
 {
-    iSender->Update(aSender);
-
-    if (iCurrentSender!=iNetwork.SenderEmpty())
-    {
-        delete iCurrentSender;
-    }
-
+    auto oldSender = iCurrentSender;
     iCurrentSender = aSender;
+
+    iSender->Update(iCurrentSender);
+
+    if (oldSender!=iNetwork.SenderEmpty())
+    {
+        delete oldSender;
+    }
 }
 
 
@@ -539,7 +540,6 @@ void Topology3::ReceiverChanged(ReceiverWatcher& aReceiver)
 
 
 void Topology3::SenderChanged(IDevice& aDevice, ISenderMetadata& aMetadata, ISenderMetadata& aPreviousMetadata)
-//void Topology3::SenderChanged(IDevice& aDevice, const Brx& aUri, const Brx& aPreviousUri)
 {
     // iterate through all receivers...
     // assigning a new sender to any receiver that is listening to aUri
@@ -549,13 +549,11 @@ void Topology3::SenderChanged(IDevice& aDevice, ISenderMetadata& aMetadata, ISen
         ReceiverWatcher* watcher = it->second;
 
         if ((aPreviousMetadata.Uri() != Brx::Empty()) && (aPreviousMetadata.Uri() == watcher->ListeningToUri()))
-        //if (aPreviousUri.Equals(watcher->ListeningToUri()))
         {
             // this receiver was listening to our previous Uri - remove it's Sender
             watcher->SetSender(iNetwork.SenderEmpty());
         }
         else if ((aMetadata.Uri() != Brx::Empty()) && (aMetadata.Uri() == watcher->ListeningToUri()))
-        //else if (aUri.Equals(watcher->ListeningToUri()) && (!aUri.Equals(Brx::Empty())))
         {
             // this receiver is listening to our new Uri - assign it a new Sender
             watcher->SetSender(new Sender(aDevice));

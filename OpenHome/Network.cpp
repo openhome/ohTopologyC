@@ -47,7 +47,7 @@ Network::Network(TUint aMaxCacheEntries, ILog& aLog)
     ,iSenderEmpty(new Sender())
     ,iInfoMetadataEmpty(new InfoMetadata())
     ,iSenderMetadataEmpty(new SenderMetadata())
-        ,iInfoDetailsEmpty(new InfoDetails())
+    ,iInfoDetailsEmpty(new InfoDetails())
     ,iInfoMetatextEmpty(new InfoMetatext())
 {
     iWatchableThread = new WatchableThread(*this);
@@ -68,7 +68,7 @@ Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILo
     ,iSenderEmpty(new Sender())
     ,iInfoMetadataEmpty(new InfoMetadata())
     ,iSenderMetadataEmpty(new SenderMetadata())
-        ,iInfoDetailsEmpty(new InfoDetails())
+    ,iInfoDetailsEmpty(new InfoDetails())
     ,iInfoMetatextEmpty(new InfoMetatext())
 {
 }
@@ -97,21 +97,23 @@ Network::~Network()
         for (auto it3=iExceptions.begin(); it3!=iExceptions.end(); ++it3)
         {
             Exception& ex = *it3;
-        LOG(kApplication7, "Exception %s at %s:%lu\n", ex.Message(), ex.File(), (unsigned long)ex.Line());
-        THandle stackTrace = ex.StackTrace();
-        TUint count = Os::StackTraceNumEntries(stackTrace);
-        for (TUint i=0; i<count; i++) {
-            const char* entry = Os::StackTraceEntry(stackTrace, i);
-                        LOG(kApplication7, "    %s\n", entry);
-                }
+            LOG(kApplication7, "Exception %s at %s:%lu\n", ex.Message(), ex.File(), (unsigned long)ex.Line());
+            THandle stackTrace = ex.StackTrace();
+            TUint count = Os::StackTraceNumEntries(stackTrace);
+            for (TUint i=0; i<count; i++)
+            {
+                const char* entry = Os::StackTraceEntry(stackTrace, i);
+                LOG(kApplication7, "    %s\n", entry);
+            }
         }
 
     delete iDisposeHandler;
-        delete iSenderEmpty;
+    delete iSenderEmpty;
     delete iInfoMetadataEmpty;
     delete iSenderMetadataEmpty;
     delete iInfoDetailsEmpty;
-        delete iInfoMetatextEmpty;}
+    delete iInfoMetatextEmpty;
+}
 
 
 ITagManager& Network::GetTagManager()

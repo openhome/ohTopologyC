@@ -116,11 +116,13 @@ public:
 
 protected:
     Bws<1000> iProtocolInfo;
+    IInfoMetadata* iCurrentMetadata;
+    Bws<100>* iCurrentTransportState;
     Watchable<TUint>* iId;
     Watchable<Brn>* iTransportState;
     Watchable<IInfoMetadata*>* iMetadata;
-    std::unique_ptr<MediaSupervisor<IMediaPreset*>> iMediaSupervisor;
-    Bws<100>* iCurrentTransportState;
+    MediaSupervisor<IMediaPreset*>* iMediaSupervisor;
+
     TUint iChannelsMax;
 };
 
@@ -167,7 +169,7 @@ private:
 
 private:
     Net::ICpProxyAvOpenhomeOrgRadio1* iService;
-    std::unique_ptr<IIdCacheSession> iCacheSession;
+    IIdCacheSession* iCacheSession;
     TBool iSubscribed;
 };
 
@@ -200,7 +202,7 @@ public:
 private:
     void ReadList(ReadListData* aIdList);
 private:
-    std::unique_ptr<IIdCacheSession> iCacheSession;
+    IIdCacheSession* iCacheSession;
     std::vector<IMediaMetadata*>& iPresets;
     std::vector<TUint>* iIdArray;
 };
@@ -223,7 +225,7 @@ private:
 private:
     INetwork& iNetwork;
     IIdCacheSession& iCacheSession;
-    std::unique_ptr<std::vector<TUint>> iIdArray;
+    std::vector<TUint>* iIdArray;
     ServiceRadio& iRadio;
 };
 
