@@ -74,6 +74,9 @@ public:
     virtual IWatchable<IInfoMetatext*>& Metatext();
 
 protected:
+    IInfoDetails* iCurrentDetails;
+    IInfoMetadata* iCurrentMetadata;
+    IInfoMetatext* iCurrentMetatext;
     Watchable<IInfoDetails*>* iDetails;
     Watchable<IInfoMetadata*>* iMetadata;
     Watchable<IInfoMetatext*>* iMetatext;
