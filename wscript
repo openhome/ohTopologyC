@@ -194,7 +194,8 @@ def build(bld):
                 'Generated/CpAvOpenhomeOrgVolume1.cpp',
                 'Generated/CpAvOpenhomeOrgTime1.cpp',
                 'OpenHome/TestCpProxies/CpAvOpenhomeOrgRadio1Test.cpp',
-                'OpenHome/TestCpProxies/ResultRecorder.cpp'
+                'OpenHome/TestCpProxies/ResultRecorder.cpp',
+                'OpenHome/InjectorDeviceTest.cpp'
             ],
             use=['OHNET'],
             target='ohTopologyC')
