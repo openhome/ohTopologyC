@@ -173,11 +173,11 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
     xml->Add(unique_ptr<TopologySource>(new TopologySource(Brn("TOSLINK2"), Brn("Digital"), true)));
 
 
-
-    device->Add(eProxyProduct, new ServiceProductMock(*device, aRoom, aName, 0, std::move(xml), true, aAttributes, Brx::Empty(),
-                Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brx::Empty(),
-                Brn("Linn High Fidelity System Component"), Brn("Mock DSM"), Brx::Empty(), Brx::Empty(),
-                Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn, aLog));
+    ServiceProductMock* spm = new ServiceProductMock(*device, aRoom, aName, 0, std::move(xml), true, aAttributes, Brx::Empty(),
+        Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brx::Empty(),
+        Brn("Linn High Fidelity System Component"), Brn("Mock DSM"), Brx::Empty(), Brx::Empty(),
+        Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn, aLog);
+    device->Add(eProxyProduct, spm);
 
 /*
     // volume service
