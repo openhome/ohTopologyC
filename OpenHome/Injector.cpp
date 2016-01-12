@@ -64,6 +64,8 @@ void Injector::Refresh()
 
 void Injector::Dispose()
 {
+    delete iDeviceList;
+    iDeviceList = nullptr;
 }
 
 /////////////////////////////////////////////////////////////////

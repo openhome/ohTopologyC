@@ -199,7 +199,7 @@ public:
     void VolumeInc() override;
     void CallbackVolumeInc(void*);
 
-    void Execute(ICommandTokens& aValue);
+    void Execute(ICommandTokens& aValue) override;
 private:
     TUint iCurrentVolume;
     TUint iCurrentVolumeLimit;

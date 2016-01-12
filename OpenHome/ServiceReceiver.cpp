@@ -18,9 +18,9 @@ const Brn OpenHome::Topology::kReceiverTransportStatePaused("Paused");
 ServiceReceiver::ServiceReceiver(IInjectorDevice& aDevice, ILog& aLog)
     :Service(aDevice, aLog)
     ,iCurrentMetadata(iNetwork.InfoMetadataEmpty())
-    ,iCurrentTransportState(NULL)
+    ,iCurrentTransportState(new Bws<100>())
     ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iCurrentMetadata))
-    ,iTransportState(new Watchable<Brn>(iNetwork, Brn("TransportState"), Brx::Empty()))
+    ,iTransportState(new Watchable<Brn>(iNetwork, Brn("TransportState"), Brn(*iCurrentTransportState)))
 {
 }
 
@@ -204,14 +204,13 @@ void ServiceReceiverNetwork::MetadataChangedCallback2(void* aInfoMetadata)
 {
     if (iSubscribed)
     {
-        IInfoMetadata* infoMetadata = (IInfoMetadata*)aInfoMetadata;
-        IInfoMetadata* oldmetadata = iCurrentMetadata;
-        iCurrentMetadata = infoMetadata;
+        IInfoMetadata* oldMetadata = iCurrentMetadata;
+        iCurrentMetadata = (IInfoMetadata*)aInfoMetadata;
         iMetadata->Update(iCurrentMetadata);
-                if(oldmetadata != iNetwork.InfoMetadataEmpty())
-                {
-                    delete oldmetadata;
-                }
+        if(oldMetadata != iNetwork.InfoMetadataEmpty())
+        {
+            delete oldMetadata;
+        }
     }
 }
 

@@ -69,7 +69,7 @@ class IdCacheSession;
 class IIdCache
 {
 public:
-    virtual std::unique_ptr<IdCacheSession> CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction) = 0;
+    virtual IdCacheSession* CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction) = 0;
     virtual ~IIdCache() {}
 };
 
@@ -84,7 +84,7 @@ public:
     IdCache(TUint aMaxCacheEntries);
     virtual ~IdCache();
 
-    virtual std::unique_ptr<IdCacheSession> CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction);
+    virtual IdCacheSession* CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction);
 
     // IDisposable
     virtual void Dispose();
@@ -127,7 +127,6 @@ public:
 private:
     Job* CreateJob(ReadEntriesData* aReadEntriesData);
     void CreateJobCallback(void* aReadEntriesData);
-    //Task<std::vector<IIdCacheEntry*>> CreateJob(std::vector<TUint>& aIds);
     void Run();
 
 private:
@@ -143,7 +142,6 @@ private:
     Semaphore iSemaJob;
     Fifo<Job*> iFifoHi;
     Fifo<Job*> iFifoLo;
-    //Task iTask;
     Mutex iMutexQueueLow;
     ThreadFunctor* iThread;
 };

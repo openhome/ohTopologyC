@@ -48,8 +48,7 @@ class IWatchableSnapshot
 public:
     virtual TUint Total() = 0;
     virtual std::vector<TUint>* Alpha() = 0; // null if no alpha map
-    //virtual void Read(TUint aIndex, TUint aCount, CancellationToken aCancellationToken, Action<IWatchableFragment<T>> aCallback) = 0;
-    virtual void Read(TUint aIndex, TUint aCount, /*CancellationToken aCancellationToken,*/ FunctorGeneric<IWatchableFragment<T>*> aCallback) = 0;
+    virtual void Read(TUint aIndex, TUint aCount, FunctorGeneric<IWatchableFragment<T>*> aCallback) = 0;
     virtual ~IWatchableSnapshot() {}
 };
 
@@ -72,8 +71,7 @@ class IMediaClientSnapshot
 public:
     virtual TUint Total() = 0;
     virtual std::vector<TUint>* Alpha() = 0; // null if no alpha map
-    //virtual void Read(CancellationToken& aToken, TUint aIndex, TUint aCount, Action<IEnumerable<T>> aCallback) = 0;
-    virtual void Read(/*CancellationToken& aToken,*/ TUint aIndex, TUint aCount, FunctorGeneric<std::vector<T>*> aCallback) = 0;
+    virtual void Read(TUint aIndex, TUint aCount, FunctorGeneric<std::vector<T>*> aCallback) = 0;
     virtual ~IMediaClientSnapshot() {}
 
 };
@@ -92,9 +90,8 @@ public:
     void Update(IMediaClientSnapshot<T>* aClientSnapshot);
 
 private:
-    //CancellationTokenSource* iCancellationTokenSource;
     IWatchableSnapshot<T>* iSnapshotVal;
-    std::unique_ptr<Watchable<IWatchableSnapshot<T>*>> iSnapshot;
+    Watchable<IWatchableSnapshot<T>*>* iSnapshot;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,13 +101,12 @@ template <class T>
 class MediaSnapshot : public IWatchableSnapshot<T>, public IDisposable
 {
 public:
-    MediaSnapshot(/*CancellationToken& aCancellationToken,*/ IMediaClientSnapshot<T>* aSnapshot);
+    MediaSnapshot(IMediaClientSnapshot<T>* aSnapshot);
     ~MediaSnapshot();
-    // IWatchableSnapshot<IMediaPreset>
+
     TUint Total();
     std::vector<TUint>* Alpha();
-    //void Read(TUint aIndex, TUint aCount, CancellationToken aCancellationToken, Action<IWatchableFragment<T>> aCallback);
-    void Read(TUint aIndex, TUint aCount, /*CancellationToken aCancellationToken,*/ FunctorGeneric<IWatchableFragment<T>*> aCallback);
+    void Read(TUint aIndex, TUint aCount,FunctorGeneric<IWatchableFragment<T>*> aCallback);
 
     // IDisposable
     void Dispose();
@@ -119,7 +115,6 @@ private:
     void ReadCallback(std::vector<T>*);
 
 private:
-    //CancellationToken& iCancellationToken;
     IMediaClientSnapshot<T>* iSnapshot;
     TBool iDisposed;
 };
@@ -145,8 +140,7 @@ private:
 
 template <class T>
 MediaSupervisor<T>::MediaSupervisor(IWatchableThread& aThread, IMediaClientSnapshot<T>* aClientSnapshot)
-    //:iCancellationTokenSource(new CancellationTokenSource())
-    : iSnapshotVal(new MediaSnapshot<T>(/*iCancellationTokenSource.Token,*/ aClientSnapshot))
+    : iSnapshotVal(new MediaSnapshot<T>(aClientSnapshot))
     , iSnapshot(new Watchable<IWatchableSnapshot<T>*>(aThread, Brn("Snapshot"), iSnapshotVal))
 {
 }
@@ -154,17 +148,15 @@ MediaSupervisor<T>::MediaSupervisor(IWatchableThread& aThread, IMediaClientSnaps
 template <class T>
 MediaSupervisor<T>::~MediaSupervisor()
 {
+    delete iSnapshot;
     delete iSnapshotVal;
 }
 
 template <class T>
 void MediaSupervisor<T>::Dispose()
 {
-    //iCancellationTokenSource.Cancel();
-    MediaSnapshot<T>* snapshot = (MediaSnapshot<T>*)iSnapshotVal;
-    snapshot->Dispose();
+    ((MediaSnapshot<T>*)iSnapshotVal)->Dispose();
     iSnapshot->Dispose();
-    //iCancellationTokenSource.Dispose();
 }
 
 
@@ -177,20 +169,19 @@ Watchable<IWatchableSnapshot<T>*>& MediaSupervisor<T>::Snapshot()
 template <class T>
 void MediaSupervisor<T>::Update(IMediaClientSnapshot<T>* aClientSnapshot)
 {
-//    MediaSnapshot<T> snapshot = iSnapshot.Value as MediaSnapshot<T>;
-    MediaSnapshot<T>* snapshot = (MediaSnapshot<T>*)iSnapshot->Value();
-    //iCancellationTokenSource.Cancel();
-    //iCancellationTokenSource.Dispose();
-    //iCancellationTokenSource = new CancellationTokenSource();
-    iSnapshot->Update(new MediaSnapshot<T>(/*iCancellationTokenSource.Token, */aClientSnapshot));
-    snapshot->Dispose();
+    auto oldSnapshot = iSnapshotVal;
+
+    iSnapshotVal = new MediaSnapshot<T>(aClientSnapshot);
+    iSnapshot->Update(iSnapshotVal);
+
+    ((MediaSnapshot<T>*)oldSnapshot)->Dispose();
+    delete oldSnapshot;
 }
 
 //////////////////////////////////////////////////////////////////////
 
 template <class T>
-MediaSnapshot<T>::MediaSnapshot(/*CancellationToken& aCancellationToken,*/ IMediaClientSnapshot<T>* aSnapshot)
-    //:iCancellationToken(aCancellationToken)
+MediaSnapshot<T>::MediaSnapshot(IMediaClientSnapshot<T>* aSnapshot)
     :iSnapshot(aSnapshot)
     ,iDisposed(false)
 {
@@ -220,29 +211,8 @@ std::vector<TUint>* MediaSnapshot<T>::Alpha()
 template <class T>
 void MediaSnapshot<T>::Read(TUint aIndex, TUint aCount, /*CancellationToken aCancellationToken,*/ FunctorGeneric<IWatchableFragment<T>*> /*aCallback*/)
 {
-
-
-//    CancellationTokenLink ct = new CancellationTokenLink(iCancellationToken, aCancellationToken);
-
     auto f = MakeFunctorGeneric<std::vector<T>*>(*this, &MediaSnapshot<T>::ReadCallback);
     iSnapshot->Read(aIndex, aCount, f);
-
-    // Need to pass aCallback and aIndex into functor (aValues comes from the consumer of the functor)
-
-
-/*
-    iSnapshot.Read(ct.Token, aIndex, aCount, (values) =>
-    {
-        if (!iDisposed)
-        {
-            aCallback(new WatchableFragment<T>(aIndex, values));
-        }
-        else
-        {
-            ASSERT(false);
-        }
-    });
-*/
 }
 
 template <class T>

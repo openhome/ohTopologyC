@@ -132,8 +132,9 @@ void MediaPresetPlaylist::ItemClose(const Brx& /*aId*/, Brn /*aPrevious*/)
 
 ServicePlaylist::ServicePlaylist(IInjectorDevice& aDevice, ILog& aLog)
     :Service(aDevice, aLog)
+    ,iCurrentInfo(iNetwork.InfoMetadataEmpty())
     ,iId(new Watchable<TUint>(iNetwork, Brn("Id"), 0))
-    ,iInfoNext(new Watchable<IInfoMetadata*>(iNetwork, Brn("InfoNext"), iNetwork.InfoMetadataEmpty()))
+    ,iInfoNext(new Watchable<IInfoMetadata*>(iNetwork, Brn("InfoNext"), iCurrentInfo))
     ,iInfoCurrentIndex(new Watchable<TInt>(iNetwork, Brn("CurrentIndex"), -1))
     ,iTransportState(new Watchable<Brn>(iNetwork, Brn("TransportState"), Brx::Empty()))
     ,iRepeat(new Watchable<TBool>(iNetwork, Brn("Repeat"), false))
@@ -152,6 +153,11 @@ ServicePlaylist::~ServicePlaylist()
     delete iRepeat;
     delete iShuffle;
     delete iMediaSupervisor;
+
+    if (iCurrentInfo!=iNetwork.InfoMetadataEmpty())
+    {
+        delete iCurrentInfo;
+    }
 }
 
 
@@ -226,10 +232,7 @@ const Brx& ServicePlaylist::ProtocolInfo()
     return iProtocolInfo;
 }
 
-
 //////////////////////////////////////////////////////////////////////////////
-
-
 
 ServicePlaylistNetwork::ServicePlaylistNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgPlaylist1* aService, ILog& aLog)
     :ServicePlaylist(aDevice, aLog)
@@ -260,22 +263,27 @@ ServicePlaylistNetwork::ServicePlaylistNetwork(IInjectorDevice& aDevice, CpProxy
 ServicePlaylistNetwork::~ServicePlaylistNetwork()
 {
     delete iService;
+    delete iCacheSession;
 }
 
 
 void ServicePlaylistNetwork::Dispose()
 {
     ServicePlaylist::Dispose();
-    ASSERT(iCacheSession == NULL);
 }
 
 
 TBool ServicePlaylistNetwork::OnSubscribe()
 {
+    ASSERT(iCacheSession==nullptr);
+    ASSERT(iMediaSupervisor==nullptr);
+
     TUint id = IdCache::Hash(IdCache::kPrefixPlaylist, Device().Udn());
 
-    iCacheSession = std::move(iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServicePlaylistNetwork::ReadList)));
-    iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, new PlaylistSnapshot(iNetwork, *iCacheSession, new vector<TUint>(), *this));
+    iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServicePlaylistNetwork::ReadList));
+    auto v = new vector<TUint>();
+    auto snap = new PlaylistSnapshot(iNetwork, *iCacheSession, v, *this);
+    iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, snap);
 
     iService->Subscribe();
     iSubscribed = true;
@@ -316,15 +324,17 @@ void ServicePlaylistNetwork::OnUnsubscribe()
         iService->Unsubscribe();
     }
 
-    if (iMediaSupervisor != NULL)
+    if (iMediaSupervisor != nullptr)
     {
         iMediaSupervisor->Dispose();
+        delete iMediaSupervisor;
         iMediaSupervisor = nullptr;
     }
 
-    if (iCacheSession != NULL)
+    if (iCacheSession != nullptr)
     {
         iCacheSession->Dispose();
+        delete iCacheSession;
         iCacheSession = nullptr;
     }
 
@@ -684,8 +694,6 @@ void ServicePlaylistNetwork::EvaluateInfoNext(TUint aId, vector<TUint>& aIdArray
     auto it = find(aIdArray.begin(), aIdArray.end(), aId);
     TUint index = it - aIdArray.begin();
 
-// if (!iShuffle.Value && (index > -1) && (index < aIdArray.Count - 1) && (aIdArray.Count > 1))
-
     if ((!iShuffle->Value()) && (it!=aIdArray.end()) && (index < (aIdArray.size()-1)) )
     {
         auto readEntriesData = new ReadEntriesData();
@@ -696,7 +704,6 @@ void ServicePlaylistNetwork::EvaluateInfoNext(TUint aId, vector<TUint>& aIdArray
 
         iCacheSession->Entries(readEntriesData);
     }
-    // if (!iShuffle.Value && iRepeat.Value && (index > -1) && index == aIdArray.Count - 1)
     else if ((!iShuffle->Value()) && (iRepeat->Value()) && (it!=aIdArray.end()) && (index == (aIdArray.size()-1)) )
     {
         auto readEntriesData = new ReadEntriesData();
@@ -708,10 +715,23 @@ void ServicePlaylistNetwork::EvaluateInfoNext(TUint aId, vector<TUint>& aIdArray
     }
     else
     {
-        iInfoNext->Update(iNetwork.InfoMetadataEmpty());
+        UpdateInfo(iNetwork.InfoMetadataEmpty());
     }
-
 }
+
+void ServicePlaylistNetwork::UpdateInfo(InfoMetadata* aInfo)
+{
+    auto oldInfo = iCurrentInfo;
+    iCurrentInfo = aInfo;
+
+    iInfoNext->Update(iCurrentInfo);
+
+    if (oldInfo!=iNetwork.InfoMetadataEmpty())
+    {
+        delete oldInfo;
+    }
+}
+
 
 void ServicePlaylistNetwork::EvaluateInfoNextCallback1(ReadEntriesData* aReadEntriesData)
 {
@@ -729,13 +749,14 @@ void ServicePlaylistNetwork::EvaluateInfoNextCallback3(void* aReadEntriesData)
 {
     auto readEntriesData = (ReadEntriesData*)aReadEntriesData;
     IIdCacheEntry* entry = (*readEntriesData->iRetrievedEntries)[0];
+
     if (entry == NULL)
     {
-        iInfoNext->Update(iNetwork.InfoMetadataEmpty());
+        UpdateInfo(iNetwork.InfoMetadataEmpty());
     }
     else
     {
-        iInfoNext->Update(new InfoMetadata(&entry->Metadata(), entry->Uri()));
+        UpdateInfo(new InfoMetadata(&entry->Metadata(), entry->Uri()));
     }
 }
 
@@ -839,23 +860,22 @@ PlaylistSnapshot::PlaylistSnapshot(INetwork& aNetwork, IIdCacheSession& aCacheSe
 {
 }
 
+PlaylistSnapshot::~PlaylistSnapshot()
+{
+    delete iIdArray;
+}
 
 TUint PlaylistSnapshot::Total()
 {
     return (iIdArray->size());
 }
 
-
-
 vector<TUint>* PlaylistSnapshot::Alpha()
 {
     return NULL;
 }
 
-
-
-
-void PlaylistSnapshot::Read(/*CancellationToken aCancellationToken,*/ TUint aIndex, TUint aCount, FunctorGeneric<vector<IMediaPreset*>*> aCallback)
+void PlaylistSnapshot::Read(TUint aIndex, TUint aCount, FunctorGeneric<vector<IMediaPreset*>*> aCallback)
 {
     ASSERT((aIndex + aCount) <= Total());
 
@@ -914,7 +934,6 @@ void PlaylistSnapshot::ReadCallback2(void* aObj)
             index++;
         }
 
-
         callback(tracks);
     }
 }
@@ -927,7 +946,9 @@ TrackMock::TrackMock(const Brx& aUri, IMediaMetadata& aMetadata)
 }
 
 TrackMock::~TrackMock()
-{}
+{
+
+}
 
 const Brx& TrackMock::Uri() const
 {
@@ -938,6 +959,7 @@ IMediaMetadata& TrackMock::Metadata() const
 {
     return iMetadata;
 }
+
 
 ServicePlaylistMock::ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aTracks, TBool aRepeat, TBool aShuffle, const Brx& aTransportState, const Brx& aProtocolInfo, TUint aTracksMax, ILog& aLog)
     : ServicePlaylist(aDevice, aLog)
@@ -971,10 +993,12 @@ ServicePlaylistMock::~ServicePlaylistMock()
 
 TBool ServicePlaylistMock::OnSubscribe()
 {
+    ASSERT(iCacheSession==nullptr);
+    ASSERT(iMediaSupervisor==nullptr);
+
     TUint id = IdCache::Hash(IdCache::kPrefixPlaylist, Device().Udn());
 
-    iCacheSession = std::move(iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServicePlaylistMock::ReadList)));
-
+    iCacheSession = iNetwork.IdCache().CreateSession(id, MakeFunctorGeneric<ReadListData*>(*this, &ServicePlaylistMock::ReadList));
     iCacheSession->SetValid(*iIdArray);
 
     iMediaSupervisor = new MediaSupervisor<IMediaPreset*>(iNetwork, new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this));
@@ -983,15 +1007,17 @@ TBool ServicePlaylistMock::OnSubscribe()
 
 void ServicePlaylistMock::OnUnsubscribe()
 {
-    if (iMediaSupervisor)
+    if (iMediaSupervisor!=nullptr)
     {
         iMediaSupervisor->Dispose();
+        delete iMediaSupervisor;
         iMediaSupervisor = nullptr;
     }
 
-    if (iCacheSession)
+    if (iCacheSession!=nullptr)
     {
         iCacheSession->Dispose();
+        delete iCacheSession;
         iCacheSession = nullptr;
     }
 }
@@ -1060,8 +1086,6 @@ void ServicePlaylistMock::CallbackNext(void*)
 
 void ServicePlaylistMock::SeekId(TUint aValue)
 {
-    //iCallbackUint = aValue;
-
     TUint* id = new TUint(aValue);
     iNetwork.Schedule(MakeFunctorGeneric(*this, &ServicePlaylistMock::CallbackSeekId), id);
 }
@@ -1113,7 +1137,6 @@ void ServicePlaylistMock::CallbackInsert(void* aValue)
 
     auto newPlaylistSnapshot = new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this);
     iMediaSupervisor->Update(newPlaylistSnapshot);
-
 }
 
 void ServicePlaylistMock::InsertNext(const Brx& aUri, IMediaMetadata& aMetadata)
@@ -1140,7 +1163,6 @@ void ServicePlaylistMock::CallbackInsertNext(void* aValue)
 
     auto newPlaylistSnapshot = new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this);
     iMediaSupervisor->Update(newPlaylistSnapshot);
-
 }
 
 void ServicePlaylistMock::InsertEnd(const Brx& aUri, IMediaMetadata& aMetadata)
@@ -1165,7 +1187,6 @@ void ServicePlaylistMock::CallbackInsertEnd(void* aValue)
 
     auto newPlaylistSnapshot = new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this);
     iMediaSupervisor->Update(newPlaylistSnapshot);
-
 }
 
 void ServicePlaylistMock::MakeRoomForInsert(TUint aCount)
@@ -1328,12 +1349,10 @@ TUint ProxyPlaylist::TracksMax()
     return iService.TracksMax();
 }
 
-
 const Brx& ProxyPlaylist::ProtocolInfo()
 {
     return iService.ProtocolInfo();
 }
-
 
 void ProxyPlaylist::Play()
 {
@@ -1346,12 +1365,10 @@ void ProxyPlaylist::Pause()
     return iService.Pause();
 }
 
-
 void ProxyPlaylist::Stop()
 {
     return iService.Stop();
 }
-
 
 void ProxyPlaylist::Previous()
 {
@@ -1364,12 +1381,10 @@ void ProxyPlaylist::Next()
     return iService.Next();
 }
 
-
 void ProxyPlaylist::SeekId(TUint aValue)
 {
     return iService.SeekId(aValue);
 }
-
 
 void ProxyPlaylist::SeekSecondAbsolute(TUint aValue)
 {

@@ -68,9 +68,12 @@ TUint InfoDetails::SampleRate()
 
 ServiceInfo::ServiceInfo(IInjectorDevice& aDevice, ILog& aLog)
     :Service(aDevice, aLog)
-    ,iDetails(new Watchable<IInfoDetails*>(iNetwork, Brn("Details"), iNetwork.InfoDetailsEmpty()))
-    ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iNetwork.InfoMetadataEmpty()))
-    ,iMetatext(new Watchable<IInfoMetatext*>(iNetwork, Brn("Metatext"), iNetwork.InfoMetatextEmpty()))
+    ,iCurrentDetails(iNetwork.InfoDetailsEmpty())
+    ,iCurrentMetadata(iNetwork.InfoMetadataEmpty())
+    ,iCurrentMetatext(iNetwork.InfoMetatextEmpty())
+    ,iDetails(new Watchable<IInfoDetails*>(iNetwork, Brn("Details"), iCurrentDetails))
+    ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iCurrentMetadata))
+    ,iMetatext(new Watchable<IInfoMetatext*>(iNetwork, Brn("Metatext"), iCurrentMetatext))
 {
 }
 
@@ -79,6 +82,18 @@ ServiceInfo::~ServiceInfo()
     delete iDetails;
     delete iMetadata;
     delete iMetatext;
+    if (iCurrentDetails!= iNetwork.InfoDetailsEmpty())
+    {
+        delete iCurrentDetails;
+    }
+    if (iCurrentMetadata!= iNetwork.InfoMetadataEmpty())
+    {
+        delete iCurrentMetadata;
+    }
+    if (iCurrentMetatext!= iNetwork.InfoMetatextEmpty())
+    {
+        delete iCurrentMetatext;
+    }
 }
 
 void ServiceInfo::Dispose()
@@ -226,8 +241,13 @@ void ServiceInfoNetwork::HandleDetailsChangedCallback2(void*)
         TUint sampleRate;
         iService->PropertySampleRate(sampleRate);
 
-        InfoDetails* details = new InfoDetails(bitDepth, bitRate, codec, duration, lossless, sampleRate);
-        iDetails->Update(details);
+        auto oldDetails = iCurrentDetails;
+        iCurrentDetails = new InfoDetails(bitDepth, bitRate, codec, duration, lossless, sampleRate);
+        iDetails->Update(iCurrentDetails);
+        if (oldDetails!=iNetwork.InfoDetailsEmpty())
+        {
+            delete oldDetails;
+        }
 
         iDetailsChanged = false;
     }
@@ -260,8 +280,14 @@ void ServiceInfoNetwork::HandleMetadataChangedCallback2(void*)
         Brhz uri;
         iService->PropertyUri(uri);
 
-        InfoMetadata* data = new InfoMetadata(metadata, uri);
-        iMetadata->Update(data);
+        auto oldMetadata = iCurrentMetadata;
+        iCurrentMetadata = new InfoMetadata(metadata, uri);
+        iMetadata->Update(iCurrentMetadata);
+
+        if(oldMetadata!=iNetwork.InfoMetadataEmpty())
+        {
+            delete oldMetadata;
+        }
     }
 }
 
@@ -285,8 +311,15 @@ void ServiceInfoNetwork::HandleMetatextChangedCallback2(void*)
     {
         Brhz metatextstr;
         iService->PropertyMetatext(metatextstr);
+
+        auto oldMetatext = iCurrentMetatext;
         IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metatextstr);
-        iMetatext->Update(new InfoMetatext(metadata));
+        iCurrentMetatext = new InfoMetatext(metadata);
+        iMetatext->Update(iCurrentMetatext);
+        if(oldMetatext!=iNetwork.InfoMetatextEmpty())
+        {
+            delete oldMetatext;
+        }
     }
 }
 
