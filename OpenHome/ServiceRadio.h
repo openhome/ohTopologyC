@@ -71,6 +71,7 @@ private:
 
 class IProxyRadio : public IProxy
 {
+public:
     virtual IWatchable<TUint>& Id() = 0;
     virtual IWatchable<Brn>& TransportState() = 0;
     virtual IWatchable<IInfoMetadata*>& Metadata() = 0;
