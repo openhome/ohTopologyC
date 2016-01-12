@@ -1,7 +1,7 @@
 #pragma once
 
 #include <OpenHome/IWatchable.h>
-#include <OpenHome/Watcher.h>
+#include <OpenHome/IWatcher.h>
 
 namespace OpenHome
 {
