@@ -7,6 +7,7 @@
 #include <OpenHome/ServiceRadio.h>
 #include <OpenHome/TestCpProxies/ResultRecorder.h>
 #include <OpenHome/TagManager.h>
+#include <OpenHome/InjectorDeviceTest.h>
 #include <memory>
 
 namespace OpenHome{
