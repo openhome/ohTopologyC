@@ -160,7 +160,6 @@ ServicePlaylist::~ServicePlaylist()
         delete iCurrentInfo;
     }
 
-    delete iCurrentTransportState;
 }
 
 
