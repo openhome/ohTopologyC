@@ -137,7 +137,7 @@ ServicePlaylist::ServicePlaylist(IInjectorDevice& aDevice, ILog& aLog)
     ,iId(new Watchable<TUint>(iNetwork, Brn("Id"), 0))
     ,iInfoNext(new Watchable<IInfoMetadata*>(iNetwork, Brn("InfoNext"), iCurrentInfo))
     ,iInfoCurrentIndex(new Watchable<TInt>(iNetwork, Brn("CurrentIndex"), -1))
-    ,iTransportState(new Watchable<Brn>(iNetwork, Brn("TransportState"), Brx::Empty()))
+    ,iTransportState(new Watchable<Brn>(iNetwork, Brn("TransportState"), Brn(*iCurrentTransportState)))
     ,iRepeat(new Watchable<TBool>(iNetwork, Brn("Repeat"), false))
     ,iShuffle(new Watchable<TBool>(iNetwork, Brn("Shuffle"), true))
     ,iMediaSupervisor(nullptr)
@@ -159,6 +159,8 @@ ServicePlaylist::~ServicePlaylist()
     {
         delete iCurrentInfo;
     }
+
+    delete iCurrentTransportState;
 }
 
 
