@@ -133,6 +133,7 @@ void MediaPresetPlaylist::ItemClose(const Brx& /*aId*/, Brn /*aPrevious*/)
 ServicePlaylist::ServicePlaylist(IInjectorDevice& aDevice, ILog& aLog)
     :Service(aDevice, aLog)
     ,iCurrentInfo(iNetwork.InfoMetadataEmpty())
+    ,iCurrentTransportState(new Bws<100>())
     ,iId(new Watchable<TUint>(iNetwork, Brn("Id"), 0))
     ,iInfoNext(new Watchable<IInfoMetadata*>(iNetwork, Brn("InfoNext"), iCurrentInfo))
     ,iInfoCurrentIndex(new Watchable<TInt>(iNetwork, Brn("CurrentIndex"), -1))
@@ -153,7 +154,7 @@ ServicePlaylist::~ServicePlaylist()
     delete iRepeat;
     delete iShuffle;
     delete iMediaSupervisor;
-
+    delete iCurrentTransportState;
     if (iCurrentInfo!=iNetwork.InfoMetadataEmpty())
     {
         delete iCurrentInfo;
@@ -781,7 +782,11 @@ void ServicePlaylistNetwork::HandleTransportStateChangedCallback2(void*)
     {
         Brhz transportState;
         iService->PropertyTransportState(transportState);
-        iTransportState->Update(Brn(transportState));
+
+        Bws<100>* oldTransportState = iCurrentTransportState;
+        iCurrentTransportState = new Bws<100>(transportState);
+        iTransportState->Update(Brn(*iCurrentTransportState));
+        delete oldTransportState;
     }
 }
 

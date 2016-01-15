@@ -146,6 +146,7 @@ public:
 protected:
     Bws<1000> iProtocolInfo;
     InfoMetadata* iCurrentInfo;
+    Bws<100>* iCurrentTransportState;
     Watchable<TUint>* iId;
     Watchable<IInfoMetadata*>* iInfoNext;
     Watchable<TInt>* iInfoCurrentIndex;
