@@ -137,8 +137,6 @@ def build(bld):
     text_transform_exe_node = find_resource_or_fail(bld, bld.root, os.path.join(bld.env['TEXT_TRANSFORM_PATH'], 'TextTransform.exe'))
     for service in upnp_services:
         for t4Template, prefix, ext, args in [
-                ('DvUpnpCppCoreHeader.tt', 'Dv', '.h', '-a buffer:1'),
-                ('DvUpnpCppCoreSource.tt', 'Dv', '.cpp', ''),
                 ('CpUpnpCppHeader.tt', 'Cp', '.h', '-a buffer:1'),
                 ('CpUpnpCppBufferSource.tt', 'Cp', '.cpp', '')
                 ]:
@@ -150,7 +148,6 @@ def build(bld):
                 target=tgt
                 )
     bld.add_group()
-
 
     # Library
     bld.stlib(
