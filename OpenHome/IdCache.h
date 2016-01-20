@@ -139,7 +139,6 @@ private:
 
     IdCache* iCache;
     Semaphore iSemaQ;
-    Semaphore iSemaJob;
     Fifo<Job*> iFifoHi;
     Fifo<Job*> iFifoLo;
     Mutex iMutexQueueLow;

@@ -143,25 +143,6 @@ void IdCache::Remove(const Brx& aUdn)
             iCache.erase(h);
         }
     }
-
-/*
-    using (iDisposeHandler.Lock())
-    {
-        lock (iCache)
-        {
-            Hash playlistHash = Hash.Create(string.Format(ServicePlaylist.kCacheIdFormat, aUdn));
-            Hash radioHash = Hash.Create(string.Format(ServicePlaylist.kCacheIdFormat, aUdn));
-            List<Hash> keys = new List<Hash>(iCache.Keys);
-            foreach(Hash h in keys)
-            {
-                if (h == playlistHash || h == radioHash)
-                {
-                    iCache.Remove(h);
-                }
-            }
-        }
-    }
-*/
 }
 
 
@@ -201,24 +182,6 @@ void IdCache::SetValid(TUint aSessionId, vector<TUint>& aValid)
         }
         it++;
     }
-/*
-    using (iDisposeHandler.Lock())
-    {
-        lock (iCache)
-        {
-            Dictionary<uint, IdCacheEntrySession> c = iCache[aSessionId];
-            List<uint> keys = new List<uint>(c.Keys);
-            foreach (uint k in keys)
-            {
-                if (!aValid.Contains(k))
-                {
-                    c.Remove(k);
-                    --iCacheEntries;
-                }
-            }
-        }
-    }
-*/
 }
 
 
@@ -246,22 +209,6 @@ IIdCacheEntry* IdCache::Entry(TUint aSessionId, TUint aId)
         // THROW here ?
         return NULL;
     }
-/*
-    using (iDisposeHandler.Lock())
-    {
-        lock (iCache)
-        {
-            IdCacheEntrySession entry;
-            if (iCache[aSessionId].TryGetValue(aId, out entry))
-            {
-                iLastAccessed.Remove(entry);
-                iLastAccessed.Add(entry);
-                return entry;
-            }
-            return null;
-        }
-    }
-*/
 }
 
 
@@ -292,7 +239,6 @@ IIdCacheEntry* IdCache::AddEntry(TUint aSessionId, TUint aId, IIdCacheEntry* aEn
 void IdCache::RemoveEntry()
 {
     // must be called with iDisposeHandler, iMutexCache held
-
     IdCacheEntrySession* entry = iLastAccessed[0];
     iCache[entry->SessionId()]->erase(entry->Id());
     iLastAccessed.erase(iLastAccessed.begin());
@@ -306,7 +252,6 @@ IdCacheSession::IdCacheSession(TUint aSessionId, FunctorGeneric<ReadListData*> a
     , iFunction(aFunction)  // radio/playlist ReadList method
     , iCache(aCache)
     , iSemaQ("IDCQ", 0)
-    , iSemaJob("IDCJ", 0)
     , iFifoHi(10)
     , iFifoLo(10)
     , iMutexQueueLow("IDCX")
@@ -332,7 +277,8 @@ void IdCacheSession::Run()
             {
                 Job* job = iFifoHi.Read();
                 job->Start();
-                iSemaJob.Wait();
+                job->Wait();
+                delete job;
             }
             while (iFifoLo.SlotsUsed()>0)
             {
@@ -340,9 +286,9 @@ void IdCacheSession::Run()
                 if (job != NULL)
                 {
                     job->Start();
-                    iSemaJob.Wait();
+                    job->Wait();
                 }
-
+                delete job;
             }
         }
     }
@@ -390,7 +336,6 @@ void IdCacheSession::SetValid(vector<TUint>& aValid)
             readEntriesData->iFunctorsValid = false;
 
             auto job = CreateJob(readEntriesData);
-            ASSERT(job != NULL);
             iFifoLo.Write(job);
 
             iMutexQueueLow.Signal();
@@ -405,65 +350,15 @@ void IdCacheSession::Entries(ReadEntriesData* aReadEntriesData)
     DisposeLock lock(*iDisposeHandler);
 
     Job* job = CreateJob(aReadEntriesData);
-    ASSERT(job != NULL);
     iFifoHi.Write(job);
     iSemaQ.Signal();
 }
 
 
-//Task<IEnumerable<IIdCacheEntry>> CreateJob(IEnumerable<uint> aIds)
 Job* IdCacheSession::CreateJob(ReadEntriesData* aReadEntriesData)
 {
-    // I think this method should be renamed with something more meaningful
-    // perhaps something with "Entries" in the title
-    // I propose "CreateEntriesJob"
-
     Job* job = new Job(MakeFunctorGeneric(*this, &IdCacheSession::CreateJobCallback), aReadEntriesData);
-    ASSERT(job != NULL)
     return(job);
-/*
-    create a new job/thread (with CreateJobCallback that does the stuff below, and calls aCallback with result (vector<IIdCacheEntry*>))
-*/
-
-/*
-    Task<IEnumerable<IIdCacheEntry>> task = new Task<IEnumerable<IIdCacheEntry>>(() =>
-    {
-        List<IIdCacheEntry> entries = new List<IIdCacheEntry>();
-        List<uint> ids = new List<uint>();
-
-        // find all entries currently in cache and build a list of ids required to be fetched
-        foreach (uint id in aIds)
-        {
-            IIdCacheEntry entry = iCache.Entry(iSessionId, id);
-            if (entry == null)
-            {
-                ids.Add(id);
-            }
-            entries.Add(entry);
-        }
-
-        if (ids.Count == 0) // found them all
-        {
-            return entries;
-        }
-
-        // fetch missing ids
-        IEnumerable<IIdCacheEntry> result = iFunction(ids).Result;
-
-        // add retrieved ids to cache
-        uint index = 0;
-        foreach (IIdCacheEntry e in result)
-        {
-            uint id = ids.ElementAt((int)index);
-            IIdCacheEntry entry = iCache.AddEntry(iSessionId, id, e);
-            entries[aIds.ToList().IndexOf(ids[(int)index])] = entry;
-            ++index;
-        }
-
-        return entries;
-    });
-    return task;
-*/
 }
 
 
@@ -497,7 +392,6 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
         {
             readEntriesData->iEntriesCallback(readEntriesData);
         }
-        iSemaJob.Signal();
         return;
     }
 
@@ -515,8 +409,6 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
     {
         readEntriesData->iEntriesCallback(readEntriesData);
     }
-
-    iSemaJob.Signal();
 }
 
 
@@ -542,21 +434,6 @@ void IdCacheSession::GetMissingEntries(void* aObj)
     }
 
     delete payload;
-
-
-/*
-        // add retrieved ids to cache
-        uint index = 0;
-        foreach (IIdCacheEntry e in result)  // result = IEnumerable<IIdCacheEntry>
-        {
-            uint id = ids.ElementAt((int)index);
-            IIdCacheEntry entry = iCache.AddEntry(iSessionId, id, e);
-            entries[aIds.ToList().IndexOf(ids[(int)index])] = entry;
-            ++index;
-        }
-*/
-
-
 }
 
 
