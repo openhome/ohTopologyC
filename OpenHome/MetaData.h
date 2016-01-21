@@ -3,7 +3,7 @@
 #include <OpenHome/OhNetTypes.h>
 #include <OpenHome/Buffer.h>
 #include <OpenHome/TagManager.h>
-
+#include <memory>
 #include <stddef.h>
 
 namespace OpenHome

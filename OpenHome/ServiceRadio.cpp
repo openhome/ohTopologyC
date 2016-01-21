@@ -690,7 +690,7 @@ void ServiceRadioMock::CallbackSetChannel(void* aValue)
 
 void ServiceRadioMock::ReadList(ReadListData* aValue)
 {
-    for (auto it = aValue->iRequiredIds->begin(); it != aValue->iRequiredIds->end(); ++it)
+    for (auto it = aValue->iRequiredIds.begin(); it != aValue->iRequiredIds.end(); ++it)
     {
         if (*it != 0)
         {
@@ -780,20 +780,19 @@ void RadioSnapshot::Read(/*CancellationToken aCancellationToken,*/TUint aIndex, 
 {
     ASSERT((aIndex + aCount) <= Total());
 
-    auto idList = new vector<TUint>();
     TUint limit = aIndex + aCount;
+
+
+    auto readEntriesData = new ReadEntriesData();
+    readEntriesData->iIndex = aIndex;
     for (TUint i = aIndex; i < limit; i++)
     {
         TUint id = (*iIdArray)[i];
         if (id!=0)
         {
-            idList->push_back(id);
+            readEntriesData->iRequestedIds.push_back(id);
         }
     }
-
-    auto readEntriesData = new ReadEntriesData();
-    readEntriesData->iIndex = aIndex;
-    readEntriesData->iRequestedIds = idList;
     readEntriesData->iPresetsCallback = aCallback;
     readEntriesData->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &RadioSnapshot::ReadCallback1);
     readEntriesData->iFunctorsValid = true;

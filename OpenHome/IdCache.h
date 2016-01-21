@@ -24,7 +24,7 @@ struct ReadEntriesData
 {
     FunctorGeneric<ReadEntriesData*> iEntriesCallback;
     FunctorGeneric<std::vector<IMediaPreset*>*> iPresetsCallback;
-    std::vector<TUint>* iRequestedIds;
+    std::vector<TUint> iRequestedIds;
     std::vector<IIdCacheEntry*>* iRetrievedEntries;
     TUint iIndex;
     TBool iFunctorsValid = false;
@@ -35,7 +35,7 @@ struct ReadEntriesData
 struct ReadListData
 {
     std::vector<TUint>* iMissingIds;
-    std::vector<TUint>* iRequiredIds;
+    std::vector<TUint> iRequiredIds;
     std::vector<IIdCacheEntry*>* iEntries;
     std::vector<IIdCacheEntry*>* iRetrievedEntries;
     FunctorGeneric<void*> iCallback;

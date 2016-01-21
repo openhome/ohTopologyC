@@ -333,6 +333,7 @@ void IdCacheSession::Run()
                 Job* job = iFifoHi.Read();
                 job->Start();
                 iSemaJob.Wait();
+
             }
             while (iFifoLo.SlotsUsed()>0)
             {
@@ -341,6 +342,7 @@ void IdCacheSession::Run()
                 {
                     job->Start();
                     iSemaJob.Wait();
+
                 }
 
             }
@@ -379,10 +381,8 @@ void IdCacheSession::SetValid(vector<TUint>& aValid)
 
             iMutexQueueLow.Wait();
 
-            auto v = new vector<TUint>();
-            v->push_back(id);
             auto readEntriesData = new ReadEntriesData();
-            readEntriesData->iRequestedIds = v;
+            readEntriesData->iRequestedIds.push_back(id);
             FunctorGeneric<ReadEntriesData*> f1; // NULL functor
             readEntriesData->iEntriesCallback = f1;
             FunctorGeneric<std::vector<IMediaPreset*>*> f2; // NULL functor
@@ -471,7 +471,7 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
 {
     // I propose renaming this method : "CreateEntriesJobCallback"
     ReadEntriesData* readEntriesData = (ReadEntriesData*)aReadEntriesData;
-    vector<TUint>* reqIds = readEntriesData->iRequestedIds;
+    vector<TUint>& reqIds = readEntriesData->iRequestedIds;
 
     auto entries = new vector<IIdCacheEntry*>();
     auto missingIds = new vector<TUint>();
@@ -479,9 +479,9 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
     readEntriesData->iRetrievedEntries = entries;
 
     // find all entries currently in cache and build a list of ids required to be fetched
-    for (TUint i=0; i<reqIds->size(); i++)
+    for (TUint i=0; i<reqIds.size(); i++)
     {
-        auto id = (*reqIds)[i];
+        auto id = reqIds[i];
         IIdCacheEntry* entry = iCache->Entry(iSessionId, id);
         if (entry == NULL)
         {
@@ -535,9 +535,9 @@ void IdCacheSession::GetMissingEntries(void* aObj)
         {
             TUint id = (*missingIds)[i];
             IIdCacheEntry* entry = iCache->AddEntry(iSessionId, id, (*retrievedEntries)[i]);
-            auto it = find(requiredIds->begin(), requiredIds->end(), id);
-            ASSERT(it != requiredIds->end());
-            (*entries)[it - requiredIds->begin()] = entry;
+            auto it = find(requiredIds.begin(), requiredIds.end(), id);
+            ASSERT(it != requiredIds.end());
+            (*entries)[it - requiredIds.begin()] = entry;
         }
     }
 

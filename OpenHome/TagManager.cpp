@@ -744,7 +744,6 @@ MediaMetadata::MediaMetadata()
 {
 }
 
-
 const map<ITag*, IMediaValue*> MediaMetadata::Values()
 {
     return(iMetadata);
@@ -752,4 +751,3 @@ const map<ITag*, IMediaValue*> MediaMetadata::Values()
 
 
 /////////////////////////////////////////////////////
-

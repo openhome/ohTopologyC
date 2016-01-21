@@ -127,7 +127,6 @@ class MediaMetadata : public MediaDictionary
 {
 public:
     MediaMetadata();
-
     const std::map<ITag*, IMediaValue*> Values();
 };
 

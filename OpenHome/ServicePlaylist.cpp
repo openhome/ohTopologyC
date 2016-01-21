@@ -700,8 +700,7 @@ void ServicePlaylistNetwork::EvaluateInfoNext(TUint aId, vector<TUint>& aIdArray
     {
         auto readEntriesData = new ReadEntriesData();
         readEntriesData->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &ServicePlaylistNetwork::EvaluateInfoNextCallback1);
-        readEntriesData->iRequestedIds = new vector<TUint>();
-        readEntriesData->iRequestedIds->push_back(aIdArray[index+1]);
+        readEntriesData->iRequestedIds.push_back(aIdArray[index+1]);
         readEntriesData->iFunctorsValid = true;
 
         iCacheSession->Entries(readEntriesData);
@@ -710,8 +709,7 @@ void ServicePlaylistNetwork::EvaluateInfoNext(TUint aId, vector<TUint>& aIdArray
     {
         auto readEntriesData = new ReadEntriesData();
         readEntriesData->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &ServicePlaylistNetwork::EvaluateInfoNextCallback1);
-        readEntriesData->iRequestedIds = new vector<TUint>();
-        readEntriesData->iRequestedIds->push_back(aIdArray[0]);
+        readEntriesData->iRequestedIds.push_back(aIdArray[0]);
         readEntriesData->iFunctorsValid = true;
         iCacheSession->Entries(readEntriesData);
     }
@@ -760,6 +758,8 @@ void ServicePlaylistNetwork::EvaluateInfoNextCallback3(void* aReadEntriesData)
     {
         UpdateInfo(new InfoMetadata(&entry->Metadata(), entry->Uri()));
     }
+
+    delete readEntriesData;
 }
 
 
@@ -885,15 +885,15 @@ void PlaylistSnapshot::Read(TUint aIndex, TUint aCount, FunctorGeneric<vector<IM
 {
     ASSERT((aIndex + aCount) <= Total());
 
-    auto idList = new vector<TUint>();
-    for (TUint i = aIndex; i < (aIndex + aCount); i++)
-    {
-        idList->push_back((*iIdArray)[i]);
-    }
+
+
 
     auto readEntriesData = new ReadEntriesData();
+    for (TUint i = aIndex; i < (aIndex + aCount); i++)
+    {
+        readEntriesData->iRequestedIds.push_back((*iIdArray)[i]);
+    }
     readEntriesData->iIndex = aIndex;
-    readEntriesData->iRequestedIds = idList;
     readEntriesData->iPresetsCallback = aCallback;
     readEntriesData->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &PlaylistSnapshot::ReadCallback1);
     readEntriesData->iFunctorsValid = true;
@@ -1267,7 +1267,7 @@ void ServicePlaylistMock::CallbackSetShuffle(void* aValue)
 
 void ServicePlaylistMock::ReadList(ReadListData* aValue)
 {
-    for (auto it = aValue->iRequiredIds->begin(); it != aValue->iRequiredIds->end(); ++it)
+    for (auto it = aValue->iRequiredIds.begin(); it != aValue->iRequiredIds.end(); ++it)
     {
         IIdCacheEntry* entry  = new IdCacheEntry(&(iTracks->at(*it)->Metadata()), iTracks->at(*it)->Uri());
         aValue->iEntries->push_back(entry);
