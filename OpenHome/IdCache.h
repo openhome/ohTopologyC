@@ -163,7 +163,7 @@ class IdCacheEntry : public IIdCacheEntry
 {
 public:
     IdCacheEntry(IMediaMetadata* aMetadata, const Brx& aUri);
-    ~IdCacheEntry() {}
+    ~IdCacheEntry();
     virtual IMediaMetadata& Metadata();
     virtual const Brx& Uri();
 

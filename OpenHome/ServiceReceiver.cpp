@@ -282,7 +282,10 @@ void ServiceReceiverMock::Play(ISenderMetadata& aMetadata)
 void ServiceReceiverMock::PlayMetaCallback(void* aMetadata)
 {
     auto metadata = (ISenderMetadata*)aMetadata;
-    iMetadata->Update(new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(metadata->ToString()), metadata->Uri()));
+    auto oldMetadata = iCurrentMetadata;
+    iCurrentMetadata = new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(metadata->ToString()), metadata->Uri());
+    iMetadata->Update(iCurrentMetadata);
+    delete oldMetadata;
     iTransportState->Update(Brn("Playing"));
 }
 
@@ -417,5 +420,3 @@ IDevice& ProxyReceiver::Device()
 {
     return(iDevice);
 }
-
-

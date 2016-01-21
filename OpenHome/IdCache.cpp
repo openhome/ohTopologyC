@@ -368,7 +368,7 @@ ReadEntriesJob* IdCacheSession::CreateJob(ReadEntriesData* aReadEntriesData)
 void IdCacheSession::ReadEntriesCallback(ReadEntriesData* aReadEntriesData)
 {
 
-    vector<TUint>* reqIds = aReadEntriesData->iRequestedIds;
+    //vector<TUint> reqIds = aReadEntriesData->iRequestedIds;
 
     auto entries = new vector<IIdCacheEntry*>();
     auto missingIds = new vector<TUint>();
@@ -376,9 +376,9 @@ void IdCacheSession::ReadEntriesCallback(ReadEntriesData* aReadEntriesData)
     aReadEntriesData->iRetrievedEntries = entries;
 
     // find all entries currently in cache and build a list of ids required to be fetched
-    for (TUint i=0; i<reqIds.size(); i++)
+    for (TUint i=0; i<aReadEntriesData->iRequestedIds.size(); i++)
     {
-        auto id = reqIds[i];
+        auto id = aReadEntriesData->iRequestedIds[i];
         IIdCacheEntry* entry = iCache->Entry(iSessionId, id);
         if (entry == NULL)
         {
@@ -404,7 +404,7 @@ void IdCacheSession::ReadEntriesCallback(ReadEntriesData* aReadEntriesData)
     // fetch missing ids
     auto readListData = new ReadListData();
     readListData->iMissingIds = missingIds;
-    readListData->iRequiredIds = reqIds;
+    readListData->iRequiredIds = aReadEntriesData->iRequestedIds;
     readListData->iEntries = entries;
 
     readListData->iCallback = MakeFunctorGeneric(*this, &IdCacheSession::GetMissingEntries);
@@ -456,6 +456,10 @@ IdCacheEntry::IdCacheEntry(IMediaMetadata* aMetadata, const Brx& aUri)
     LOG(kApplication7, "IdCacheEntry()\n");
 }
 
+IdCacheEntry::~IdCacheEntry()
+{
+    delete iMetadata;
+}
 
 IMediaMetadata& IdCacheEntry::Metadata()
 {

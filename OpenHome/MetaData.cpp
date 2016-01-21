@@ -61,13 +61,13 @@ InfoMetadata::~InfoMetadata()
 
 IMediaMetadata& InfoMetadata::Metadata()
 {
-    return (*iMetadata);
+    return *iMetadata;
 }
 
 
 const Brx& InfoMetadata::Uri()
 {
-    return (iUri);
+    return iUri;
 }
 
 ///////////////////////////////////////////////////////////////
