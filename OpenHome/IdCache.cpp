@@ -275,19 +275,14 @@ void IdCacheSession::Run()
             iSemaQ.Wait();
             while (iFifoHi.SlotsUsed()>0)
             {
-                Job* job = iFifoHi.Read();
-                job->Start();
-                job->Wait();
+                auto job = iFifoHi.Read();
+                job->Execute();
                 delete job;
             }
             while (iFifoLo.SlotsUsed()>0)
             {
-                Job* job = iFifoLo.Read();
-                if (job != NULL)
-                {
-                    job->Start();
-                    job->Wait();
-                }
+                auto job = iFifoLo.Read();
+                job->Execute();
                 delete job;
             }
         }
@@ -303,12 +298,21 @@ void IdCacheSession::Dispose()
 
     iFifoHi.ReadInterrupt();
     iFifoLo.ReadInterrupt();
-    iFifoLo.Write(NULL);
+
     iSemaQ.Signal();
 
-    iThread->Join();
-    delete iThread;
+    while (iFifoHi.SlotsUsed()>0)
+    {
+        auto job = iFifoHi.Read();
+        delete job;
+    }
+    while (iFifoLo.SlotsUsed()>0)
+    {
+        auto job = iFifoLo.Read();
+        delete job;
+    }
 
+    delete iThread;
 }
 
 
@@ -349,29 +353,27 @@ void IdCacheSession::Entries(ReadEntriesData* aReadEntriesData)
 {
     DisposeLock lock(*iDisposeHandler);
 
-    Job* job = CreateJob(aReadEntriesData);
+    ReadEntriesJob* job = CreateJob(aReadEntriesData);
     iFifoHi.Write(job);
     iSemaQ.Signal();
 }
 
 
-Job* IdCacheSession::CreateJob(ReadEntriesData* aReadEntriesData)
+ReadEntriesJob* IdCacheSession::CreateJob(ReadEntriesData* aReadEntriesData)
 {
-    Job* job = new Job(MakeFunctorGeneric(*this, &IdCacheSession::CreateJobCallback), aReadEntriesData);
+    ReadEntriesJob* job = new ReadEntriesJob(MakeFunctorGeneric(*this, &IdCacheSession::ReadEntriesCallback), aReadEntriesData);
     return(job);
 }
 
 
-void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
+void IdCacheSession::ReadEntriesCallback(ReadEntriesData* aReadEntriesData)
 {
-    // I propose renaming this method : "CreateEntriesJobCallback"
-    ReadEntriesData* readEntriesData = (ReadEntriesData*)aReadEntriesData;
-    vector<TUint>* reqIds = readEntriesData->iRequestedIds;
+    vector<TUint>* reqIds = aReadEntriesData->iRequestedIds;
 
     auto entries = new vector<IIdCacheEntry*>();
     auto missingIds = new vector<TUint>();
 
-    readEntriesData->iRetrievedEntries = entries;
+    aReadEntriesData->iRetrievedEntries = entries;
 
     // find all entries currently in cache and build a list of ids required to be fetched
     for (TUint i=0; i<reqIds->size(); i++)
@@ -388,9 +390,13 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
     if (missingIds->size() == 0) // found them all
     {
         delete missingIds;
-        if (readEntriesData->iFunctorsValid)
+        if (aReadEntriesData->iFunctorsValid)
         {
-            readEntriesData->iEntriesCallback(readEntriesData);
+            aReadEntriesData->iEntriesCallback(aReadEntriesData);
+        }
+        else
+        {
+            delete aReadEntriesData;
         }
         return;
     }
@@ -405,9 +411,13 @@ void IdCacheSession::CreateJobCallback(void* aReadEntriesData)
 
     iFunction(readListData);  // this calls ServicePlaylistNetwork::ReadList or  ServiceRadioNetwork::ReadList
 
-    if (readEntriesData->iFunctorsValid)
+    if (aReadEntriesData->iFunctorsValid)
     {
-        readEntriesData->iEntriesCallback(readEntriesData);
+        aReadEntriesData->iEntriesCallback(aReadEntriesData);
+    }
+    else
+    {
+        delete aReadEntriesData;
     }
 }
 
@@ -492,6 +502,20 @@ IMediaMetadata& IdCacheEntrySession::Metadata()
 const Brx& IdCacheEntrySession::Uri()
 {
     return(iCacheEntry->Uri());
+}
+
+/////////////////////////////////////////////////
+
+ReadEntriesJob::ReadEntriesJob(FunctorGeneric<ReadEntriesData*> aCallback, ReadEntriesData* aArg)
+    :iCallback(aCallback)
+    ,iArg(aArg)
+{
+}
+
+
+void ReadEntriesJob::Execute()
+{
+    iCallback(iArg);
 }
 
 

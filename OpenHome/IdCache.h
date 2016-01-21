@@ -5,7 +5,6 @@
 #include <OpenHome/Exception.h>
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/Media.h>
-#include <OpenHome/Job.h>
 
 #include <vector>
 #include <map>
@@ -28,6 +27,19 @@ struct ReadEntriesData
     std::vector<IIdCacheEntry*>* iRetrievedEntries;
     TUint iIndex;
     TBool iFunctorsValid = false;
+};
+
+///////////////////
+
+class ReadEntriesJob
+{
+public:
+    ReadEntriesJob(FunctorGeneric<ReadEntriesData*> aCallback, ReadEntriesData* aArg);
+    void Execute();
+
+private:
+    FunctorGeneric<ReadEntriesData*> iCallback;
+    ReadEntriesData* iArg;
 };
 
 ///////////////////
@@ -125,8 +137,8 @@ public:
     virtual void Entries(ReadEntriesData* aReadEntriesData);
 
 private:
-    Job* CreateJob(ReadEntriesData* aReadEntriesData);
-    void CreateJobCallback(void* aReadEntriesData);
+    ReadEntriesJob* CreateJob(ReadEntriesData* aReadEntriesData);
+    void ReadEntriesCallback(ReadEntriesData* aReadEntriesData);
     void Run();
 
 private:
@@ -139,8 +151,8 @@ private:
 
     IdCache* iCache;
     Semaphore iSemaQ;
-    Fifo<Job*> iFifoHi;
-    Fifo<Job*> iFifoLo;
+    Fifo<ReadEntriesJob*> iFifoHi;
+    Fifo<ReadEntriesJob*> iFifoLo;
     Mutex iMutexQueueLow;
     ThreadFunctor* iThread;
 };

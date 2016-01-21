@@ -159,7 +159,6 @@ def build(bld):
                 'OpenHome/DeviceFactory.cpp',
                 'OpenHome/IdCache.cpp',
                 'OpenHome/Injector.cpp',
-                'OpenHome/Job.cpp',
                 'OpenHome/MetaData.cpp',
                 'OpenHome/Mockable.cpp',
                 'OpenHome/Network.cpp',
