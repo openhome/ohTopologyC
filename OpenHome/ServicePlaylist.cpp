@@ -719,7 +719,7 @@ void ServicePlaylistNetwork::EvaluateInfoNext(TUint aId, vector<TUint>& aIdArray
     }
 }
 
-void ServicePlaylistNetwork::UpdateInfo(InfoMetadata* aInfo)
+void ServicePlaylistNetwork::UpdateInfo(IInfoMetadata* aInfo)
 {
     auto oldInfo = iCurrentInfo;
     iCurrentInfo = aInfo;
