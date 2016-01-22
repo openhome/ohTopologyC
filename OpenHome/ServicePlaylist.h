@@ -145,7 +145,7 @@ public:
 
 protected:
     Bws<1000> iProtocolInfo;
-    InfoMetadata* iCurrentInfo;
+    IInfoMetadata* iCurrentInfo;
     Bws<100>* iCurrentTransportState;
     Watchable<TUint>* iId;
     Watchable<IInfoMetadata*>* iInfoNext;
@@ -220,7 +220,7 @@ private:
     void Delete(TUint);
     void IdArray(std::vector<TUint>& aIdArray);
     void EvaluateInfoCurrentIndex(TUint aId, std::vector<TUint>& aIdArray);
-    void UpdateInfo(InfoMetadata* aInfo);
+    void UpdateInfo(IInfoMetadata* aInfo);
 
 private:
     Net::CpProxyAvOpenhomeOrgPlaylist1* iService;

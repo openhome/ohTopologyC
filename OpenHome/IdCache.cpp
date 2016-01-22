@@ -405,6 +405,7 @@ void IdCacheSession::ReadEntriesCallback(ReadEntriesData* aReadEntriesData)
     if (missingIds->size() == 0) // found them all
     {
         delete missingIds;
+        delete entries;
         if (aReadEntriesData->iFunctorsValid)
         {
             aReadEntriesData->iEntriesCallback(aReadEntriesData);

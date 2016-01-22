@@ -44,24 +44,22 @@ public:
     InfoMetatext(IMediaMetadata* aMetatext);
 
     IMediaMetadata& Metatext();
-
 private:
     IMediaMetadata* iMetatext;
 };
 
 //////////////////////////////////////////////////////////////////////
 
-class InfoMetadata : public IInfoMetadata, public INonCopyable
+class InfoMetadata : public IInfoMetadata//, public INonCopyable
 {
 friend class Network;
 
 public:
     InfoMetadata(IMediaMetadata* aMetadata, const Brx& aUri);
-    virtual IMediaMetadata& Metadata();
-    virtual const Brx& Uri();
+    ~InfoMetadata();
 
-    virtual ~InfoMetadata();
-
+    IMediaMetadata& Metadata() override;
+    const Brx& Uri() override;
 private:
     InfoMetadata();
 
