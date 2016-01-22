@@ -111,7 +111,6 @@ public:
     static TUint Hash(const Brx& aPrefix, const Brx& aUdn);
     static void NonZeroItems(const std::vector<TUint>& aItems, std::vector<TUint>& aNonZeroItems);
 
-
 private: // (internal)
     void RemoveEntry();
 

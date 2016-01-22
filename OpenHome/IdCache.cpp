@@ -36,13 +36,15 @@ IdCache::IdCache(TUint aMaxCacheEntries)
 
 IdCache::~IdCache()
 {
+    // delete every IdCacheEntrySession in each map in iCache
+    // delete every map in iCache
     for(auto it1 = iCache.begin(); it1 != iCache.end(); ++it1)
     {
         for(auto it2 = it1->second->begin(); it2 != it1->second->end(); ++it2)
         {
-            delete it2->second;
+            delete it2->second; // delete IdCacheEntrySession
         }
-        delete it1->second;
+        delete it1->second; // delete map
     }
     delete iDisposeHandler;
 }
@@ -51,9 +53,8 @@ IdCache::~IdCache()
 void IdCache::Dispose()
 {
     ASSERT(iSessions.size() == 0);
-
     iDisposeHandler->Dispose();
-    iCache.clear();
+    //iCache.clear();
     iLastAccessed.clear();
     iCacheEntries = 0;
 }
@@ -140,7 +141,18 @@ void IdCache::Remove(const Brx& aUdn)
         TUint h = (*keys)[i];
         if (h == playlistHash || h == radioHash)
         {
-            iCache.erase(h);
+            // erase the map at key 'h' in iCache..
+
+            // but first..
+
+            // delete every entry in map
+            for (auto it=iCache[h]->begin(); it!=iCache[h]->end(); it++)
+            {
+               delete it->second;
+            }
+
+            delete iCache[h]; // then delete the map
+            iCache.erase(h); // then erase the map from cache
         }
     }
 }
@@ -165,22 +177,23 @@ void IdCache::SetValid(TUint aSessionId, vector<TUint>& aValid)
 
     AutoMutex mutex(iMutexCache);
 
-    auto c = iCache[aSessionId];
-    auto it = c->begin();
+    auto c = iCache[aSessionId];  // this gets a  std::map<TUint, IdCacheEntrySession*>*
 
-    while(it!=c->end())
+    // iterate through the map
+    for (auto it = c->begin(); it!=c->end(); it++)
     {
+        // for each key in the map...find the key in the aValid vector
         TUint key = it->first;
         auto itv = find(aValid.begin(), aValid.end(), key);
 
-        if (itv != aValid.end())
+        if (itv == aValid.end())
         {
-            it++;
-            c->erase(key);
-            --iCacheEntries;
-            continue;
+            // if the key exists in the vector...
+            IdCacheEntrySession* ces = (*c)[key];
+            delete ces; // delete the session assoc with that key
+            c->erase(key);  // erase the session from the map
+            --iCacheEntries; // dec the entry count
         }
-        it++;
     }
 }
 
@@ -240,7 +253,9 @@ void IdCache::RemoveEntry()
 {
     // must be called with iDisposeHandler, iMutexCache held
     IdCacheEntrySession* entry = iLastAccessed[0];
-    iCache[entry->SessionId()]->erase(entry->Id());
+    auto mp = iCache[entry->SessionId()];
+    delete (*mp)[entry->Id()];
+    mp->erase(entry->Id());
     iLastAccessed.erase(iLastAccessed.begin());
     --iCacheEntries;
 }
