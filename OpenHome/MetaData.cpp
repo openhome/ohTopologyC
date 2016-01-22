@@ -46,7 +46,7 @@ InfoMetadata::InfoMetadata(IMediaMetadata* aMetadata, const Brx& aUri)
     :iMetadata(aMetadata)
     ,iUri(aUri)
 {
-    Log::Print("WHY IS THERE A DOUBLE DELETE ???? CTOR address: %p    Metadata: %p\n", this, &iMetadata);
+    //Log::Print("WHY IS THERE A DOUBLE DELETE ???? CTOR address: %p    Metadata: %p\n", this, &iMetadata);
     ASSERT(aMetadata != NULL);
     //ASSERT(aUri != Brx::Empty());  // FIXME
 }
@@ -54,7 +54,7 @@ InfoMetadata::InfoMetadata(IMediaMetadata* aMetadata, const Brx& aUri)
 
 InfoMetadata::~InfoMetadata()
 {
-    Log::Print("WHY IS THERE A DOUBLE DELETE ???? DTOR address: %p    Metadata: %p\n", this, &iMetadata);
+    //Log::Print("WHY IS THERE A DOUBLE DELETE ???? DTOR address: %p    Metadata: %p\n", this, &iMetadata);
     delete iMetadata;
 }
 
