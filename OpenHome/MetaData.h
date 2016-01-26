@@ -41,11 +41,11 @@ public:
     InfoMetatext();
     ~InfoMetatext();
 
-    InfoMetatext(IMediaMetadata* aMetatext);
+    InfoMetatext(std::shared_ptr<IMediaMetadata> aMetatext);
 
     IMediaMetadata& Metatext();
 private:
-    IMediaMetadata* iMetatext;
+    std::shared_ptr<IMediaMetadata> iMetatext;
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ class InfoMetadata : public IInfoMetadata//, public INonCopyable
 friend class Network;
 
 public:
-    InfoMetadata(IMediaMetadata* aMetadata, const Brx& aUri);
+    InfoMetadata(std::shared_ptr<IMediaMetadata> aMetadata, const Brx& aUri);
     ~InfoMetadata();
 
     IMediaMetadata& Metadata() override;
@@ -64,7 +64,7 @@ private:
     InfoMetadata();
 
 private:
-    IMediaMetadata* iMetadata;
+    std::shared_ptr<IMediaMetadata> iMetadata;
     Bws<500> iUri;
 };
 

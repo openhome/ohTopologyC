@@ -6,7 +6,7 @@
 #include <OpenHome/DisposeHandler.h>
 #include <OpenHome/Tag.h>
 #include <OpenHome/Net/Private/XmlParser.h>
-
+#include <memory>
 #include <vector>
 #include <map>
 
@@ -23,6 +23,24 @@ public:
     virtual ~IMediaValue(){}
 };
 
+///////////////////////////////////////////////////
+
+class MediaValue : public IMediaValue
+{
+public:
+    MediaValue(const Brx& aValue);
+    MediaValue(const std::vector<Brn>& aValues);
+
+    // IMediaServerValue
+    virtual Brn Value();
+    virtual const std::vector<Brn>& Values();
+
+private:
+    std::vector<Brn> iValues;
+    Bws<2083> iValue; // FIXME: random capacity. 2083 is longest URI accepted by IE
+};
+
+
 /////////////////////////////////////////
 
 class IMediaMetadata
@@ -33,7 +51,40 @@ public:
     virtual ~IMediaMetadata() {}
 };
 
+////////////////////////////////////////////////////
+
+class MediaDictionary : public IMediaMetadata
+{
+public:
+    virtual void Add(ITag* aTag, const Brx& aValue);
+    virtual void Add(ITag* aTag, IMediaValue& aValue);
+    virtual void Add(ITag* aTag, IMediaMetadata& aMetadata);
+    // IMediaServerMetadata
+    virtual IMediaValue* Value(ITag* aTag);
+
+protected:
+    MediaDictionary();
+    MediaDictionary(IMediaMetadata& aMetadata);
+    ~MediaDictionary();
+
+protected:
+    std::map<ITag*, IMediaValue*> iMetadata;
+};
+
+
+
+
 /////////////////////////////////////////
+
+class MediaMetadata : public MediaDictionary
+{
+public:
+    MediaMetadata();
+    const std::map<ITag*, IMediaValue*> Values();
+};
+
+///////////////////////////////////////////////////
+
 
 
 class ITagManager
@@ -44,7 +95,7 @@ public:
     virtual ITagRealm& Realm(ETagRealm aRealm) = 0;
     virtual ITagRealmAudio& Audio() = 0;
 
-    virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata) = 0;
+    virtual std::unique_ptr<MediaMetadata> FromDidlLite(const Brx& aMetadata) = 0;
     virtual void ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf) = 0;
     virtual ~ITagManager() {}
 };
@@ -60,7 +111,7 @@ public:
     TagManager();
     ~TagManager();
 
-    virtual IMediaMetadata* FromDidlLite(const Brx& aMetadata);
+    virtual std::unique_ptr<MediaMetadata> FromDidlLite(const Brx& aMetadata);
     virtual void ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf);
     virtual TUint MaxSystemTagId();
     virtual ITag* Tag(TUint aId);
@@ -84,53 +135,9 @@ private:
 };
 
 
-/////////////////////////////////////////
 
-class MediaValue : public IMediaValue
-{
-public:
-    MediaValue(const Brx& aValue);
-    MediaValue(const std::vector<Brn>& aValues);
 
-    // IMediaServerValue
-    virtual Brn Value();
-    virtual const std::vector<Brn>& Values();
 
-private:
-    std::vector<Brn> iValues;
-    Bws<2083> iValue; // FIXME: random capacity. 2083 is longest URI accepted by IE
-};
-
-////////////////////////////////////////////////////
-
-class MediaDictionary : public IMediaMetadata
-{
-public:
-    virtual void Add(ITag* aTag, const Brx& aValue);
-    virtual void Add(ITag* aTag, IMediaValue& aValue);
-    virtual void Add(ITag* aTag, IMediaMetadata& aMetadata);
-    // IMediaServerMetadata
-    virtual IMediaValue* Value(ITag* aTag);
-
-protected:
-    MediaDictionary();
-    MediaDictionary(IMediaMetadata& aMetadata);
-    ~MediaDictionary();
-
-protected:
-    std::map<ITag*, IMediaValue*> iMetadata;
-};
-
-///////////////////////////////////////////////////
-
-class MediaMetadata : public MediaDictionary
-{
-public:
-    MediaMetadata();
-    const std::map<ITag*, IMediaValue*> Values();
-};
-
-///////////////////////////////////////////////////
 
 } // Topology
 } // OpenHome

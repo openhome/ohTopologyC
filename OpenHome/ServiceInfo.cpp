@@ -276,12 +276,11 @@ void ServiceInfoNetwork::HandleMetadataChangedCallback2(void*)
         Brhz metadatastr;
         iService->PropertyMetadata(metadatastr);
 
-        IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metadatastr);
         Brhz uri;
         iService->PropertyUri(uri);
 
         auto oldMetadata = iCurrentMetadata;
-        iCurrentMetadata = new InfoMetadata(metadata, uri);
+        iCurrentMetadata = new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(metadatastr), uri);
         iMetadata->Update(iCurrentMetadata);
 
         if(oldMetadata!=iNetwork.InfoMetadataEmpty())
@@ -313,8 +312,7 @@ void ServiceInfoNetwork::HandleMetatextChangedCallback2(void*)
         iService->PropertyMetatext(metatextstr);
 
         auto oldMetatext = iCurrentMetatext;
-        IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metatextstr);
-        iCurrentMetatext = new InfoMetatext(metadata);
+        iCurrentMetatext = new InfoMetatext(iNetwork.GetTagManager().FromDidlLite(metatextstr));
         iMetatext->Update(iCurrentMetatext);
         if(oldMetatext!=iNetwork.InfoMetatextEmpty())
         {
@@ -435,5 +433,3 @@ void ProxyInfo::Dispose()
 {
     iService.Unsubscribe();
 }
-
-

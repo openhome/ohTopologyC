@@ -405,7 +405,6 @@ void IdCacheSession::ReadEntriesCallback(ReadEntriesData* aReadEntriesData)
     if (missingIds->size() == 0) // found them all
     {
         delete missingIds;
-        delete entries;
         if (aReadEntriesData->iFunctorsValid)
         {
             aReadEntriesData->iEntriesCallback(aReadEntriesData);
@@ -465,7 +464,7 @@ void IdCacheSession::GetMissingEntries(void* aObj)
 
 //////////////////////////////////////////////////////////////////////
 
-IdCacheEntry::IdCacheEntry(IMediaMetadata* aMetadata, const Brx& aUri)
+IdCacheEntry::IdCacheEntry(std::shared_ptr<IMediaMetadata> aMetadata, const Brx& aUri)
     :iMetadata(aMetadata)
     ,iUri(aUri)
 {
@@ -474,12 +473,11 @@ IdCacheEntry::IdCacheEntry(IMediaMetadata* aMetadata, const Brx& aUri)
 
 IdCacheEntry::~IdCacheEntry()
 {
-    delete iMetadata;
 }
 
-IMediaMetadata& IdCacheEntry::Metadata()
+std::shared_ptr<IMediaMetadata> IdCacheEntry::Metadata()
 {
-    return(*iMetadata);
+    return iMetadata;
 }
 
 
@@ -513,7 +511,7 @@ TUint IdCacheEntrySession::Id()
 }
 
 
-IMediaMetadata& IdCacheEntrySession::Metadata()
+std::shared_ptr<IMediaMetadata> IdCacheEntrySession::Metadata()
 {
     return(iCacheEntry->Metadata());
 }
