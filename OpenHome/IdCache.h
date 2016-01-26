@@ -154,6 +154,7 @@ private:
     Fifo<ReadEntriesJob*> iFifoLo;
     Mutex iMutexQueueLow;
     ThreadFunctor* iThread;
+    TBool iQuit;
 };
 
 //////////////////////////////////////////////////////

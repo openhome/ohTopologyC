@@ -270,6 +270,7 @@ IdCacheSession::IdCacheSession(TUint aSessionId, FunctorGeneric<ReadListData*> a
     , iFifoHi(10)
     , iFifoLo(10)
     , iMutexQueueLow("IDCX")
+    , iQuit(false)
 {
 
     iThread = new ThreadFunctor("IdCacheSession", MakeFunctor(*this, &IdCacheSession::Run) );
@@ -283,27 +284,26 @@ IdCacheSession::~IdCacheSession()
 
 void IdCacheSession::Run()
 {
-    try
+    for (;;)
     {
-        for (;;)
+        iSemaQ.Wait();
+        if (iQuit)
         {
-            iSemaQ.Wait();
-            while (iFifoHi.SlotsUsed()>0)
-            {
-
-                auto job = iFifoHi.Read();
-                job->Execute();
-                delete job;
-            }
-            while (iFifoLo.SlotsUsed()>0)
-            {
-                auto job = iFifoLo.Read();
-                job->Execute();
-                delete job;
-            }
+            break;
+        }
+        while (iFifoHi.SlotsUsed()>0)
+        {
+            auto job = iFifoHi.Read();
+            job->Execute();
+            delete job;
+        }
+        while (iFifoLo.SlotsUsed()>0)
+        {
+            auto job = iFifoLo.Read();
+            job->Execute();
+            delete job;
         }
     }
-    catch (FifoReadError&) {}
 }
 
 
@@ -312,9 +312,7 @@ void IdCacheSession::Dispose()
     iDisposeHandler->Dispose();
     iCache->DestroySession(iSessionId);
 
-    iFifoHi.ReadInterrupt();
-    iFifoLo.ReadInterrupt();
-
+    iQuit = true;
     iSemaQ.Signal();
 
     while (iFifoHi.SlotsUsed()>0)
