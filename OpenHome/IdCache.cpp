@@ -38,7 +38,7 @@ IdCache::~IdCache()
 {
     // delete every IdCacheEntrySession in each map in iCache
     // delete every map in iCache
-    for(auto it1 = iCache.begin(); it1 != iCache.end(); )
+    for(auto it1 = iCache.begin(); it1 != iCache.end(); ++it1)
     {
         for(auto it2 = it1->second->begin(); it2 != it1->second->end(); ++it2)
         {
