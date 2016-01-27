@@ -38,7 +38,7 @@ IdCache::~IdCache()
 {
     // delete every IdCacheEntrySession in each map in iCache
     // delete every map in iCache
-    for(auto it1 = iCache.begin(); it1 != iCache.end(); ++it1)
+    for(auto it1 = iCache.begin(); it1 != iCache.end(); )
     {
         for(auto it2 = it1->second->begin(); it2 != it1->second->end(); ++it2)
         {
@@ -54,7 +54,6 @@ void IdCache::Dispose()
 {
     ASSERT(iSessions.size() == 0);
     iDisposeHandler->Dispose();
-    //iCache.clear();
     iLastAccessed.clear();
     iCacheEntries = 0;
 }
@@ -180,7 +179,7 @@ void IdCache::SetValid(TUint aSessionId, vector<TUint>& aValid)
     auto c = iCache[aSessionId];  // this gets a  std::map<TUint, IdCacheEntrySession*>*
 
     // iterate through the map
-    for (auto it = c->begin(); it!=c->end(); it++)
+    for (auto it = c->begin(); it!=c->end(); )
     {
         // for each key in the map...find the key in the aValid vector
         TUint key = it->first;
@@ -191,8 +190,12 @@ void IdCache::SetValid(TUint aSessionId, vector<TUint>& aValid)
             // if the key exists in the vector...
             IdCacheEntrySession* ces = (*c)[key];
             delete ces; // delete the session assoc with that key
-            c->erase(key);  // erase the session from the map
+            it = c->erase(it);  // erase the session from the map (and reassign iterator to a valid state)
             --iCacheEntries; // dec the entry count
+        }
+        else
+        {
+            ++it;  // only inc iterator if we haven't erased from map
         }
     }
 }
