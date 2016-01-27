@@ -604,8 +604,8 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
             }
 
             xmlNodeList = remaining;
-            IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metadataText);
-            IdCacheEntry* cacheEntry = new IdCacheEntry(metadata, uriText);
+
+            IdCacheEntry* cacheEntry = new IdCacheEntry(iNetwork.GetTagManager().FromDidlLite(metadataText), uriText);
             LOG(kApplication7, "created new cache entry \n");
             entries->push_back(cacheEntry);
             LOG(kApplication7, "entries->size()=%d \n", entries->size());
@@ -756,7 +756,7 @@ void ServicePlaylistNetwork::EvaluateInfoNextCallback3(void* aReadEntriesData)
     }
     else
     {
-        UpdateInfo(new InfoMetadata(&entry->Metadata(), entry->Uri()));
+        UpdateInfo(new InfoMetadata(entry->Metadata(), entry->Uri()));
     }
 
     delete readEntriesData;
@@ -936,7 +936,7 @@ void PlaylistSnapshot::ReadCallback2(void* aObj)
             ASSERT(it!=iIdArray->end());
             TUint idIndex = it-iIdArray->begin();
 
-            tracks->push_back(new MediaPresetPlaylist(iNetwork, (idIndex + 1), id, entry->Metadata(), iPlaylist));
+            tracks->push_back(new MediaPresetPlaylist(iNetwork, (idIndex + 1), id, *(entry->Metadata()), iPlaylist));
             index++;
         }
 
@@ -945,7 +945,7 @@ void PlaylistSnapshot::ReadCallback2(void* aObj)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TrackMock::TrackMock(const Brx& aUri, IMediaMetadata& aMetadata)
+TrackMock::TrackMock(const Brx& aUri, std::shared_ptr<IMediaMetadata> aMetadata)
     : iUri(aUri.Ptr(), aUri.Bytes())
     , iMetadata(aMetadata)
 {
@@ -961,13 +961,13 @@ const Brx& TrackMock::Uri() const
     return iUri;
 }
 
-IMediaMetadata& TrackMock::Metadata() const
+std::shared_ptr<IMediaMetadata> TrackMock::Metadata() const
 {
     return iMetadata;
 }
 
 
-ServicePlaylistMock::ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aTracks, TBool aRepeat, TBool aShuffle, const Brx& aTransportState, const Brx& aProtocolInfo, TUint aTracksMax, ILog& aLog)
+ServicePlaylistMock::ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, std::vector<std::shared_ptr<IMediaMetadata>>& aTracks, TBool aRepeat, TBool aShuffle, const Brx& aTransportState, const Brx& aProtocolInfo, TUint aTracksMax, ILog& aLog)
     : ServicePlaylist(aDevice, aLog)
     , iIdFactory(0)
     , iTracks(new std::vector<TrackMock*>())
@@ -980,7 +980,7 @@ ServicePlaylistMock::ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, st
     for (auto it = aTracks.begin(); it != aTracks.end(); ++it)
     {
         iIdArray->push_back(iIdFactory);
-        TrackMock* track = new TrackMock(((*it)->Values().at(iNetwork.GetTagManager().Audio().Uri()))->Value(), (**it));
+        TrackMock* track = new TrackMock(((*it)->Values().at(iNetwork.GetTagManager().Audio().Uri()))->Value(), (*it));
         iTracks->push_back(track);
         ++iIdFactory;
     }
@@ -1137,7 +1137,8 @@ void ServicePlaylistMock::CallbackInsert(void* aValue)
     newId = iIdFactory;
     iIdArray->insert(iIdArray->begin() + index + 1, newId);
 
-    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(std::get<1>(*insertData), std::get<2>(*insertData)));
+    std::shared_ptr<IMediaMetadata> pData(&(std::get<2>(*insertData)));
+    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(std::get<1>(*insertData), pData));
 
     ++iIdFactory;
 
@@ -1163,7 +1164,8 @@ void ServicePlaylistMock::CallbackInsertNext(void* aValue)
 
     TUint newId = iIdFactory;
     iIdArray->insert(iIdArray->begin() + index + 1, newId);
-    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(insertData->first, insertData->second));
+    std::shared_ptr<IMediaMetadata> pData(&(insertData->second));
+    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(insertData->first, pData));
 
     ++iIdFactory;
 
@@ -1188,7 +1190,8 @@ void ServicePlaylistMock::CallbackInsertEnd(void* aValue)
 
     TUint newId = iIdFactory;
     iIdArray->insert(iIdArray->begin() + index + 1, newId);
-    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(insertData->first, insertData->second));
+    std::shared_ptr<IMediaMetadata> pData(&(insertData->second));
+    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(insertData->first, pData));
     ++iIdFactory;
 
     auto newPlaylistSnapshot = new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this);
@@ -1269,7 +1272,7 @@ void ServicePlaylistMock::ReadList(ReadListData* aValue)
 {
     for (auto it = aValue->iRequiredIds.begin(); it != aValue->iRequiredIds.end(); ++it)
     {
-        IIdCacheEntry* entry  = new IdCacheEntry(&(iTracks->at(*it)->Metadata()), iTracks->at(*it)->Uri());
+        IIdCacheEntry* entry  = new IdCacheEntry(iTracks->at(*it)->Metadata(), iTracks->at(*it)->Uri());
         aValue->iEntries->push_back(entry);
     }
 }

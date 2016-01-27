@@ -177,7 +177,7 @@ void SuiteServiceRadioNetwork::TestSetChannel()
     iExpected = { CpProxyAvOpenhomeOrgRadio1Test::RadioEvent::eBeginSetChannel };
     std::unique_ptr<MediaMetadata> metadata(new MediaMetadata());
     Bws<4> test("test");
-    iService->SetChannel(test, *metadata);
+    iService->SetChannel(test, std::move(metadata));
 }
 
 void SuiteServiceRadioNetwork::TestCreateProxy()

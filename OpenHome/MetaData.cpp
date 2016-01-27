@@ -18,10 +18,9 @@ InfoMetatext::InfoMetatext()
 
 InfoMetatext::~InfoMetatext()
 {
-    delete iMetatext;
 }
 
-InfoMetatext::InfoMetatext(IMediaMetadata* aMetatext)
+InfoMetatext::InfoMetatext(std::shared_ptr<IMediaMetadata> aMetatext)
     :iMetatext(aMetatext)
 {
     ASSERT(aMetatext != NULL);
@@ -42,7 +41,7 @@ InfoMetadata::InfoMetadata()
 }
 
 
-InfoMetadata::InfoMetadata(IMediaMetadata* aMetadata, const Brx& aUri)
+InfoMetadata::InfoMetadata(std::shared_ptr<IMediaMetadata> aMetadata, const Brx& aUri)
     :iMetadata(aMetadata)
     ,iUri(aUri)
 {
@@ -55,7 +54,6 @@ InfoMetadata::InfoMetadata(IMediaMetadata* aMetadata, const Brx& aUri)
 InfoMetadata::~InfoMetadata()
 {
     //Log::Print("WHY IS THERE A DOUBLE DELETE ???? DTOR address: %p    Metadata: %p\n", this, &iMetadata);
-    delete iMetadata;
 }
 
 

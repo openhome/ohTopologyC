@@ -99,7 +99,7 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
     ServiceReceiverMock* srm =  new ServiceReceiverMock(*device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty(), aLog);
     device->Add(eProxyReceiver, srm);
 
-    std::vector<IMediaMetadata*> tracks;// = new std::vector<IMediaMetadata*>();
+    std::vector<std::shared_ptr<IMediaMetadata>> tracks;// = new std::vector<IMediaMetadata*>();
     ServicePlaylistMock* spm = new ServicePlaylistMock(*device, 0, tracks, false, false, Brn("Stopped"), Brx::Empty(), 1000, aLog);
     device->Add(eProxyPlaylist, spm);
             // credentials service
@@ -314,6 +314,3 @@ IInjectorDevice* DeviceFactory::Create(INetwork& aNetwork, CpDevice& aDevice, IL
     return device;
 }
 */
-
-
-

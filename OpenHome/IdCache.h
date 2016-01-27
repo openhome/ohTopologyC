@@ -5,7 +5,7 @@
 #include <OpenHome/Exception.h>
 #include <OpenHome/OhTopologyC.h>
 #include <OpenHome/Media.h>
-
+#include <memory>
 #include <vector>
 #include <map>
 
@@ -58,7 +58,7 @@ struct ReadListData
 class IIdCacheEntry
 {
 public:
-    virtual IMediaMetadata& Metadata() = 0;
+    virtual std::shared_ptr<IMediaMetadata> Metadata() = 0;
     virtual const Brx& Uri() = 0;
     virtual ~IIdCacheEntry() {}
 };
@@ -162,13 +162,13 @@ private:
 class IdCacheEntry : public IIdCacheEntry
 {
 public:
-    IdCacheEntry(IMediaMetadata* aMetadata, const Brx& aUri);
+    IdCacheEntry(std::shared_ptr<IMediaMetadata> aMetadata, const Brx& aUri);
     ~IdCacheEntry();
-    virtual IMediaMetadata& Metadata();
+    virtual std::shared_ptr<IMediaMetadata> Metadata();
     virtual const Brx& Uri();
 
 private:
-    IMediaMetadata* iMetadata;
+    std::shared_ptr<IMediaMetadata> iMetadata;
     Bws<1000> iUri;
 };
 
@@ -181,7 +181,7 @@ public:
     ~IdCacheEntrySession();
     virtual TUint SessionId();
     virtual TUint Id();
-    virtual IMediaMetadata& Metadata();
+    virtual std::shared_ptr<IMediaMetadata> Metadata();
     virtual const Brx& Uri();
 
 private:

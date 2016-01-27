@@ -331,10 +331,10 @@ void ServiceRadioNetwork::SetId(TUint aId, const Brx& aUri)
     iService->BeginSetId(aId, aUri, f);
 }
 
-void ServiceRadioNetwork::SetChannel(const Brx& aUri, IMediaMetadata& aMetadata)
+void ServiceRadioNetwork::SetChannel(const Brx& aUri, std::shared_ptr<IMediaMetadata> aMetadata)
 {
     Bws<1024> didlLite;
-    iNetwork.GetTagManager().ToDidlLite(aMetadata, didlLite);
+    iNetwork.GetTagManager().ToDidlLite(*aMetadata, didlLite);
     FunctorAsync f;
     iService->BeginSetChannel(aUri, didlLite, f);
 }
@@ -397,13 +397,13 @@ void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
                     if(Ascii::Uint(idText) == id)
                     {
                         metadataText = XmlParserBasic::Find(Brn("Metadata"), entryText);
-                        IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metadataText);
+                        auto metadata = iNetwork.GetTagManager().FromDidlLite(metadataText);
                         auto mvs = metadata->Values();
                         auto mv = mvs[iNetwork.GetTagManager().Audio().Uri()];
                         if(mv)
                         {
                             Brn uri = mv->Value();
-                            entries->push_back(new IdCacheEntry(metadata, uri));
+                            entries->push_back(new IdCacheEntry(std::move(metadata), uri)); //metadata is not available after being passed to IdCacheEntry
                         }
                         break;
                     }
@@ -503,13 +503,11 @@ void ServiceRadioNetwork::HandleMetadataChangedCallback2(void*)
         Brhz metaDataStr;
         iService->PropertyMetadata(metaDataStr);
 
-        IMediaMetadata* metadata = iNetwork.GetTagManager().FromDidlLite(metaDataStr);
-
         Brhz uri;
         iService->PropertyUri(uri);
 
         auto oldMetadata = iCurrentMetadata;
-        iCurrentMetadata = new InfoMetadata(metadata, Brn(uri));
+        iCurrentMetadata = new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(metaDataStr), Brn(uri));
         iMetadata->Update(iCurrentMetadata);
         if(oldMetadata!=iNetwork.InfoMetadataEmpty())
         {
@@ -549,7 +547,7 @@ void ServiceRadioNetwork::HandleTransportStateChangedCallback2(void*)
 
 ////////////////////////////////////////////////////////////////////////
 
-ServiceRadioMock::ServiceRadioMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aPresets, IInfoMetadata* aMetadata, const Brx& aProtocolInfo, const Brx& aTransportState, TUint aChannelsMax, ILog& aLog)
+ServiceRadioMock::ServiceRadioMock(IInjectorDevice& aDevice, TUint aId, std::vector<std::shared_ptr<IMediaMetadata>>& aPresets, IInfoMetadata* aMetadata, const Brx& aProtocolInfo, const Brx& aTransportState, TUint aChannelsMax, ILog& aLog)
     : ServiceRadio(aDevice, aLog)
     , iPresets(aPresets)
 {
@@ -673,16 +671,16 @@ void ServiceRadioMock::CallbackSetId(void* aValue)
     delete id;
 }
 
-void ServiceRadioMock::SetChannel(const Brx& aUri, IMediaMetadata& aMetadata)
+void ServiceRadioMock::SetChannel(const Brx& aUri, std::shared_ptr<IMediaMetadata> aMetadata)
 {
-    auto channelData = new std::pair<const Brx&, IMediaMetadata&>(aUri, aMetadata);
+    auto channelData = new std::pair<const Brx&, std::shared_ptr<IMediaMetadata>>(aUri, aMetadata);
     iNetwork.Execute(MakeFunctorGeneric<void*>(*this, &ServiceRadioMock::CallbackSetChannel), channelData);
 }
 
 void ServiceRadioMock::CallbackSetChannel(void* aValue)
 {
-    auto channelData = (std::pair<const Brx&, IMediaMetadata&>*)aValue;
-    auto newMetadata = new InfoMetadata(&channelData->second, channelData->first);
+    auto channelData = (std::pair<const Brx&, std::shared_ptr<IMediaMetadata>>*)aValue;
+    auto newMetadata = new InfoMetadata(channelData->second, channelData->first);
     auto oldMetadata = iMetadata->Value();
     iMetadata->Update(newMetadata);
     if (oldMetadata){delete oldMetadata;}
@@ -845,7 +843,7 @@ void RadioSnapshot::ReadCallback2(void* aObj)
             ASSERT(it!=iIdArray->end());
             TUint idIndex = it-iIdArray->begin();
 
-            presets->push_back(new MediaPresetRadio(iNetwork, (idIndex + 1), id, e->Metadata(), e->Uri(), iRadio));
+            presets->push_back(new MediaPresetRadio(iNetwork, (idIndex + 1), id, *(e->Metadata()), e->Uri(), iRadio));
             index++;
         }
 
@@ -916,7 +914,7 @@ void ProxyRadio::SetId(TUint aId, const Brx& aUri)
     return iService.SetId(aId, aUri);
 }
 
-void ProxyRadio::SetChannel(const Brx& aUri, IMediaMetadata& aMetadata)
+void ProxyRadio::SetChannel(const Brx& aUri, std::shared_ptr<IMediaMetadata> aMetadata)
 {
     return iService.SetChannel(aUri, aMetadata);
 }

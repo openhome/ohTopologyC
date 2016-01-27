@@ -181,12 +181,10 @@ void ServiceReceiverNetwork::HandleMetadataChanged()
     Brhz metadata;
     iService->PropertyMetadata(metadata);
 
-    IMediaMetadata* mediaMetadata = iNetwork.GetTagManager().FromDidlLite(metadata);
-
     Brhz uri;
     iService->PropertyUri(uri);
 
-    IInfoMetadata* infoMetadata = new InfoMetadata(mediaMetadata, Brn(uri)); // FIXME: is it ok to new this here rather than in the functor below ???
+    IInfoMetadata* infoMetadata = new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(metadata), Brn(uri)); // FIXME: is it ok to new this here rather than in the functor below ???
 
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &ServiceReceiverNetwork::MetadataChangedCallback1);
     Schedule(f, infoMetadata);

@@ -1,5 +1,5 @@
 ohTopologyC provides a view onto devices implementing the OpenHome Media
-standard.  See http://www.openhome.org/wiki/Av:Developer for details.
+standard.  See http://wiki.openhome.org/wiki/Av:Developer for details.
 
 The code can be built for Windows, Mac, Linux or PPC.
 System requirements:
