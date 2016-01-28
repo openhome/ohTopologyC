@@ -65,7 +65,7 @@ public:
 protected:
     MediaDictionary();
     MediaDictionary(IMediaMetadata& aMetadata);
-    ~MediaDictionary();
+    virtual ~MediaDictionary();
 
 protected:
     std::map<ITag*, IMediaValue*> iMetadata;
