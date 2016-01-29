@@ -96,10 +96,11 @@ public:
     IdCache(TUint aMaxCacheEntries);
     virtual ~IdCache();
 
-    virtual IdCacheSession* CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction) override;
+    // IIdCache
+    IdCacheSession* CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction) override;
 
     // IDisposable
-    virtual void Dispose() override;
+    void Dispose() override;
 
     void DestroySession(TUint aSessionId);
     void SetValid(TUint aSessionId, std::vector<TUint>& aValid);
@@ -132,17 +133,19 @@ class IdCacheSession : public IIdCacheSession
 public:
     IdCacheSession(TUint aSessionId, FunctorGeneric<ReadListData*> aFunction, IdCache* aCache);
     ~IdCacheSession();
-    virtual void Dispose() override;
-    virtual void SetValid(std::vector<TUint>& aValid);
-    virtual void Entries(ReadEntriesData* aReadEntriesData);
+
+    // Disposable
+    void Dispose() override;
+
+    // IIdCacheSession
+    void SetValid(std::vector<TUint>& aValid) override;
+    void Entries(ReadEntriesData* aReadEntriesData) override;
 
 private:
     ReadEntriesJob* CreateJob(ReadEntriesData* aReadEntriesData);
     void ReadEntriesCallback(ReadEntriesData* aReadEntriesData);
-    void Run();
-
-private:
     void GetMissingEntries(void* aObj);
+    void Run();
 
 private:
     DisposeHandler* iDisposeHandler;
@@ -165,8 +168,10 @@ class IdCacheEntry : public IIdCacheEntry
 public:
     IdCacheEntry(IMediaMetadata* aMetadata, const Brx& aUri);
     ~IdCacheEntry();
-    virtual IMediaMetadata& Metadata() override;
-    virtual const Brx& Uri() override;
+
+    // IIdCacheEntry
+    IMediaMetadata& Metadata() override;
+    const Brx& Uri() override;
 
 private:
     IMediaMetadata* iMetadata;
@@ -180,10 +185,10 @@ class IdCacheEntrySession : public IIdCacheEntry
 public:
     IdCacheEntrySession(TUint aSessionId, TUint aId, std::shared_ptr<IIdCacheEntry> aCacheEntry);
     ~IdCacheEntrySession();
-    virtual TUint SessionId();
-    virtual TUint Id();
-    std::shared_ptr<IIdCacheEntry> Entry();
 
+    TUint SessionId();
+    TUint Id();
+    std::shared_ptr<IIdCacheEntry> Entry();
 
     // IIdCacheEntry
     IMediaMetadata& Metadata() override;
