@@ -182,7 +182,7 @@ public:
     ~IdCacheEntrySession();
     virtual TUint SessionId();
     virtual TUint Id();
-    std::shared_ptr<IIdCacheEntry> IdCacheEntrySession::Entry();
+    std::shared_ptr<IIdCacheEntry> Entry();
 
 
     // IIdCacheEntry
