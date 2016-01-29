@@ -95,7 +95,7 @@ public:
     virtual ITagRealm& Realm(ETagRealm aRealm) = 0;
     virtual ITagRealmAudio& Audio() = 0;
 
-    virtual std::unique_ptr<MediaMetadata> FromDidlLite(const Brx& aMetadata) = 0;
+    virtual MediaMetadata* FromDidlLite(const Brx& aMetadata) = 0;
     virtual void ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf) = 0;
     virtual ~ITagManager() {}
 };
@@ -111,7 +111,7 @@ public:
     TagManager();
     ~TagManager();
 
-    virtual std::unique_ptr<MediaMetadata> FromDidlLite(const Brx& aMetadata);
+    virtual MediaMetadata* FromDidlLite(const Brx& aMetadata);
     virtual void ToDidlLite(IMediaMetadata& aMetadata, Bwx& aBuf);
     virtual TUint MaxSystemTagId();
     virtual ITag* Tag(TUint aId);
@@ -123,9 +123,9 @@ public:
     virtual void Add(ITag* aTag);
 
 private: //Private utility functions for Xml Parsing in FromDidlLite
-	Brn GoFind(const Brx& aTag, const Brx& aMetadata);
-	Brn GoFindAttribute(const Brx& aTag, const Brx& aAttribute, const Brx& aMetadata);
-	Brn GoFindElement(const Brx& aTag, const Brx& aAttribute, const Brx& aMetadata);
+    Brn GoFind(const Brx& aTag, const Brx& aMetadata);
+    Brn GoFindAttribute(const Brx& aTag, const Brx& aAttribute, const Brx& aMetadata);
+    Brn GoFindElement(const Brx& aTag, const Brx& aAttribute, const Brx& aMetadata);
 private:
     std::map<TUint, ITag*> iTags;
     std::map<ETagRealm, ITagRealm*> iRealms;

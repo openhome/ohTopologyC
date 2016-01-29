@@ -122,9 +122,9 @@ Brn TagManager::GoFindElement(const Brx& aTag, const Brx& aElements, const Brx& 
     }
 }
 
-std::unique_ptr<MediaMetadata> TagManager::FromDidlLite(const Brx& aMetadata)
+MediaMetadata* TagManager::FromDidlLite(const Brx& aMetadata)
 {
-    std::unique_ptr<MediaMetadata> metadata(new MediaMetadata()); //!FIXME Change to make_unique when C++14 supported
+    MediaMetadata* metadata = new MediaMetadata();
 
     if (!aMetadata.Equals(Brx::Empty()))
     {

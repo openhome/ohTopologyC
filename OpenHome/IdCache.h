@@ -24,7 +24,7 @@ struct ReadEntriesData
     FunctorGeneric<ReadEntriesData*> iEntriesCallback;
     FunctorGeneric<std::vector<IMediaPreset*>*> iPresetsCallback;
     std::vector<TUint> iRequestedIds;
-    std::vector<IIdCacheEntry*>* iRetrievedEntries;
+    std::vector<std::shared_ptr<IIdCacheEntry>>* iRetrievedEntries;
     TUint iIndex;
     TBool iFunctorsValid = false;
 };
@@ -48,8 +48,8 @@ struct ReadListData
 {
     std::vector<TUint>* iMissingIds;
     std::vector<TUint> iRequiredIds;
-    std::vector<IIdCacheEntry*>* iEntries;
-    std::vector<IIdCacheEntry*>* iRetrievedEntries;
+    std::vector<std::shared_ptr<IIdCacheEntry>>* iEntries;
+    std::vector<std::shared_ptr<IIdCacheEntry>>* iRetrievedEntries;
     FunctorGeneric<void*> iCallback;
 };
 
@@ -58,7 +58,7 @@ struct ReadListData
 class IIdCacheEntry
 {
 public:
-    virtual std::shared_ptr<IMediaMetadata> Metadata() = 0;
+    virtual IMediaMetadata& Metadata() = 0;
     virtual const Brx& Uri() = 0;
     virtual ~IIdCacheEntry() {}
 };
@@ -96,16 +96,16 @@ public:
     IdCache(TUint aMaxCacheEntries);
     virtual ~IdCache();
 
-    virtual IdCacheSession* CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction);
+    virtual IdCacheSession* CreateSession(TUint aId, FunctorGeneric<ReadListData*> aFunction) override;
 
     // IDisposable
-    virtual void Dispose();
+    virtual void Dispose() override;
 
     void DestroySession(TUint aSessionId);
     void SetValid(TUint aSessionId, std::vector<TUint>& aValid);
     void Remove(const Brx& aUdn);
-    IIdCacheEntry* Entry(TUint aSessionId, TUint aId);
-    IIdCacheEntry* AddEntry(TUint aSessionId, TUint aId, IIdCacheEntry* aEntry);
+    std::shared_ptr<IIdCacheEntry> Entry(TUint aSessionId, TUint aId);
+    std::shared_ptr<IIdCacheEntry> AddEntry(TUint aSessionId, TUint aId, std::shared_ptr<IIdCacheEntry> aEntry);
 
     static void UnpackIdArray(Brh& aIdArrayBuf, std::vector<TUint>& aIdArray);
     static TUint Hash(const Brx& aPrefix, const Brx& aUdn);
@@ -113,6 +113,7 @@ public:
 
 private: // (internal)
     void RemoveEntry();
+    void RemoveEntry(IdCacheEntrySession& aSession);
 
 private:
     DisposeHandler* iDisposeHandler;
@@ -131,7 +132,7 @@ class IdCacheSession : public IIdCacheSession
 public:
     IdCacheSession(TUint aSessionId, FunctorGeneric<ReadListData*> aFunction, IdCache* aCache);
     ~IdCacheSession();
-    virtual void Dispose();
+    virtual void Dispose() override;
     virtual void SetValid(std::vector<TUint>& aValid);
     virtual void Entries(ReadEntriesData* aReadEntriesData);
 
@@ -162,13 +163,13 @@ private:
 class IdCacheEntry : public IIdCacheEntry
 {
 public:
-    IdCacheEntry(std::shared_ptr<IMediaMetadata> aMetadata, const Brx& aUri);
+    IdCacheEntry(IMediaMetadata* aMetadata, const Brx& aUri);
     ~IdCacheEntry();
-    virtual std::shared_ptr<IMediaMetadata> Metadata();
-    virtual const Brx& Uri();
+    virtual IMediaMetadata& Metadata() override;
+    virtual const Brx& Uri() override;
 
 private:
-    std::shared_ptr<IMediaMetadata> iMetadata;
+    IMediaMetadata* iMetadata;
     Bws<1000> iUri;
 };
 
@@ -177,18 +178,38 @@ private:
 class IdCacheEntrySession : public IIdCacheEntry
 {
 public:
-    IdCacheEntrySession(TUint aSessionId, TUint aId, IIdCacheEntry* aCacheEntry);
+    IdCacheEntrySession(TUint aSessionId, TUint aId, std::shared_ptr<IIdCacheEntry> aCacheEntry);
     ~IdCacheEntrySession();
     virtual TUint SessionId();
     virtual TUint Id();
-    virtual std::shared_ptr<IMediaMetadata> Metadata();
-    virtual const Brx& Uri();
+    std::shared_ptr<IIdCacheEntry> IdCacheEntrySession::Entry();
+
+
+    // IIdCacheEntry
+    IMediaMetadata& Metadata() override;
+    const Brx& Uri() override;
 
 private:
     TUint iSessionId;
     TUint iId;
-    IIdCacheEntry* iCacheEntry;
+    std::shared_ptr<IIdCacheEntry> iCacheEntry;
 };
+
+
+class InfoMetadataCached : public IInfoMetadata
+{
+public:
+    InfoMetadataCached(std::shared_ptr<IIdCacheEntry> aCacheEntry);
+
+    // IInfoMetadata
+    IMediaMetadata& Metadata() override;
+    const Brx& Uri() override;
+
+private:
+    std::shared_ptr<IIdCacheEntry> iCacheEntry;;
+};
+
+
 
 } // namespace Topology
 } // namespace OpenHome

@@ -83,7 +83,7 @@ public:
     virtual void SeekSecondAbsolute(TUint aValue) = 0;
     virtual void SeekSecondRelative(TInt aValue) = 0;
     virtual void SetId(TUint aId, const Brx& aUri) = 0;
-    virtual void SetChannel(const Brx& aUri, std::shared_ptr<IMediaMetadata> aMetadata) = 0;
+    virtual void SetChannel(const Brx& aUri, IMediaMetadata& aMetadata) = 0;
 
     virtual TUint ChannelsMax() = 0;
     virtual const Brx& ProtocolInfo() = 0;
@@ -113,7 +113,7 @@ public:
     virtual void SeekSecondAbsolute(TUint aValue) = 0;
     virtual void SeekSecondRelative(TInt aValue) = 0;
     virtual void SetId(TUint aId, const Brx& aUri) = 0;
-    virtual void SetChannel(const Brx& aUri, std::shared_ptr<IMediaMetadata> aMetadata) = 0;
+    virtual void SetChannel(const Brx& aUri, IMediaMetadata& aMetadata) = 0;
 
 protected:
     Bws<1000> iProtocolInfo;
@@ -142,7 +142,7 @@ public:
     void SeekSecondAbsolute(TUint aValue);
     void SeekSecondRelative(TInt aValue);
     void SetId(TUint aId, const Brx& aUri);
-    void SetChannel(const Brx& aUri, std::shared_ptr<IMediaMetadata> aMetadata);
+    void SetChannel(const Brx& aUri, IMediaMetadata& aMetadata);
 
 protected:
     virtual TBool OnSubscribe();
@@ -179,7 +179,7 @@ private:
 class ServiceRadioMock : public ServiceRadio
 {
 public:
-    ServiceRadioMock(IInjectorDevice& aDevice, TUint aId, std::vector<std::shared_ptr<IMediaMetadata>>& aPresets, IInfoMetadata* aInfoMetadata, const Brx& aProtocolInfo, const Brx& aTransportState, TUint aChannelsMax, ILog& aLog);
+    ServiceRadioMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aPresets, IInfoMetadata* aInfoMetadata, const Brx& aProtocolInfo, const Brx& aTransportState, TUint aChannelsMax, ILog& aLog);
     ~ServiceRadioMock();
 public:
     void Dispose() override;
@@ -197,14 +197,14 @@ public:
     void SeekSecondRelative(TInt aValue) override;
     void SetId(TUint aId, const Brx& aValue) override;
     void CallbackSetId(void* aValue);
-    void SetChannel(const Brx& aUri, std::shared_ptr<IMediaMetadata> aMetadata) override;
+    void SetChannel(const Brx& aUri, IMediaMetadata& aMetadata) override;
     void CallbackSetChannel(void* aValue);
     void Execute(ICommandTokens& aValue) override;
 private:
     void ReadList(ReadListData* aIdList);
 private:
     IIdCacheSession* iCacheSession;
-    std::vector<std::shared_ptr<IMediaMetadata>>& iPresets;
+    std::vector<IMediaMetadata*>& iPresets;
     std::vector<TUint>* iIdArray;
 };
 //////////////////////////////////////////////////////////////////
@@ -250,7 +250,7 @@ public:
     void SeekSecondAbsolute(TUint aValue);
     void SeekSecondRelative(TInt aValue);
     void SetId(TUint aId, const Brx& aUri);
-    void SetChannel(const Brx& aUri, std::shared_ptr<IMediaMetadata> aMetadata);
+    void SetChannel(const Brx& aUri, IMediaMetadata& aMetadata);
 
     IWatchable<IWatchableSnapshot<IMediaPreset*>*>& Snapshot();
 

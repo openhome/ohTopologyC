@@ -233,14 +233,14 @@ private:
 class TrackMock : public INonCopyable
 {
 public:
-    TrackMock(const Brx& aUri, std::shared_ptr<IMediaMetadata> aMetadata);
+    TrackMock(const Brx& aUri, const Brx& aMetadata);
     ~TrackMock();
 public:
     const Brx& Uri() const;
-    std::shared_ptr<IMediaMetadata> Metadata() const;
+    const Brx& Metadata() const;
 private:
-    Brn iUri;
-    std::shared_ptr<IMediaMetadata> iMetadata;
+    Bwh iUri;
+    Bwh iMetadata;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -248,7 +248,7 @@ private:
 class ServicePlaylistMock : public ServicePlaylist
 {
 public:
-    ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, std::vector<std::shared_ptr<IMediaMetadata>>& aTracks, TBool aRepeat, TBool aShuffle, const Brx& aTransportState, const Brx& aProtocolInfo, TUint aTracksMax, ILog& aLog);
+    ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aTracks, TBool aRepeat, TBool aShuffle, const Brx& aTransportState, const Brx& aProtocolInfo, TUint aTracksMax, ILog& aLog);
     ~ServicePlaylistMock();
 public:
     void Execute(ICommandTokens& aValue) override;

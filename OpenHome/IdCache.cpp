@@ -147,7 +147,9 @@ void IdCache::Remove(const Brx& aUdn)
             // delete every entry in map
             for (auto it=iCache[h]->begin(); it!=iCache[h]->end(); it++)
             {
-               delete it->second;
+                IdCacheEntrySession* ces = it->second;
+                RemoveEntry(*ces); // remove from iLastAccessed
+                delete ces;
             }
 
             delete iCache[h]; // then delete the map
@@ -189,6 +191,7 @@ void IdCache::SetValid(TUint aSessionId, vector<TUint>& aValid)
         {
             // if the key exists in the vector...
             IdCacheEntrySession* ces = (*c)[key];
+            RemoveEntry(*ces);
             delete ces; // delete the session assoc with that key
             it = c->erase(it);  // erase the session from the map (and reassign iterator to a valid state)
             --iCacheEntries; // dec the entry count
@@ -200,8 +203,15 @@ void IdCache::SetValid(TUint aSessionId, vector<TUint>& aValid)
     }
 }
 
+void IdCache::RemoveEntry(IdCacheEntrySession& aSession)
+{
+    auto it = find(iLastAccessed.begin(), iLastAccessed.end(), &aSession);
+    ASSERT(it!=iLastAccessed.end());
+    iLastAccessed.erase(it);
+}
 
-IIdCacheEntry* IdCache::Entry(TUint aSessionId, TUint aId)
+
+std::shared_ptr<IIdCacheEntry> IdCache::Entry(TUint aSessionId, TUint aId)
 {
     DisposeLock lock(*iDisposeHandler);
 
@@ -218,7 +228,7 @@ IIdCacheEntry* IdCache::Entry(TUint aSessionId, TUint aId)
         }
 
         iLastAccessed.push_back(entry);
-        return(entry);
+        return(entry->Entry());
     }
     else
     {
@@ -228,12 +238,12 @@ IIdCacheEntry* IdCache::Entry(TUint aSessionId, TUint aId)
 }
 
 
-IIdCacheEntry* IdCache::AddEntry(TUint aSessionId, TUint aId, IIdCacheEntry* aEntry)
+std::shared_ptr<IIdCacheEntry> IdCache::AddEntry(TUint aSessionId, TUint aId, std::shared_ptr<IIdCacheEntry> aEntry)
 {
     DisposeLock lock(*iDisposeHandler);
     AutoMutex mutex(iMutexCache);
 
-    IdCacheEntrySession* entry = NULL;
+    IdCacheEntrySession* entry = nullptr;
     if (iCache[aSessionId]->count(aId) == 0)
     {
         entry = new IdCacheEntrySession(aSessionId, aId, aEntry);
@@ -246,9 +256,12 @@ IIdCacheEntry* IdCache::AddEntry(TUint aSessionId, TUint aId, IIdCacheEntry* aEn
         (*iCache[aSessionId])[aId] = entry;
         iLastAccessed.push_back(entry);
         ++iCacheEntries;
+        return entry->Entry();
     }
-
-    return entry;
+    else
+    {
+        return std::shared_ptr<IIdCacheEntry>(nullptr);
+    }
 }
 
 
@@ -257,8 +270,10 @@ void IdCache::RemoveEntry()
     // must be called with iDisposeHandler, iMutexCache held
     IdCacheEntrySession* entry = iLastAccessed[0];
     auto mp = iCache[entry->SessionId()];
-    delete (*mp)[entry->Id()];
+    auto x = (*mp)[entry->Id()];
     mp->erase(entry->Id());
+    delete x;
+
     iLastAccessed.erase(iLastAccessed.begin());
     --iCacheEntries;
 }
@@ -386,7 +401,7 @@ void IdCacheSession::ReadEntriesCallback(ReadEntriesData* aReadEntriesData)
 
     //vector<TUint> reqIds = aReadEntriesData->iRequestedIds;
 
-    auto entries = new vector<IIdCacheEntry*>();
+    auto entries = new vector<std::shared_ptr<IIdCacheEntry>>();
     auto missingIds = new vector<TUint>();
 
     aReadEntriesData->iRetrievedEntries = entries;
@@ -395,7 +410,7 @@ void IdCacheSession::ReadEntriesCallback(ReadEntriesData* aReadEntriesData)
     for (TUint i=0; i<aReadEntriesData->iRequestedIds.size(); i++)
     {
         auto id = aReadEntriesData->iRequestedIds[i];
-        IIdCacheEntry* entry = iCache->Entry(iSessionId, id);
+        auto entry = iCache->Entry(iSessionId, id);
         if (entry == NULL)
         {
             missingIds->push_back(id);
@@ -438,13 +453,13 @@ void IdCacheSession::ReadEntriesCallback(ReadEntriesData* aReadEntriesData)
 }
 
 
-void IdCacheSession::GetMissingEntries(void* aObj)
+void IdCacheSession::GetMissingEntries(void* aReadListData)
 {
-    auto payload = (ReadListData*)aObj;
-    auto missingIds = payload->iMissingIds;
-    auto retrievedEntries = payload->iRetrievedEntries;
-    auto requiredIds = payload->iRequiredIds;
-    auto entries = payload->iEntries;
+    auto readListData = (ReadListData*)aReadListData;
+    auto missingIds = readListData->iMissingIds;
+    auto retrievedEntries = readListData->iRetrievedEntries;
+    auto requiredIds = readListData->iRequiredIds;
+    auto entries = readListData->iEntries;
 
 
     if (retrievedEntries != NULL)
@@ -452,33 +467,33 @@ void IdCacheSession::GetMissingEntries(void* aObj)
         for (TUint i = 0; i < retrievedEntries->size(); i++)
         {
             TUint id = (*missingIds)[i];
-            IIdCacheEntry* entry = iCache->AddEntry(iSessionId, id, (*retrievedEntries)[i]);
+            auto entry = iCache->AddEntry(iSessionId, id, (*retrievedEntries)[i]);
             auto it = find(requiredIds.begin(), requiredIds.end(), id);
             ASSERT(it != requiredIds.end());
             (*entries)[it - requiredIds.begin()] = entry;
         }
     }
 
-    delete payload;
+    delete readListData;
 }
 
 
 //////////////////////////////////////////////////////////////////////
 
-IdCacheEntry::IdCacheEntry(std::shared_ptr<IMediaMetadata> aMetadata, const Brx& aUri)
+IdCacheEntry::IdCacheEntry(IMediaMetadata* aMetadata, const Brx& aUri)
     :iMetadata(aMetadata)
     ,iUri(aUri)
 {
-    LOG(kApplication7, "IdCacheEntry()\n");
+    ASSERT(iMetadata!=nullptr);
 }
 
 IdCacheEntry::~IdCacheEntry()
 {
 }
 
-std::shared_ptr<IMediaMetadata> IdCacheEntry::Metadata()
+IMediaMetadata& IdCacheEntry::Metadata()
 {
-    return iMetadata;
+    return (*iMetadata);
 }
 
 
@@ -489,7 +504,7 @@ const Brx& IdCacheEntry::Uri()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-IdCacheEntrySession::IdCacheEntrySession(TUint aSessionId, TUint aId, IIdCacheEntry* aCacheEntry)
+IdCacheEntrySession::IdCacheEntrySession(TUint aSessionId, TUint aId, std::shared_ptr<IIdCacheEntry> aCacheEntry)
     :iSessionId(aSessionId)
     ,iId(aId)
     ,iCacheEntry(aCacheEntry)
@@ -498,21 +513,20 @@ IdCacheEntrySession::IdCacheEntrySession(TUint aSessionId, TUint aId, IIdCacheEn
 
 IdCacheEntrySession::~IdCacheEntrySession()
 {
-    delete iCacheEntry;
+    //delete iCacheEntry;
 }
+
 TUint IdCacheEntrySession::SessionId()
 {
     return(iSessionId);
 }
-
 
 TUint IdCacheEntrySession::Id()
 {
     return(iId);
 }
 
-
-std::shared_ptr<IMediaMetadata> IdCacheEntrySession::Metadata()
+IMediaMetadata& IdCacheEntrySession::Metadata()
 {
     return(iCacheEntry->Metadata());
 }
@@ -521,6 +535,11 @@ std::shared_ptr<IMediaMetadata> IdCacheEntrySession::Metadata()
 const Brx& IdCacheEntrySession::Uri()
 {
     return(iCacheEntry->Uri());
+}
+
+std::shared_ptr<IIdCacheEntry> IdCacheEntrySession::Entry()
+{
+    return iCacheEntry;
 }
 
 /////////////////////////////////////////////////
@@ -535,6 +554,26 @@ ReadEntriesJob::ReadEntriesJob(FunctorGeneric<ReadEntriesData*> aCallback, ReadE
 void ReadEntriesJob::Execute()
 {
     iCallback(iArg);
+}
+
+
+///////////////////////////////////////////////////////////
+
+InfoMetadataCached::InfoMetadataCached(std::shared_ptr<IIdCacheEntry> aCacheEntry)
+    :iCacheEntry(aCacheEntry)
+{
+}
+
+
+IMediaMetadata& InfoMetadataCached::Metadata()
+{
+    return iCacheEntry->Metadata();
+}
+
+
+const Brx& InfoMetadataCached::Uri()
+{
+    return iCacheEntry->Uri();
 }
 
 

@@ -464,10 +464,10 @@ void ServicePlaylistNetwork::BeginIdArrayCallback(AsyncCbArg* aArg)
 
     PlaylistItemData* playlistItemData = (PlaylistItemData*)(aArg->iArg);
     Brn uri = playlistItemData->iUri;
-    IMediaMetadata* metadata = playlistItemData->iMetadata;
+    IMediaMetadata& metadata = *playlistItemData->iMetadata;
     delete playlistItemData;
     Bwh metadataDidlLite;
-    iNetwork.GetTagManager().ToDidlLite(*metadata, metadataDidlLite);
+    iNetwork.GetTagManager().ToDidlLite(metadata, metadataDidlLite);
 
     FunctorAsync f;
     iService->BeginInsert(id, uri, metadataDidlLite, f);
@@ -574,7 +574,7 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
             ASSERTS();
         }
 
-        auto entries = new vector<IIdCacheEntry*>();
+        auto entries = new vector<std::shared_ptr<IIdCacheEntry>>();
 
         // Parse XML here and populate entries
         Brn xmlNodeList = XmlParserBasic::Find(Brn("TrackList"), trackList);
@@ -605,7 +605,7 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
 
             xmlNodeList = remaining;
 
-            IdCacheEntry* cacheEntry = new IdCacheEntry(iNetwork.GetTagManager().FromDidlLite(metadataText), uriText);
+            std::shared_ptr<IIdCacheEntry> cacheEntry(new IdCacheEntry(iNetwork.GetTagManager().FromDidlLite(metadataText), uriText));
             LOG(kApplication7, "created new cache entry \n");
             entries->push_back(cacheEntry);
             LOG(kApplication7, "entries->size()=%d \n", entries->size());
@@ -748,7 +748,7 @@ void ServicePlaylistNetwork::EvaluateInfoNextCallback2(void* aReadEntriesData)
 void ServicePlaylistNetwork::EvaluateInfoNextCallback3(void* aReadEntriesData)
 {
     auto readEntriesData = (ReadEntriesData*)aReadEntriesData;
-    IIdCacheEntry* entry = (*readEntriesData->iRetrievedEntries)[0];
+    auto entry = (*(readEntriesData->iRetrievedEntries))[0];
 
     if (entry == NULL)
     {
@@ -756,7 +756,7 @@ void ServicePlaylistNetwork::EvaluateInfoNextCallback3(void* aReadEntriesData)
     }
     else
     {
-        UpdateInfo(new InfoMetadata(entry->Metadata(), entry->Uri()));
+        UpdateInfo(new InfoMetadataCached(entry));
     }
 
     delete readEntriesData;
@@ -885,9 +885,6 @@ void PlaylistSnapshot::Read(TUint aIndex, TUint aCount, FunctorGeneric<vector<IM
 {
     ASSERT((aIndex + aCount) <= Total());
 
-
-
-
     auto readEntriesData = new ReadEntriesData();
     for (TUint i = aIndex; i < (aIndex + aCount); i++)
     {
@@ -927,8 +924,8 @@ void PlaylistSnapshot::ReadCallback2(void* aObj)
 
         for (TUint i=0; i<entries->size(); i++)
         {
-            IIdCacheEntry* entry = (*entries)[i];
-            ASSERT(entry!=NULL);
+            auto entry = (*entries)[i];
+            ASSERT(entry!=nullptr);
 
             TUint id = (*iIdArray)[index];
 
@@ -936,7 +933,7 @@ void PlaylistSnapshot::ReadCallback2(void* aObj)
             ASSERT(it!=iIdArray->end());
             TUint idIndex = it-iIdArray->begin();
 
-            tracks->push_back(new MediaPresetPlaylist(iNetwork, (idIndex + 1), id, *(entry->Metadata()), iPlaylist));
+            tracks->push_back(new MediaPresetPlaylist(iNetwork, (idIndex + 1), id, entry->Metadata(), iPlaylist));
             index++;
         }
 
@@ -944,9 +941,10 @@ void PlaylistSnapshot::ReadCallback2(void* aObj)
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-TrackMock::TrackMock(const Brx& aUri, std::shared_ptr<IMediaMetadata> aMetadata)
-    : iUri(aUri.Ptr(), aUri.Bytes())
+///////////////////////////////////////////////////////////
+
+TrackMock::TrackMock(const Brx& aUri, const Brx& aMetadata)
+    : iUri(aUri)
     , iMetadata(aMetadata)
 {
 }
@@ -961,13 +959,14 @@ const Brx& TrackMock::Uri() const
     return iUri;
 }
 
-std::shared_ptr<IMediaMetadata> TrackMock::Metadata() const
+const Brx& TrackMock::Metadata() const
 {
     return iMetadata;
 }
 
+//////////////////////////////////////////////////////////
 
-ServicePlaylistMock::ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, std::vector<std::shared_ptr<IMediaMetadata>>& aTracks, TBool aRepeat, TBool aShuffle, const Brx& aTransportState, const Brx& aProtocolInfo, TUint aTracksMax, ILog& aLog)
+ServicePlaylistMock::ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aTracks, TBool aRepeat, TBool aShuffle, const Brx& aTransportState, const Brx& aProtocolInfo, TUint aTracksMax, ILog& aLog)
     : ServicePlaylist(aDevice, aLog)
     , iIdFactory(0)
     , iTracks(new std::vector<TrackMock*>())
@@ -980,7 +979,13 @@ ServicePlaylistMock::ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, st
     for (auto it = aTracks.begin(); it != aTracks.end(); ++it)
     {
         iIdArray->push_back(iIdFactory);
-        TrackMock* track = new TrackMock(((*it)->Values().at(iNetwork.GetTagManager().Audio().Uri()))->Value(), (*it));
+
+        IMediaMetadata* metaData = (*it);
+        Bwh metadataDidlLite;
+        iNetwork.GetTagManager().ToDidlLite(*metaData, metadataDidlLite);
+        const Brx& uri = ((*it)->Values().at(iNetwork.GetTagManager().Audio().Uri())  )->Value();
+
+        TrackMock* track = new TrackMock(uri, metadataDidlLite);
         iTracks->push_back(track);
         ++iIdFactory;
     }
@@ -1127,6 +1132,7 @@ void ServicePlaylistMock::CallbackInsert(void* aValue)
 {
     TUint newId = 0;
     auto insertData = (std::tuple<TUint, Brn, IMediaMetadata&>*)aValue;
+
     TInt index = find(iIdArray->begin(), iIdArray->end(), std::get<0>(*insertData)) - iIdArray->begin();
     if (index == -1)
     {
@@ -1137,8 +1143,12 @@ void ServicePlaylistMock::CallbackInsert(void* aValue)
     newId = iIdFactory;
     iIdArray->insert(iIdArray->begin() + index + 1, newId);
 
-    std::shared_ptr<IMediaMetadata> pData(&(std::get<2>(*insertData)));
-    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(std::get<1>(*insertData), pData));
+    IMediaMetadata& metaData = std::get<2>(*insertData);
+    Bwh metadataDidlLite;
+    iNetwork.GetTagManager().ToDidlLite(metaData, metadataDidlLite);
+    Brn& uri = std::get<1>(*insertData);
+
+    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(uri, metadataDidlLite));
 
     ++iIdFactory;
 
@@ -1164,8 +1174,13 @@ void ServicePlaylistMock::CallbackInsertNext(void* aValue)
 
     TUint newId = iIdFactory;
     iIdArray->insert(iIdArray->begin() + index + 1, newId);
-    std::shared_ptr<IMediaMetadata> pData(&(insertData->second));
-    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(insertData->first, pData));
+
+    IMediaMetadata& metaData = insertData->second;
+    Bwh metadataDidlLite;
+    iNetwork.GetTagManager().ToDidlLite(metaData, metadataDidlLite);
+    const Brx& uri = insertData->first;
+
+    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(uri, metadataDidlLite));
 
     ++iIdFactory;
 
@@ -1190,8 +1205,12 @@ void ServicePlaylistMock::CallbackInsertEnd(void* aValue)
 
     TUint newId = iIdFactory;
     iIdArray->insert(iIdArray->begin() + index + 1, newId);
-    std::shared_ptr<IMediaMetadata> pData(&(insertData->second));
-    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(insertData->first, pData));
+
+    IMediaMetadata& metaData = insertData->second;
+    Bwh metadataDidlLite;
+    iNetwork.GetTagManager().ToDidlLite(metaData, metadataDidlLite);
+    const Brx& uri = insertData->first;
+    iTracks->insert(iTracks->begin() + index + 1, new TrackMock(uri, metadataDidlLite));
     ++iIdFactory;
 
     auto newPlaylistSnapshot = new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this);
@@ -1272,7 +1291,9 @@ void ServicePlaylistMock::ReadList(ReadListData* aValue)
 {
     for (auto it = aValue->iRequiredIds.begin(); it != aValue->iRequiredIds.end(); ++it)
     {
-        IIdCacheEntry* entry  = new IdCacheEntry(iTracks->at(*it)->Metadata(), iTracks->at(*it)->Uri());
+        IMediaMetadata* metaData = iNetwork.GetTagManager().FromDidlLite((*iTracks)[*it]->Metadata());
+        const Brx& uri = (*iTracks)[*it]->Uri();
+        auto entry = std::shared_ptr<IIdCacheEntry>(new IdCacheEntry(metaData, uri));
         aValue->iEntries->push_back(entry);
     }
 }
@@ -1311,7 +1332,9 @@ void ServicePlaylistMock::Execute(ICommandTokens& aValue)
         ASSERTS();
     }
 }
+
 ////////////////////////////////////////////////////////////////////////////////
+
 ProxyPlaylist::ProxyPlaylist(ServicePlaylist& aService, IDevice& aDevice)
     :iService(aService)
     ,iDevice(aDevice)
