@@ -51,7 +51,6 @@ void Injector::Construct(CpStack& aCpStack, const Brx& aDomain, const Brx& aType
 
 Injector::~Injector()
 {
-    delete iDeviceList;
 }
 
 
@@ -98,6 +97,11 @@ void Injector::Dispose()
 {
     delete iDeviceList;
     iDeviceList = nullptr;
+    if (iCpDevice != nullptr) {
+        iRemove(iCpDevice);
+        iCpDevice->RemoveRef();
+        iCpDevice = nullptr;
+    }
 }
 
 /////////////////////////////////////////////////////////////////
