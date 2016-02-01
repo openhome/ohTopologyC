@@ -58,7 +58,7 @@ Injector::~Injector()
 void Injector::Added(CpDevice& aDevice)
 {
     LOG(kApplication7, ">Injector::Added\n");
-    if (!FilterOut(aDevice)) // FIXME - exclude CpDeviceDv
+    if (!FilterOut(aDevice))
     {
         iAdd(&aDevice);
     }
@@ -68,12 +68,22 @@ void Injector::Added(CpDevice& aDevice)
 
 void Injector::Removed(CpDevice& aDevice)
 {
-    iRemove(&aDevice);// FIXME - exclude CpDeviceDv
+    if (!FilterOut(aDevice))
+    {
+        iRemove(&aDevice);
+    }
 }
 
 
-TBool Injector::FilterOut(CpDevice& /*aCpDevice*/)
+TBool Injector::FilterOut(CpDevice& aDevice)
 {
+    if (iCpDevice!=nullptr)
+    {
+        if(iCpDevice->Udn() == aDevice.Udn())
+        {
+            return true;
+        }
+    }
     return false;
 }
 
