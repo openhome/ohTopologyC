@@ -8,6 +8,7 @@
 #include <OpenHome/Mockable.h>
 #include <OpenHome/Net/Core/CpDevice.h>
 #include <OpenHome/Net/Core/CpDeviceUpnp.h>
+#include <OpenHome/Net/Core/DvDevice.h>
 #include <OpenHome/Net/Private/CpiStack.h>
 
 #include <map>
@@ -29,20 +30,24 @@ public:
 
 protected:
     Injector(Net::CpStack& aCpStack, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& aLog);
+    Injector(Net::CpStack& aCpStack, Net::DvDevice& aDvDevice, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& aLog);
     ~Injector();
 
-    void Added(/*Net::CpDeviceList& aList,*/ Net::CpDevice& aDevice);
-    void Removed(/*Net::CpDeviceList& aList,*/ Net::CpDevice& aDevice);
+    void Added(Net::CpDevice& aDevice);
+    void Removed(Net::CpDevice& aDevice);
     virtual TBool FilterOut(Net::CpDevice& aCpDevice);
+
+private:
+    void Construct(Net::CpStack& aCpStack, const Brx& aDomain, const Brx& aType, TUint aVersion);
+
 
 protected:
     Net::CpDeviceListUpnpServiceType* iDeviceList;
 
 private:
+    Net::CpDevice* iCpDevice;
     FunctorGeneric<Net::CpDevice*> iAdd;
     FunctorGeneric<Net::CpDevice*> iRemove;
-    //ILog& iLog;
-    //std::map<Brn, IInjectorDevice*, BufferCmp> iDeviceLookup;
 };
 
 ///////////////////////////////////////////////////////////////
@@ -51,6 +56,7 @@ class InjectorProduct : public Injector
 {
 public:
     InjectorProduct(Net::CpStack& aCpStack, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, ILog& aLog);
+    InjectorProduct(Net::CpStack& aCpStack, Net::DvDevice& aDvDevice, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, ILog& aLog);
 };
 
 ///////////////////////////////////////////////////////////////
@@ -83,7 +89,6 @@ private:
 
 private:
     Network& iNetwork;
-    //Bws<100> iResourceRoot; // FIXME: random capacity value
     ILog& iLog;
     std::map<Brn, InjectorDeviceMock*, BufferCmp> iMockDevices;
 };

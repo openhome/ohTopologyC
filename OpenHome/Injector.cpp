@@ -5,6 +5,7 @@
 #include <OpenHome/Device.h>
 #include <OpenHome/DeviceFactory.h>
 #include <OpenHome/Private/Ascii.h>
+#include <OpenHome/Net/Core/CpDeviceDv.h>
 #include <map>
 
 
@@ -14,15 +15,36 @@ using namespace OpenHome::Net;
 using namespace std;
 
 
-Injector::Injector(CpStack& aCpStack, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& /*aLog*/)
-    :iAdd(aAdd)
+Injector::Injector( CpStack& aCpStack,
+                    DvDevice& aDvDevice,
+                    FunctorGeneric<CpDevice*> aAdd,
+                    FunctorGeneric<CpDevice*> aRemove,
+                    const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& /*aLog*/)
+
+    :iCpDevice(CpDeviceDv::New(aCpStack, aDvDevice))
+    ,iAdd(aAdd)
     ,iRemove(aRemove)
-    //,iLog(aLog)
+{
+    iAdd(iCpDevice);
+    Construct(aCpStack, aDomain, aType, aVersion);
+}
+
+Injector::Injector( CpStack& aCpStack,
+                    FunctorGeneric<CpDevice*> aAdd,
+                    FunctorGeneric<CpDevice*> aRemove,
+                    const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& /*aLog*/)
+
+    :iCpDevice(nullptr)
+    ,iAdd(aAdd)
+    ,iRemove(aRemove)
+{
+    Construct(aCpStack, aDomain, aType, aVersion);
+}
+
+void Injector::Construct(CpStack& aCpStack, const Brx& aDomain, const Brx& aType, TUint aVersion)
 {
     FunctorCpDevice fAdded = Net::MakeFunctorCpDevice(*this, &Injector::Added);
     FunctorCpDevice fRemoved = Net::MakeFunctorCpDevice(*this, &Injector::Removed);
-
-
     iDeviceList = new CpDeviceListUpnpServiceType(aCpStack, aDomain, aType, aVersion, fAdded, fRemoved);
 }
 
@@ -33,10 +55,10 @@ Injector::~Injector()
 }
 
 
-void Injector::Added(/*CpDeviceList& aList,*/ CpDevice& aDevice)
+void Injector::Added(CpDevice& aDevice)
 {
     LOG(kApplication7, ">Injector::Added\n");
-    if (!FilterOut(aDevice))
+    if (!FilterOut(aDevice)) // FIXME - exclude CpDeviceDv
     {
         iAdd(&aDevice);
     }
@@ -44,9 +66,9 @@ void Injector::Added(/*CpDeviceList& aList,*/ CpDevice& aDevice)
 }
 
 
-void Injector::Removed(/*CpDeviceList& aList,*/CpDevice& aDevice)
+void Injector::Removed(CpDevice& aDevice)
 {
-    iRemove(&aDevice);
+    iRemove(&aDevice);// FIXME - exclude CpDeviceDv
 }
 
 
@@ -72,6 +94,12 @@ void Injector::Dispose()
 
 InjectorProduct::InjectorProduct(CpStack& aCpStack, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove, ILog& aLog)
     : Injector(aCpStack, aAdd, aRemove, Brn("av.openhome.org"), Brn("Product"), 1, aLog)
+{
+}
+
+
+InjectorProduct::InjectorProduct(CpStack& aCpStack, DvDevice& aDvDevice, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove, ILog& aLog)
+    : Injector(aCpStack, aDvDevice, aAdd, aRemove, Brn("av.openhome.org"), Brn("Product"), 1, aLog)
 {
 }
 
