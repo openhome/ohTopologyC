@@ -76,6 +76,7 @@ class IProxyPlaylist : public IProxy
 {
 public:
     virtual IWatchable<TUint>& Id() = 0;
+    virtual IWatchable<TInt>& InfoCurrentIndex() = 0;
     virtual IWatchable<IInfoMetadata*>& InfoNext() = 0;
     virtual IWatchable<Brn>& TransportState() = 0;
     virtual IWatchable<TBool>& Repeat() = 0;
