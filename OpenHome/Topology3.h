@@ -164,7 +164,7 @@ class Topology3 : public ITopology3, public IWatcherUnordered<ITopology2Group*>,
     friend class SenderWatcher;
 
 public:
-    Topology3(ITopology2* aTopology2, ILog& aLog);
+    Topology3(ITopology2* aTopology2);
     ~Topology3();
 
     virtual void Dispose();

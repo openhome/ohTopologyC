@@ -130,8 +130,8 @@ void MediaPresetPlaylist::ItemClose(const Brx& /*aId*/, Brn /*aPrevious*/)
 
 //////////////////////////////////////////////////////////////////////////////
 
-ServicePlaylist::ServicePlaylist(IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aDevice, aLog)
+ServicePlaylist::ServicePlaylist(IInjectorDevice& aDevice)
+    :Service(aDevice)
     ,iCurrentInfo(iNetwork.InfoMetadataEmpty())
     ,iCurrentTransportState(new Bws<100>())
     ,iId(new Watchable<TUint>(iNetwork, Brn("Id"), 0))
@@ -236,8 +236,8 @@ const Brx& ServicePlaylist::ProtocolInfo()
 
 //////////////////////////////////////////////////////////////////////////////
 
-ServicePlaylistNetwork::ServicePlaylistNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgPlaylist1* aService, ILog& aLog)
-    :ServicePlaylist(aDevice, aLog)
+ServicePlaylistNetwork::ServicePlaylistNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgPlaylist1* aService)
+    :ServicePlaylist(aDevice)
     ,iService(aService)
     ,iCacheSession(nullptr)
     ,iSubscribed(false)
@@ -966,8 +966,8 @@ const Brx& TrackMock::Metadata() const
 
 //////////////////////////////////////////////////////////
 
-ServicePlaylistMock::ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aTracks, TBool aRepeat, TBool aShuffle, const Brx& aTransportState, const Brx& aProtocolInfo, TUint aTracksMax, ILog& aLog)
-    : ServicePlaylist(aDevice, aLog)
+ServicePlaylistMock::ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aTracks, TBool aRepeat, TBool aShuffle, const Brx& aTransportState, const Brx& aProtocolInfo, TUint aTracksMax)
+    : ServicePlaylist(aDevice)
     , iIdFactory(0)
     , iTracks(new std::vector<TrackMock*>())
     , iIdArray(new std::vector<TUint>())

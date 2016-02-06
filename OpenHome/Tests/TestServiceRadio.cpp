@@ -68,7 +68,6 @@ private:
     }
 private:
     std::shared_ptr<ResultRecorder<CpProxyAvOpenhomeOrgRadio1Test::RadioEvent>> iRecorder;
-    std::unique_ptr<ILog> iLog;
     std::unique_ptr<INetwork> iNetwork;
     std::unique_ptr<IInjectorDevice> iInjectorDevice;
     CpProxyAvOpenhomeOrgRadio1Test* iCp;
@@ -110,12 +109,11 @@ void SuiteServiceRadioNetwork::DoWatchableTests(void*)
 SuiteServiceRadioNetwork::SuiteServiceRadioNetwork()
     : SuiteUnitTest("SuiteServiceRadioNetwork")
     , iRecorder(new ResultRecorder<CpProxyAvOpenhomeOrgRadio1Test::RadioEvent>())
-    , iLog(new LogDummy())
-    , iNetwork(new Network(50, *iLog))
+    , iNetwork(new Network(50))
     , iInjectorDevice(new InjectorDeviceTest(*iNetwork))
     , iCp(new CpProxyAvOpenhomeOrgRadio1Test(iRecorder))
     , iDevice(NULL)
-    , iService(new ServiceRadioNetwork(*iInjectorDevice, iCp, *iLog))
+    , iService(new ServiceRadioNetwork(*iInjectorDevice, iCp))
 {
     AddTest(MakeFunctor(*this, &SuiteServiceRadioNetwork::FirstTest));
     AddTest(MakeFunctor(*this, &SuiteServiceRadioNetwork::TestPlay));

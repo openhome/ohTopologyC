@@ -76,7 +76,7 @@ public:
     virtual void Dispose();
 
 protected:
-    Service(IInjectorDevice& aDevice, ILog& aLog);
+    Service(IInjectorDevice& aDevice);
 
     virtual TBool OnSubscribe();
     void Start(FunctorGeneric<void*> aCallback, void* aArg);
@@ -104,7 +104,6 @@ private:
 
 protected:
     INetwork& iNetwork;
-    ILog& iLog;
     DisposeHandler* iDisposeHandler;
 
 private:

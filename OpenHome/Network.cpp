@@ -37,9 +37,8 @@ using namespace std;
 /**
 
  */
-Network::Network(TUint aMaxCacheEntries, ILog& aLog)
-    :iLog(aLog)
-    ,iDisposeHandler(new DisposeHandler())
+Network::Network(TUint aMaxCacheEntries)
+    :iDisposeHandler(new DisposeHandler())
     ,iIdCache(new OpenHome::Topology::IdCache(aMaxCacheEntries))
     ,iTagManager(new TagManager())
     //,iEventSupervisor(new EventSupervisor(iWatchableThread))
@@ -57,9 +56,8 @@ Network::Network(TUint aMaxCacheEntries, ILog& aLog)
 /**
 
  */
-Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILog& aLog)
-    :iLog(aLog)
-    ,iDisposeHandler(new DisposeHandler())
+Network::Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries)
+    :iDisposeHandler(new DisposeHandler())
     ,iWatchableThread(&aWatchableThread)
     ,iIdCache(new OpenHome::Topology::IdCache(aMaxCacheEntries))
     ,iTagManager(new TagManager())
@@ -386,7 +384,7 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
 
         if(Ascii::Uint(value) == 1)
         {
-            device->Add(eProxyProduct, new ServiceProductNetwork(*device, new CpProxyAvOpenhomeOrgProduct1(*aDevice), iLog));
+            device->Add(eProxyProduct, new ServiceProductNetwork(*device, new CpProxyAvOpenhomeOrgProduct1(*aDevice)));
         }
     }
 
@@ -394,7 +392,7 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
     {
         if (Ascii::Uint(value) == 1)
         {
-            device->Add(eProxyInfo, new ServiceInfoNetwork(*device, new CpProxyAvOpenhomeOrgInfo1(*aDevice), iLog));
+            device->Add(eProxyInfo, new ServiceInfoNetwork(*device, new CpProxyAvOpenhomeOrgInfo1(*aDevice)));
         }
     }
 
@@ -402,7 +400,7 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
     {
         if (Ascii::Uint(value) == 1)
         {
-            device->Add(eProxySender, new ServiceSenderNetwork(*device, new CpProxyAvOpenhomeOrgSender1(*aDevice), iLog));
+            device->Add(eProxySender, new ServiceSenderNetwork(*device, new CpProxyAvOpenhomeOrgSender1(*aDevice)));
         }
     }
 
@@ -410,7 +408,7 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
     {
         if (Ascii::Uint(value) == 1)
         {
-            device->Add(eProxyVolume, new ServiceVolumeNetwork(*device, new CpProxyAvOpenhomeOrgVolume1(*aDevice), iLog));
+            device->Add(eProxyVolume, new ServiceVolumeNetwork(*device, new CpProxyAvOpenhomeOrgVolume1(*aDevice)));
         }
     }
 
@@ -418,7 +416,7 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
     {
         if (Ascii::Uint(value) == 1)
         {
-            device->Add(eProxyPlaylist, new ServicePlaylistNetwork(*device, new CpProxyAvOpenhomeOrgPlaylist1(*aDevice), iLog));
+            device->Add(eProxyPlaylist, new ServicePlaylistNetwork(*device, new CpProxyAvOpenhomeOrgPlaylist1(*aDevice)));
         }
     }
 
@@ -426,7 +424,7 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
     {
         if (Ascii::Uint(value) == 1)
         {
-            device->Add(eProxyRadio, new ServiceRadioNetwork(*device, new CpProxyAvOpenhomeOrgRadio1(*aDevice), iLog));
+            device->Add(eProxyRadio, new ServiceRadioNetwork(*device, new CpProxyAvOpenhomeOrgRadio1(*aDevice)));
         }
     }
 
@@ -434,7 +432,7 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
     {
         if (Ascii::Uint(value) == 1)
         {
-            device->Add(eProxyReceiver, new ServiceReceiverNetwork(*device, new CpProxyAvOpenhomeOrgReceiver1(*aDevice), iLog));
+            device->Add(eProxyReceiver, new ServiceReceiverNetwork(*device, new CpProxyAvOpenhomeOrgReceiver1(*aDevice)));
         }
     }
 
@@ -442,7 +440,7 @@ IInjectorDevice* Network::Create(CpDevice* aDevice)
     {
         if (Ascii::Uint(value) == 1)
         {
-            device->Add(eProxyTime, new ServiceTimeNetwork(*device, new CpProxyAvOpenhomeOrgTime1(*aDevice), iLog));
+            device->Add(eProxyTime, new ServiceTimeNetwork(*device, new CpProxyAvOpenhomeOrgTime1(*aDevice)));
         }
     }
 

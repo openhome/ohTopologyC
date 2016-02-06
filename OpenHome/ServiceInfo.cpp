@@ -66,8 +66,8 @@ TUint InfoDetails::SampleRate()
 
 //////////////////////////////////////////////////////////
 
-ServiceInfo::ServiceInfo(IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aDevice, aLog)
+ServiceInfo::ServiceInfo(IInjectorDevice& aDevice)
+    :Service(aDevice)
     ,iCurrentDetails(iNetwork.InfoDetailsEmpty())
     ,iCurrentMetadata(iNetwork.InfoMetadataEmpty())
     ,iCurrentMetatext(iNetwork.InfoMetatextEmpty())
@@ -126,8 +126,8 @@ IWatchable<IInfoMetatext*>& ServiceInfo::Metatext()
 
 //////////////////////////////////////////////////////////
 
-ServiceInfoNetwork::ServiceInfoNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgInfo1* aService, ILog& aLog)
-    :ServiceInfo(aDevice, aLog)
+ServiceInfoNetwork::ServiceInfoNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgInfo1* aService)
+    :ServiceInfo(aDevice)
     ,iService(aService)
     ,iSubscribed(false)
     ,iDetailsChanged(false)
@@ -323,8 +323,8 @@ void ServiceInfoNetwork::HandleMetatextChangedCallback2(void*)
 
 
 /////////////////////////////////////////////////////////////
-ServiceInfoMock::ServiceInfoMock(IInjectorDevice& aDevice, IInfoDetails* aDetails, IInfoMetadata* aMetadata, IInfoMetatext* aMetatext, ILog& aLog)
-    :ServiceInfo(aDevice, aLog)
+ServiceInfoMock::ServiceInfoMock(IInjectorDevice& aDevice, IInfoDetails* aDetails, IInfoMetadata* aMetadata, IInfoMetatext* aMetatext)
+    :ServiceInfo(aDevice)
     ,iCurrentDetails(new InfoDetails(aDetails->BitDepth(), aDetails->BitRate(), aDetails->CodecName(), aDetails->Duration(), aDetails->Lossless(), aDetails->SampleRate()))
     ,iCurrentMetadata(aMetadata)
     ,iCurrentMetatext(aMetatext)

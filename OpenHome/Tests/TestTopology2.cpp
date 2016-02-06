@@ -237,14 +237,13 @@ void SuiteTopology2::TearDown()
 void SuiteTopology2::Test1()
 {
     Mockable* mocker = new Mockable();
-    ILog* log = new LogDummy();
-    Network* network = new Network(50, *log);
+    Network* network = new Network(50);
 
-    InjectorMock* mockInjector = new InjectorMock(*network, Brx::Empty(), *log);
+    InjectorMock* mockInjector = new InjectorMock(*network, Brx::Empty());
     mocker->Add(Brn("network"), *mockInjector);
 
-    Topology1* topology1 = new Topology1(*network, *log);
-    iTopology2 = new Topology2(topology1, *log);
+    Topology1* topology1 = new Topology1(*network);
+    iTopology2 = new Topology2(topology1);
 
     MockableScriptRunner* runner = new MockableScriptRunner();
     GroupWatcher* watcher = new GroupWatcher(*runner);
@@ -266,7 +265,6 @@ void SuiteTopology2::Test1()
 
     delete watcher;
     delete runner;
-    delete log;
     delete mocker;
 
     delete iTopology2;

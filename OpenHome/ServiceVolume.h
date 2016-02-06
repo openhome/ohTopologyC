@@ -49,7 +49,7 @@ public:
 class ServiceVolume : public Service
 {
 protected :
-    ServiceVolume(IInjectorDevice& aDevice, ILog& aLog);
+    ServiceVolume(IInjectorDevice& aDevice);
     ~ServiceVolume();
 
 public:
@@ -93,7 +93,7 @@ protected:
 class ServiceVolumeNetwork : public ServiceVolume
 {
 public:
-    ServiceVolumeNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgVolume1* aService, ILog& aLog);
+    ServiceVolumeNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgVolume1* aService);
     ~ServiceVolumeNetwork();
 
     virtual void Dispose();
@@ -178,7 +178,7 @@ class ServiceVolumeMock : public ServiceVolume
 {
 public:
     ServiceVolumeMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& aId, TInt aBalance, TUint aBalanceMax, TInt aFade, TUint aFadeMax, TBool aMute, TUint aValue, TUint aVolumeLimit, TUint aVolumeMax,
-        TUint aVolumeMilliDbPerStep, TUint aVolumeSteps, TUint aVolumeUnity, ILog& aLog);
+        TUint aVolumeMilliDbPerStep, TUint aVolumeSteps, TUint aVolumeUnity);
     ~ServiceVolumeMock();
 public:
     void SetBalance(TInt aValue) override;

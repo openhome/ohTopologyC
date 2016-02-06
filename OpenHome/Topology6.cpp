@@ -271,7 +271,7 @@ void Topology6Source::Select()
 
 //////////////////////////////////////////////////////////////////
 
-Topology6Group::Topology6Group(INetwork& aNetwork, const Brx& aRoomName, const Brx& aName, ITopology4Group& aGroup, std::vector<ITopology4Source*> aSources, ILog& /*aLog*/)
+Topology6Group::Topology6Group(INetwork& aNetwork, const Brx& aRoomName, const Brx& aName, ITopology4Group& aGroup, std::vector<ITopology4Source*> aSources)
     :iNetwork(aNetwork)
     ,iRoomName(aRoomName)
     ,iName(aName)
@@ -794,10 +794,9 @@ void Topology6GroupWatcher::ItemClose(const Brx& /*aId*/, ITopology4Source* /*aS
 ///////////////////////////////////////////////////////////////////
 
 
-Topology6Room::Topology6Room(INetwork& aNetwork, ITopology5Room& aRoom, ILog& aLog)
+Topology6Room::Topology6Room(INetwork& aNetwork, ITopology5Room& aRoom)
     :iNetwork(aNetwork)
     ,iRoom(aRoom)
-    ,iLog(aLog)
     ,iName(iRoom.Name())
     ,iStandbyCount(0)
     ,iStandby(eOff)
@@ -965,7 +964,7 @@ void Topology6Room::CreateTree()
     for(auto it=iGroupWatchers.begin(); it!=iGroupWatchers.end(); it++)
     {
         auto groupWatcher = *it;
-        Topology6Group* t6Group = new Topology6Group(iNetwork, iName, groupWatcher->Name(), groupWatcher->Group(), groupWatcher->Sources(), iLog);
+        Topology6Group* t6Group = new Topology6Group(iNetwork, iName, groupWatcher->Name(), groupWatcher->Group(), groupWatcher->Sources());
 
         InsertIntoTree(*t6Group);
         newGroups->push_back(t6Group);
@@ -1120,9 +1119,8 @@ void Topology6Room::EvaluateStandby()
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-Topology6::Topology6(ITopology5* aTopology5, ILog& aLog)
+Topology6::Topology6(ITopology5* aTopology5)
     :iTopology5(aTopology5)
-    ,iLog(aLog)
     ,iNetwork(iTopology5->Network())
     ,iDisposeHandler(new DisposeHandler())
     ,iRooms(new WatchableUnordered<ITopologyRoom*>(iNetwork))
@@ -1144,14 +1142,14 @@ Topology6::~Topology6()
     delete iTopology5;
 }
 
-Topology6* Topology6::CreateTopology(INetwork& aNetwork, ILog& aLog)
+Topology6* Topology6::CreateTopology(INetwork& aNetwork)
 {
-    Topology1* topology1 = new Topology1(aNetwork, aLog);
-    Topology2* topology2 = new Topology2(topology1, aLog);
-    Topology3* topology3 = new Topology3(topology2, aLog);
-    Topology4* topology4 = new Topology4(topology3, aLog);
-    Topology5* topology5 = new Topology5(topology4, aLog);
-    Topology6* top6 = new Topology6(topology5, aLog);
+    Topology1* topology1 = new Topology1(aNetwork);
+    Topology2* topology2 = new Topology2(topology1);
+    Topology3* topology3 = new Topology3(topology2);
+    Topology4* topology4 = new Topology4(topology3);
+    Topology5* topology5 = new Topology5(topology4);
+    Topology6* top6 = new Topology6(topology5);
     return(top6);
 }
 
@@ -1220,7 +1218,7 @@ void Topology6::UnorderedAdd(ITopology5Room* aT5Room)
 void Topology6::UnorderedAddCallback(void* aT5Room)
 {
     ITopology5Room* t5Room = (ITopology5Room*)aT5Room;
-    Topology6Room* t6Room = new Topology6Room(iNetwork, *t5Room, iLog);
+    Topology6Room* t6Room = new Topology6Room(iNetwork, *t5Room);
     iRooms->Add(t6Room);
     iRoomLookup[t5Room] = t6Room;
 }

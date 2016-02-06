@@ -15,8 +15,8 @@ const Brn OpenHome::Topology::kReceiverTransportStateStopped("Stopped");
 const Brn OpenHome::Topology::kReceiverTransportStatePaused("Paused");
 
 
-ServiceReceiver::ServiceReceiver(IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aDevice, aLog)
+ServiceReceiver::ServiceReceiver(IInjectorDevice& aDevice)
+    :Service(aDevice)
     ,iCurrentMetadata(iNetwork.InfoMetadataEmpty())
     ,iCurrentTransportState(new Bws<100>())
     ,iMetadata(new Watchable<IInfoMetadata*>(iNetwork, Brn("Metadata"), iCurrentMetadata))
@@ -71,8 +71,8 @@ const Brx& ServiceReceiver::ProtocolInfo()
 ////////////////////////////////////////////////////////////////
 
 
-ServiceReceiverNetwork::ServiceReceiverNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgReceiver1* aService, ILog& aLog)
-    :ServiceReceiver(aDevice, aLog)
+ServiceReceiverNetwork::ServiceReceiverNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgReceiver1* aService)
+    :ServiceReceiver(aDevice)
     ,iService(aService)
     ,iSubscribed(false)
 {
@@ -247,8 +247,8 @@ void ServiceReceiverNetwork::TransportChangedCallback2(void*)
 ////////////////////////////////////////////////////////////////
 
 ServiceReceiverMock::ServiceReceiverMock(IInjectorDevice& aDevice, const Brx& aMetadata, const Brx& aProtocolInfo,
-                                         const Brx& aTransportState, const Brx& aUri, ILog& aLog)
-    :ServiceReceiver(aDevice, aLog)
+                                         const Brx& aTransportState, const Brx& aUri)
+    :ServiceReceiver(aDevice)
 {
     iProtocolInfo.Replace(aProtocolInfo);
     iCurrentMetadata = new InfoMetadata(iNetwork.GetTagManager().FromDidlLite(aMetadata), aUri);

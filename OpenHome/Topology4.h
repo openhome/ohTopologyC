@@ -96,8 +96,8 @@ class Topology4Group : public ITopology4Group, public IWatcher<ITopology2Source*
     friend class IWatcher<ITopology2Source*>;
 
 public:
-    Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, ILog& aLog);
-    Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, IProxyCredentials& aProxy, ILog& aLog);
+    Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup);
+    Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, IProxyCredentials& aProxy);
     ~Topology4Group();
 
     void Dispose();
@@ -151,7 +151,7 @@ public:
 class Topology4 : public ITopology4, public IWatcherUnordered<ITopology3Group*>, public INonCopyable
 {
 public:
-    Topology4(ITopology3* aTopology3, ILog& aLog);
+    Topology4(ITopology3* aTopology3);
     ~Topology4();
 
     // IDisposable
@@ -175,7 +175,6 @@ private:
 
 private:
     ITopology3* iTopology3;
-    ILog& iLog;
     INetwork& iNetwork;
     DisposeHandler* iDisposeHandler;
     TBool iDisposed;

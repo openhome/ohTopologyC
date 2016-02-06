@@ -113,8 +113,7 @@ void SuiteTopologyManual::TearDown()
 
 void SuiteTopologyManual::Test1()
 {
-    ILog* log = new LogDummy();
-    Network* network = new Network(50, *log);
+    Network* network = new Network(50);
 
     std::vector<NetworkAdapter*>* list = iLib.CreateSubnetList();
     TIpAddress subnetAddress = (*list)[0]->Subnet();
@@ -124,12 +123,12 @@ void SuiteTopologyManual::Test1()
     FunctorGeneric<Net::CpDevice*> fAdd = MakeFunctorGeneric<Net::CpDevice*>(*network, &Network::AddCpDevice);
     FunctorGeneric<Net::CpDevice*> fRem = MakeFunctorGeneric<Net::CpDevice*>(*network, &Network::RemoveCpDevice);
 
-    InjectorProduct* injector = new InjectorProduct(cpStack, fAdd, fRem, *log);
+    InjectorProduct* injector = new InjectorProduct(cpStack, fAdd, fRem);
 
     auto watcher = new HouseWatcher();
 
 
-    iTopology = Topology6::CreateTopology(*network, *log);
+    iTopology = Topology6::CreateTopology(*network);
 
     FunctorGeneric<void*> fe = MakeFunctorGeneric(*this, &SuiteTopologyManual::ScheduleCallback);
     network->Schedule(fe, watcher);

@@ -129,7 +129,7 @@ public:
 class Topology2 : public ITopology2, public IWatcherUnordered<IProxyProduct*>, public INonCopyable
 {
 public:
-    Topology2(ITopology1* aTopology1, ILog& aLog);
+    Topology2(ITopology1* aTopology1);
     ~Topology2();
 
     void Dispose();

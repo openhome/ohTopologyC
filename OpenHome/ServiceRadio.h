@@ -94,7 +94,7 @@ public:
 class ServiceRadio : public Service
 {
 protected:
-    ServiceRadio(IInjectorDevice& aDevice, ILog& aLog);
+    ServiceRadio(IInjectorDevice& aDevice);
     ~ServiceRadio();
 
 public:
@@ -132,7 +132,7 @@ protected:
 class ServiceRadioNetwork : public ServiceRadio
 {
 public:
-    ServiceRadioNetwork(IInjectorDevice& aDevice, Net::ICpProxyAvOpenhomeOrgRadio1* aService, ILog& aLog); //ICpProxyAvOpenhomeOrgRadio1* and ICpProxy* must be wrapped in shared_ptr
+    ServiceRadioNetwork(IInjectorDevice& aDevice, Net::ICpProxyAvOpenhomeOrgRadio1* aService); //ICpProxyAvOpenhomeOrgRadio1* and ICpProxy* must be wrapped in shared_ptr
     ~ServiceRadioNetwork();
 
     void Dispose();
@@ -179,7 +179,7 @@ private:
 class ServiceRadioMock : public ServiceRadio
 {
 public:
-    ServiceRadioMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aPresets, IInfoMetadata* aInfoMetadata, const Brx& aProtocolInfo, const Brx& aTransportState, TUint aChannelsMax, ILog& aLog);
+    ServiceRadioMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aPresets, IInfoMetadata* aInfoMetadata, const Brx& aProtocolInfo, const Brx& aTransportState, TUint aChannelsMax);
     ~ServiceRadioMock();
 public:
     void Dispose() override;

@@ -126,8 +126,8 @@ void MediaPresetRadio::ItemClose(const Brx& /*aId*/, Brn aValue)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-ServiceRadio::ServiceRadio(IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aDevice, aLog)
+ServiceRadio::ServiceRadio(IInjectorDevice& aDevice)
+    :Service(aDevice)
     ,iCurrentMetadata(iNetwork.InfoMetadataEmpty())
     ,iCurrentTransportState(new Bws<100>())
     ,iId(new Watchable<TUint>(iNetwork, Brn("Id"), 0))
@@ -198,8 +198,8 @@ const Brx& ServiceRadio::ProtocolInfo()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ServiceRadioNetwork::ServiceRadioNetwork(IInjectorDevice& aDevice, Net::ICpProxyAvOpenhomeOrgRadio1* aService, ILog& aLog)
-    :ServiceRadio(aDevice, aLog)
+ServiceRadioNetwork::ServiceRadioNetwork(IInjectorDevice& aDevice, Net::ICpProxyAvOpenhomeOrgRadio1* aService)
+    :ServiceRadio(aDevice)
     ,iService(aService)
     ,iCacheSession(nullptr)
     ,iSubscribed(false)
@@ -547,8 +547,8 @@ void ServiceRadioNetwork::HandleTransportStateChangedCallback2(void*)
 
 ////////////////////////////////////////////////////////////////////////
 
-ServiceRadioMock::ServiceRadioMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aPresets, IInfoMetadata* aMetadata, const Brx& aProtocolInfo, const Brx& aTransportState, TUint aChannelsMax, ILog& aLog)
-    : ServiceRadio(aDevice, aLog)
+ServiceRadioMock::ServiceRadioMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aPresets, IInfoMetadata* aMetadata, const Brx& aProtocolInfo, const Brx& aTransportState, TUint aChannelsMax)
+    : ServiceRadio(aDevice)
     , iPresets(aPresets)
 {
     iChannelsMax = aChannelsMax;

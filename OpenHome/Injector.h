@@ -29,8 +29,8 @@ public:
     virtual void Dispose();
 
 protected:
-    Injector(Net::CpStack& aCpStack, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& aLog);
-    Injector(Net::CpStack& aCpStack, Net::DvDevice& aDvDevice, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& aLog);
+    Injector(Net::CpStack& aCpStack, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, const Brx& aDomain, const Brx& aType, TUint aVersion);
+    Injector(Net::CpStack& aCpStack, Net::DvDevice& aDvDevice, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, const Brx& aDomain, const Brx& aType, TUint aVersion);
     ~Injector();
 
     void Added(Net::CpDevice& aDevice);
@@ -55,8 +55,8 @@ private:
 class InjectorProduct : public Injector
 {
 public:
-    InjectorProduct(Net::CpStack& aCpStack, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, ILog& aLog);
-    InjectorProduct(Net::CpStack& aCpStack, Net::DvDevice& aDvDevice, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, ILog& aLog);
+    InjectorProduct(Net::CpStack& aCpStack, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove);
+    InjectorProduct(Net::CpStack& aCpStack, Net::DvDevice& aDvDevice, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove);
 };
 
 ///////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ public:
 class InjectorSender : public Injector
 {
 public:
-    InjectorSender(Net::CpStack& aCpStack, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove, ILog& aLog);
+    InjectorSender(Net::CpStack& aCpStack, FunctorGeneric<Net::CpDevice*> aAdd, FunctorGeneric<Net::CpDevice*> aRemove);
 
 protected:
     virtual TBool FilterOut(Net::CpDevice& aCpDevice);
@@ -76,7 +76,7 @@ protected:
 class InjectorMock : public IMockable, public IDisposable, public INonCopyable
 {
 public:
-    InjectorMock(Network& aNetwork, const Brx& aResourceRoot, ILog& aLog);
+    InjectorMock(Network& aNetwork, const Brx& aResourceRoot);
     ~InjectorMock();
     virtual void Dispose();
     virtual void Execute(ICommandTokens& aTokens);
@@ -89,7 +89,6 @@ private:
 
 private:
     Network& iNetwork;
-    ILog& iLog;
     std::map<Brn, InjectorDeviceMock*, BufferCmp> iMockDevices;
 };
 

@@ -30,9 +30,8 @@ void ServiceCreateData::RunCallback(IProxy* aProxy)
 
 // Service
 
-Service::Service(IInjectorDevice& aDevice, ILog& aLog)
+Service::Service(IInjectorDevice& aDevice)
     :iNetwork(aDevice.Network())
-    ,iLog(aLog)
     ,iDisposeHandler(new DisposeHandler())
     //,iCancelSubscribe(new CancellationTokenSource())
     //,iSubscribeTask(NULL)

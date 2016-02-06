@@ -12,8 +12,8 @@ using namespace OpenHome::Net;
 
 /////////////////////////////////////////////////////////
 
-ServiceSender::ServiceSender(IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aDevice, aLog)
+ServiceSender::ServiceSender(IInjectorDevice& aDevice)
+    :Service(aDevice)
     ,iCurrentMetadata(iNetwork.SenderMetadataEmpty())
     ,iCurrentStatus(new Bws<100>())
     ,iAudio(new Watchable<TBool>(iNetwork, Brn("Audio"), false))
@@ -84,8 +84,8 @@ const Brx& ServiceSender::PresentationUrl()
 
 
 
-ServiceSenderNetwork::ServiceSenderNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgSender1* aService, ILog& aLog)
-    :ServiceSender(aDevice, aLog)
+ServiceSenderNetwork::ServiceSenderNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgSender1* aService)
+    :ServiceSender(aDevice)
     ,iService(aService)
     ,iSubscribed(false)
 {
@@ -275,8 +275,8 @@ void ServiceSenderNetwork::StatusChangedCallback2(void*)
 ///////////////////////////////////////////////////////////////////
 
 ServiceSenderMock::ServiceSenderMock(IInjectorDevice& aDevice, const Brx& aAttributes, const Brx& aPresentationUrl,
-                                     TBool aAudio, ISenderMetadata* aMetadata, const Brx& aStatus, ILog& aLog)
-    :ServiceSender(aDevice, aLog)
+                                     TBool aAudio, ISenderMetadata* aMetadata, const Brx& aStatus)
+    :ServiceSender(aDevice)
 {
     iAttributes.Replace(aAttributes);
     iPresentationUrl.Replace(aPresentationUrl);

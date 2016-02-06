@@ -53,7 +53,7 @@ public:
     virtual void Stop() = 0;
 
 protected:
-    ServiceReceiver(IInjectorDevice& aDevice, ILog& aLog);
+    ServiceReceiver(IInjectorDevice& aDevice);
 
 protected:
     Bws<100> iProtocolInfo; // FIXME: random capacity value
@@ -68,7 +68,7 @@ protected:
 class ServiceReceiverNetwork : public ServiceReceiver
 {
 public:
-    ServiceReceiverNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgReceiver1* aService, ILog& aLog);
+    ServiceReceiverNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgReceiver1* aService);
     ~ServiceReceiverNetwork();
 
     virtual void Dispose();
@@ -104,7 +104,7 @@ class ServiceReceiverMock : public ServiceReceiver
 {
 public:
     ServiceReceiverMock(IInjectorDevice& aDevice, const Brx& aMetadata,
-                        const Brx& aProtocolInfo, const Brx& aTransportState, const Brx& aUri, ILog& aLog);
+                        const Brx& aProtocolInfo, const Brx& aTransportState, const Brx& aUri);
 
     virtual void Execute(ICommandTokens& aValue);
 

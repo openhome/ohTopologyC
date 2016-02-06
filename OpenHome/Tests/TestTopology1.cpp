@@ -112,13 +112,12 @@ void SuiteTopology1::Test1()
 {
     Mockable* mocker = new Mockable();
 
-    ILog* log = new LogDummy();
-    Network* network = new Network(50, *log);
+    Network* network = new Network(50);
 
-    InjectorMock* mockInjector = new InjectorMock(*network, Brx::Empty(), *log);
+    InjectorMock* mockInjector = new InjectorMock(*network, Brx::Empty());
     mocker->Add(Brn("network"), *mockInjector);
 
-    iTopology1 = new Topology1(*network, *log);
+    iTopology1 = new Topology1(*network);
 
     MockableScriptRunner* runner = new MockableScriptRunner();
 
@@ -141,7 +140,6 @@ void SuiteTopology1::Test1()
     delete watcher;
     delete mocker;
     delete runner;
-    delete log;
 
     delete iTopology1;
     delete mockInjector;

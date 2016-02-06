@@ -15,8 +15,8 @@ using namespace std;
 
 
 
-ServiceTime::ServiceTime(IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aDevice, aLog)
+ServiceTime::ServiceTime(IInjectorDevice& aDevice)
+    :Service(aDevice)
     ,iDuration(new Watchable<TUint>(iNetwork, Brn("Duration"), 0))
     ,iSeconds(new Watchable<TUint>(iNetwork, Brn("Seconds"), 0))
 {
@@ -57,8 +57,8 @@ IWatchable<TUint>& ServiceTime::Seconds()
 
 ///////////////////////////////////////////////////////////////
 
-ServiceTimeNetwork::ServiceTimeNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgTime1* aService, ILog& aLog)
-    :ServiceTime(aDevice, aLog)
+ServiceTimeNetwork::ServiceTimeNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgTime1* aService)
+    :ServiceTime(aDevice)
     ,iService(aService)
 {
     Functor f1 = MakeFunctor(*this, &ServiceTimeNetwork::HandleDurationChanged);
@@ -165,8 +165,8 @@ void ServiceTimeNetwork::SecondsChangedCallback2(void*)
 
 
 
-ServiceTimeMock::ServiceTimeMock(IInjectorDevice& aDevice, TUint aSeconds, TUint aDuration, ILog& aLog)
-    : ServiceTime(aDevice, aLog)
+ServiceTimeMock::ServiceTimeMock(IInjectorDevice& aDevice, TUint aSeconds, TUint aDuration)
+    : ServiceTime(aDevice)
 {
     iDuration->Update(aDuration);
     iSeconds->Update(aSeconds);

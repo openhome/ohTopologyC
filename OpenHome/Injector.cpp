@@ -19,7 +19,7 @@ Injector::Injector( CpStack& aCpStack,
                     DvDevice& aDvDevice,
                     FunctorGeneric<CpDevice*> aAdd,
                     FunctorGeneric<CpDevice*> aRemove,
-                    const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& /*aLog*/)
+                    const Brx& aDomain, const Brx& aType, TUint aVersion)
 
     :iCpDevice(CpDeviceDv::New(aCpStack, aDvDevice))
     ,iAdd(aAdd)
@@ -32,7 +32,7 @@ Injector::Injector( CpStack& aCpStack,
 Injector::Injector( CpStack& aCpStack,
                     FunctorGeneric<CpDevice*> aAdd,
                     FunctorGeneric<CpDevice*> aRemove,
-                    const Brx& aDomain, const Brx& aType, TUint aVersion, ILog& /*aLog*/)
+                    const Brx& aDomain, const Brx& aType, TUint aVersion)
 
     :iCpDevice(nullptr)
     ,iAdd(aAdd)
@@ -106,21 +106,21 @@ void Injector::Dispose()
 
 /////////////////////////////////////////////////////////////////
 
-InjectorProduct::InjectorProduct(CpStack& aCpStack, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove, ILog& aLog)
-    : Injector(aCpStack, aAdd, aRemove, Brn("av.openhome.org"), Brn("Product"), 1, aLog)
+InjectorProduct::InjectorProduct(CpStack& aCpStack, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove)
+    : Injector(aCpStack, aAdd, aRemove, Brn("av.openhome.org"), Brn("Product"), 1)
 {
 }
 
 
-InjectorProduct::InjectorProduct(CpStack& aCpStack, DvDevice& aDvDevice, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove, ILog& aLog)
-    : Injector(aCpStack, aDvDevice, aAdd, aRemove, Brn("av.openhome.org"), Brn("Product"), 1, aLog)
+InjectorProduct::InjectorProduct(CpStack& aCpStack, DvDevice& aDvDevice, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove)
+    : Injector(aCpStack, aDvDevice, aAdd, aRemove, Brn("av.openhome.org"), Brn("Product"), 1)
 {
 }
 
 /////////////////////////////////////////////////////////////////
 /*
-InjectorSender::InjectorSender(CpStack& aCpStack, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove, ILog& aLog)
-    : Injector(aCpStack, aAdd, aRemove, Brn("av.openhome.org"), Brn("Sender"), 1, aLog)
+InjectorSender::InjectorSender(CpStack& aCpStack, FunctorGeneric<CpDevice*> aAdd, FunctorGeneric<CpDevice*> aRemove)
+    : Injector(aCpStack, aAdd, aRemove, Brn("av.openhome.org"), Brn("Sender"), 1)
 {
 }
 
@@ -134,10 +134,9 @@ TBool InjectorSender::FilterOut(CpDevice& aCpDevice)
 
 /////////////////////////////////////////////////////////////////
 
-InjectorMock::InjectorMock(Network& aNetwork, const Brx& /*aResourceRoot*/, ILog& aLog)
+InjectorMock::InjectorMock(Network& aNetwork, const Brx& /*aResourceRoot*/)
     :iNetwork(aNetwork)
     //,iResourceRoot(aResourceRoot)
-    ,iLog(aLog)
 {
 }
 
@@ -184,17 +183,17 @@ void InjectorMock::ExecuteCallback(void* aObj)
 
     if (Ascii::CaseInsensitiveEquals(command, Brn("small")))
     {
-        //CreateAndAdd(DeviceFactory.CreateDsm(iNetwork, "4c494e4e-0026-0f99-1112-ef000004013f", "Sitting Room", "Klimax DSM", "Info Time Volume Sender", iLog));
-        //CreateAndAdd(DeviceFactory.CreateMediaServer(iNetwork, "4c494e4e-0026-0f99-0000-000000000000", iResourceRoot, iLog));
+        //CreateAndAdd(DeviceFactory.CreateDsm(iNetwork, "4c494e4e-0026-0f99-1112-ef000004013f", "Sitting Room", "Klimax DSM", "Info Time Volume Sender"));
+        //CreateAndAdd(DeviceFactory.CreateMediaServer(iNetwork, "4c494e4e-0026-0f99-0000-000000000000", iResourceRoot));
         return;
     }
     else if (Ascii::CaseInsensitiveEquals(command, Brn("medium")))
     {
-        CreateAndAdd(DeviceFactory::CreateDs(iNetwork, Brn("4c494e4e-0026-0f99-1111-ef000004013f"), Brn("Kitchen"), Brn("Sneaky Music DS"), Brn("Info Time Volume Sender"), iLog));
-        CreateAndAdd(DeviceFactory::CreateDsm(iNetwork, Brn("4c494e4e-0026-0f99-1112-ef000004013f"), Brn("Sitting Room"), Brn("Klimax DSM"), Brn("Info Time Volume Sender"), iLog));
-        CreateAndAdd(DeviceFactory::CreateDsm(iNetwork, Brn("4c494e4e-0026-0f99-1113-ef000004013f"), Brn("Bedroom"), Brn("Kiko DSM"), Brn("Info Time Volume Sender"), iLog));
-        CreateAndAdd(DeviceFactory::CreateDs(iNetwork, Brn("4c494e4e-0026-0f99-1114-ef000004013f"), Brn("Dining Room"), Brn("Majik DS"), Brn("Info Time Volume Sender"), iLog));
-        //CreateAndAdd(DeviceFactory.CreateMediaServer(iNetwork, "4c494e4e-0026-0f99-0000-000000000000", iResourceRoot, iLog));
+        CreateAndAdd(DeviceFactory::CreateDs(iNetwork, Brn("4c494e4e-0026-0f99-1111-ef000004013f"), Brn("Kitchen"), Brn("Sneaky Music DS"), Brn("Info Time Volume Sender")));
+        CreateAndAdd(DeviceFactory::CreateDsm(iNetwork, Brn("4c494e4e-0026-0f99-1112-ef000004013f"), Brn("Sitting Room"), Brn("Klimax DSM"), Brn("Info Time Volume Sender")));
+        CreateAndAdd(DeviceFactory::CreateDsm(iNetwork, Brn("4c494e4e-0026-0f99-1113-ef000004013f"), Brn("Bedroom"), Brn("Kiko DSM"), Brn("Info Time Volume Sender")));
+        CreateAndAdd(DeviceFactory::CreateDs(iNetwork, Brn("4c494e4e-0026-0f99-1114-ef000004013f"), Brn("Dining Room"), Brn("Majik DS"), Brn("Info Time Volume Sender")));
+        //CreateAndAdd(DeviceFactory.CreateMediaServer(iNetwork, "4c494e4e-0026-0f99-0000-000000000000", iResourceRoot));
         return;
     }
     else if (Ascii::CaseInsensitiveEquals(command,Brn("large")))
@@ -211,12 +210,12 @@ void InjectorMock::ExecuteCallback(void* aObj)
 
         if (type == Brn("ds"))
         {
-            Create(DeviceFactory::CreateDs(iNetwork, udn, iLog));
+            Create(DeviceFactory::CreateDs(iNetwork, udn));
             return;
         }
         else if (type == Brn("dsm"))
         {
-            Create(DeviceFactory::CreateDsm(iNetwork, udn, iLog));
+            Create(DeviceFactory::CreateDsm(iNetwork, udn));
             return;
         }
     }

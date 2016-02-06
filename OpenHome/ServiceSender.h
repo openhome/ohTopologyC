@@ -75,7 +75,7 @@ public:
     virtual const Brx& PresentationUrl();
 
 protected:
-    ServiceSender(IInjectorDevice& aDevice, ILog& aLog);
+    ServiceSender(IInjectorDevice& aDevice);
 
 protected:
     ISenderMetadata* iCurrentMetadata;
@@ -92,7 +92,7 @@ protected:
 class ServiceSenderNetwork : public ServiceSender
 {
 public:
-    ServiceSenderNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgSender1* aService, ILog& aLog);
+    ServiceSenderNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgSender1* aService);
     ~ServiceSenderNetwork();
 
     virtual void Dispose();
@@ -127,7 +127,7 @@ class ServiceSenderMock : public ServiceSender
 {
 public:
     ServiceSenderMock(IInjectorDevice& aDevice,  const Brx& aAttributes, const Brx& aPresentationUrl,
-                      TBool aAudio, ISenderMetadata* aMetadata, const Brx& aStatus, ILog& aLog);
+                      TBool aAudio, ISenderMetadata* aMetadata, const Brx& aStatus);
 
     virtual void Execute(ICommandTokens& aValue);
 };

@@ -13,8 +13,8 @@ using namespace OpenHome::Net;
 using namespace std;
 
 
-ServiceProduct::ServiceProduct(IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aDevice, aLog)
+ServiceProduct::ServiceProduct(IInjectorDevice& aDevice)
+    :Service(aDevice)
     ,iRoomName(new Watchable<Brn>(iNetwork, Brn("RoomName"), Brx::Empty()))
     ,iName(new Watchable<Brn>(iNetwork, Brn("Name"), Brx::Empty()))
     ,iSourceIndex(new Watchable<TUint>(iNetwork, Brn("SourceIndex"), 0))
@@ -280,8 +280,8 @@ void SrcXml::CreateSourceXml()
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
-ServiceProductNetwork::ServiceProductNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgProduct1* aService, ILog& aLog)
-    :ServiceProduct(aDevice, aLog)
+ServiceProductNetwork::ServiceProductNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgProduct1* aService)
+    :ServiceProduct(aDevice)
     ,iService(aService)
     ,iSubscribed(false)
 {
@@ -566,8 +566,8 @@ void ServiceProductNetwork::StandbyChangedCallback2(void*)
 
 ServiceProductMock::ServiceProductMock(IInjectorDevice& aDevice, const Brx& aRoom, const Brx& aName, TUint aSourceIndex, unique_ptr<SrcXml> aSourceXmlFactory, TBool aStandby,
     const Brx& aAttributes, const Brx& aManufacturerImageUri, const Brx& aManufacturerInfo, const Brx& aManufacturerName, const Brx& aManufacturerUrl, const Brx& aModelImageUri, const Brx& aModelInfo, const Brx& aModelName,
-    const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId, ILog& aLog)
-    : ServiceProduct(aDevice, aLog)
+    const Brx& aModelUrl, const Brx& aProductImageUri, const Brx& aProductInfo, const Brx& aProductUrl, const Brx& aProductId)
+    : ServiceProduct(aDevice)
     ,iSourceXmlFactory(move(aSourceXmlFactory))
 {
     iAttributes.Replace(aAttributes);

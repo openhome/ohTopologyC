@@ -53,11 +53,10 @@ void Topology4Source::Create(const Brx& /*aId*/, FunctorGeneric<ICredentialsSubs
 /////////////////////////////////////////////////////////////////////
 
 
-Topology4Group::Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, ILog& /*aLog*/)
+Topology4Group::Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup)
     :iNetwork(aNetwork)
     ,iGroup(aGroup)
     ,iProxy(NULL)
-    //,iLog(aLog)
 {
     auto v = iGroup.Sources();
     for (TUint i = 0; i<v.size(); i++)
@@ -67,11 +66,10 @@ Topology4Group::Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, ILog
     }
 }
 
-Topology4Group::Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, IProxyCredentials& aProxy, ILog& /*aLog*/)
+Topology4Group::Topology4Group(INetwork& aNetwork, ITopology3Group& aGroup, IProxyCredentials& aProxy)
     :iNetwork(aNetwork)
     ,iGroup(aGroup)
     ,iProxy(&aProxy)
-    //,iLog(aLog)
 {
     auto v = iGroup.Sources();
     for (TUint i = 0; i<v.size(); i++)
@@ -231,9 +229,8 @@ void Topology4Group::ItemClose(const Brx& /*aId*/, ITopology2Source* aValue)
 
 /////////////////////////////////////////////////////////////////////
 
-Topology4::Topology4(ITopology3* aTopology3, ILog& aLog)
+Topology4::Topology4(ITopology3* aTopology3)
     :iTopology3(aTopology3)
-    ,iLog(aLog)
     ,iNetwork(aTopology3->Network())
     ,iDisposeHandler(new DisposeHandler())
     ,iDisposed(false)
@@ -349,7 +346,7 @@ void Topology4::UnorderedAddCallback(void* aItem)
 {
     auto item = (ITopology3Group*)aItem;
 
-    CreateGroup(*item, new Topology4Group(iNetwork, *item, iLog));
+    CreateGroup(*item, new Topology4Group(iNetwork, *item));
 }
 
 

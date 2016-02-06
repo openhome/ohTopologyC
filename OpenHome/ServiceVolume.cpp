@@ -14,8 +14,8 @@ using namespace std;
 
 
 
-ServiceVolume::ServiceVolume(IInjectorDevice& aDevice, ILog& aLog)
-    :Service(aDevice, aLog)
+ServiceVolume::ServiceVolume(IInjectorDevice& aDevice)
+    :Service(aDevice)
     ,iBalance(new Watchable<TInt>(iNetwork, Brn("Balance"), 0))
     ,iFade(new Watchable<TInt>(iNetwork, Brn("Fade"), 0))
     ,iMute(new Watchable<TBool>(iNetwork, Brn("Mute"), false))
@@ -111,8 +111,8 @@ TUint ServiceVolume::VolumeUnity()
 
 ////////////////////////////////////////////////////////
 
-ServiceVolumeNetwork::ServiceVolumeNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgVolume1* aService, ILog& aLog)
-    :ServiceVolume(aDevice, aLog)
+ServiceVolumeNetwork::ServiceVolumeNetwork(IInjectorDevice& aDevice, CpProxyAvOpenhomeOrgVolume1* aService)
+    :ServiceVolume(aDevice)
     ,iService(aService)
     ,iSubscribed(false)
 {
@@ -452,8 +452,8 @@ void ServiceVolumeNetwork::BalanceChangedCallback2(void*)
 
 
 ServiceVolumeMock::ServiceVolumeMock(INetwork& aNetwork, IInjectorDevice& aDevice, const Brx& /*aId*/, TInt aBalance, TUint aBalanceMax, TInt aFade, TUint aFadeMax, TBool aMute, TUint aValue, TUint aVolumeLimit, TUint aVolumeMax,
-    TUint aVolumeMilliDbPerStep, TUint aVolumeSteps, TUint aVolumeUnity, ILog& aLog)
-    : ServiceVolume(aDevice, aLog)
+    TUint aVolumeMilliDbPerStep, TUint aVolumeSteps, TUint aVolumeUnity)
+    : ServiceVolume(aDevice)
     , iNetwork(aNetwork)
 
 {

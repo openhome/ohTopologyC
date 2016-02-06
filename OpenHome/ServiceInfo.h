@@ -62,7 +62,7 @@ private:
 class ServiceInfo : public Service
 {
 protected:
-    ServiceInfo(IInjectorDevice& aDevice, ILog& aLog);
+    ServiceInfo(IInjectorDevice& aDevice);
     ~ServiceInfo();
 
 public:
@@ -87,7 +87,7 @@ protected:
 class ServiceInfoNetwork : public ServiceInfo
 {
 public:
-    ServiceInfoNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgInfo1* aService, ILog& aLog);
+    ServiceInfoNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgInfo1* aService);
     ~ServiceInfoNetwork();
 
     virtual void Dispose();
@@ -122,7 +122,7 @@ private:
 class ServiceInfoMock : public ServiceInfo
 {
 public:
-    ServiceInfoMock(IInjectorDevice& aDevice, IInfoDetails* aDetails, IInfoMetadata* aMetadata, IInfoMetatext* aMetatext, ILog& aLog);
+    ServiceInfoMock(IInjectorDevice& aDevice, IInfoDetails* aDetails, IInfoMetadata* aMetadata, IInfoMetatext* aMetatext);
     ~ServiceInfoMock();
 public:
     void Execute(ICommandTokens& aValue) override; //from IMockable

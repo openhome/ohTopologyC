@@ -96,7 +96,7 @@ class Topology5 : public ITopology5, public IWatcherUnordered<ITopology4Group*>,
 friend class Topology5GroupWatcher;
 
 public:
-    Topology5(ITopology4* aTopology4, ILog& aLog);
+    Topology5(ITopology4* aTopology4);
     ~Topology5();
 
     // IDisposable

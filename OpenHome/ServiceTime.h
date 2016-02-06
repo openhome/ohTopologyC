@@ -24,7 +24,7 @@ namespace Topology
 class ServiceTime : public Service
 {
 protected:
-    ServiceTime(IInjectorDevice& aDevice, ILog& aLog);
+    ServiceTime(IInjectorDevice& aDevice);
     ~ServiceTime();
 
 public:
@@ -45,7 +45,7 @@ protected :
 class ServiceTimeNetwork : public ServiceTime
 {
 public:
-    ServiceTimeNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgTime1* aService, ILog& aLog);
+    ServiceTimeNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgTime1* aService);
     ~ServiceTimeNetwork();
     void Dispose();
 
@@ -73,7 +73,7 @@ private:
 class ServiceTimeMock : public ServiceTime
 {
 public:
-    ServiceTimeMock(IInjectorDevice& aDevice, TUint aSeconds, TUint aDuration, ILog& aLog);
+    ServiceTimeMock(IInjectorDevice& aDevice, TUint aSeconds, TUint aDuration);
     ~ServiceTimeMock();
 public:
     void Execute(ICommandTokens& aValue) override;

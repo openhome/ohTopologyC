@@ -375,7 +375,7 @@ void SenderWatcher::ItemClose(const Brx& /*aId*/, ISenderMetadata* aValue)
 /////////////////////////////////////////////////////////////
 
 
-Topology3::Topology3(ITopology2* aTopology2, ILog& /*aLog*/)
+Topology3::Topology3(ITopology2* aTopology2)
     :iTopology2(aTopology2)
     ,iNetwork(aTopology2->Network())
     ,iGroups(new WatchableUnordered<ITopology3Group*>(iNetwork))

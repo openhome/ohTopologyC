@@ -22,13 +22,13 @@ using namespace std;
 
 
 
-IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, ILog& aLog)
+IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn)
 {
     LOG(kApplication7, ">DeviceFactory::CreateDs \n");
-    return CreateDs(aNetwork, aUdn, Brn("Main Room"), Brn("Mock DS"), Brn("Info Time Volume Sender"), aLog);
+    return CreateDs(aNetwork, aUdn, Brn("Main Room"), Brn("Mock DS"), Brn("Info Time Volume Sender"));
 }
 
-IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, const Brx& aRoom, const Brx& aName, const Brx& aAttributes, ILog& aLog)
+IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, const Brx& aRoom, const Brx& aName, const Brx& aAttributes)
 {
     //Log::Print(">DeviceFactory::CreateDs \n");
     InjectorDevice* device = new InjectorDevice(aNetwork, aUdn);
@@ -51,22 +51,22 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
     device->Add(eProxyProduct, new ServiceProductMock(*device, aRoom, aName, 0, move(xml), true, aAttributes, Brx::Empty(),
                                     Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brx::Empty(),
                                     Brn("Linn High Fidelity System Component"), Brn("Mock DS"), Brx::Empty(), Brx::Empty(),
-                                    Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn, aLog) );
+                                    Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn) );
 
 
     // sender service
 
-    ServiceVolumeMock* svm = new ServiceVolumeMock(aNetwork, *device, aUdn, 0, 15, 0, 0, false, 50, 100, 100, 1024, 100, 80, aLog);
+    ServiceVolumeMock* svm = new ServiceVolumeMock(aNetwork, *device, aUdn, 0, 15, 0, 0, false, 50, 100, 100, 1024, 100, 80);
     device->Add(eProxyVolume, svm);
 
     auto details = new InfoDetails(0, 0, Brx::Empty(), 0, false, 0);
     auto infoMetaData = new InfoMetadata(aNetwork.GetTagManager().FromDidlLite(Brx::Empty()), Brx::Empty());
     auto infoMetatext = new InfoMetatext(aNetwork.GetTagManager().FromDidlLite(Brx::Empty()));
-    ServiceInfoMock* sim = new ServiceInfoMock(*device, details, infoMetaData, infoMetatext, aLog);
+    ServiceInfoMock* sim = new ServiceInfoMock(*device, details, infoMetaData, infoMetatext);
     device->Add(eProxyInfo, sim);
     delete details;
 
-    ServiceTimeMock* stm = new ServiceTimeMock(*device, 0, 0, aLog);
+    ServiceTimeMock* stm = new ServiceTimeMock(*device, 0, 0);
     device->Add(eProxyTime, stm);
 
 
@@ -79,18 +79,18 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
 
 
     SenderMetadata* smd = new SenderMetadata(senderMeta);
-    ServiceSenderMock* ssm = new ServiceSenderMock(*device, aAttributes, Brx::Empty(), false, smd, Brn("Enabled"), aLog);
+    ServiceSenderMock* ssm = new ServiceSenderMock(*device, aAttributes, Brx::Empty(), false, smd, Brn("Enabled"));
     device->Add(eProxySender, ssm);
 
 
 
     // receiver service
 
-    ServiceReceiverMock* srm =  new ServiceReceiverMock(*device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty(), aLog);
+    ServiceReceiverMock* srm =  new ServiceReceiverMock(*device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty());
     device->Add(eProxyReceiver, srm);
 
     std::vector<IMediaMetadata*> tracks;
-    ServicePlaylistMock* spm = new ServicePlaylistMock(*device, 0, tracks, false, false, Brn("Stopped"), Brx::Empty(), 1000, aLog);
+    ServicePlaylistMock* spm = new ServicePlaylistMock(*device, 0, tracks, false, false, Brn("Stopped"), Brx::Empty(), 1000);
     device->Add(eProxyPlaylist, spm);
 
 
@@ -99,12 +99,12 @@ IInjectorDevice* DeviceFactory::CreateDs(INetwork& aNetwork, const Brx& aUdn, co
 
 
 
-IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, ILog& aLog)
+IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn)
 {
-    return CreateDsm(aNetwork, aUdn, Brn("Main Room"), Brn("Mock Dsm"), Brn("Info Time Volume Sender"), aLog);
+    return CreateDsm(aNetwork, aUdn, Brn("Main Room"), Brn("Mock Dsm"), Brn("Info Time Volume Sender"));
 }
 
-IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, const Brx& aRoom, const Brx& aName, const Brx& aAttributes, ILog& aLog)
+IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, const Brx& aRoom, const Brx& aName, const Brx& aAttributes)
 {
     InjectorDevice* device = new InjectorDevice(aNetwork, aUdn);
     // add a factory for each type of watchable service
@@ -128,18 +128,18 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
     ServiceProductMock* spm = new ServiceProductMock(*device, aRoom, aName, 0, std::move(xml), true, aAttributes, Brx::Empty(),
         Brn("Linn Products Ltd"), Brn("Linn"), Brn("http://www.linn.co.uk"), Brx::Empty(),
         Brn("Linn High Fidelity System Component"), Brn("Mock DSM"), Brx::Empty(), Brx::Empty(),
-        Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn, aLog);
+        Brn("Linn High Fidelity System Component"), Brx::Empty(), aUdn);
     device->Add(eProxyProduct, spm);
 
-    ServiceVolumeMock* svm = new ServiceVolumeMock(aNetwork, *device, aUdn, 0, 15, 0, 0, false, 50, 100, 100, 1024, 100, 80, aLog);
+    ServiceVolumeMock* svm = new ServiceVolumeMock(aNetwork, *device, aUdn, 0, 15, 0, 0, false, 50, 100, 100, 1024, 100, 80);
     device->Add(eProxyVolume, svm);
 
     auto details = new InfoDetails(0, 0, Brx::Empty(), 0, false, 0);
-    ServiceInfoMock* sim = new ServiceInfoMock(*device, details, new InfoMetadata(aNetwork.GetTagManager().FromDidlLite(Brx::Empty()), Brx::Empty()), new InfoMetatext(aNetwork.GetTagManager().FromDidlLite(Brx::Empty())), aLog);
+    ServiceInfoMock* sim = new ServiceInfoMock(*device, details, new InfoMetadata(aNetwork.GetTagManager().FromDidlLite(Brx::Empty()), Brx::Empty()), new InfoMetatext(aNetwork.GetTagManager().FromDidlLite(Brx::Empty())));
     device->Add(eProxyInfo, sim);
     delete details;
 
-    ServiceTimeMock* stm = new ServiceTimeMock(*device, 0, 0, aLog);
+    ServiceTimeMock* stm = new ServiceTimeMock(*device, 0, 0);
     device->Add(eProxyTime, stm);
     // sender service
     Bwh senderMeta(Brn("<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><item id=\"\" parentID=\"\" restricted=\"True\"><dc:title>Main Room:Mock DSM</dc:title><res protocolInfo=\"ohz:*:*:u\">ohz://239.255.255.250:51972/"));
@@ -147,10 +147,10 @@ IInjectorDevice* DeviceFactory::CreateDsm(INetwork& aNetwork, const Brx& aUdn, c
     senderMeta.Append(aUdn);
     senderMeta.Append(Brn("</res><upnp:albumArtURI>http://10.2.10.27/images/Icon.png</upnp:albumArtURI><upnp:class>object.item.audioItem</upnp:class></item></DIDL-Lite>"));
 
-    device->Add(eProxySender, new ServiceSenderMock(*device, aAttributes, Brx::Empty(), false, new SenderMetadata(senderMeta), Brn("Enabled"), aLog));
+    device->Add(eProxySender, new ServiceSenderMock(*device, aAttributes, Brx::Empty(), false, new SenderMetadata(senderMeta), Brn("Enabled")));
 
     // receiver service
-    device->Add(eProxyReceiver, new ServiceReceiverMock(*device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty(), aLog));
+    device->Add(eProxyReceiver, new ServiceReceiverMock(*device, Brx::Empty(), Brn("ohz:*:*:*,ohm:*:*:*,ohu:*.*.*"), Brn("Stopped"), Brx::Empty()));
 
     return device;
 }

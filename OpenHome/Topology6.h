@@ -150,7 +150,7 @@ class Topology6Group : public ITopologyRoot, public IWatcher<TUint>, public IWat
     friend class IWatcher<Brn>;
 
 public:
-    Topology6Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopology4Group& aGroup, std::vector<ITopology4Source*> aSources, ILog& aLog);
+    Topology6Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopology4Group& aGroup, std::vector<ITopology4Source*> aSources);
     ~Topology6Group();
 
     virtual void Dispose();
@@ -300,7 +300,7 @@ class Topology6Room : public ITopologyRoom, public IWatcherUnordered<ITopology4G
     friend class IWatcher<TBool>;
 
 public:
-    Topology6Room(INetwork& aNetwork, ITopology5Room& aRoom, ILog& aLog);
+    Topology6Room(INetwork& aNetwork, ITopology5Room& aRoom);
     ~Topology6Room();
 
     virtual void Dispose();
@@ -333,8 +333,6 @@ private:
 private:
     INetwork& iNetwork;
     ITopology5Room& iRoom;
-
-    ILog& iLog;
 
     Brn iName;
     TUint iStandbyCount;
@@ -373,14 +371,14 @@ class Topology6 : public ITopology6, public IWatcherUnordered<ITopology5Room*>, 
     friend class IWatcherUnordered<ITopology5Room*>;
 
 public:
-    Topology6(ITopology5* aTopology5, ILog& aLog);
+    Topology6(ITopology5* aTopology5);
     ~Topology6();
 
     virtual IWatchableUnordered<ITopologyRoom*>& Rooms() const;
     virtual void Dispose();
     virtual INetwork& Network() const;
 
-    static Topology6* CreateTopology(INetwork& aNetwork, ILog& aLog);
+    static Topology6* CreateTopology(INetwork& aNetwork);
 
 private:
     // IWatcherUnordered<ITopology5Room*>
@@ -397,7 +395,6 @@ private:
 
 private:
     ITopology5* iTopology5;
-    ILog& iLog;
     INetwork& iNetwork;
     DisposeHandler* iDisposeHandler;
     WatchableUnordered<ITopologyRoom*>* iRooms;

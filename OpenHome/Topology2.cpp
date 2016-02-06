@@ -273,10 +273,9 @@ void Topology2Group::ProcessSourceXml(const Brx& aSourceXml, TBool aInitial)
 
 /////////////////////////////////////////////////////////////
 
-Topology2::Topology2(ITopology1* aTopology1, ILog& /*aLog*/)
+Topology2::Topology2(ITopology1* aTopology1)
     :iTopology1(aTopology1)
     ,iNetwork(iTopology1->Network())
-    //,iLog(aLog)
     ,iGroups(new WatchableUnordered<ITopology2Group*>(iNetwork))
     ,iDisposed(false)
 {

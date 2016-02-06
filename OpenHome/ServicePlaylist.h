@@ -109,7 +109,7 @@ public:
 class ServicePlaylist : public Service
 {
 protected:
-    ServicePlaylist(IInjectorDevice& aDevice, ILog& aLog);
+    ServicePlaylist(IInjectorDevice& aDevice);
     ~ServicePlaylist();
 
 public:
@@ -162,7 +162,7 @@ protected:
 class ServicePlaylistNetwork : public ServicePlaylist
 {
 public:
-    ServicePlaylistNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgPlaylist1* aService, ILog& aLog);
+    ServicePlaylistNetwork(IInjectorDevice& aDevice, Net::CpProxyAvOpenhomeOrgPlaylist1* aService);
     ~ServicePlaylistNetwork();
 
     void Dispose();
@@ -248,7 +248,7 @@ private:
 class ServicePlaylistMock : public ServicePlaylist
 {
 public:
-    ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aTracks, TBool aRepeat, TBool aShuffle, const Brx& aTransportState, const Brx& aProtocolInfo, TUint aTracksMax, ILog& aLog);
+    ServicePlaylistMock(IInjectorDevice& aDevice, TUint aId, std::vector<IMediaMetadata*>& aTracks, TBool aRepeat, TBool aShuffle, const Brx& aTransportState, const Brx& aProtocolInfo, TUint aTracksMax);
     ~ServicePlaylistMock();
 public:
     void Execute(ICommandTokens& aValue) override;

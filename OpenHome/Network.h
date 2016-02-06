@@ -51,8 +51,8 @@ public:
 class Network : public INetwork, public IExceptionReporter, public INonCopyable
 {
 public:
-    Network(TUint aMaxCacheEntries, ILog& aLog);
-    Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries, ILog& aLog);
+    Network(TUint aMaxCacheEntries);
+    Network(IWatchableThread& aWatchableThread, TUint aMaxCacheEntries);
     ~Network();
 
     void Wait();
@@ -102,7 +102,6 @@ private:
     void DeleteDevice(void* aDevice);
 
 private:
-    ILog& iLog;
     std::vector<Exception> iExceptions;
     DisposeHandler* iDisposeHandler;
     IWatchableThread* iWatchableThread;

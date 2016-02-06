@@ -9,10 +9,9 @@ using namespace OpenHome::Topology;
 using namespace std;
 
 
-Topology1::Topology1(INetwork& aNetwork, ILog& /*aLog*/)
+Topology1::Topology1(INetwork& aNetwork)
     :iDisposed(false)
     ,iNetwork(aNetwork)
-    //,iLog = aLog;
     ,iProducts(new WatchableUnordered<IProxyProduct*>(iNetwork))
 {
     FunctorGeneric<void*> f = MakeFunctorGeneric(*this, &Topology1::WatchDevices);

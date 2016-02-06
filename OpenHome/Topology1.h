@@ -33,7 +33,7 @@ public:
 class Topology1 : public INonCopyable, public ITopology1, public IWatcherUnordered<IDevice*>
 {
 public:
-    Topology1(INetwork& aNetwork, ILog& aLog);
+    Topology1(INetwork& aNetwork);
     ~Topology1();
 
     // IDisposable
@@ -58,7 +58,6 @@ private:
 private:
     TBool iDisposed;
     INetwork& iNetwork;
-    //private readonly ILog iLog;
     std::vector<IDevice*> iPendingSubscriptions;
     std::map<IDevice*, IProxyProduct*> iProductLookup;
     WatchableUnordered<IProxyProduct*>* iProducts;
