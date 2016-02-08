@@ -244,7 +244,7 @@ void MediaSnapshot<T>::ReadCallback(MediaSnapshotCallbackData<T>* aData)
     }
     else
     {
-        ASSERT(false);
+        ASSERTS();
     }
 
     delete aData;

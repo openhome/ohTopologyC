@@ -236,21 +236,21 @@ private:
 class ITopology4GroupWatcher : public IWatcher<Brn>, public IWatcher<ITopology4Source*>, public IDisposable
 {
 public:
-    virtual void Dispose() = 0;
+    virtual void Dispose() override = 0;
     virtual Brn Name() = 0;
     virtual ITopology4Group& Group() = 0;
 
-    virtual const std::vector<ITopology4Source*>& Sources() = 0;
+    virtual const std::vector<ITopology4Source*>& Sources() = 0 ;
 
     // IWatcher<Brn>
-    virtual void ItemOpen(const Brx& aId, Brn aValue) = 0;
-    virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious) = 0;
-    virtual void ItemClose(const Brx& aId, Brn aValue) = 0;
+    virtual void ItemOpen(const Brx& aId, Brn aValue) override = 0;
+    virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious) override = 0;
+    virtual void ItemClose(const Brx& aId, Brn aValue) override = 0;
 
     // IWatcher<ITopology4Source*>
-    virtual void ItemOpen(const Brx& aId, ITopology4Source* aValue) = 0;
-    virtual void ItemUpdate(const Brx& aId, ITopology4Source* aValue, ITopology4Source* aPrevious) = 0;
-    virtual void ItemClose(const Brx& aId, ITopology4Source* aValue) = 0;
+    virtual void ItemOpen(const Brx& aId, ITopology4Source* aValue) override = 0;
+    virtual void ItemUpdate(const Brx& aId, ITopology4Source* aValue, ITopology4Source* aPrevious) override = 0;
+    virtual void ItemClose(const Brx& aId, ITopology4Source* aValue) override = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -259,10 +259,10 @@ class Topology6GroupWatcher : public ITopology4GroupWatcher,  public INonCopyabl
 {
 public:
     Topology6GroupWatcher(Topology6Room& aRoom, ITopology4Group& aGroup);
-    virtual void Dispose();
-    virtual Brn Name();
-    virtual ITopology4Group& Group();
-    virtual const std::vector<ITopology4Source*>& Sources();
+    virtual void Dispose() override;
+    virtual Brn Name() override;
+    virtual ITopology4Group& Group() override;
+    virtual const std::vector<ITopology4Source*>& Sources() override;
 
 private:
     // ITopology4GroupWatcher
@@ -307,14 +307,14 @@ public:
     Topology6Room(INetwork& aNetwork, ITopology5Room& aRoom);
     ~Topology6Room();
 
-    virtual void Dispose();
-    virtual const Brx& Name() const;
-    virtual void SetStandby(TBool aValue);
+    virtual void Dispose() override;
+    virtual const Brx& Name() const override;
+    virtual void SetStandby(TBool aValue) override;
 
-    virtual IWatchable<EStandby>& Standby() const;
-    virtual IWatchable<std::vector<ITopologyRoot*>*>& Roots() const;
-    virtual IWatchable<std::vector<ITopologySource*>*>& Sources() const;
-    virtual IWatchable<std::vector<ITopologyGroup*>*>& Groups() const;
+    virtual IWatchable<EStandby>& Standby() const override;
+    virtual IWatchable<std::vector<ITopologyRoot*>*>& Roots() const override;
+    virtual IWatchable<std::vector<ITopologySource*>*>& Sources() const override;
+    virtual IWatchable<std::vector<ITopologyGroup*>*>& Groups() const override;
 
 private:
     // IWatcherUnordered<ITopology4Group*>
@@ -364,7 +364,7 @@ class ITopology6 : public IDisposable
 public:
     virtual IWatchableUnordered<ITopologyRoom*>& Rooms() const = 0;
     virtual INetwork& Network() const = 0;
-    virtual void Dispose() = 0;
+    virtual void Dispose()  override = 0;
     virtual ~ITopology6() {}
 };
 
@@ -378,19 +378,19 @@ public:
     Topology6(ITopology5* aTopology5);
     ~Topology6();
 
-    virtual IWatchableUnordered<ITopologyRoom*>& Rooms() const;
-    virtual void Dispose();
-    virtual INetwork& Network() const;
+    virtual IWatchableUnordered<ITopologyRoom*>& Rooms() const override;
+    virtual void Dispose() override;
+    virtual INetwork& Network() const override;
 
     static Topology6* CreateTopology(INetwork& aNetwork);
 
 private:
     // IWatcherUnordered<ITopology5Room*>
-    virtual void UnorderedOpen();
-    virtual void UnorderedInitialised();
-    virtual void UnorderedClose();
-    virtual void UnorderedAdd(ITopology5Room* aT5Room);
-    virtual void UnorderedRemove(ITopology5Room* aT5Room);
+    virtual void UnorderedOpen() override;
+    virtual void UnorderedInitialised() override;
+    virtual void UnorderedClose() override;
+    virtual void UnorderedAdd(ITopology5Room* aT5Room) override;
+    virtual void UnorderedRemove(ITopology5Room* aT5Room) override;
 
     void WatchT5Rooms(void*);
     void DisposeCallback(void*);

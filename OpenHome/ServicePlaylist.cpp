@@ -884,7 +884,6 @@ vector<TUint>* PlaylistSnapshot::Alpha()
 void PlaylistSnapshot::Read(TUint aIndex, TUint aCount,
                             FunctorGeneric<IWatchableFragment<IMediaPreset*>*> aCallback1,
                             FunctorGeneric<MediaSnapshotCallbackData<IMediaPreset*>*> aCallback2)
-//void PlaylistSnapshot::Read(TUint aIndex, TUint aCount, FunctorGeneric<vector<IMediaPreset*>*> aCallback)
 {
     ASSERT((aIndex + aCount) <= Total());
 
@@ -897,6 +896,7 @@ void PlaylistSnapshot::Read(TUint aIndex, TUint aCount,
     readEntriesData->iPresetsCallback = aCallback2;
     readEntriesData->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &PlaylistSnapshot::ReadCallback1);
     readEntriesData->iFunctorsValid = true;
+    readEntriesData->iWFragCallback = aCallback1;
 
     iCacheSession.Entries(readEntriesData);
 }
