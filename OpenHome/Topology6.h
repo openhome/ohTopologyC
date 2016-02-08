@@ -49,14 +49,14 @@ public:
     virtual TUint Index() const = 0;
     virtual const Brx& Name() const = 0;
     virtual const Brx& Type() const = 0;
-    //virtual TBool Visible() const = 0;
+    virtual TBool Visible() const = 0;
     virtual ITopologyGroup& Group() const = 0;
     virtual IMediaPreset* CreatePreset() = 0;
     virtual std::vector<ITopologyGroup*>& Volumes() const = 0;
     virtual IDevice& Device() const = 0;
     virtual TBool HasInfo() const = 0;
     virtual TBool HasTime() const = 0;
-    //virtual void Select() = 0;
+    virtual void Select() = 0;
 
     virtual ~ITopologySource() {}
 };
@@ -71,17 +71,17 @@ public:
     Topology6Source(INetwork& aNetwork, Topology6Group& aGroup, ITopology4Source& aSource, TBool aHasInfo, TBool aHasTime);
 
     // ITopologySource
-    virtual TUint Index() const;
-    virtual const Brx& Name() const;
-    virtual const Brx& Type() const;
-    virtual TBool Visible() const;
-    virtual ITopologyGroup& Group() const;
-    virtual std::vector<ITopologyGroup*>& Volumes() const;
-    virtual IDevice& Device() const;
-    virtual TBool HasInfo() const;
-    virtual TBool HasTime() const;
-    virtual void Select();
-    virtual IMediaPreset* CreatePreset();
+    TUint Index() const override;
+    const Brx& Name() const override;
+    const Brx& Type() const override;
+    TBool Visible() const override;
+    ITopologyGroup& Group() const override;
+    std::vector<ITopologyGroup*>& Volumes() const override;
+    IDevice& Device() const override;
+    TBool HasInfo() const override;
+    TBool HasTime() const override;
+    void Select() override;
+    IMediaPreset* CreatePreset() override;
 
 private:
     virtual void SetVolumes(std::vector<ITopologyGroup*>* aVolumes);
@@ -106,18 +106,18 @@ class MediaPresetExternal : public IMediaPreset, public IWatcher<ITopologySource
 public:
     MediaPresetExternal(IWatchableThread& aThread, Topology6Group& aGroup, TUint aIndex, IMediaMetadata* aMetadata, Topology6Source& aSource);
 
-    virtual void Dispose();
-    virtual TUint Index();
-    virtual IMediaMetadata& Metadata();
-    virtual IWatchable<TBool>& Buffering();
-    virtual IWatchable<TBool>& Playing();
-    virtual IWatchable<TBool>& Selected();
-    virtual void Play();
+    void Dispose() override;
+    TUint Index() override;
+    IMediaMetadata& Metadata() override;
+    IWatchable<TBool>& Buffering() override;
+    IWatchable<TBool>& Playing() override;
+    IWatchable<TBool>& Selected() override;
+    void Play() override;
 
 private:
-    virtual void ItemOpen(const Brx& aId, ITopologySource* aValue);
-    virtual void ItemUpdate(const Brx& aId, ITopologySource* aValue, ITopologySource* aPrevious);
-    virtual void ItemClose(const Brx& aId, ITopologySource* aValue);
+    void ItemOpen(const Brx& aId, ITopologySource* aValue) override;
+    void ItemUpdate(const Brx& aId, ITopologySource* aValue, ITopologySource* aPrevious) override;
+    void ItemClose(const Brx& aId, ITopologySource* aValue) override;
 
 private:
     TUint iIndex;
@@ -153,22 +153,26 @@ public:
     Topology6Group(INetwork& aNetwork, const Brx& aRoom, const Brx& aName, ITopology4Group& aGroup, std::vector<ITopology4Source*> aSources);
     ~Topology6Group();
 
-    virtual void Dispose();
-    virtual const Brx& Name() const;
-    virtual IDevice& Device() const;
-    virtual IWatchable<ISender*>& Sender() const;
+    Topology6Group* Parent() const;
+    void SetSourceIndex(TUint aValue);
 
-    virtual IWatchable<std::vector<ITopologyGroup*>*>& Senders() const;
-    virtual IWatchable<ITopologySource*>& Source() const;
-    virtual const std::vector<ITopologySource*>& Sources() const;
-    virtual void SetSourceIndex(TUint aValue);
-    virtual IWatchable<ITopologySource*>& GroupSource() const;
-    virtual const std::vector<ITopologySource*>& GroupSources() const;
-    virtual Topology6Group* Parent() const;
+    // ITopologyGroup
+    const Brx& Name() const override;
+    IDevice& Device() const override;
+    IWatchable<ISender*>& Sender() const override;
+    IWatchable<ITopologySource*>& GroupSource() const override;
+    const std::vector<ITopologySource*>& GroupSources() const override;
+    TBool HasVolume() const override;
+    TBool HasInfo() const override;
+    TBool HasTime() const override;
 
-    TBool HasVolume() const;
-    TBool HasInfo() const;
-    TBool HasTime() const;
+    // IDisposable
+    void Dispose() override;
+
+    // ITopologyRoot
+    IWatchable<ITopologySource*>& Source() const override;
+    const std::vector<ITopologySource*>& Sources() const override;
+    IWatchable<std::vector<ITopologyGroup*>*>& Senders() const override;
 
 private:
     Brn RoomName();
@@ -191,14 +195,14 @@ private:
     void CreateCallback(IProxy* aProxy);
 
     // IWatcher<TUint>
-    virtual void ItemOpen(const Brx& aId, TUint aValue);
-    virtual void ItemUpdate(const Brx& aId, TUint aValue, TUint aPrevious);
-    virtual void ItemClose(const Brx& aId, TUint aValue);
+    void ItemOpen(const Brx& aId, TUint aValue) override;
+    void ItemUpdate(const Brx& aId, TUint aValue, TUint aPrevious) override;
+    void ItemClose(const Brx& aId, TUint aValue) override;
 
     // IWatcher<Brn>
-    virtual void ItemOpen(const Brx& aId, Brn aValue);
-    virtual void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious);
-    virtual void ItemClose(const Brx& aId, Brn aValue);
+    void ItemOpen(const Brx& aId, Brn aValue) override;
+    void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious) override;
+    void ItemClose(const Brx& aId, Brn aValue) override;
 
 private:
     INetwork& iNetwork;
@@ -236,7 +240,7 @@ public:
     virtual Brn Name() = 0;
     virtual ITopology4Group& Group() = 0;
 
-    virtual std::vector<ITopology4Source*>& Sources() = 0;
+    virtual const std::vector<ITopology4Source*>& Sources() = 0;
 
     // IWatcher<Brn>
     virtual void ItemOpen(const Brx& aId, Brn aValue) = 0;
@@ -258,16 +262,16 @@ public:
     virtual void Dispose();
     virtual Brn Name();
     virtual ITopology4Group& Group();
-    virtual std::vector<ITopology4Source*>& Sources();
+    virtual const std::vector<ITopology4Source*>& Sources();
 
 private:
     // ITopology4GroupWatcher
-    virtual void ItemOpen(const Brx& aId, Brn aName);
-    virtual void ItemUpdate(const Brx& aId, Brn aName, Brn aPreviousName);
-    virtual void ItemClose(const Brx& aId, Brn aName);
-    virtual void ItemOpen(const Brx& aId, ITopology4Source* aSource);
-    virtual void ItemUpdate(const Brx& aId, ITopology4Source* aSource, ITopology4Source* aPreviousSource);
-    virtual void ItemClose(const Brx& aId, ITopology4Source* aSource);
+    void ItemOpen(const Brx& aId, Brn aName) override;
+    void ItemUpdate(const Brx& aId, Brn aName, Brn aPreviousName) override;
+    void ItemClose(const Brx& aId, Brn aName) override;
+    void ItemOpen(const Brx& aId, ITopology4Source* aSource) override;
+    void ItemUpdate(const Brx& aId, ITopology4Source* aSource, ITopology4Source* aPreviousSource) override;
+    void ItemClose(const Brx& aId, ITopology4Source* aSource) override;
 
 private:
     Topology6Room& iRoom;
@@ -314,16 +318,16 @@ public:
 
 private:
     // IWatcherUnordered<ITopology4Group*>
-    virtual void UnorderedOpen();
-    virtual void UnorderedInitialised();
-    virtual void UnorderedClose();
-    virtual void UnorderedAdd(ITopology4Group* aItem);
-    virtual void UnorderedRemove(ITopology4Group* aItem);
+    void UnorderedOpen() override;
+    void UnorderedInitialised() override;
+    void UnorderedClose() override;
+    void UnorderedAdd(ITopology4Group* aItem) override;
+    void UnorderedRemove(ITopology4Group* aItem) override;
 
     // IWatcher<TBool>
-    virtual void ItemOpen(const Brx& aId, TBool aValue);
-    virtual void ItemUpdate(const Brx& aId, TBool aValue, TBool aPrevious);
-    virtual void ItemClose(const Brx& aId, TBool aValue);
+    void ItemOpen(const Brx& aId, TBool aValue) override;
+    void ItemUpdate(const Brx& aId, TBool aValue, TBool aPrevious) override;
+    void ItemClose(const Brx& aId, TBool aValue) override;
 
     void EvaluateStandby();
     void InsertIntoTree(Topology6Group& aGroup);

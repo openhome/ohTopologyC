@@ -214,9 +214,14 @@ class RadioSnapshot : public IMediaClientSnapshot<IMediaPreset*>, public INonCop
 public:
     RadioSnapshot(INetwork& aNetwork, IIdCacheSession& aCacheSession, std::vector<TUint>* aIdArray, ServiceRadio& aRadio);
     ~RadioSnapshot();
-    TUint Total();
-    std::vector<TUint>* Alpha();
-    void Read(/*CancellationToken aCancellationToken,*/ TUint aIndex, TUint aCount, FunctorGeneric<std::vector<IMediaPreset*>*> aCallback);
+
+    // IMediaClientSnapshot
+    TUint Total() override;
+    std::vector<TUint>* Alpha() override;
+    void Read(  TUint aIndex,
+                TUint aCount,
+                FunctorGeneric<IWatchableFragment<IMediaPreset*>*> aCallback1,
+                FunctorGeneric<MediaSnapshotCallbackData<IMediaPreset*>*> aCallback2) override;
 
 private:
     void ReadCallback1(ReadEntriesData* aObj);

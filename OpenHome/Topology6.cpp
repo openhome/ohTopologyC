@@ -745,7 +745,7 @@ ITopology4Group& Topology6GroupWatcher::Group()
 }
 
 
-std::vector<ITopology4Source*>& Topology6GroupWatcher::Sources()
+const std::vector<ITopology4Source*>& Topology6GroupWatcher::Sources()
 {
     return iSources;
 }

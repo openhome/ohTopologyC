@@ -774,12 +774,13 @@ vector<TUint>* RadioSnapshot::Alpha()
 }
 
 
-void RadioSnapshot::Read(/*CancellationToken aCancellationToken,*/TUint aIndex, TUint aCount, FunctorGeneric<vector<IMediaPreset*>*> aCallback)
+void RadioSnapshot::Read(TUint aIndex, TUint aCount,
+                         FunctorGeneric<IWatchableFragment<IMediaPreset*>*> aCallback1,
+                         FunctorGeneric<MediaSnapshotCallbackData<IMediaPreset*>*> aCallback2)
+//void RadioSnapshot::Read(/*CancellationToken aCancellationToken,*/TUint aIndex, TUint aCount, FunctorGeneric<vector<IMediaPreset*>*> aCallback)
 {
-    ASSERT((aIndex + aCount) <= Total());
-
     TUint limit = aIndex + aCount;
-
+    ASSERT(limit <= Total());
 
     auto readEntriesData = new ReadEntriesData();
     readEntriesData->iIndex = aIndex;
@@ -791,9 +792,10 @@ void RadioSnapshot::Read(/*CancellationToken aCancellationToken,*/TUint aIndex, 
             readEntriesData->iRequestedIds.push_back(id);
         }
     }
-    readEntriesData->iPresetsCallback = aCallback;
+    readEntriesData->iPresetsCallback = aCallback2;
     readEntriesData->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &RadioSnapshot::ReadCallback1);
     readEntriesData->iFunctorsValid = true;
+    readEntriesData->iWFragCallback = aCallback1;
 
     iCacheSession.Entries(readEntriesData);
 }
@@ -812,12 +814,17 @@ void RadioSnapshot::ReadCallback2(void* aObj)
     TUint index = data->iIndex;
     auto callback = data->iPresetsCallback;
     auto entries = data->iRetrievedEntries;
-    delete data;
+
+    auto msCbackData = new MediaSnapshotCallbackData<IMediaPreset*>();
+    msCbackData->iIndex = index;
+    msCbackData->iCallback = data->iWFragCallback;
+    callback(msCbackData);
 
 
-    if (entries == NULL)
+    if (entries == nullptr)
     {
-        callback(NULL);
+        msCbackData->iValues = nullptr;
+        callback(msCbackData);
     }
     else
     {
@@ -847,8 +854,11 @@ void RadioSnapshot::ReadCallback2(void* aObj)
             index++;
         }
 
-        callback(presets);
+        msCbackData->iValues = presets;
+        callback(msCbackData);
     }
+
+    delete data;
 }
 
 //////////////////////////////////////////////////////////////////////////////////

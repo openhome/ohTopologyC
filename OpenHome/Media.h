@@ -17,6 +17,7 @@ namespace OpenHome
 namespace Topology
 {
 
+
 class IMediaPreset : public IDisposable
 {
 public:
@@ -35,9 +36,19 @@ class IWatchableFragment
 {
 public:
     virtual TUint Index() = 0;
-    virtual std::vector<T>& Data() = 0;
+    virtual const std::vector<T>& Data() = 0;
     virtual ~IWatchableFragment() {}
 
+};
+
+////////////////////////////////////////
+
+template <class T>
+struct MediaSnapshotCallbackData
+{
+    FunctorGeneric<IWatchableFragment<T>*> iCallback;
+    TUint iIndex;
+    std::vector<T>* iValues;
 };
 
 /////////////////////////////////////////////////////////
@@ -71,9 +82,12 @@ class IMediaClientSnapshot
 public:
     virtual TUint Total() = 0;
     virtual std::vector<TUint>* Alpha() = 0; // null if no alpha map
-    virtual void Read(TUint aIndex, TUint aCount, FunctorGeneric<std::vector<T>*> aCallback) = 0;
-    virtual ~IMediaClientSnapshot() {}
+    virtual void Read(  TUint aIndex,
+                        TUint aCount,
+                        FunctorGeneric<IWatchableFragment<T>*> aCallback1,
+                        FunctorGeneric<MediaSnapshotCallbackData<T>*> aCallback2) = 0;
 
+    virtual ~IMediaClientSnapshot() {}
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,13 +120,13 @@ public:
 
     TUint Total();
     std::vector<TUint>* Alpha();
-    void Read(TUint aIndex, TUint aCount,FunctorGeneric<IWatchableFragment<T>*> aCallback);
+    void Read(TUint aIndex, TUint aCount, FunctorGeneric<IWatchableFragment<T>*> aCallback2);
 
     // IDisposable
     void Dispose();
 
 private:
-    void ReadCallback(std::vector<T>*);
+    void ReadCallback(MediaSnapshotCallbackData<T>* aData);
 
 private:
     IMediaClientSnapshot<T>* iSnapshot;
@@ -125,15 +139,16 @@ template <class T>
 class WatchableFragment : public IWatchableFragment<T>
 {
 public:
-    WatchableFragment(TUint aIndex, std::vector<T>& aData);
+    WatchableFragment(TUint aIndex, std::vector<T>* aData);
     ~WatchableFragment();
+
     // IWatchableFragment<T>
     TUint Index();
-    std::vector<T>& Data();
+    const std::vector<T>& Data();
 
 private:
     TUint iIndex;
-    std::vector<T>& iData;
+    std::vector<T>* iData;
 };
 
 /////////////////////////////////////////////////////////////////
@@ -180,6 +195,7 @@ void MediaSupervisor<T>::Update(IMediaClientSnapshot<T>* aClientSnapshot)
 
 //////////////////////////////////////////////////////////////////////
 
+
 template <class T>
 MediaSnapshot<T>::MediaSnapshot(IMediaClientSnapshot<T>* aSnapshot)
     :iSnapshot(aSnapshot)
@@ -209,24 +225,43 @@ std::vector<TUint>* MediaSnapshot<T>::Alpha()
 
 
 template <class T>
-void MediaSnapshot<T>::Read(TUint aIndex, TUint aCount, /*CancellationToken aCancellationToken,*/ FunctorGeneric<IWatchableFragment<T>*> /*aCallback*/)
+void MediaSnapshot<T>::Read(TUint aIndex, TUint aCount, FunctorGeneric<IWatchableFragment<T>*> aCallback)
 {
-    auto f = MakeFunctorGeneric<std::vector<T>*>(*this, &MediaSnapshot<T>::ReadCallback);
-    iSnapshot->Read(aIndex, aCount, f);
+    auto f = MakeFunctorGeneric<MediaSnapshotCallbackData<T>*>(*this, &MediaSnapshot<T>::ReadCallback);
+    iSnapshot->Read(aIndex, aCount, aCallback, f);
 }
 
 template <class T>
-void MediaSnapshot<T>::ReadCallback(std::vector<T>*)
+void MediaSnapshot<T>::ReadCallback(MediaSnapshotCallbackData<T>* aData)
 {
-/*
+    FunctorGeneric<IWatchableFragment<T>*> callback = aData->iCallback;
+    TUint index = aData->iIndex;
+    std::vector<T>* values = aData->iValues;
+
     if (!iDisposed)
     {
-        aCallback(new WatchableFragment<T>(aIndex, values));
+        callback(new WatchableFragment<T>(index, values));
     }
     else
     {
         ASSERT(false);
     }
+
+    delete aData;
+
+/*
+    iSnapshot.Read(ct.Token, aIndex, aCount, (values) =>
+    {
+        if (!iDisposed)
+        {
+            aCallback(new WatchableFragment<T>(aIndex, values));
+        }
+        else
+        {
+            Do.Assert(false);
+        }
+    });
+
 */
 }
 
@@ -242,7 +277,7 @@ void MediaSnapshot<T>::Dispose()
 //////////////////////////////////////////////////////////////////////////
 
 template <class T>
-WatchableFragment<T>::WatchableFragment(TUint aIndex, std::vector<T>& aData)
+WatchableFragment<T>::WatchableFragment(TUint aIndex, std::vector<T>* aData)
     :iIndex(aIndex)
     ,iData(aData)
 {
@@ -253,7 +288,7 @@ WatchableFragment<T>::WatchableFragment(TUint aIndex, std::vector<T>& aData)
 template <class T>
 WatchableFragment<T>::~WatchableFragment()
 {
-
+    delete iData;
 }
 
 template <class T>
@@ -263,9 +298,9 @@ TUint WatchableFragment<T>::Index()
 }
 
 template <class T>
-std::vector<T>& WatchableFragment<T>::Data()
+const std::vector<T>& WatchableFragment<T>::Data()
 {
-    return(iData);
+    return(*iData);
 }
 
 } // Topology

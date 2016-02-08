@@ -32,20 +32,28 @@ public:
     MediaPresetPlaylist(IWatchableThread& aThread, TUint aIndex, TUint aId, IMediaMetadata& aMetadata, ServicePlaylist& aPlaylist);
     ~MediaPresetPlaylist();
 
-    void Dispose();
-    TUint Index();
     TUint Id();
-    IMediaMetadata& Metadata();
-    IWatchable<TBool>& Buffering();
-    IWatchable<TBool>& Playing();
-    IWatchable<TBool>& Selected();
-    void Play();
-    void ItemOpen(const Brx& aId, TUint aValue);
-    void ItemUpdate(const Brx& aId, TUint aValue, TUint aPrevious);
-    void ItemClose(const Brx& aId, TUint aValue);
-    void ItemOpen(const Brx& aId, Brn aValue);
-    void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious);
-    void ItemClose(const Brx& aId, Brn aValue);
+
+    // IDisposable (IMediaPreset)
+    void Dispose() override;
+
+    // IMediaPreset
+    TUint Index() override;
+    IMediaMetadata& Metadata() override;
+    IWatchable<TBool>& Buffering() override;
+    IWatchable<TBool>& Playing() override;
+    IWatchable<TBool>& Selected() override;
+    void Play() override;
+
+    // IWatcher<TUint>
+    void ItemOpen(const Brx& aId, TUint aValue) override;
+    void ItemUpdate(const Brx& aId, TUint aValue, TUint aPrevious) override;
+    void ItemClose(const Brx& aId, TUint aValue) override;
+
+    // Watcher<Brn>
+    void ItemOpen(const Brx& aId, Brn aValue) override;
+    void ItemUpdate(const Brx& aId, Brn aValue, Brn aPrevious) override;
+    void ItemClose(const Brx& aId, Brn aValue) override;
 
 private:
     void EvaluatePlaying();
@@ -310,9 +318,11 @@ class PlaylistSnapshot : public IMediaClientSnapshot<IMediaPreset*>, public INon
 public:
     PlaylistSnapshot(INetwork& aNetwork, IIdCacheSession& aCacheSession, std::vector<TUint>* aIdArray, ServicePlaylist& aPlaylist);
     ~PlaylistSnapshot();
-    TUint Total();
-    std::vector<TUint>* Alpha();
-    void Read(TUint aIndex, TUint aCount, FunctorGeneric<std::vector<IMediaPreset*>*> aCallback);
+
+    // IMediaClientSnapshot
+    TUint Total() override;
+    std::vector<TUint>* Alpha() override;
+    void Read(TUint aIndex, TUint aCount, FunctorGeneric<IWatchableFragment<IMediaPreset*>*> aCallback1, FunctorGeneric<MediaSnapshotCallbackData<IMediaPreset*>*> aCallback2) override;
 
 private:
     void ReadCallback1(ReadEntriesData* aReadEntriesData);

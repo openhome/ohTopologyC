@@ -22,9 +22,10 @@ class IIdCacheEntry;
 struct ReadEntriesData
 {
     FunctorGeneric<ReadEntriesData*> iEntriesCallback;
-    FunctorGeneric<std::vector<IMediaPreset*>*> iPresetsCallback;
+    FunctorGeneric<MediaSnapshotCallbackData<IMediaPreset*>*> iPresetsCallback;
     std::vector<TUint> iRequestedIds;
     std::vector<std::shared_ptr<IIdCacheEntry>>* iRetrievedEntries;
+    FunctorGeneric<IWatchableFragment<IMediaPreset*>*> iWFragCallback;
     TUint iIndex;
     TBool iFunctorsValid = false;
 };

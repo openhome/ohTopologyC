@@ -881,7 +881,10 @@ vector<TUint>* PlaylistSnapshot::Alpha()
     return NULL;
 }
 
-void PlaylistSnapshot::Read(TUint aIndex, TUint aCount, FunctorGeneric<vector<IMediaPreset*>*> aCallback)
+void PlaylistSnapshot::Read(TUint aIndex, TUint aCount,
+                            FunctorGeneric<IWatchableFragment<IMediaPreset*>*> aCallback1,
+                            FunctorGeneric<MediaSnapshotCallbackData<IMediaPreset*>*> aCallback2)
+//void PlaylistSnapshot::Read(TUint aIndex, TUint aCount, FunctorGeneric<vector<IMediaPreset*>*> aCallback)
 {
     ASSERT((aIndex + aCount) <= Total());
 
@@ -891,7 +894,7 @@ void PlaylistSnapshot::Read(TUint aIndex, TUint aCount, FunctorGeneric<vector<IM
         readEntriesData->iRequestedIds.push_back((*iIdArray)[i]);
     }
     readEntriesData->iIndex = aIndex;
-    readEntriesData->iPresetsCallback = aCallback;
+    readEntriesData->iPresetsCallback = aCallback2;
     readEntriesData->iEntriesCallback = MakeFunctorGeneric<ReadEntriesData*>(*this, &PlaylistSnapshot::ReadCallback1);
     readEntriesData->iFunctorsValid = true;
 
@@ -912,11 +915,16 @@ void PlaylistSnapshot::ReadCallback2(void* aObj)
     TUint index = data->iIndex;
     auto callback = data->iPresetsCallback;
     auto entries = data->iRetrievedEntries;
-    delete data;
 
-    if (entries == NULL)
+    auto msCbackData = new MediaSnapshotCallbackData<IMediaPreset*>();
+    msCbackData->iIndex = index;
+    msCbackData->iCallback = data->iWFragCallback;
+
+
+    if (entries == nullptr)
     {
-        callback(NULL);
+        msCbackData->iValues = nullptr;
+        callback(msCbackData);
     }
     else
     {
@@ -937,8 +945,11 @@ void PlaylistSnapshot::ReadCallback2(void* aObj)
             index++;
         }
 
-        callback(tracks);
+        msCbackData->iValues = tracks;
+        callback(msCbackData);
     }
+
+    delete data;
 }
 
 ///////////////////////////////////////////////////////////
@@ -1154,6 +1165,8 @@ void ServicePlaylistMock::CallbackInsert(void* aValue)
 
     auto newPlaylistSnapshot = new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this);
     iMediaSupervisor->Update(newPlaylistSnapshot);
+
+    delete insertData;
 }
 
 void ServicePlaylistMock::InsertNext(const Brx& aUri, IMediaMetadata& aMetadata)
@@ -1186,6 +1199,8 @@ void ServicePlaylistMock::CallbackInsertNext(void* aValue)
 
     auto newPlaylistSnapshot = new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this);
     iMediaSupervisor->Update(newPlaylistSnapshot);
+
+    delete insertData;
 }
 
 void ServicePlaylistMock::InsertEnd(const Brx& aUri, IMediaMetadata& aMetadata)
@@ -1215,6 +1230,8 @@ void ServicePlaylistMock::CallbackInsertEnd(void* aValue)
 
     auto newPlaylistSnapshot = new PlaylistSnapshot(iNetwork, *iCacheSession, iIdArray, *this);
     iMediaSupervisor->Update(newPlaylistSnapshot);
+
+    delete insertData;
 }
 
 void ServicePlaylistMock::MakeRoomForInsert(TUint aCount)

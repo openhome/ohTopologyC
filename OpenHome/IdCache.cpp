@@ -365,7 +365,7 @@ void IdCacheSession::SetValid(vector<TUint>& aValid)
             readEntriesData->iRequestedIds.push_back(id);
             FunctorGeneric<ReadEntriesData*> f1; // NULL functor
             readEntriesData->iEntriesCallback = f1;
-            FunctorGeneric<std::vector<IMediaPreset*>*> f2; // NULL functor
+            FunctorGeneric<MediaSnapshotCallbackData<IMediaPreset*>*> f2; // NULL functor
             readEntriesData->iPresetsCallback = f2;
             readEntriesData->iFunctorsValid = false;
 
@@ -398,9 +398,6 @@ ReadEntriesJob* IdCacheSession::CreateJob(ReadEntriesData* aReadEntriesData)
 
 void IdCacheSession::ReadEntriesCallback(ReadEntriesData* aReadEntriesData)
 {
-
-    //vector<TUint> reqIds = aReadEntriesData->iRequestedIds;
-
     auto entries = new vector<std::shared_ptr<IIdCacheEntry>>();
     auto missingIds = new vector<TUint>();
 
