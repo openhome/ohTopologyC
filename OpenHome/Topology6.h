@@ -42,6 +42,28 @@ public:
 
 /////////////////////////////////////////////////////////////////////
 
+
+/*
+  public interface ITopologySource
+     {
+         ITopologyGroup Group { get; }
+
+         uint Index { get; }
+         string Name { get; }
+         string Type { get; }
+
+         IMediaPreset CreatePreset();
+         void Create(string aId, Action<ICredentialsSubscription> aCallback);
+
+         IEnumerable<ITopologyGroup> Volumes { get; }
+         //IDevice InfoDevice { get; }
+         //IDevice TimeDevice { get; }
+         IDevice Device { get; }
+         bool HasInfo { get; }
+         bool HasTime { get;
+*/
+
+
 class  ITopologySource
 {
 public:
@@ -49,14 +71,12 @@ public:
     virtual TUint Index() const = 0;
     virtual const Brx& Name() const = 0;
     virtual const Brx& Type() const = 0;
-    virtual TBool Visible() const = 0;
-    virtual ITopologyGroup& Group() const = 0;
-    virtual IMediaPreset* CreatePreset() = 0;
     virtual std::vector<ITopologyGroup*>& Volumes() const = 0;
     virtual IDevice& Device() const = 0;
     virtual TBool HasInfo() const = 0;
     virtual TBool HasTime() const = 0;
-    virtual void Select() = 0;
+    virtual ITopologyGroup& Group() const = 0;
+    virtual IMediaPreset* CreatePreset() = 0;
 
     virtual ~ITopologySource() {}
 };
@@ -74,14 +94,16 @@ public:
     TUint Index() const override;
     const Brx& Name() const override;
     const Brx& Type() const override;
-    TBool Visible() const override;
-    ITopologyGroup& Group() const override;
     std::vector<ITopologyGroup*>& Volumes() const override;
     IDevice& Device() const override;
     TBool HasInfo() const override;
     TBool HasTime() const override;
-    void Select() override;
     IMediaPreset* CreatePreset() override;
+    ITopologyGroup& Group() const override;
+
+    TBool Visible() const;
+    void Select();
+
 
 private:
     virtual void SetVolumes(std::vector<ITopologyGroup*>* aVolumes);
