@@ -7,6 +7,7 @@
 #include <OpenHome/Private/Debug.h>
 #include <Generated/CpAvOpenhomeOrgRadio1.h>
 #include <OpenHome/Net/Private/XmlParser.h>
+#include <OpenHome/Private/Converter.h>
 #include <vector>
 
 using namespace OpenHome;
@@ -391,12 +392,14 @@ void ServiceRadioNetwork::ReadListCallback(AsyncCbArg* aArg)
                 Brn remainingText;
                 Brn entryText = XmlParserBasic::Find(Brn("Entry"), channelListText, remainingText);
                 Brn idText = XmlParserBasic::Find(Brn("Id"), entryText);
-                Brn metadataText;
+                Bwn metadataText;
                 for(;;)
                 {
                     if(Ascii::Uint(idText) == id)
                     {
-                        metadataText = XmlParserBasic::Find(Brn("Metadata"), entryText);
+                        auto buf = XmlParserBasic::Find(Brn("Metadata"), entryText);
+                        metadataText.Set(buf.Ptr(), buf.Bytes(), buf.Bytes());
+                        Converter::FromXmlEscaped(metadataText);
                         auto metadata = iNetwork.GetTagManager().FromDidlLite(metadataText);
                         auto mvs = metadata->Values();
                         auto mv = mvs[iNetwork.GetTagManager().Audio().Uri()];

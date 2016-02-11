@@ -7,6 +7,7 @@
 #include <OpenHome/Private/Debug.h>
 #include <OpenHome/Net/Private/XmlParser.h>
 #include <Generated/CpAvOpenhomeOrgPlaylist1.h>
+#include <OpenHome/Private/Converter.h>
 #include <vector>
 
 using namespace OpenHome;
@@ -581,10 +582,12 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
         Brn remaining = xmlNodeList;
         while(!remaining.Equals(Brx::Empty()))
         {
-            Brn metadataText;
+            Bwn metadataText;
             try
             {
-                metadataText = XmlParserBasic::Find(Brn("Metadata"), xmlNodeList, remaining);
+                auto buf = XmlParserBasic::Find(Brn("Metadata"), xmlNodeList, remaining);
+                metadataText.Set(buf.Ptr(), buf.Bytes(), buf.Bytes());
+                Converter::FromXmlEscaped(metadataText);
             }
             catch(XmlError&)
             {
@@ -592,10 +595,12 @@ void ServicePlaylistNetwork::ReadListCallback(AsyncCbArg* aArg)
                 //ASSERTS();
             }
 
-            Brn uriText;
+            Bwn uriText;
             try
             {
-                uriText = XmlParserBasic::Find(Brn("Uri"), xmlNodeList, remaining);
+                auto buf = XmlParserBasic::Find(Brn("Uri"), xmlNodeList, remaining);
+                uriText.Set(buf.Ptr(), buf.Bytes(), buf.Bytes());
+                Converter::FromXmlEscaped(uriText);
             }
             catch(XmlError&)
             {
